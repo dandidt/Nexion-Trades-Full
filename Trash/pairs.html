@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto Marquee</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #1a1a2e;
+            font-family: Arial, sans-serif;
+        }
+
+        .container {
+            width: 500px;
+            height: 500px;
+            background: #16213e;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            padding: 20px 0;
+        }
+
+        .marquee-row {
+            display: flex;
+            overflow: hidden;
+            height: 80px;
+            position: relative;
+        }
+
+        .marquee-content {
+            display: flex;
+            animation: scrollLeft 60s linear infinite;
+            gap: 20px;
+        }
+
+        .marquee-row.reverse .marquee-content {
+            animation: scrollRight 60s linear infinite;
+        }
+
+        .coin-item {
+            flex-shrink: 0;
+            width: 64px;
+            height: 64px;
+            transition: transform 0.3s ease;
+        }
+
+        .coin-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        @keyframes scrollLeft {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        @keyframes scrollRight {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="marquee-row" id="row1"></div>
+        <div class="marquee-row reverse" id="row2"></div>
+        <div class="marquee-row" id="row3"></div>
+    </div>
+
+    <script>
+        let cryptoData = [];
+
+        // Load data dari data.json
+        async function loadData() {
+            try {
+                const response = await fetch('data.json');
+                cryptoData = await response.json();
+                
+                // Populate semua baris setelah data dimuat
+                populateRow('row1');
+                populateRow('row2');
+                populateRow('row3');
+            } catch (error) {
+                console.error('Error loading data.json:', error);
+                // Fallback data jika gagal load
+                cryptoData = [
+                    {
+                        "link": "https://s2.coinmarketcap.com/static/img/coins/64x64/2665.png",
+                        "name": "DERO",
+                        "symbol": "DERO"
+                    }
+                ];
+                populateRow('row1');
+                populateRow('row2');
+                populateRow('row3');
+            }
+        }
+
+        function createCoinElement(coin) {
+            const item = document.createElement('div');
+            item.className = 'coin-item';
+            item.innerHTML = `<img src="${coin.link}" alt="${coin.name}" title="${coin.name} (${coin.symbol})">`;
+            return item;
+        }
+
+        function populateRow(rowId) {
+            const row = document.getElementById(rowId);
+            const content = document.createElement('div');
+            content.className = 'marquee-content';
+
+            // Duplikasi data untuk seamless loop
+            const duplicatedData = [...cryptoData, ...cryptoData, ...cryptoData];
+            
+            duplicatedData.forEach(coin => {
+                content.appendChild(createCoinElement(coin));
+            });
+
+            row.appendChild(content);
+        }
+
+        // Load data saat page dimuat
+        loadData();
+    </script>
+</body>
+</html>

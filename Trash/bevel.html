@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Text Bevel Effects</title>
+  <style>
+    body {
+      background: #1e1e1e;
+      color: white;
+      font-family: 'Arial', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .bevel-container {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    /* === Efek 2: Bevel Cekung (Inner Bevel - Inset) === */
+    .bevel-inset {
+        font-size: 48px;
+        font-weight: bold;
+        color: #ccc;
+        text-shadow:
+            0 0.2px 0 #fff,
+            0 0.4px 0 #fff,
+            0 0.6px 0 #fff,
+            0 0.8px 0 #fff,
+            0 1px 0 #fff,
+            0 0 5px rgba(0,0,0,0.6);
+    }
+
+  </style>
+</head>
+<body>
+  <div class="bevel-container">
+    <div class="bevel-inset">INSET</div>
+  </div>
+</body>
+</html>

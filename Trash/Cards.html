@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Card Effect - Dark Theme</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #0a0e27;
+            overflow: hidden;
+        }
+
+        .card-container-reports {
+            position: relative;
+            z-index: 10;
+            perspective: 700px;
+        }
+
+        .card-reports {
+            width: 240px;
+            aspect-ratio: 16 / 9;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.1s ease;
+            transform-style: preserve-3d;
+            overflow: hidden;
+        }
+
+        .card-border-reports {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border-radius: 16px;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .card-reports::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .card-reports:hover::before {
+            opacity: 1;
+        }
+
+        .card-content-reports {
+            text-align: center;
+            z-index: 1;
+        }
+        
+        .card-content-reports img {
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            z-index: 2;
+        }
+
+        .glow-reports {
+            position: absolute;
+            width: 300px;
+            height: 300px;
+            background: radial-gradient(circle, rgba(200,200,200,0.2) 0%, transparent 70%);
+            border-radius: 50%;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: 3;
+        }
+    </style>
+</head>
+<body>
+    <div class="card-container-reports">
+        <div class="card-reports" id="card-reports">
+            <canvas class="card-border-reports" id="borderCanvas-reports"></canvas>
+            <div class="glow-reports" id="glow-reports"></div>
+            <div class="card-content-reports">
+                <img src="../Asset/pnl.png">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // === Card 3D + border dynamic ===
+        const cardReports = document.getElementById('card-reports');
+        const glowReports = document.getElementById('glow-reports');
+        const canvasReports = document.getElementById('borderCanvas-reports');
+        const ctxReports = canvasReports.getContext('2d');
+        const containerReports = cardReports.parentElement;
+
+        function resizeCanvasReports() {
+            canvasReports.width = cardReports.offsetWidth;
+            canvasReports.height = cardReports.offsetHeight;
+        }
+        resizeCanvasReports();
+        window.addEventListener('resize', resizeCanvasReports);
+
+        let mouseXReports = 0, mouseYReports = 0, isHoveringReports = false;
+        let targetRotateXReports = 0, targetRotateYReports = 0;
+        let currentRotateXReports = 0, currentRotateYReports = 0;
+        let animationFrameIdReports = null;
+
+        // === Draw glowing border ===
+        function drawBorderReports() {
+            ctxReports.clearRect(0, 0, canvasReports.width, canvasReports.height);
+            const radius = 16, w = canvasReports.width, h = canvasReports.height;
+
+            ctxReports.beginPath();
+            ctxReports.moveTo(radius, 0);
+            ctxReports.lineTo(w - radius, 0);
+            ctxReports.arcTo(w, 0, w, radius, radius);
+            ctxReports.lineTo(w, h - radius);
+            ctxReports.arcTo(w, h, w - radius, h, radius);
+            ctxReports.lineTo(radius, h);
+            ctxReports.arcTo(0, h, 0, h - radius, radius);
+            ctxReports.lineTo(0, radius);
+            ctxReports.arcTo(0, 0, radius, 0, radius);
+            ctxReports.closePath();
+
+            // === Selalu gambar border dasar (non-hover) ===
+            ctxReports.strokeStyle = '#3a3f5a';
+            ctxReports.lineWidth = 2;
+            ctxReports.stroke();
+
+            // === Jika hover, tambahkan glow mengikuti cursor ===
+            if (isHoveringReports) {
+                const gradientRadius = Math.max(w, h) * 0.8;
+                const gradient = ctxReports.createRadialGradient(mouseXReports, mouseYReports, 0, mouseXReports, mouseYReports, gradientRadius);
+                gradient.addColorStop(0, 'rgba(240,240,240,1)');
+                gradient.addColorStop(0.2, 'rgba(200,200,200,0.8)');
+                gradient.addColorStop(0.5, 'rgba(160,160,160,0.4)');
+                gradient.addColorStop(0.8, 'rgba(120,120,120,0.2)');
+                gradient.addColorStop(1, 'rgba(80,80,80,0)');
+
+                ctxReports.beginPath();
+                ctxReports.moveTo(radius, 0);
+                ctxReports.lineTo(w - radius, 0);
+                ctxReports.arcTo(w, 0, w, radius, radius);
+                ctxReports.lineTo(w, h - radius);
+                ctxReports.arcTo(w, h, w - radius, h, radius);
+                ctxReports.lineTo(radius, h);
+                ctxReports.arcTo(0, h, 0, h - radius, radius);
+                ctxReports.lineTo(0, radius);
+                ctxReports.arcTo(0, 0, radius, 0, radius);
+                ctxReports.closePath();
+
+                ctxReports.strokeStyle = gradient;
+                ctxReports.lineWidth = 3;
+                ctxReports.stroke();
+            }
+
+            requestAnimationFrame(drawBorderReports);
+        }
+        drawBorderReports();
+
+        // === Smooth rotation animation ===
+        function animateCardRotationReports() {
+            currentRotateXReports += (targetRotateXReports - currentRotateXReports) * 0.1;
+            currentRotateYReports += (targetRotateYReports - currentRotateYReports) * 0.1;
+
+            cardReports.style.transform = `rotateX(${currentRotateXReports}deg) rotateY(${currentRotateYReports}deg)`;
+
+            animationFrameIdReports = requestAnimationFrame(animateCardRotationReports);
+        }
+        animateCardRotationReports();
+
+        // === General 3D effect handler ===
+        function handle3DEffectReports(e, intensity = 1) {
+            const rect = cardReports.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            mouseXReports = x;
+            mouseYReports = y;
+            isHoveringReports = true;
+
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+
+            targetRotateXReports = ((y - centerY) / centerY) * -4 * intensity;
+            targetRotateYReports = ((x - centerX) / centerX) * 4 * intensity;
+
+            glowReports.style.left = `${x}px`;
+            glowReports.style.top = `${y}px`;
+            glowReports.style.transform = 'translate(-50%, -50%)';
+            glowReports.style.opacity = '1';
+        }
+
+        function reset3DEffectReports() {
+            targetRotateXReports = 0;
+            targetRotateYReports = 0;
+            glowReports.style.opacity = '0';
+            isHoveringReports = false;
+        }
+
+        // === Event listeners ===
+        const radarAreaReports = document.querySelector('body');
+        radarAreaReports.addEventListener('mousemove', (e) => handle3DEffectReports(e, 0.6));
+        radarAreaReports.addEventListener('mouseleave', reset3DEffectReports);
+
+        containerReports.addEventListener('mousemove', (e) => handle3DEffectReports(e, 1));
+        containerReports.addEventListener('mouseleave', reset3DEffectReports);
+    </script>
+</body>
+</html>

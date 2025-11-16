@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ripple Animation - Infinite Smooth</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            height: 100vh;
+            background: rgb(23, 23, 23);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .container-baground-card {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border-radius: 15px;
+            border: 1px solid rgb(60, 60, 60);
+            height: 398px;
+            width: 273px;
+            background-color: rgb(30, 30, 30);
+        }
+
+        .ring {
+            position: absolute;
+            border-radius: 50%;
+            background: radial-gradient(circle at center, 
+                transparent 0%, 
+                transparent 50%,
+                #34495e 65%, 
+                #ecf0f1 100%
+            );
+            width: 50px;
+            height: 50px;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0.5);
+                opacity: 0.7;
+            }
+            100% {
+                transform: scale(12);
+                opacity: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container-baground-card" id="containerBgCard"></div>
+
+    <script>
+        const container = document.getElementById('containerBgCard');
+        const totalRings = 10; // Lebih banyak untuk overlap seamless
+        const duration = 60; // Durasi animasi tiap ring (detik)
+        const interval = (duration / totalRings) * 1000; // Interval dalam ms
+
+        // Buat ring secara dinamis
+        for (let i = 0; i < totalRings; i++) {
+            const ring = document.createElement('div');
+            ring.className = 'ring';
+            ring.style.animation = `ripple ${duration}s linear infinite`;
+            ring.style.animationDelay = `-${(i * interval) / 1000}s`; // Offset delay negatif
+            container.appendChild(ring);
+        }
+    </script>
+</body>
+</html>

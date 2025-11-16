@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SVG Glow Effect</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background: #0a0a0a;
+        }
+
+        .svg-container {
+            width: 80%;
+            max-width: 1000px;
+            cursor: pointer;
+        }
+
+        svg {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        .cls-1 {
+            fill: none;
+            stroke: #fff;
+            stroke-miterlimit: 10;
+            stroke-width: 6px;
+            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+        }
+
+        /* Glow effect untuk setiap path */
+        .glow-path {
+            fill: none;
+            stroke: #00ff41;
+            stroke-miterlimit: 10;
+            stroke-width: 10px;
+            filter: drop-shadow(0 0 8px #00ff41) drop-shadow(0 0 20px #00ff41) drop-shadow(0 0 35px #00ff41);
+            stroke-dasharray: 2000;
+            stroke-dashoffset: 2000;
+            opacity: 0;
+            stroke-linecap: round;
+        }
+
+        /* Animasi saat hover */
+        .svg-container:hover .glow-path-1 {
+            animation: glowRun 3s ease-in-out infinite;
+        }
+
+        .svg-container:hover .glow-path-2 {
+            animation: glowRun 3s ease-in-out 0.15s infinite;
+        }
+
+        .svg-container:hover .glow-path-3 {
+            animation: glowRunReverse 3s ease-in-out 0.3s infinite;
+        }
+
+        .svg-container:hover .glow-path-4 {
+            animation: glowRunReverse 3s ease-in-out 0.45s infinite;
+        }
+
+        @keyframes glowRun {
+            0% { stroke-dashoffset: 2000; opacity: 1; }
+            50% { opacity: 1; }
+            66% { stroke-dashoffset: 0; opacity: 0; }
+            100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+
+        @keyframes glowRunReverse {
+            0% { stroke-dashoffset: -2000; opacity: 1; }
+            50% { opacity: 1; }
+            66% { stroke-dashoffset: 0; opacity: 0; }
+            100% { stroke-dashoffset: 0; opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="svg-container">
+        <svg id="Layer_2" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1000">
+            <defs>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+                    <feMerge>
+                        <feMergeNode in="coloredBlur"/>
+                        <feMergeNode in="SourceGraphic"/>
+                    </feMerge>
+                </filter>
+            </defs>
+            
+            <!-- Path asli (putih) -->
+            <path class="cls-1" d="m0,348.84h340.79c59.14,0,115.86-23.49,157.68-65.31l76.93-76.93c41.82-41.82,98.54-65.31,157.68-65.31h257.57"/>
+            <path class="cls-1" d="m0,452.62h340.79c59.14,0,115.86-23.49,157.68-65.31l76.93-76.93c41.82-41.82,98.54-65.31,157.68-65.31h257.57"/>
+            <path class="cls-1" d="m1000,754.93h-340.79c-59.14,0-115.86-23.49-157.68-65.31l-76.93-76.93c-41.82-41.82-98.54-65.31-157.68-65.31H9.35"/>
+            <path class="cls-1" d="m1000,858.71h-340.79c-59.14,0-115.86-23.49-157.68-65.31l-76.93-76.93c-41.82-41.82-98.54-65.31-157.68-65.31H9.35"/>
+            
+            <!-- Path glow (cyan berjalan) -->
+            <path class="glow-path glow-path-1" d="m0,348.84h340.79c59.14,0,115.86-23.49,157.68-65.31l76.93-76.93c41.82-41.82,98.54-65.31,157.68-65.31h257.57"/>
+            <path class="glow-path glow-path-2" d="m0,452.62h340.79c59.14,0,115.86-23.49,157.68-65.31l76.93-76.93c41.82-41.82,98.54-65.31,157.68-65.31h257.57"/>
+            <path class="glow-path glow-path-3" d="m1000,754.93h-340.79c-59.14,0-115.86-23.49-157.68-65.31l-76.93-76.93c-41.82-41.82-98.54-65.31-157.68-65.31H9.35"/>
+            <path class="glow-path glow-path-4" d="m1000,858.71h-340.79c-59.14,0-115.86-23.49-157.68-65.31l-76.93-76.93c-41.82-41.82-98.54-65.31-157.68-65.31H9.35"/>
+        </svg>
+    </div>
+</body>
+</html>
