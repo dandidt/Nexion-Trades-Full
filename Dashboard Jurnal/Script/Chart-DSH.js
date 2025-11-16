@@ -1266,169 +1266,235 @@ if (document.readyState === 'loading') {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// ======================= Chart Pairs ======================= //
-const cryptoData = { btc: 0, eth: 0, sol: 0 };
-const circumference = 2 * Math.PI * 100;
+// ======================= Chart Pairs (Dinamis) ======================= //
+let assetData = [];
+const RADIUS = 100;
+const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
+const CENTER_X = 133.5;
+const CENTER_Y = 133.5;
+const STROKE_WIDTH = 40;
 
-function updateTooltipText() {
-    document.querySelector('#btcTooltip .tooltip-value-pairs').textContent = cryptoData.btc.toFixed(2) + '%';
-    document.querySelector('#ethTooltip .tooltip-value-pairs').textContent = cryptoData.eth.toFixed(2) + '%';
-    document.querySelector('#solTooltip .tooltip-value-pairs').textContent = cryptoData.sol.toFixed(2) + '%';
-}
+const DEFAULT_ICON = "https://cdn.jsdelivr.net/gh/dandidt/Crypto-Icon/Pairs%20Icon/Nexion-Default.png";
+const DEFAULT_COLOR_START = "#6c757d";
+const DEFAULT_COLOR_END = "#adb5bd";
 
-function updateIdentifiers() {
-    const identifiers = [
-        { key: 'btc', selector: '.bx-in-identifier:nth-child(1)' },
-        { key: 'eth', selector: '.bx-in-identifier:nth-child(2)' },
-        { key: 'sol', selector: '.bx-in-identifier:nth-child(3)' }
-    ];
-
-    identifiers.forEach(({ key, selector }) => {
-        const el = document.querySelector(selector);
-        if (!el) return;
-
-        if (cryptoData[key] > 0) {
-            el.style.display = 'flex';
-        } else {
-            el.style.display = 'none';
-        }
-    });
-}
-
-async function loadCryptoData() {
+// ---------- 1. Muat data aset ----------
+async function loadAssetData() {
     try {
-        const data = await getDB();
+        const res = await fetch('Asset/Link-Symbol.json');
+        assetData = await res.json();
+    } catch (err) {
+        console.error("Gagal memuat Asset/Link-Symbol.json:", err);
+        assetData = [];
+    }
+}
 
-        const counts = { btc: 0, eth: 0, sol: 0 };
-        data.forEach(item => {
-            const pair = item.Pairs?.toUpperCase();
-            if (!pair) return;
-            if (pair.includes("BTC")) counts.btc++;
-            else if (pair.includes("ETH")) counts.eth++;
-            else if (pair.includes("SOL")) counts.sol++;
+// ---------- 2. Ekstrak simbol dasar (tanpa filter) ----------
+    function extractBaseSymbol(pairStr) {
+    if (!pairStr) return null;
+    pairStr = pairStr.toUpperCase();
+
+    // Coba cari kecocokan dengan simbol dikenal (panjang dulu)
+    const knownSymbols = assetData
+        .map(a => a.symbol)
+        .filter(Boolean)
+        .sort((a, b) => b.length - a.length);
+
+    for (const sym of knownSymbols) {
+        if (pairStr.startsWith(sym)) {
+        return sym;
+        }
+    }
+
+    // Jika tidak cocok, kembalikan pair asli (misal: "XYZ123" → "XYZ123")
+    return pairStr;
+}
+
+// ---------- 3. Dapatkan data aset (dengan fallback ke default) ----------
+function getAssetInfo(symbol) {
+    const found = assetData.find(a => a.symbol === symbol);
+    if (found) {
+        return {
+        symbol: found.symbol,
+        name: found.name || found.symbol,
+        icon: found.link || DEFAULT_ICON,
+        colorStart: found.color?.start || DEFAULT_COLOR_START,
+        colorEnd: found.color?.end || DEFAULT_COLOR_END
+        };
+    }
+
+    // Jika tidak ditemukan → pakai default
+    return {
+        symbol: symbol,
+        name: symbol, // fallback nama = simbol
+        icon: DEFAULT_ICON,
+        colorStart: DEFAULT_COLOR_START,
+        colorEnd: DEFAULT_COLOR_END
+    };
+}
+
+// ---------- 4. Render chart ----------
+function renderChart(chartData) {
+    const svg = document.querySelector('.chart-container-pairs svg');
+    const defs = svg.querySelector('defs');
+    const tooltipContainer = document.querySelector('.chart-container-pairs');
+    const identifierContainer = document.querySelector('.box-identifier-pairs');
+
+    // Bersihkan konten lama
+    while (defs.lastChild) defs.removeChild(defs.lastChild);
+    document.querySelectorAll('.dynamic-segment').forEach(el => el.remove());
+    document.querySelectorAll('.dynamic-tooltip').forEach(el => el.remove());
+    identifierContainer.innerHTML = '';
+
+    if (chartData.length === 0) {
+        document.querySelector('.total-value-pairs').textContent = '0';
+        return;
+    }
+
+    let cumulativeLength = 0;
+
+    chartData.forEach((item, i) => {
+        const { symbol, name, percentage, icon, colorStart, colorEnd } = item;
+        const idSafe = symbol.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || `asset${i}`;
+
+        // === Gradient ===
+        const gradientId = `grad-${idSafe}`;
+        const gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
+        gradient.setAttribute("id", gradientId);
+        gradient.setAttribute("x1", "0%");
+        gradient.setAttribute("y1", "0%");
+        gradient.setAttribute("x2", "100%");
+        gradient.setAttribute("y2", "100%");
+
+        const stop1 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        stop1.setAttribute("offset", "0%");
+        stop1.setAttribute("stop-color", colorStart);
+
+        const stop2 = document.createElementNS("http://www.w3.org/2000/svg", "stop");
+        stop2.setAttribute("offset", "100%");
+        stop2.setAttribute("stop-color", colorEnd);
+
+        gradient.appendChild(stop1);
+        gradient.appendChild(stop2);
+        defs.appendChild(gradient);
+
+        // === Segmen ===
+        const segmentLength = (percentage / 100) * CIRCUMFERENCE;
+        const segment = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        segment.classList.add("segment", "dynamic-segment");
+        segment.setAttribute("cx", CENTER_X);
+        segment.setAttribute("cy", CENTER_Y);
+        segment.setAttribute("r", RADIUS);
+        segment.setAttribute("fill", "none");
+        segment.setAttribute("stroke", `url(#${gradientId})`);
+        segment.setAttribute("stroke-width", STROKE_WIDTH);
+        segment.setAttribute("stroke-linecap", "butt");
+        segment.setAttribute("stroke-dasharray", `${segmentLength} ${CIRCUMFERENCE}`);
+        segment.setAttribute("stroke-dashoffset", -cumulativeLength);
+
+        segment.addEventListener('mouseenter', () => segment.style.filter = 'brightness(1.2)');
+        segment.addEventListener('mouseleave', () => segment.style.filter = 'brightness(1)');
+
+        svg.appendChild(segment);
+
+        // === Tooltip ===
+        const tooltip = document.createElement("div");
+        tooltip.className = "tooltip-pairs dynamic-tooltip";
+        tooltip.innerHTML = `
+        <img class="tooltip-icon" src="${icon}" onerror="this.src='${DEFAULT_ICON}'">
+        <div class="tooltip-value-pairs">${percentage.toFixed(2)}%</div>
+        `;
+
+        const startPercent = (cumulativeLength / CIRCUMFERENCE) * 100;
+        const midPercent = startPercent + percentage / 2;
+        const angle = (midPercent / 100) * 2 * Math.PI - Math.PI / 2;
+        const radius = 120;
+        const x = CENTER_X + radius * Math.cos(angle);
+        const y = CENTER_Y + radius * Math.sin(angle);
+
+        tooltip.style.left = `${x}px`;
+        tooltip.style.top = `${y}px`;
+        tooltip.style.transform = 'translate(-50%, -50%)';
+        tooltip.style.position = 'absolute';
+        tooltip.classList.add('show');
+
+        tooltipContainer.appendChild(tooltip);
+
+        // === Identifier ===
+        const identifier = document.createElement("div");
+        identifier.className = "bx-in-identifier";
+        identifier.innerHTML = `
+        <div class="circle-pairs" style="background: linear-gradient(to right, ${colorStart}, ${colorEnd})"></div>
+        <p class="text-pairs-chart">${symbol}</p> <!-- Hanya simbol -->
+        `;
+        identifierContainer.appendChild(identifier);
+
+        cumulativeLength += segmentLength;
+    });
+
+    document.querySelector('.total-value-pairs').textContent = chartData.length;
+}
+
+// ---------- 5. Muat dan proses data trading ----------
+async function loadPairData() {
+    // Tunggu assetData siap (maks 1.5 detik)
+    let attempts = 0;
+    while (attempts < 15 && assetData.length === 0) {
+        await new Promise(r => setTimeout(r, 100));
+        attempts++;
+    }
+
+    try {
+        const rawData = await getDB();
+        if (!Array.isArray(rawData)) throw new Error("Data tidak valid");
+
+        const pairCount = {};
+
+        rawData.forEach(item => {
+        if (!item.Pairs) return;
+        const baseSymbol = extractBaseSymbol(item.Pairs);
+        if (!baseSymbol) return;
+        pairCount[baseSymbol] = (pairCount[baseSymbol] || 0) + 1;
         });
 
-        const total = counts.btc + counts.eth + counts.sol;
-
+        const total = Object.values(pairCount).reduce((sum, v) => sum + v, 0);
         if (total === 0) {
-            cryptoData.btc = cryptoData.eth = cryptoData.sol = 0;
-        } else {
-            cryptoData.btc = (counts.btc / total) * 100;
-            cryptoData.eth = (counts.eth / total) * 100;
-            cryptoData.sol = (counts.sol / total) * 100;
+        renderChart([]);
+        return;
         }
 
-        updateChartPairs();
-        setupTooltips();
-        updateTooltipText();
-        updateIdentifiers();
+        const chartData = Object.keys(pairCount).map(symbol => {
+        const count = pairCount[symbol];
+        const percentage = (count / total) * 100;
+        const asset = getAssetInfo(symbol); // <-- pakai fallback otomatis
+        return {
+            symbol: asset.symbol,
+            name: asset.name,
+            percentage,
+            icon: asset.icon,
+            colorStart: asset.colorStart,
+            colorEnd: asset.colorEnd
+        };
+        });
+
+        // Urutkan berdasarkan persentase (terbesar dulu, opsional)
+        chartData.sort((a, b) => b.percentage - a.percentage);
+
+        renderChart(chartData);
 
     } catch (err) {
         console.error("Gagal memuat data trading:", err);
     }
 }
 
-function updateChartPairs() {
-    const btcLength = (cryptoData.btc / 100) * circumference;
-    const ethLength = (cryptoData.eth / 100) * circumference;
-    const solLength = (cryptoData.sol / 100) * circumference;
-
-    const btcSegment = document.getElementById('btcSegment');
-    const ethSegment = document.getElementById('ethSegment');
-    const solSegment = document.getElementById('solSegment');
-
-    if (!btcSegment || !ethSegment || !solSegment) return;
-
-    btcSegment.style.strokeDasharray = `${btcLength} ${circumference}`;
-    btcSegment.style.strokeDashoffset = '0';
-
-    ethSegment.style.strokeDasharray = `${ethLength} ${circumference}`;
-    ethSegment.style.strokeDashoffset = -btcLength;
-
-    solSegment.style.strokeDasharray = `${solLength} ${circumference}`;
-    solSegment.style.strokeDashoffset = -(btcLength + ethLength);
-}
-
-function getTooltipPosition(percentage, offset) {
-    const midPercent = offset + percentage / 2;
-    const angle = (midPercent / 100) * 2 * Math.PI - Math.PI / 2;
-    const radius = 120;
-    const centerX = 133.5;
-    const centerY = 133.5;
-    const x = centerX + radius * Math.cos(angle);
-    const y = centerY + radius * Math.sin(angle);
-    return { x, y };
-}
-
-function setupTooltips() {
-    const btcPos = getTooltipPosition(cryptoData.btc, 0);
-    const ethPos = getTooltipPosition(cryptoData.eth, cryptoData.btc);
-    const solPos = getTooltipPosition(cryptoData.sol, cryptoData.btc + cryptoData.eth);
-
-    const tooltips = [
-        { id: 'btcTooltip', pos: btcPos, value: cryptoData.btc },
-        { id: 'ethTooltip', pos: ethPos, value: cryptoData.eth },
-        { id: 'solTooltip', pos: solPos, value: cryptoData.sol }
-    ];
-
-    tooltips.forEach(({ id, pos, value }) => {
-        const el = document.getElementById(id);
-        if (!el) return;
-
-        if (value > 0) {
-            el.style.left = `${pos.x}px`;
-            el.style.top = `${pos.y}px`;
-            el.style.transform = 'translate(-50%, -50%)';
-            el.classList.add('show');
-        } else {
-            el.classList.remove('show');
-        }
-    });
-}
-
-['btcSegment', 'ethSegment', 'solSegment'].forEach(id => {
-    const el = document.getElementById(id);
-    if (el) {
-        el.addEventListener('mouseenter', () => el.style.filter = 'brightness(1.2)');
-        el.addEventListener('mouseleave', () => el.style.filter = 'brightness(1)');
+// ---------- 6. Inisialisasi ----------
+loadAssetData().then(() => {
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', loadPairData);
+    } else {
+        loadPairData();
     }
 });
-
-function setCryptoData(btc, eth, sol) {
-    cryptoData.btc = btc;
-    cryptoData.eth = eth;
-    cryptoData.sol = sol;
-    updateChartPairs();
-    setupTooltips();
-    updateTooltipText();
-}
-
-async function updateTotalPairs() {
-    try {
-        const data = await getDB();
-        const uniquePairs = new Set();
-
-        data.forEach(item => {
-            const pair = item.Pairs?.toUpperCase();
-            if (!pair) return;
-            if (pair.includes("BTC")) uniquePairs.add("BTC");
-            else if (pair.includes("ETH")) uniquePairs.add("ETH");
-            else if (pair.includes("SOL")) uniquePairs.add("SOL");
-        });
-
-        document.querySelector('.total-value-pairs').textContent = uniquePairs.size;
-    } catch (err) {
-        console.error("Gagal menghitung total pairs:", err);
-    }
-}
-
-updateTotalPairs();
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadCryptoData);
-} else {
-    loadCryptoData();
-}
 
 // ======================= Chart Winrate ======================= //
 const canvasWrChart = document.getElementById('donutChart');

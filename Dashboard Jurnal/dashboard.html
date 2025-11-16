@@ -4,8 +4,8 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Jurnaling Trading</title>
-        <link rel="icon" href="Nexion.ico" type="image/x-icon">
-        <link rel="stylesheet" href="Style/Style.css" />
+        <link rel="icon" href="../Nexion.ico" type="image/x-icon">
+        <link rel="stylesheet" href="Style/Style-DSH.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -32,10 +32,10 @@
                     <span>Setting</span>
                 </div>
             </div>
-            <div class="box-logo">
-                <a href="https://x.com/Dhanntara" target="_blank" rel="noopener noreferrer">
-                    <svg class="x-twitter" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 16 16"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/></svg>
-                </a>
+            <div class="box-loggin">
+                <div class="box-profile">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-480q-60 0-102-42t-42-102q0-60 42-102t102-42q60 0 102 42t42 102q0 60-42 102t-102 42ZM192-192v-96q0-23 12.5-43.5T239-366q55-32 116.29-49 61.29-17 124.5-17t124.71 17Q666-398 721-366q22 13 34.5 34t12.5 44v96H192Zm72-72h432v-24q0-5.18-3.03-9.41-3.02-4.24-7.97-6.59-46-28-98-42t-107-14q-55 0-107 14t-98 42q-5 4-8 7.72-3 3.73-3 8.28v24Zm216.21-288Q510-552 531-573.21t21-51Q552-654 530.79-675t-51-21Q450-696 429-674.79t-21 51Q408-594 429.21-573t51 21Zm-.21-72Zm0 360Z"/></svg>
+                </div>
             </div>
         </nav>
 
@@ -570,72 +570,26 @@
             <!-- Content 3 -->
             <div class="container-statistic animate-fade-up">
 
-                <!-- Chart Pairs -->
-                <div class="container-chart-pairs">
-                    <div class="container-in-pairs">
-                        <p class="title-pairs-chart">Pairs List Trading</p>
-                        <div class="chart-container-pairs">
-                            <svg width="267" height="267" viewBox="0 0 267 267">
-                                <defs>
-                                    <linearGradient id="btcGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#f7931a"/>
-                                        <stop offset="100%" stop-color="#ffca3a"/>
-                                    </linearGradient>
-                                    <linearGradient id="ethGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#8b7af5"/>
-                                        <stop offset="100%" stop-color="#5a4fff"/>
-                                    </linearGradient>
-                                    <linearGradient id="solGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                        <stop offset="0%" stop-color="#4dd4ac"/>
-                                        <stop offset="100%" stop-color="#00d4ff"/>
-                                    </linearGradient>
-                                </defs>
-    
-                                <circle cx="133.5" cy="133.5" r="100" fill="none" stroke="rgba(40,40,40,0.5)" stroke-width="40"/>
-    
-                                <circle class="segment" id="btcSegment" cx="133.5" cy="133.5" r="100" fill="none"
-                                    stroke="url(#btcGradient)" stroke-width="40" stroke-dasharray="0 628" stroke-linecap="butt"/>
-                                <circle class="segment" id="ethSegment" cx="133.5" cy="133.5" r="100" fill="none"
-                                    stroke="url(#ethGradient)" stroke-width="40" stroke-dasharray="0 628" stroke-linecap="butt"/>
-                                <circle class="segment" id="solSegment" cx="133.5" cy="133.5" r="100" fill="none"
-                                    stroke="url(#solGradient)" stroke-width="40" stroke-dasharray="0 628" stroke-linecap="butt"/>
-                            </svg>
-    
-                            <div class="chart-center">
-                                <div class="total-value-pairs">~</div>
-                            </div>
-    
-                            <div class="tooltip-pairs" id="btcTooltip">
-                                <img class="tooltip-icon" src="https://s2.coinmarketcap.com/static/img/coins/64x64/1.png">
-                                <div class="tooltip-value-pairs">~</div>
-                            </div>
-    
-                            <div class="tooltip-pairs" id="ethTooltip">
-                                <img class="tooltip-icon" src="https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png">
-                                <div class="tooltip-value-pairs">~</div>
-                            </div>
-    
-                            <div class="tooltip-pairs" id="solTooltip">
-                                <img class="tooltip-icon" src="https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png">
-                                <div class="tooltip-value-pairs">~</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="box-identifier-pairs">
-                        <div class="bx-in-identifier">
-                            <div class="circle-pairs btc"></div>
-                            <p class="text-pairs-chart">BTC - Bitcoin</p>
-                        </div>
-                        <div class="bx-in-identifier">
-                            <div class="circle-pairs eth"></div>
-                            <p class="text-pairs-chart">ETH - Ethereum</p>
-                        </div>
-                        <div class="bx-in-identifier">
-                            <div class="circle-pairs sol"></div>
-                            <p class="text-pairs-chart">SOL - Solana</p>
+            <!-- Chart Pairs -->
+            <div class="container-chart-pairs">
+                <div class="container-in-pairs">
+                    <p class="title-pairs-chart">Pairs List Trading</p>
+                    <div class="chart-container-pairs">
+                        <svg width="267" height="267" viewBox="0 0 267 267">
+                            <defs></defs>
+                            <!-- JS -->
+                            <circle cx="133.5" cy="133.5" r="100" fill="none" stroke="rgba(40,40,40,0.5)" stroke-width="40" />
+                        </svg>
+
+                        <div class="chart-center">
+                            <div class="total-value-pairs">~</div>
                         </div>
                     </div>
                 </div>
+                <div class="box-identifier-pairs">
+                    <!-- JS -->
+                </div>
+            </div>
 
                 <!-- Box Statistic -->
                 <div class="container-statistic-pairs">
@@ -762,6 +716,7 @@
 
             <!-- Content 4 -->
             <div class="container-statistic space animate-fade-up">
+                <!-- WR Chart -->
                 <div class="container-chart-wr">
                     <p class="title-pairs-wr">Chart Winrate</p>
                     <div class="wrapper-chartwr">
@@ -805,49 +760,29 @@
                         <canvas id="donutChart"></canvas>
                     </div>
                 </div>
-                <div class="container-stats-pairs">
-                    <h2>Trading Journalboard</h2>
-                    <div class="pairs-container">
-                        <div class="pairs-header">
-                            <div>Pairs</div>
-                            <div>All.T</div>
-                            <div>TP</div>
-                            <div>SL</div>
-                            <div>B</div>
-                            <div>S</div>
-                            <div>Rev.</div>
-                            <div>Con.</div>
-                            <div>Scal.</div>
-                            <div>Intra.</div>
-                            <div>Swing</div>
-                        </div>
 
-                        <div class="pairs-row">
-                            <div class="pair-item">
-                            <img class="icon-tabel" src="https://s2.coinmarketcap.com/static/img/coins/64x64/1.png" alt="BTC"> BTC
-                            </div>
-                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
-                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
-                        </div>
-
-                        <div class="pairs-row">
-                            <div class="pair-item">
-                            <img class="icon-tabel" src="https://s2.coinmarketcap.com/static/img/coins/64x64/1027.png" alt="ETH"> ETH
-                            </div>
-                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
-                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
-                        </div>
-
-                        <div class="pairs-row">
-                            <div class="pair-item">
-                            <img class="icon-tabel" src="https://s2.coinmarketcap.com/static/img/coins/64x64/5426.png" alt="SOL"> SOL
-                            </div>
-                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
-                            <div>~</div><div>~</div><div>~</div><div>~</div><div>~</div>
-                        </div>
-                    </div>
-
+            <!-- List Pairs -->
+            <div class="container-stats-pairs">
+            <h2>Trading Journalboard</h2>
+            <div class="pairs-container">
+                <div class="pairs-header">
+                <div>Pairs</div>
+                <div>All.T</div>
+                <div>TP</div>
+                <div>SL</div>
+                <div>B</div>
+                <div>S</div>
+                <div>Rev.</div>
+                <div>Con.</div>
+                <div>Scal.</div>
+                <div>Intra.</div>
+                <div>Swing</div>
                 </div>
+
+                <!-- Body akan diisi otomatis oleh JS -->
+                <div class="pairs-body"></div>
+            </div>
+            </div>
             </div>
         </section>
 
@@ -925,7 +860,12 @@
             </div>
         </section>
 
+
         <!-- ========================= -->
+        <!-- ========= POPUP ========= -->
+        <!-- ========================= -->
+
+
         <!-- ===== PopUp Overlay ===== -->
         <div class="popup-overlay"></div>
 
@@ -1722,9 +1662,9 @@
         </div>
 
         <!-- Script -->
-        <script src="Script/ScripDB.js"></script>
-        <script src="Script/Script.js"></script>
-        <script src="Script/Chart.js"></script>
-        <script src="Script/Popup.js"></script>
+        <script src="Script/ScripDB-DSH.js"></script>
+        <script src="Script/Script-DSH.js"></script>
+        <script src="Script/Chart-DSH.js"></script>
+        <script src="Script/Popup-DSH.js"></script>
     </body>
 </html>

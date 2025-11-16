@@ -24,6 +24,9 @@ function formatCurrencyCompact(n) {
   return sign + '$' + abs.toFixed(2);
 }
 
+// ======================= Account ======================= //
+
+
 // ======================= Button Navbar ======================= //
 document.addEventListener("DOMContentLoaded", () => {
   const menus = document.querySelectorAll(".box-menu-in");
@@ -1379,74 +1382,121 @@ async function loadPsychologyStats() {
 
 document.addEventListener("DOMContentLoaded", loadPsychologyStats);
 
-// ======================= Stats Content 4 ======================= //
-document.addEventListener("DOMContentLoaded", () => {
-  loadBehaviorStats();
-  updatePairsTable();
-});
+// ======================= List Pairs ======================= //
+window.assetData = window.assetData || [];
+
+async function loadAssetDataIfNeeded() {
+  if (window.assetData.length === 0) {
+    try {
+      const res = await fetch('Asset/Link-Symbol.json');
+      if (!res.ok) throw new Error('File tidak ditemukan');
+      window.assetData = await res.json();
+    } catch (err) {
+      console.error("⚠️ Gagal memuat Asset/Link-Symbol.json:", err);
+      window.assetData = [];
+    }
+  }
+}
+
+function extractBaseSymbol(pairStr) {
+  if (!pairStr || window.assetData.length === 0) return null;
+  const clean = pairStr.toUpperCase();
+  const known = window.assetData
+    .map(a => a.symbol)
+    .filter(Boolean)
+    .sort((a, b) => b.length - a.length);
+  for (const sym of known) {
+    if (clean.startsWith(sym)) return sym;
+  }
+  return null;
+}
 
 async function updatePairsTable() {
-  const data = await getDB();
+  await loadAssetDataIfNeeded();
+  const rawData = await getDB();
 
-  const pairsList = ["BTCUSDT.P", "ETHUSDT.P", "SOLUSDT.P"];
-  const stats = {};
+  if (!Array.isArray(rawData)) {
+    console.warn("Data trading tidak valid.");
+    document.querySelector('.pairs-body').innerHTML = '<div class="no-data">Tidak ada data.</div>';
+    return;
+  }
 
-  pairsList.forEach(pair => {
-    const filtered = data.filter(t => t.Pairs === pair);
-    stats[pair] = {
-      all: filtered.length,
-      profit: filtered.filter(t => t.Result === "Profit").length,
-      loss: filtered.filter(t => t.Result === "Loss").length,
-      long: filtered.filter(t => t.Pos === "B").length,
-      short: filtered.filter(t => t.Pos === "S").length,
-      reversal: filtered.filter(t => t.Behavior === "Reversal").length,
-      continuation: filtered.filter(t => t.Behavior === "Continuation").length,
-      scalping: filtered.filter(t => t.Method === "Scalping").length,
-      intraday: filtered.filter(t => t.Method === "Intraday").length,
-      swing: filtered.filter(t => t.Method === "Swing").length,
-    };
+  // Kelompokkan data berdasarkan simbol dasar
+  const grouped = {};
+  rawData.forEach(trade => {
+    if (!trade.Pairs) return;
+    const base = extractBaseSymbol(trade.Pairs);
+    if (!base) return;
+    if (!grouped[base]) grouped[base] = [];
+    grouped[base].push(trade);
   });
 
-  const rows = document.querySelectorAll(".pairs-row");
+  const body = document.querySelector('.pairs-body');
+  if (!body) {
+    console.error("Element .pairs-body tidak ditemukan!");
+    return;
+  }
 
-  rows.forEach(row => {
-    const pairText = row.querySelector(".pair-item").textContent.trim();
-    const pairKey = pairText + "USDT.P";
-    const s = stats[pairKey];
+  body.innerHTML = '';
 
-    if (s) {
-      const cols = row.querySelectorAll("div");
+  // Urutkan berdasarkan total trade (terbanyak dulu)
+  const sortedSymbols = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);
 
-      const values = [
-        s.all,
-        s.profit,
-        s.loss,
-        s.long,
-        s.short,
-        s.reversal,
-        s.continuation,
-        s.scalping,
-        s.intraday,
-        s.swing
-      ];
+  sortedSymbols.forEach(symbol => {
+    const trades = grouped[symbol];
+    const asset = window.assetData.find(a => a.symbol === symbol);
 
-      // isi tabel
-      values.forEach((val, i) => {
-        const col = cols[i + 1];
-        col.textContent = val;
-        if (val === 0) col.classList.add("null");
-        else col.classList.remove("null");
-      });
+    const all = trades.length;
+    const profit = trades.filter(t => t.Result === "Profit").length;
+    const loss = trades.filter(t => t.Result === "Loss").length;
+    const long = trades.filter(t => t.Pos === "B").length;
+    const short = trades.filter(t => t.Pos === "S").length;
+    const reversal = trades.filter(t => t.Behavior === "Reversal").length;
+    const continuation = trades.filter(t => t.Behavior === "Continuation").length;
+    const scalping = trades.filter(t => t.Method === "Scalping").length;
+    const intraday = trades.filter(t => t.Method === "Intraday").length;
+    const swing = trades.filter(t => t.Method === "Swing").length;
 
-      // sembunyikan row kalau semua nilai = 0
-      const allZero = values.every(v => v === 0);
-      row.style.display = allZero ? "none" : "";
-    } else {
-      // kalau pair gak ada di data, sembunyikan juga
-      row.style.display = "none";
-    }
+    const row = document.createElement('div');
+    row.className = 'pairs-row';
+
+    const icon = asset?.link || 'https://cdn.jsdelivr.net/gh/dandidt/Crypto-Icon/Pairs%20Icon/Nexion-Default.png';
+    
+    row.innerHTML = `
+      <div class="pair-item">
+        <img class="icon-tabel" src="${icon}" loading="lazy">
+        ${symbol}
+      </div>
+      <div class="${all === 0 ? 'null' : ''}">${all}</div>
+      <div class="${profit === 0 ? 'null' : ''}">${profit}</div>
+      <div class="${loss === 0 ? 'null' : ''}">${loss}</div>
+      <div class="${long === 0 ? 'null' : ''}">${long}</div>
+      <div class="${short === 0 ? 'null' : ''}">${short}</div>
+      <div class="${reversal === 0 ? 'null' : ''}">${reversal}</div>
+      <div class="${continuation === 0 ? 'null' : ''}">${continuation}</div>
+      <div class="${scalping === 0 ? 'null' : ''}">${scalping}</div>
+      <div class="${intraday === 0 ? 'null' : ''}">${intraday}</div>
+      <div class="${swing === 0 ? 'null' : ''}">${swing}</div>
+    `;
+
+    body.appendChild(row);
   });
+
+  if (sortedSymbols.length === 0) {
+    body.innerHTML = '<div class="no-data-pairs">Tidak ada pair yang dikenali.</div>';
+  }
 }
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof loadBehaviorStats === 'function') loadBehaviorStats();
+    updatePairsTable();
+  });
+} else {
+  if (typeof loadBehaviorStats === 'function') loadBehaviorStats();
+  updatePairsTable();
+}
+
 
 // ======================= Setting ======================= //
 function loadSettings() {
