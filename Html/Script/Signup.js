@@ -14,13 +14,15 @@ const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
 const userNameDisplay = document.querySelector('.user-name');
 const userDotsDisplay = document.querySelector('.user-dots');
+const accessInput = document.getElementById('access');
+const accessCode = accessInput.value.trim();
 
-// Fungsi validasi username (full name)
+// Validasi Username
 function validateFullname(value) {
-    return /^[a-zA-Z\s]{3,25}$/.test(value.trim());
+    return /^[a-zA-Z0-9\s]{3,20}$/.test(value.trim());
 }
 
-// Fungsi validasi password
+// Validasi Password
 function validatePassword(value) {
     if (value.length < 8 || value.length > 30) return false;
     const hasUpper = /[A-Z]/.test(value);
@@ -59,9 +61,16 @@ const isValid = validatePassword(this.value);
 updateInputBorder(this, isValid);
 });
 
+function truncateName(name, maxLength = 20) {
+    if (name.length <= maxLength) return name;
+    return name.substring(0, maxLength) + '...';
+}
+
+// Lalu di event listener:
 fullnameInput.addEventListener('input', function() {
     const name = this.value.trim();
-    userNameDisplay.textContent = name || 'New User';
+    const displayName = name ? truncateName(name) : 'New User';
+    userNameDisplay.textContent = displayName;
     userNameDisplay.style.color = name ? '#fff' : '#666';
     window.tempUsername = name;
 });
@@ -72,6 +81,12 @@ emailInput.addEventListener('input', function() {
     userDotsDisplay.style.color = email ? '#888' : '#333';
     userDotsDisplay.style.fontSize = email ? '14px' : '20px';
     userDotsDisplay.style.letterSpacing = email ? '0px' : '4px';
+});
+
+// Event listener untuk access code
+accessInput.addEventListener('input', function () {
+    clearAlert('accessAltert');
+    this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
 });
 
 // =======================
@@ -142,13 +157,11 @@ async function compressImage(file, maxSizeKB = 50) {
 
     let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
     
-    // Loop sampai size < maxSizeKB
     while (blob.size > maxSizeKB * 1024 && quality > 0.1) {
-        quality -= 0.1; // turunin kualitas bertahap
+        quality -= 0.1;
         blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
     }
 
-    // Jika masih besar, kecilkan resolusi juga
     while (blob.size > maxSizeKB * 1024) {
         canvas.width *= 0.9;
         canvas.height *= 0.9;
@@ -163,7 +176,7 @@ async function compressImage(file, maxSizeKB = 50) {
 }
 
 // =======================
-// Form handling — ✅ DIPERBAIKI DI SINI
+// Form handling
 // =======================
 document.getElementById('signupForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -171,32 +184,58 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     const fullnameInput = document.getElementById('fullname');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
+    const accessInput = document.getElementById('access');
 
     const username = (window.tempUsername || fullnameInput.value).trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value;
+    const accessCode = accessInput.value.trim();
 
-    // Validasi dasar
-    if (!validateFullname(username)) {
-        fullnameInput.style.borderColor = '#ff5555';
-        document.getElementById('usernameAltert').textContent = 'Username must be 3–25 letters';
+    if (!accessCode) {
+        accessInput.style.borderColor = '#ff5555';
+        document.getElementById('accessAltert').textContent = 'Access code is required';
         return;
     }
-    if (!validatePassword(password)) {
-        passwordInput.style.borderColor = '#ff5555';
-        return;
-    }
-
-    // Reset tampilan error
-    fullnameInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-    emailInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-    clearAlert('usernameAltert');
-    clearAlert('emailAltert');
 
     startLoading();
 
     try {
-        // 🔍 Cek apakah username sudah dipakai — gunakan cara aman tanpa .single()
+        const accessResponse = await fetch(`https://script.google.com/macros/s/AKfycbweFTFazPzZ7T2W6ldLaUbzlU5nClZ0c0imMaUH8PITATK49ePXZI_6kyz7HQQTKgLE/exec?code=${encodeURIComponent(accessCode)}`);
+        const accessData = await accessResponse.json();
+
+        console.log('Access code validation result:', accessData);
+
+        if (!accessData.isValid) {
+            finishLoading();
+            accessInput.style.borderColor = '#ff5555';
+            document.getElementById('accessAltert').textContent = 'Invalid access code';
+            return;
+        }
+
+        if (!validateFullname(username)) {
+            finishLoading();
+            fullnameInput.style.borderColor = '#ff5555';
+            document.getElementById('usernameAltert').textContent = 'Username must be 3–25 letters';
+            return;
+        }
+        if (!validatePassword(password)) {
+            finishLoading();
+            passwordInput.style.borderColor = '#ff5555';
+            return;
+        }
+        if (!validateRepeatPassword()) {
+            finishLoading();
+            repeatPasswordInput.style.borderColor = '#ff5555';
+            return;
+        }
+
+        fullnameInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        emailInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        accessInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+        clearAlert('usernameAltert');
+        clearAlert('emailAltert');
+        clearAlert('accessAltert');
+
         const { data, error } = await supabaseClient
             .from('profiles')
             .select('username')
@@ -212,7 +251,6 @@ document.getElementById('signupForm').addEventListener('submit', async function(
             throw new Error('USERNAME_TAKEN');
         }
 
-        // ✅ Baru lakukan signup jika username tersedia
         const { data: authData, error: authError } = await supabaseClient.auth.signUp({
             email,
             password,
@@ -224,10 +262,8 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         if (authError) throw authError;
         if (!authData?.user) throw new Error('User creation failed');
 
-        // Tunggu session aktif
         await new Promise(r => setTimeout(r, 500));
 
-        // 🖼️ Upload avatar (opsional)
         let avatarUrl = null;
         if (avatarInput.files.length > 0) {
             const compressedFile = await compressImage(avatarInput.files[0], 100);
@@ -241,7 +277,6 @@ document.getElementById('signupForm').addEventListener('submit', async function(
             avatarUrl = urlData.publicUrl;
         }
 
-        // 👤 Simpan ke tabel profiles
         const { error: profileError } = await supabaseClient
             .from('profiles')
             .insert({
@@ -251,7 +286,6 @@ document.getElementById('signupForm').addEventListener('submit', async function(
             });
 
         if (profileError) {
-            // Harusnya tidak terjadi, tapi antisipasi
             if (profileError.message?.includes('unique')) {
                 throw new Error('USERNAME_TAKEN');
             }
@@ -288,9 +322,7 @@ function clearAlert(alertId) {
     }
 }
 
-// =======================
 // Page loader
-// =======================
 const loader = document.querySelector('.page-loader');
 
 function startLoading() {
@@ -330,12 +362,15 @@ document.querySelectorAll('a').forEach(link => {
 const toggleBtn = document.querySelector('.toggle-password');
 const showIcon = toggleBtn.querySelector('.icon-show');
 const hideIcon = toggleBtn.querySelector('.icon-hide');
+const repeatPasswordInput = document.getElementById('repeatpassword');
+const repeatToggleBtn = document.querySelector('.toggle-repeat-password');
+const repeatShowIcon = repeatToggleBtn?.querySelector('.icon-show');
+const repeatHideIcon = repeatToggleBtn?.querySelector('.icon-hide');
 
 toggleBtn.addEventListener('click', () => {
 const isPassword = passwordInput.type === 'password';
 passwordInput.type = isPassword ? 'text' : 'password';
 
-// Tukar ikon
 if (isPassword) {
     showIcon.style.display = 'none';
     hideIcon.style.display = 'block';
@@ -343,6 +378,48 @@ if (isPassword) {
     showIcon.style.display = 'block';
     hideIcon.style.display = 'none';
 }
+});
+
+if (repeatToggleBtn) {
+    repeatToggleBtn.addEventListener('click', () => {
+        const isPassword = repeatPasswordInput.type === 'password';
+        repeatPasswordInput.type = isPassword ? 'text' : 'password';
+
+        if (isPassword) {
+            repeatShowIcon.style.display = 'none';
+            repeatHideIcon.style.display = 'block';
+        } else {
+            repeatShowIcon.style.display = 'block';
+            repeatHideIcon.style.display = 'none';
+        }
+    });
+}
+
+// Validasi password
+function validateRepeatPassword() {
+    const password = passwordInput.value;
+    const repeat = repeatPasswordInput.value;
+
+    if (repeat === '') {
+        return false;
+    }
+
+    return password === repeat;
+}
+
+repeatPasswordInput.addEventListener('input', function () {
+    const isMatch = validateRepeatPassword();
+    updateInputBorder(this, isMatch);
+});
+
+passwordInput.addEventListener('input', function () {
+    const isPasswordValid = validatePassword(this.value);
+    updateInputBorder(this, isPasswordValid);
+
+    if (repeatPasswordInput.value !== '') {
+        const isRepeatMatch = validateRepeatPassword();
+        updateInputBorder(repeatPasswordInput, isRepeatMatch);
+    }
 });
 
 // =======================

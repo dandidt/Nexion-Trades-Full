@@ -8,8 +8,9 @@
     <link rel="stylesheet" href="Style/Signup.css">
 </head>
 <body>
-
+    <!-- Container Main -->
     <div class="main-container">
+        <!-- Left -->
         <div class="signup-section">
             <a href="signin.html" class="back-btn">
                 <span class="back-arrow">
@@ -17,13 +18,13 @@
                 </span>
             </a>
 
-            
             <form id="signupForm">
                 <div class="wraper-title fade-up">
                     <h1>Create an account</h1>
                     <p class="subtitle">Already have an account? <a href="signin.html">Sign in</a></p>
                 </div>
 
+                <!-- Username -->
                 <div class="form-group fade-up">
                     <div class="row-main">
                         <div class="row-label">
@@ -33,7 +34,7 @@
                                     <path d="M479.79-288q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5ZM444-432h72v-240h-72v240Zm36.28 336Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Z"/>
                                 </svg>
                                 <div class="tooltip-content">
-                                    Min 3, Max 25 characters.<br>Only letters and numbers.
+                                    Min 3, Max 20 characters.<br>Only letters and numbers.
                                 </div>
                             </div>
                         </div>
@@ -42,6 +43,7 @@
                     <input type="text" id="fullname" placeholder="Enter full name" required>
                 </div>
 
+                <!-- Email & Password -->
                 <div class="form-row fade-up">
                     <div class="form-group">
                         <div class="row-main">
@@ -58,7 +60,7 @@
                         <div class="row-label">
                             <label for="password">Password</label>
                             <div class="tooltip-wrapper">
-                                <svg id="tooltipPassword" xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#e3e3e3">
+                                <svg class="tooltipPassword" xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#e3e3e3">
                                     <path d="M479.79-288q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5ZM444-432h72v-240h-72v240Zm36.28 336Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Z"/>
                                 </svg>
                                 <div class="tooltip-content">
@@ -79,11 +81,52 @@
                     </div>
                 </div>
 
+                <!-- Access Code & Repeat Password -->
+                <div class="form-row fade-up">
+                    <!-- Access Code -->
+                    <div class="form-group">
+                        <div class="row-main">
+                            <div class="row-label">
+                                <label for="access">Access Code</label>
+                            </div>
+                            <p class="altert-text" id="accessAltert"></p>
+                        </div>
+                        <input type="text" id="access" placeholder="Enter Access Code" required>
+                    </div>
+
+                    <!-- Repeat Password -->
+                    <div class="form-group fade-up">
+                        <div class="row-main">
+                            <div class="row-label">
+                                <label for="repeatpassword">Repeat Password</label>
+                                <div class="tooltip-wrapper">
+                                    <svg class="tooltipPassword" xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#e3e3e3">
+                                        <path d="M479.79-288q15.21 0 25.71-10.29t10.5-25.5q0-15.21-10.29-25.71t-25.5-10.5q-15.21 0-25.71 10.29t-10.5 25.5q0 15.21 10.29 25.71t25.5 10.5ZM444-432h72v-240h-72v240Zm36.28 336Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Z"/>
+                                    </svg>
+                                    <div class="tooltip-content">
+                                        Min 8, Max 30 characters.<br>Must contain:<br>• 1 uppercase letter (A-Z)<br>• 1 lowercase letter (a-z)<br>• 1 number (0-9)
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="password-wrapper">
+                            <input type="password" id="repeatpassword" placeholder="Repeat password" required>
+                            <button type="button" class="toggle-repeat-password" aria-label="Toggle repeat password visibility">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3" class="icon-show">
+                                    <path d="M768-90 638-220q-38 12-77.5 20t-80.5 8q-143 0-261.5-77.5T48-480q17-52 57-101.5t85-87.5L90-769l51-51 678 679-51 51ZM480-312q14 0 28-3t28-7L322-536q-3 14-6.5 28t-3.5 28q0 70 49 119t119 49Zm290 20L637-425q5-13 8-27t3-28q0-70-49-119t-119-49q-14 0-27.5 2.5T425-638L322-741q38-15 77.5-21t80.5-6q143 0 261.5 77.5T912-480q-22 57-58.5 103.5T770-292ZM575-487l-88-89q20-2 36 4.5t30 20.5q12 12 18 29.5t4 34.5Z"/>
+                                </svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3" class="icon-hide" style="display:none">
+                                    <path d="M480-312q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Zm0-72q-40 0-68-28t-28-68q0-40 28-68t68-28q40 0 68 28t28 68q0 40-28 68t-68 28Zm0 192q-142.6 0-259.8-78.5Q103-349 48-480q55-131 172.2-209.5Q337.4-768 480-768q142.6 0 259.8 78.5Q857-611 912-480q-55 131-172.2 209.5Q622.6-192 480-192Z"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
                 <button type="submit" class="create-btn fade-up">Create account</button>
 
-                <p class="terms fade-up">
-                    By signing up, you agree to our <a href="#">Terms of Service</a>
-                </p>
+                <p class="terms fade-up">By signing up, you agree to our <a href="#">Terms of Service</a></p>
             </form>
 
             <div class="container-warapper-footer fade-up">
@@ -103,6 +146,7 @@
             </div>
         </div>
 
+        <!-- Right -->
         <div class="preview-section">
             <div class="user-card-main fade-up">
                 <div class="user-card">

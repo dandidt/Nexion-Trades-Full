@@ -119,14 +119,14 @@ label {
 }
 
 #tooltipUsername,
-#tooltipPassword {
+.tooltipPassword {
     fill: #666;
     transition: all 0.2s ease;
     cursor: pointer;
 }
 
 #tooltipUsername:hover,
-#tooltipPassword:hover {
+.tooltipPassword:hover {
     fill: #fff;
     cursor: pointer;
 }
@@ -186,6 +186,7 @@ label {
     fill: #999;
 }
 
+.toggle-repeat-password,
 .toggle-password {
     position: absolute;
     right: 12px;
@@ -203,10 +204,12 @@ label {
     padding: 0;
 }
 
+.toggle-repeat-password:hover,
 .toggle-password:hover {
     background: rgba(255, 255, 255, 0.05);
 }
 
+.toggle-repeat-password:focus,
 .toggle-password:focus {
     outline: none;
 }
