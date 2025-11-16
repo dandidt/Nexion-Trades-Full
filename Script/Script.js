@@ -89,28 +89,32 @@ async function checkAuthStatus() {
     const boxNoLogin = document.querySelector('.box-no-loggin');
     const boxLogin = document.querySelector('.box-loggin');
     const profileImg = document.querySelector('.box-profile img');
-    const emailAccount = document.getElementById('emailAccount'); // 👈 ambil elemen email
+    const svgIcon = document.querySelector('.box-profile svg');
+    const emailAccount = document.getElementById('emailAccount');
 
     if (user) {
         if (boxLogin) boxLogin.style.display = 'flex';
         if (boxNoLogin) boxNoLogin.style.display = 'none';
 
-        if (emailAccount) {
-            emailAccount.textContent = user.email;
-        }
+        if (emailAccount) emailAccount.textContent = user.email;
 
         const cachedAvatar = localStorage.getItem('avatar');
         if (cachedAvatar) {
-            profileImg.src = cachedAvatar;
+            if (profileImg) {
+                profileImg.src = cachedAvatar;
+                profileImg.style.display = 'block';  // tampilkan img
+            }
+            if (svgIcon) svgIcon.style.display = 'none';  // sembunyikan svg
         } else {
-            profileImg.src = 'Asset/dhanntara.jpg';
+            if (profileImg) profileImg.style.display = 'none';  // sembunyikan img
+            if (svgIcon) svgIcon.style.display = 'block';  // tampilkan svg
         }
     } else {
         if (boxNoLogin) boxNoLogin.style.display = 'flex';
         if (boxLogin) boxLogin.style.display = 'none';
-        if (emailAccount) {
-            emailAccount.textContent = '';
-        }
+        if (emailAccount) emailAccount.textContent = '';
+        if (profileImg) profileImg.style.display = 'none';
+        if (svgIcon) svgIcon.style.display = 'block';
     }
 }
 
@@ -118,12 +122,11 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthStatus();
 });
 
-// Fungsi logout
+// ----- Logout ----- //
 async function handleLogout() {
     try {
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
-        
         window.location.href = '../index.html';
     } catch (err) {
         console.error('Logout error:', err);
@@ -131,11 +134,20 @@ async function handleLogout() {
     }
 }
 
+// Buka popup logout
 document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
     e.preventDefault();
-    if (confirm('Yakin ingin keluar?')) {
-        handleLogout();
-    }
+    document.getElementById('logoutModal').style.display = 'flex';
+});
+
+// Tombol batal
+document.getElementById('cancelLogoutBtn')?.addEventListener('click', () => {
+    document.getElementById('logoutModal').style.display = 'none';
+});
+
+// Tombol konfirmasi logout
+document.getElementById('confirmLogoutBtn')?.addEventListener('click', () => {
+    handleLogout();
 });
 
 // ============== Navbar ============== //
@@ -149,7 +161,7 @@ window.addEventListener("scroll", () => {
     }
 });
 
-// ============== User Profile ============== //
+// ============== Popup Profile Menu ============== //
 const profileBox = document.querySelector('.box-profile');
 const popup = document.querySelector('.container-profile');
 
@@ -169,12 +181,32 @@ profileBox.addEventListener('click', () => {
     } else {
         popup.style.display = 'block';
         positionPopup();
-        // Update posisi saat scroll/resize
         window.addEventListener('scroll', positionPopup);
         window.addEventListener('resize', positionPopup);
     }
 });
 
+
+// ============== Introduction ============== //
+async function checkAuthStatusAndRedirectLink() {
+    const { data } = await supabaseClient.auth.getUser();
+    const user = data?.user;
+
+    const link = document.getElementById('dynamicLink');
+    if (!link) return;
+
+    if (user) {
+        // Sudah login
+        link.href = 'Dashboard Jurnal/dashboard.html';
+    } else {
+        // Belum login
+        link.href = 'Html/signin.html';
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    checkAuthStatusAndRedirectLink();
+});
 
 // ============== Features ============== //
 document.addEventListener('DOMContentLoaded', () => {
@@ -725,4 +757,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // DEFAULT LOAD
     updateUI("table");
+});
+
+// ============== Footer ============== //
+document.addEventListener('DOMContentLoaded', () => {
+    const menuItems = document.querySelectorAll('.subcontainer-menu span');
+
+    menuItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const targetClass = item.getAttribute('data-target');
+            const targetSection = document.querySelector(`.${targetClass}`);
+            
+            if (targetSection) {
+                targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        });
+    });
 });

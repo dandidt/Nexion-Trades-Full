@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nexion Trade Info</title>
+    <title>Nexion Trade</title>
     <link rel="stylesheet" href="Style/style.css">
     <link rel="shortcut icon" href="Nexion.ico" type="image/x-icon">
 </head>
 <body>
-    <!-- Navbar -->
+    <!-- ===== Navbar ===== -->
     <nav class="navbar">
         <div class="box-logo">
             <img class="icon-title-navbar" src="Asset/Nexion.png">
@@ -33,41 +33,40 @@
                     <button class="btn btn-green">Dashboard</button>
                 </a>
 
-                <div class="box-profile">
+                <div class="box-profile" id="profile">
+                    <img src="Asset/dhanntara.jpg" alt="avatar" />
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-480q-60 0-102-42t-42-102q0-60 42-102t102-42q60 0 102 42t42 102q0 60-42 102t-102 42ZM192-192v-96q0-23 12.5-43.5T239-366q55-32 116.29-49 61.29-17 124.5-17t124.71 17Q666-398 721-366q22 13 34.5 34t12.5 44v96H192Zm72-72h432v-24q0-5.18-3.03-9.41-3.02-4.24-7.97-6.59-46-28-98-42t-107-14q-55 0-107 14t-98 42q-5 4-8 7.72-3 3.73-3 8.28v24Zm216.21-288Q510-552 531-573.21t21-51Q552-654 530.79-675t-51-21Q450-696 429-674.79t-21 51Q408-594 429.21-573t51 21Zm-.21-72Zm0 360Z"/></svg>
                 </div>
             </div>
         </div>
     </nav>
 
-    <!-- User Profile -->
+    <!-- ===== Popup Profile Menu ===== -->
     <div class="container-profile">
         <div class="row-profile-account">
             <svg class="icon-account" xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="#000000"><path d="m20,20c-2.65,0-4.9-.93-6.76-2.78s-2.78-4.11-2.78-6.76.93-4.9,2.78-6.76,4.11-2.78,6.76-2.78,4.9.93,6.76,2.78,2.78,4.11,2.78,6.76-.93,4.9-2.78,6.76c-1.86,1.86-4.11,2.78-6.76,2.78ZM.92,39.08v-6.36c0-1.02.28-1.98.83-2.88.55-.91,1.31-1.67,2.29-2.29,2.43-1.41,5-2.5,7.71-3.25,2.71-.75,5.46-1.13,8.25-1.13s5.55.38,8.26,1.13c2.72.75,5.29,1.83,7.72,3.25.97.57,1.73,1.33,2.29,2.25s.83,1.9.83,2.92v6.36H.92Zm4.77-4.77h28.63v-1.59c0-.23-.07-.44-.2-.62-.13-.19-.31-.33-.53-.44-2.03-1.24-4.2-2.16-6.49-2.78s-4.66-.93-7.09-.93-4.79.31-7.09.93-4.46,1.55-6.49,2.78c-.22.18-.4.35-.53.51-.13.16-.2.35-.2.55v1.59Zm14.33-19.08c1.32,0,2.44-.47,3.37-1.41.93-.94,1.39-2.06,1.39-3.38s-.47-2.44-1.41-3.37c-.94-.93-2.06-1.39-3.38-1.39s-2.44.47-3.37,1.41c-.93.94-1.39,2.06-1.39,3.38s.47,2.44,1.41,3.37c.94.93,2.06,1.39,3.38,1.39Z"/></svg>
             <p class="title-menu-account" id="emailAccount">~</p>
         </div>
-        <div class="row-profile">
-            <svg xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="var(--color-gray)"><path d="m16.17,39.08l-1.09-5.67c-.76-.3-1.5-.65-2.21-1.04s-1.38-.86-2.01-1.39l-5.47,1.84-3.83-6.61,4.32-3.78c-.07-.4-.12-.8-.15-1.19s-.05-.81-.05-1.24.02-.84.05-1.24.08-.8.15-1.19l-4.32-3.78,3.83-6.61,5.47,1.84c.63-.53,1.3-.99,2.01-1.39s1.45-.75,2.21-1.04l1.09-5.67h7.65l1.09,5.67c.76.3,1.5.65,2.21,1.04s1.38.86,2.01,1.39l5.47-1.84,3.83,6.61-4.32,3.78c.07.4.12.8.15,1.19s.05.81.05,1.24-.02.84-.05,1.24-.08.8-.15,1.19l4.32,3.78-3.83,6.61-5.47-1.84c-.63.53-1.3.99-2.01,1.39s-1.45.75-2.21,1.04l-1.09,5.67h-7.65Zm2.93-3.58h1.79l.94-4.92c1.26-.23,2.44-.66,3.53-1.29s2.04-1.42,2.83-2.39l4.77,1.59.89-1.49-3.78-3.33c.2-.56.36-1.15.47-1.76s.17-1.25.17-1.91-.06-1.3-.17-1.91c-.12-.61-.27-1.2-.47-1.76l3.78-3.33-.89-1.49-4.77,1.59c-.8-.96-1.74-1.76-2.83-2.39s-2.27-1.06-3.53-1.29l-.94-4.92h-1.79l-.94,4.92c-1.26.23-2.44.66-3.53,1.29s-2.04,1.42-2.83,2.39l-4.77-1.59-.89,1.49,3.78,3.33c-.2.56-.36,1.15-.47,1.76-.12.61-.17,1.25-.17,1.91s.06,1.3.17,1.91.27,1.2.47,1.76l-3.78,3.33.89,1.49,4.77-1.59c.8.96,1.74,1.76,2.83,2.39s2.27,1.06,3.53,1.29l.94,4.92Zm.89-8.35c1.99,0,3.68-.7,5.07-2.09s2.09-3.08,2.09-5.07-.7-3.68-2.09-5.07-3.08-2.09-5.07-2.09-3.68.7-5.07,2.09-2.09,3.08-2.09,5.07.7,3.68,2.09,5.07,3.08,2.09,5.07,2.09Z"/></svg>
-            <p class="title-menu">Account Preferences</p>
-        </div>
         <div class="line-gap"></div>
         <div class="row-profile" id="logoutAccount">
-            <svg xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="var(--color-gray)"><path d="m5.92,39.08c-1.12,0-2.09-.4-2.89-1.2-.8-.8-1.2-1.76-1.2-2.89V5.01c0-1.12.4-2.09,1.2-2.89.8-.8,1.76-1.2,2.89-1.2h14.99v4.09H5.92v29.99h14.99v4.09H5.92Zm24.54-9.54l-2.9-2.9,4.6-4.6H15.46v-4.09h16.7l-4.6-4.6,2.9-2.9,9.54,9.54-9.54,9.54Z"/></svg>
+            <svg xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="rgb(163, 163, 163)"><path d="m5.92,39.08c-1.12,0-2.09-.4-2.89-1.2-.8-.8-1.2-1.76-1.2-2.89V5.01c0-1.12.4-2.09,1.2-2.89.8-.8,1.76-1.2,2.89-1.2h14.99v4.09H5.92v29.99h14.99v4.09H5.92Zm24.54-9.54l-2.9-2.9,4.6-4.6H15.46v-4.09h16.7l-4.6-4.6,2.9-2.9,9.54,9.54-9.54,9.54Z"/></svg>
             <p class="title-menu">Logout</p>
         </div>
     </div>
 
-    <!-- Introduction -->
-    <section class="container cn-top">
+    <!-- ===== Introduction ===== -->
+    <section class="container cn-top introduction-view">
         <h1 class="title-introduction">Nexion Trade</h1>
         <h1 class="subtitle-introduction">Profesional Trading Jurnal</h1>
         <p class="text-introduction">Nexion Trade is a professional trading journal.</p>
         <p class="text-introduction">Start recording every trade with comprehensive tables, and reports automatically.</p>
         <p class="text-introduction">In-depth analysis of every trading detail easily and professionally.</p>
-        <button class="btn btn-green margin-btn-introduction">Start your Journal</button>
+        <a href="#" id="dynamicLink">
+            <button class="btn btn-green margin-btn-introduction padding-btn">Start your Journal</button>
+        </a>
     </section>
 
-    <!-- Sub Introduction -->
+    <!-- ===== Sub Introduction ===== -->
     <section class="container">
         <div class="wrapper-row-subintroduction">
             <div class="shadow-subintoruction"></div>
@@ -90,8 +89,8 @@
         <p class="text-person">Trial Community that has entered the trial phase</p>
     </section>
 
-    <!-- Features -->
-    <section class="container cn-mid">
+    <!-- ===== Features ===== -->
+    <section class="container cn-mid fetures-view">
         <h2 class="title-features">Core Features of the Platform</h2>
         <p class="subtitle-features">manage everything in a single view</p>
         <div class="subcontainer-features">
@@ -389,8 +388,8 @@
         </div>
     </section>
 
-    <!-- Preview -->
-    <section class="container cn-mid">
+    <!-- ===== Preview ===== -->
+    <section class="container cn-mid preview-view">
         <h2 class="title-preview">Stay productive and manage your app</h2>
         <p class="subtitle-preview">without leaving the dashboard</p>
         <div class="wrapper-radio">
@@ -414,11 +413,11 @@
         </div>
     </section>
 
-    <!-- Community -->
+    <!-- ===== Community ===== -->
     <section class="container-primary">
         <h2 class="title-community">Join the community</h2>
         <p class="subtitle-community">Discover what our community has to say about their Supabase experience.</p>
-        <button class="btn btn-default margin-btn-community">
+        <button class="btn btn-default margin-btn-community padding-btn">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="none" stroke="none" class="sbui-icon" width="100%" height="100%"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.5447 3.01094C12.5249 2.54302 11.4313 2.19828 10.2879 2.00083C10.2671 1.99702 10.2463 2.00654 10.2356 2.02559C10.0949 2.27573 9.93921 2.60206 9.83011 2.85856C8.60028 2.67444 7.3768 2.67444 6.17222 2.85856C6.06311 2.59636 5.90166 2.27573 5.76038 2.02559C5.74966 2.00717 5.72887 1.99765 5.70803 2.00083C4.56527 2.19764 3.47171 2.54239 2.45129 3.01094C2.44246 3.01475 2.43488 3.0211 2.42986 3.02935C0.355594 6.12826 -0.212633 9.151 0.06612 12.1362C0.067381 12.1508 0.0755799 12.1648 0.0869319 12.1737C1.45547 13.1787 2.78114 13.7889 4.08219 14.1933C4.10301 14.1996 4.12507 14.192 4.13832 14.1749C4.44608 13.7546 4.72043 13.3114 4.95565 12.8454C4.96953 12.8181 4.95628 12.7857 4.92791 12.7749C4.49275 12.6099 4.0784 12.4086 3.67982 12.18C3.64829 12.1616 3.64577 12.1165 3.67477 12.095C3.75865 12.0321 3.84255 11.9667 3.92264 11.9007C3.93713 11.8886 3.95732 11.8861 3.97435 11.8937C6.59287 13.0892 9.42771 13.0892 12.0153 11.8937C12.0323 11.8854 12.0525 11.888 12.0677 11.9C12.1478 11.9661 12.2316 12.0321 12.3161 12.095C12.3451 12.1165 12.3433 12.1616 12.3117 12.18C11.9131 12.413 11.4988 12.6099 11.063 12.7743C11.0346 12.7851 11.022 12.8181 11.0359 12.8454C11.2762 13.3108 11.5505 13.7539 11.8526 14.1742C11.8652 14.192 11.8879 14.1996 11.9087 14.1933C13.2161 13.7889 14.5417 13.1787 15.9103 12.1737C15.9223 12.1648 15.9298 12.1515 15.9311 12.1369C16.2647 8.6856 15.3723 5.68765 13.5655 3.02998C13.5611 3.0211 13.5535 3.01475 13.5447 3.01094ZM5.34668 10.3185C4.55833 10.3185 3.90876 9.59478 3.90876 8.70593C3.90876 7.81707 4.54574 7.09331 5.34668 7.09331C6.15393 7.09331 6.79722 7.82342 6.7846 8.70593C6.7846 9.59478 6.14762 10.3185 5.34668 10.3185ZM10.6632 10.3185C9.87481 10.3185 9.22527 9.59478 9.22527 8.70593C9.22527 7.81707 9.86221 7.09331 10.6632 7.09331C11.4704 7.09331 12.1137 7.82342 12.1011 8.70593C12.1011 9.59478 11.4704 10.3185 10.6632 10.3185Z" fill="currentColor"></path></svg>
             <span>Join us on Discord</span>
         </button>
@@ -432,7 +431,7 @@
         </div>
     </section>
 
-    <!-- Footer -->
+    <!-- ===== Footer ===== -->
     <section class="container-footer cn-bottom">
         <div class="wrapper-top">
             <div class="subcontainer-logo">
@@ -442,12 +441,12 @@
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/></svg>
         </div>
         <div class="wrapper-mid">
-            <div class="subcontainer-menu">
-                <span>Introduction</span>
-                <span>Features</span>
-                <span>Subscription</span>
-                <span>Footer</span>
-            </div>
+                <div class="subcontainer-menu">
+                    <span data-target="introduction-view">Introduction</span>
+                    <span data-target="fetures-view">Features</span>
+                    <span data-target="preview-view">Preview</span>
+                    <span data-target="container-primary">Community</span>
+                </div>
             <span>© 2025 Nexion Trade. All rights reserved.</span>
         </div>
         <div class="wrapper-bottom">
@@ -455,7 +454,28 @@
         </div>
     </section>
 
-    <!-- Script -->
+    <!-- ----------------- -->
+    <!-- ===== Popup ===== -->
+    <!-- ----------------- -->
+    <div id="logoutModal" class="popup-modal">
+        <div class="container-popup">
+            <div class="icon-popup">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                </svg>
+            </div>
+            <h3 class="title-popup">Logout</h3>
+            <p class="text-popup">Are you sure you want to log out of this account?</p>
+            <div class="button-group">
+                <button id="cancelLogoutBtn" class="btn btn-default">Cancel</button>
+                <button id="confirmLogoutBtn" class="btn btn-red">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== Script ===== -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="Script/Script.js"></script>
 </body>
