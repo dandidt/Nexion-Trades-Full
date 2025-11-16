@@ -1266,7 +1266,7 @@ if (document.readyState === 'loading') {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// ======================= Chart Pairs (Dinamis) ======================= //
+// ======================= Chart Pairs ======================= //
 let assetData = [];
 const RADIUS = 100;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -1424,8 +1424,8 @@ function renderChart(chartData) {
         const identifier = document.createElement("div");
         identifier.className = "bx-in-identifier";
         identifier.innerHTML = `
-        <div class="circle-pairs" style="background: linear-gradient(to right, ${colorStart}, ${colorEnd})"></div>
-        <p class="text-pairs-chart">${symbol}</p> <!-- Hanya simbol -->
+            <div class="circle-pairs" style="background: linear-gradient(to right, ${colorStart}, ${colorEnd})"></div>
+            <p class="text-pairs-chart">${symbol} - ${name}</p>
         `;
         identifierContainer.appendChild(identifier);
 
@@ -1537,7 +1537,7 @@ window.addEventListener('resize', () => {
     }
 });
 
-const radius = 100;
+const radius = 84;
 const holeRadius = 65;
 
 let dataWrChart = [];

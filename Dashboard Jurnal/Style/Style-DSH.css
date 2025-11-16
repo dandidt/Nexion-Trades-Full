@@ -7,6 +7,7 @@
     --color-baground-20: rgba(20, 20, 20, 1);
     --color-baground-27: rgba(27, 27, 27, 1);
     --color-baground-38: rgba(38, 38, 38, 1);
+    --color-baground-50: rgba(50, 50, 50, 1);
     --color-baground-55: rgba(55, 55, 55, 1);
     --color-baground-60: rgba(60, 60, 60, 1);
     --color-baground-70: rgba(70, 70, 70, 1);
@@ -237,33 +238,6 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 25px;
 }
 
-.box-profile {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: var(--color-baground-50);
-    cursor: pointer;
-}
-
-.box-profile.active img{
-    border: 1px solid var(--color-baground-100);
-}
-
-.box-profile img {
-    border-radius: 50%;
-    height: 30px;
-    width: 30px;
-    border: 1px solid var(--color-baground-70);
-}
-
-.box-profile svg {
-    border-radius: 50%;
-    height: 30px;
-    width: 30px;
-    padding: 5px;
-    border: 1px solid var(--color-baground-70);
-}
-
 /* ========= Jurnaling Secsion */
 .animate-fade-up {
     opacity: 0;
@@ -309,7 +283,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .box-front {
     padding: 20px;
-    border-radius: 20px;
+    border-radius: 15px;
     width: 100%;
     border: 1px solid var(--color-baground-38);
 }
@@ -548,7 +522,7 @@ input[type="number"]::-webkit-outer-spin-button {
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
     padding: 20px;
-    border-radius: 20px;
+    border-radius: 15px;
 }
 
 .tabel-trade {
@@ -1074,7 +1048,7 @@ th.sortable {
 
 .container-statistic {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     align-items: center;
 }
 
@@ -1199,7 +1173,7 @@ th.sortable {
     width: 100%;
     padding: 20px;
     gap: 40px;
-    border-radius: 20px;
+    border-radius: 15px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
 }
@@ -1555,7 +1529,7 @@ th.sortable {
     justify-content: space-between;
     height: 420px;
     width: 100%;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
@@ -1567,7 +1541,7 @@ th.sortable {
     align-items: center;
     height: 420px;
     min-width: 250px;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
@@ -1949,8 +1923,8 @@ canvas {
     text-align: start;
     justify-content: space-between;
     height: 420px;
-    width: 510px;
-    border-radius: 20px;
+    width: 420px;
+    border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
@@ -1978,8 +1952,8 @@ canvas {
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%) rotate(-90deg);
-    width: 200px;
-    height: 200px;
+    width: 170px;
+    height: 170px;
     z-index: 1;
 }
 
@@ -1991,7 +1965,7 @@ canvas {
     height: 100%;
     z-index: 2;
 }
-        
+
 /* Container Chart Pairs */
 .container-chart-pairs {
     display: flex;
@@ -1999,7 +1973,7 @@ canvas {
     justify-content: space-between;
     height: 420px;
     width: auto;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
@@ -2119,7 +2093,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     height: 420px;
     width: auto;
     min-width: 370px;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
@@ -2242,7 +2216,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     justify-content: space-between;
     height: 420px;
     flex: 1;
-    gap: 20px;
+    gap: 15px;
 }
 
 .subcontainer-continuation,
@@ -2253,7 +2227,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     justify-content: space-between;
     flex: 1;
     width: 100%;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
@@ -2350,7 +2324,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     flex-direction: column;
     flex: 1;
     height: 100%;
-    border-radius: 20px;
+    border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
     border: 1px solid var(--color-baground-38);
@@ -2368,13 +2342,14 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     display: flex;
     flex-direction: column;
     border-radius: 8px;
+    padding: 0 4px;
     overflow: hidden;
 }
 
 /* Header */
 .pairs-header {
     display: grid;
-    grid-template-columns: repeat(11, 1fr);
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     padding: 14px 0;
     text-align: center;
     border-bottom: 1px solid var(--color-baground-38);
@@ -2390,7 +2365,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 /* Baris Data */
 .pairs-row {
     display: grid;
-    grid-template-columns: repeat(11, 1fr);
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     align-items: center;
     padding: 10px 0;
     color: var(--color-white);
@@ -2411,12 +2386,12 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 
 /* Kolom Pair */
 .pair-item {
-    font-family: "Space Mono", monospace;
-    font-size: var(--tx-sz-14);
+    font-size: var(--tx-sz-12);
     font-weight: var(--fn-wg-6);
     display: flex;
     align-items: center;
-    justify-content: space-between;
+    justify-content: start;
+    gap: 6px;
     padding: 0 4px;
 }
 
@@ -2455,7 +2430,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 .container-profile {
     display: flex;
     align-items: center;
-    gap: 8px;
+    justify-content: space-between;
     padding: 20px;
     border-radius: 15px;
     background: var(--color-baground-20);
@@ -2463,10 +2438,37 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     margin-bottom: 15px;
 }
 
-.img-avatar {
+.raw-profile-setting {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.box-profile {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.box-profile.active img{
+    border: 1px solid var(--color-baground-100);
+}
+
+.box-profile img {
+    border-radius: 50%;
     height: 40px;
     width: 40px;
+    border: 1px solid var(--color-baground-70);
+}
+
+.box-profile svg {
     border-radius: 50%;
+    height: 40px;
+    width: 40px;
+    padding: 5px;
+    background: var(--color-baground-50);
+    border: 1px solid var(--color-baground-70);
 }
 
 .username {
@@ -2475,6 +2477,26 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 
 .email {
     font-size: 14px;
+    color: var(--color-gray);
+}
+
+/* --- MENU ITEMS --- */
+.row-profile {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin: 5px 0;
+    transition: background 0.15s ease, color 0.15s ease, fill 0.15s ease;
+}
+
+.row-profile svg {
+    fill: var(--color-gray);
+}
+
+.title-menu {
+    font-size: 12px;
     color: var(--color-gray);
 }
 

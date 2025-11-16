@@ -1556,6 +1556,70 @@ timezoneSelect.addEventListener('change', function () {
 
 updateTime();
 const timeInterval = setInterval(updateTime, 1000);
+
+// Server
+// =========================
+// 🧠 Render Data User ke UI
+// =========================
+async function renderProfile() {
+    console.log("🔄 Mencoba memuat data user...");
+
+    // 1. Ambil user dari Supabase
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    
+    if (error || !user) {
+        console.error("⚠️ Tidak ada user login / error auth:", error);
+        return;
+    }
+
+    console.log("👤 User ditemukan:", user);
+
+    // 2. Ambil elemen DOM
+    const usernameEl = document.getElementById("username");
+    const emailEl = document.getElementById("email");
+
+    if (!usernameEl || !emailEl) {
+        console.error("❗ Elemen DOM tidak ditemukan. Pastikan ID '#username' dan '#email' ada di HTML.");
+        return;
+    }
+
+    console.log("📌 DOM elements ditemukan. Mengisi data...");
+
+    // 3. Render data user ke DOM
+    usernameEl.textContent = user.user_metadata?.username || "User";
+    emailEl.textContent = user.email || "no-email";
+
+    console.log("🎉 Berhasil render data user ke UI!");
+}
+
+// =========================
+// 📌 Pastikan DOM siap
+// =========================
+document.addEventListener("DOMContentLoaded", () => {
+    console.log("📄 DOM siap, memulai rendering profil...");
+    renderProfile();
+});
+
+
+// Fungsi logout
+async function handleLogout() {
+    try {
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+        
+        window.location.href = '../index.html';
+    } catch (err) {
+        console.error('Logout error:', err);
+        alert('Gagal logout. Silakan coba lagi.');
+    }
+}
+
+document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    if (confirm('Yakin ingin keluar?')) {
+        handleLogout();
+    }
+});
   
 // ======================= Caculate Trading ======================= //
 document.addEventListener('DOMContentLoaded', function() {
