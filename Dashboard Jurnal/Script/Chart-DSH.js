@@ -285,6 +285,7 @@ toggleBtn.addEventListener('click', () => {
 let balanceChartArea = {};
 let balancePoints = [];
 let balanceCurrentChartColor = 'rgb(13, 185, 129)';
+let balanceCurrentLineColor = 'rgb(13, 185, 129)';
 
 function drawBalanceChart(animProgress = 1) {
     ctxBalance.clearRect(0, 0, canvasBalance.width, canvasBalance.height);
@@ -476,6 +477,8 @@ function drawBalanceChart(animProgress = 1) {
     // --- Bagian Menggambar Grafik ---
     let lineColor = 'rgb(13, 185, 129)';
     let gradientStart = 'rgba(13, 185, 129, 0.65)';
+
+    balanceCurrentLineColor = lineColor;
 
     const sortedData = [...balanceFullData].sort((a, b) => a.date - b.date);
 
@@ -720,7 +723,8 @@ canvasBalance.addEventListener('mousemove', (e) => {
 
     drawBalanceChart();
 
-    ctxBalance.strokeStyle = balanceCurrentChartColor;
+    ctxBalance.strokeStyle = balanceCurrentLineColor;
+
     ctxBalance.lineWidth = 1;
     ctxBalance.setLineDash([5, 5]);
     ctxBalance.beginPath();
@@ -1616,20 +1620,20 @@ function drawLabelWrChart(item, startAngle, endAngle, delay) {
     const isRightSide = Math.cos(midAngle) > 0;
     const isBottom = Math.sin(midAngle) > 0;
 
-    const offsetX = 25;
-    const offsetY = 30;
+    const offsetX = 35;
+    const offsetY = 40;
 
     if (isRightSide) {
         lineMidX = lineStartX + offsetX;
         lineMidY = lineStartY + (isBottom ? offsetY : -offsetY);
-        lineEndX = canvasWrChart.width - 40;
+        lineEndX = canvasWrChart.width - 6;
         lineEndY = lineMidY;
         textX = lineEndX - 10;
         align = 'right';
     } else {
         lineMidX = lineStartX - offsetX;
         lineMidY = lineStartY + (isBottom ? offsetY : -offsetY);
-        lineEndX = 40;
+        lineEndX = 6;
         lineEndY = lineMidY;
         textX = lineEndX + 10;
         align = 'left';

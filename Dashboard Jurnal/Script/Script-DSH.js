@@ -1017,6 +1017,36 @@ async function updateStats() {
   document.getElementById("persentaseValueWin").textContent = winPercent + "%";
   document.getElementById("persentaseValueLoss").textContent = lossPercent + "%";
 
+  // ✅ LOGIKA BARU: Update Highlight Trade (UP/DOW)
+  const bxDwn = document.querySelector(".bx-dwn");
+  if (bxDwn) {
+    const winNum = parseFloat(winPercent);
+    const lossNum = parseFloat(lossPercent);
+
+    if (winNum >= 50) {
+      bxDwn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgb(52, 211, 153)">
+          <path d="m123-240-43-43 292-291 167 167 241-241H653v-60h227v227h-59v-123L538-321 371-488 123-240Z"/>
+        </svg>
+        <p class="value-lessons green">UP</p>
+      `;
+    } else if (lossNum > 50) {
+      bxDwn.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgb(251, 113, 133)">
+          <path d="M624-209v-72h117L529-492 377-340 96-621l51-51 230 230 152-152 263 262v-117h72v240H624Z"/>
+        </svg>
+        <p class="value-lessons red">DOWN</p>
+      `;
+    } else {
+      bxDwn.innerHTML = `
+        <svg class="roi-bl-ath-svg" xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+          <path d="m123-240-43-43 292-291 167 167 241-241H653v-60h227v227h-59v-123L538-321 371-488 123-240Z"/>
+        </svg>
+        <p class="value-lessons">NETRAL</p>
+      `;
+    }
+  }
+
   const progressEl = document.getElementById("progressHighlight");
   if (progressEl) {
     progressEl.style.setProperty("--win-percent", winPercent + "%");

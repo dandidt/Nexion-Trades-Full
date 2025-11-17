@@ -66,7 +66,7 @@
 body {
     font-family: "Inter", sans-serif;
     background: var(--color-baground-15);
-    height: 100vh;
+    min-height: 100vh;
 }
 
 button {
@@ -252,7 +252,7 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 25px;
 }
 
-/* ========= Jurnaling Secsion */
+/* ------ Animasi In Style ------ */
 .animate-fade-up {
     opacity: 0;
     transform: translateY(15px);
@@ -264,11 +264,13 @@ input[type="number"]::-webkit-outer-spin-button {
     transform: translateY(0);
 }
 
-/* ========= Jurnaling Secsion */
+/* ------------------------------------- */
+/* ========= Jurnaling Secsion ========= */
+/* ------------------------------------- */
+
 .jurnaling {
     position: relative;
-    margin: 90px 40px 0;
-    height: 100%;
+    margin: 90px 40px 40px;
 }
 
 /* Title */
@@ -1051,23 +1053,22 @@ th.sortable {
     background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
 
-/* ========= Statistic Secsion */
+/* ------------------------------------- */
+/* ========= Statistic Secsion ========= */
+/* ------------------------------------- */
+
 .statistic {
+    position: relative;
     display: flex;
     flex-direction: column;
     gap: 20px;
-    margin: 90px 40px 0;
-    height: 100%;
+    margin: 90px 40px 40px;
+    min-height: auto;
 }
 
 .container-statistic {
     display: flex;
     gap: 15px;
-    align-items: center;
-}
-
-.space {
-    padding-bottom: 40px;
 }
 
 /* Statistic Top */
@@ -1116,7 +1117,7 @@ th.sortable {
     background-color: var(--color-baground-green);
     border: 1px solid var(--color-green-border);
     border-radius: 15px;
-    padding: 3px 7px;
+    padding: 2px 7px;
 }
 
 .box-share {
@@ -1955,7 +1956,6 @@ canvas {
     position: relative;
     width: 100%;
     height: 100%;
-    /* aspect-ratio: 1 / 0.84; */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2338,7 +2338,6 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     display: flex;
     flex-direction: column;
     flex: 1;
-    height: 100%;
     border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
@@ -2436,11 +2435,14 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     color: var(--color-gray);
 }
 
+/* ----------------------------------- */
 /* ========= Setting Secsion ========= */
+/* ----------------------------------- */
+
 .setting {
     display: flex;
     flex-direction: column;
-    margin: 90px 40px 0;
+    margin: 90px 40px 40px;
 }
 
 .setting h2 {
