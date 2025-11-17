@@ -37,7 +37,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function animateSection(section) {
     if (!section) return;
 
-    const animatedItems = section.querySelectorAll('.animate-fade-up');
+    const animatedItems = section.querySelectorAll('.fade-up');
     
     animatedItems.forEach(el => el.classList.remove('visible'));
 

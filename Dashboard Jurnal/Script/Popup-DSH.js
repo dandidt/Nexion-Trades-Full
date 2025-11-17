@@ -270,9 +270,9 @@ function getNextLocalIds() {
 
 // ======================= POPUP ADD ======================= //
 //  BTN RADIO ADD  //
-document.querySelectorAll('.btn-add').forEach((btn, index) => {
+document.querySelectorAll('.btn-radio-add').forEach((btn, index) => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.btn-add').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.btn-radio-add').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
         const formTrade = document.getElementById('addDataTrade');
