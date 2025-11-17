@@ -1,10 +1,9 @@
-// === ScriptDB.js  ===
 const SUPABASE_URL = 'https://olnjccddsquaspnacqyw.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
 
 if (typeof supabase === 'undefined') {
-    console.error('❌ Supabase SDK belum dimuat. Tambahkan di HTML: <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>');
-    throw new Error('Supabase SDK diperlukan');
+    console.error('Supabase SDK is not loaded.');
+    throw new Error('Supabase SDK is required');
 }
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
@@ -15,9 +14,9 @@ let dbPromise = null;
 function saveToCache(data) {
     try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        console.log('💾 Data disimpan ke cache local');
+        console.log('💾 Data is saved to local');
     } catch (error) {
-        console.warn('⚠️ Gagal menyimpan ke cache:', error);
+        console.warn('⚠️ Failed to save data:', error);
     }
 }
 
@@ -28,7 +27,7 @@ function getFromCache() {
             return JSON.parse(cached);
         }
     } catch (error) {
-        console.warn('⚠️ Gagal membaca cache:', error);
+        console.warn('⚠️ Failed to read cache:', error);
     }
     return null;
 }
@@ -37,7 +36,6 @@ async function loadDB() {
     try {
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         if (authError || !user) {
-            console.warn('⚠️ User tidak login atau session tidak valid. Redirect ke halaman login...');
             window.location.href = '../index.html';
             return [];
         }
@@ -46,8 +44,6 @@ async function loadDB() {
         if (cachedData) {
             return cachedData;
         }
-
-        console.log('🔄 Mengambil data dari server (pertama kali)...');
 
         // Query trades
         const { data: trades, error: tradesErr } = await supabaseClient
@@ -88,16 +84,13 @@ async function loadDB() {
 
         if (txErr) throw txErr;
 
-        // Gabungkan raw data
         const allRawData = [
             ...trades.map(t => ({ ...t, type: 'trade' })),
             ...transactions.map(tx => ({ ...tx, type: 'transaction' }))
         ];
 
-        // Urut ascending (lama -> baru)
         const sortedAllData = allRawData.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-        // Buat nomor urut selaras dari data paling lama
         let tradeCounter = 1;
 
         const processedData = sortedAllData.map(item => {
@@ -139,20 +132,15 @@ async function loadDB() {
             }
         });
 
-        // FINAL: tetap ascending (tanpa dibalik)
         const finalData = processedData;
 
         saveToCache(finalData);
-        console.log(`✅ Data berhasil diambil dari server: ${trades.length} trades, ${transactions.length} transactions`);
 
         return finalData;
 
     } catch (err) {
-        console.error('❌ Gagal memuat data dari Supabase:', err);
-        
         const cachedData = getFromCache();
         if (cachedData) {
-            console.log('🔄 Menggunakan data cache sebagai fallback');
             return cachedData;
         }
         

@@ -1318,11 +1318,10 @@ const TEMPLATE_LIST_SHARE = [
     'Asset/Card-Gold.png'
 ];
 
-let currentTemplateIndexShare = 0; // 0 = Default, 1 = Gold
+let currentTemplateIndexShare = 0;
 
 const PROFILE_PATH_SHARE = 'Asset/dhanntara.jpg';
 
-// === ISI TEKS (akan diupdate dari data) ===
 const TEXT_CONTENT_SHARE = {
     title: 'ALL-Time Realized',
     profit: '$0.00',
@@ -1366,7 +1365,7 @@ const STYLE_PROFIT_SHARE = {
 
 const STYLE_PERSENTASE_SHARE = {
     font: `800 195px Inter`,
-    gradient: null, // akan ditentukan dinamis
+    gradient: null,
     letterSpacing: -1,
     align: 'left'
 };
@@ -1408,28 +1407,22 @@ const STYLE_USERNAME_SHARE = {
 
 function getPersentaseGradientShare() {
     if (currentTemplateIndexShare === 1) {
-        // GOLD
         return ['#ffffff', '#ebf1ef', '#eddf83'];
     }
-    // DEFAULT
     return ['#ffffff', '#ebf1ef', '#71ecbf'];
 }
 
 function getUsernameBorderColorShare() {
     if (currentTemplateIndexShare === 1) {
-        // GOLD
         return 'rgba(163, 152, 0, 0.25)';
     }
-    // DEFAULT
     return 'rgba(0, 144, 163, 0.25)';
 }
 
 function getUsernameBgColorShare() {
     if (currentTemplateIndexShare === 1) {
-        // GOLD
         return 'rgba(211, 200, 52, 0.05)';
     }
-    // DEFAULT
     return 'rgba(52, 211, 153, 0.05)';
 }
 
@@ -1456,21 +1449,17 @@ function formatNumberShare(num) {
         suffix = 'K';
     }
 
-    // Format desimal: maks 2 digit, hapus trailing zero & titik jika tidak perlu
     let formattedValue;
     if (Number.isInteger(value)) {
         formattedValue = value.toString();
     } else {
-        // Simpan maks 2 desimal
         let str = value.toFixed(2);
-        // Hapus trailing zero
         if (str.includes('.')) {
             str = str.replace(/\.?0+$/, '');
         }
         formattedValue = str;
     }
 
-    // Gabungkan: TANPA tanda +/-
     return formattedValue + suffix;
 }
 
@@ -1494,7 +1483,6 @@ function formatPersenShare(pct) {
         suffix = 'K';
     }
 
-    // Format angka maksimal 2 desimal + hapus trailing zero
     let formattedValue;
     if (Number.isFinite(value) && !Number.isInteger(value)) {
         let str = value.toFixed(2);
@@ -1557,12 +1545,12 @@ function updateDataShare() {
     const profitTrades = executedTrades.filter(t => t.Pnl > 0).length;
     const winRate = executedTrades.length > 0 ? (profitTrades / executedTrades.length) * 100 : 0;
 
-    TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);        // contoh: "23.43K"
-    TEXT_CONTENT_SHARE.persentase = formatPersenShare(roiPercent); // tetap pakai + dan %
-    TEXT_CONTENT_SHARE.invested = formatNumberShare(totalDeposit);  // contoh: "9.98K"
-    TEXT_CONTENT_SHARE.divestasi = formatNumberShare(totalWithdraw); // contoh: "5K"
-    TEXT_CONTENT_SHARE.trade = executedTrades.length.toString();     // tetap angka biasa
-    TEXT_CONTENT_SHARE.winrate = formatPersenShare(winRate).replace('+', ''); // hapus + di winrate
+    TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
+    TEXT_CONTENT_SHARE.persentase = formatPersenShare(roiPercent);
+    TEXT_CONTENT_SHARE.invested = formatNumberShare(totalDeposit);
+    TEXT_CONTENT_SHARE.divestasi = formatNumberShare(totalWithdraw);
+    TEXT_CONTENT_SHARE.trade = executedTrades.length.toString();
+    TEXT_CONTENT_SHARE.winrate = formatPersenShare(winRate).replace('+', '');
     TEXT_CONTENT_SHARE.title = getTitleByRangeShare(selectedRangeShare);
 }
 
@@ -1740,7 +1728,7 @@ function downloadImageShare() {
 }
 
 // ====================================
-// EVENT UNTUK GANTI RANGE (opsional, jika ada tombol)
+// EVENT UNTUK GANTI RANGE
 // ====================================
 document.querySelectorAll('.range-btn').forEach(btn => {
     btn.addEventListener('click', () => {
@@ -1756,13 +1744,13 @@ document.querySelectorAll('.range-btn').forEach(btn => {
 document.querySelector('.box-switch-left').addEventListener('click', () => {
     currentTemplateIndexShare--;
     if (currentTemplateIndexShare < 0) currentTemplateIndexShare = TEMPLATE_LIST_SHARE.length - 1;
-    loadTemplateShare(); // reload gambar
+    loadTemplateShare();
 });
 
 document.querySelector('.box-switch-right').addEventListener('click', () => {
     currentTemplateIndexShare++;
     if (currentTemplateIndexShare >= TEMPLATE_LIST_SHARE.length) currentTemplateIndexShare = 0;
-    loadTemplateShare(); // reload gambar
+    loadTemplateShare();
 });
 
 // ====================================
@@ -1777,12 +1765,10 @@ ctxShare.font = '20px Inter';
 ctxShare.textAlign = 'center';
 ctxShare.fillText('Loading template.png...', canvasShare.width / 2, canvasShare.height / 2);
 
-// Jalankan
 updateDataShare();
 loadTemplateShare();
 loadProfileImageShare();
 
-// Share
 const shareButtons = document.querySelectorAll('.box-btn-share[data-platform]');
 
 shareButtons.forEach((btn) => {

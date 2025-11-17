@@ -1447,7 +1447,6 @@ async function updatePairsTable() {
     return;
   }
 
-  // Kelompokkan data berdasarkan simbol dasar
   const grouped = {};
   rawData.forEach(trade => {
     if (!trade.Pairs) return;
@@ -1465,7 +1464,6 @@ async function updatePairsTable() {
 
   body.innerHTML = '';
 
-  // Urutkan berdasarkan total trade (terbanyak dulu)
   const sortedSymbols = Object.keys(grouped).sort((a, b) => grouped[b].length - grouped[a].length);
 
   sortedSymbols.forEach(symbol => {
@@ -1523,7 +1521,6 @@ if (document.readyState === 'loading') {
   updatePairsTable();
 }
 
-
 // ======================= Setting ======================= //
 function loadSettings() {
     const savedSetting = localStorage.getItem('setting');
@@ -1557,7 +1554,7 @@ function updateTime() {
             hour: '2-digit',
             minute: '2-digit',
             second: '2-digit',
-            hour12: false // 24-hour format
+            hour12: false
         });
 
         const dateString = now.toLocaleDateString('en-GB', {
@@ -1695,7 +1692,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Pasang event listener untuk menyimpan otomatis
     feeInput?.addEventListener('input', saveSettings);
     riskInput?.addEventListener('input', saveSettings);
 
@@ -1797,7 +1793,7 @@ stopLossInput.addEventListener("input", calculate);
 
 calculate();
 
-// ======================= Btn Mathematical value ======================= //
+// ======================= Swap Menu Mathematical ======================= //
 const radios = document.querySelectorAll('input[name="toggle"]');
 const activeLine = document.getElementById('activeLine');
 const qualityContainer = document.querySelector('.container-quality');
@@ -1827,13 +1823,12 @@ radios.forEach(radio => {
 
 updateLine();
 
-// ======================= Update All UI After Data Change ======================= //
+// ======================= Download Data ======================= //
 document.addEventListener('DOMContentLoaded', function () {
     const downloadCSVBtn = document.getElementById('downloadCSV');
     const downloadJSONBtn = document.getElementById('downloadJSON');
     const localStorageKey = 'dbtrade';
 
-    // Helper: Unduh file sebagai blob
     function downloadFile(content, filename, type = 'text/plain') {
         const blob = new Blob([content], { type });
         const url = URL.createObjectURL(blob);
@@ -1846,7 +1841,6 @@ document.addEventListener('DOMContentLoaded', function () {
         URL.revokeObjectURL(url);
     }
 
-    // Helper: Flatten object untuk CSV (nested object jadi string JSON)
     function flattenObject(obj, prefix = '') {
         const flattened = {};
         for (let key in obj) {
@@ -1862,7 +1856,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return flattened;
     }
 
-    // Format data untuk CSV
     function convertToCSV(data) {
         if (!Array.isArray(data) || data.length === 0) return 'No data';
 
@@ -1875,7 +1868,6 @@ document.addEventListener('DOMContentLoaded', function () {
         for (const row of flatData) {
             const values = headers.map(header => {
                 let val = row[header] || '';
-                // Escape koma, kutip, dan newline
                 if (val.includes(',') || val.includes('"') || val.includes('\n')) {
                     val = `"${val.replace(/"/g, '""')}"`;
                 }
@@ -1893,7 +1885,6 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const rawData = localStorage.getItem(localStorageKey);
                 if (!rawData) {
-                    alert('Data tidak ditemukan di local storage.');
                     return;
                 }
                 const data = JSON.parse(rawData);
@@ -1901,7 +1892,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 downloadFile(jsonStr, 'trades.json', 'application/json');
             } catch (e) {
                 console.error('Gagal membuat file JSON:', e);
-                alert('Gagal membuat file JSON.');
             }
         });
     }
@@ -1912,7 +1902,6 @@ document.addEventListener('DOMContentLoaded', function () {
             try {
                 const rawData = localStorage.getItem(localStorageKey);
                 if (!rawData) {
-                    alert('Data tidak ditemukan di local storage.');
                     return;
                 }
                 const data = JSON.parse(rawData);
@@ -1920,43 +1909,35 @@ document.addEventListener('DOMContentLoaded', function () {
                 downloadFile(csvContent, 'trades.csv', 'text/csv');
             } catch (e) {
                 console.error('Gagal membuat file CSV:', e);
-                alert('Gagal membuat file CSV.');
             }
         });
     }
 });
 
-// ======================= Update All UI After Data Change ======================= //
+// ======================= UI Update ======================= //
 async function updateAllUI() {
   try {
-    console.log("🔄 Memperbarui semua UI...");
     const data = await getDB();
 
-    // Update Tabel Trading Jurnal
     renderTradingTable(data);
 
-    // Update Dashboard Utama (Equity, PnL, dll)
     updateDashboardFromTrades(data);
     await updateEquityStats();
 
-    // Update Statistik Utama (Winrate, Total Trade, dll)
     await updateTradeStats();
 
-    // Update Statistik Lanjutan (Avg Profit/Loss, Streak, dll)
     await updateStats();     
     await updateTradingStats();
 
-    // Update Statistik Berdasarkan Kategori (Pos, Behavior, Method, dll)
     await loadTradeStats();  
     await loadBehaviorStats();
     await loadPsychologyStats();
 
-    // Update Tabel Pasangan (Pairs)
     await updatePairsTable();
 
-    console.log("✅ Semua UI berhasil diperbarui.");
+    console.log("✅ All UI updated successfully.");
   } catch (error) {
-    console.error("❌ Gagal memperbarui UI:", error);
+    console.error("❌ Failed to update UI:", error);
   }
 }
 
