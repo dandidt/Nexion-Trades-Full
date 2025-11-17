@@ -26,6 +26,10 @@
     --color-red: rgb(251, 113, 133);
     --color-red-ll: rgb(226, 93, 113);
 
+    --cr-red-sec: #db271a;
+    --cr-red-sec-old: #be2217;
+    --cr-red-sec-border: #e42c2c;
+
     --color-red-border: rgba(244, 63, 94, 0.2);
     --color-yellow-border: rgba(185, 140, 16, 0.2);
     --color-green-border: rgba(16, 185, 129, 0.2);
@@ -132,6 +136,16 @@ h2 {
 
 .btn-delete:hover {
     background-color: var(--color-red);
+}
+
+.btn-red {
+    color: var(--cr-white);
+    background: var(--cr-red-sec);
+    border: 1px solid var(--cr-red-sec-border);
+}
+
+.btn-red:hover {
+    background: var(--cr-red-sec-old);
 }
 
 .btn-delete:active,
@@ -3554,4 +3568,94 @@ input[type="number"]::placeholder {
 
 .info-card.danger .info-value {
     color: #fca5a5;
+}
+
+/* ============== Popup Logout ============== */
+.popup-modal {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.15);
+    backdrop-filter: blur(2px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    animation: fadeIn 0.3s ease;
+}
+
+.container-popup {
+    background: linear-gradient(135deg, #1e1e1e 0%, #252525 100%);
+    border: 1px solid #383838;
+    border-radius: 15px;
+    padding: 20px;
+    max-width: 420px;
+    text-align: center;
+    animation: slideUp 0.4s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.icon-popup {
+    width: 70px;
+    height: 70px;
+    margin: 24px auto 24px;
+    background: linear-gradient(135deg, var(--cr-red-sec) 0%, var(--cr-red-sec-old) 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 24px rgba(244, 67, 54, 0.2);
+    animation: scaleIn 0.5s ease 0.2s backwards;
+    position: relative;
+    z-index: 1;
+}
+
+.icon-popup svg {
+    margin: 3px 0 0 4px;
+    height: 30px;
+    width: 30px;
+}
+
+.title-popup {
+    color: var(--cr-red-sec); 
+    font-size: 24px; 
+    margin-bottom: 12px;
+    font-weight: 700;
+    position: relative;
+    z-index: 1;
+}
+
+.text-popup {
+    color: var(--cr-gray); 
+    margin-bottom: 32px;
+    font-size: 15px;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+}
+
+.button-signout {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.button-signout button {
+    padding: 12px 34px;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from {  transform: translateY(30px); opacity: 0; }
+    to {  transform: translateY(0); opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {  transform: scale(0); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
 }

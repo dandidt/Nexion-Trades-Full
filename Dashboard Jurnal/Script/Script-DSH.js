@@ -1601,26 +1601,38 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 
-// Fungsi logout
-async function handleLogout() {
+// Fungsi logout dengan hapus localStorage
+document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('logoutModal').style.display = 'flex';
+});
+
+document.getElementById('cancelLogoutBtn')?.addEventListener('click', () => {
+    document.getElementById('logoutModal').style.display = 'none';
+});
+
+document.getElementById('confirmLogoutBtn')?.addEventListener('click', async () => {
     try {
+        // Sembunyikan modal dulu
+        document.getElementById('logoutModal').style.display = 'none';
+
+        // 🔥 Hapus data cache dari localStorage
+        localStorage.removeItem('dbtrade');
+        localStorage.removeItem('avatar');
+
+        // Logout dari Supabase
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
-        
+
+        // Redirect ke halaman utama
         window.location.href = '../index.html';
+
     } catch (err) {
         console.error('Logout error:', err);
         alert('Gagal logout. Silakan coba lagi.');
     }
-}
-
-document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (confirm('Yakin ingin keluar?')) {
-        handleLogout();
-    }
 });
-  
+
 // ======================= Caculate Trading ======================= //
 document.addEventListener('DOMContentLoaded', function() {
     const feeInput = document.getElementById('fee');

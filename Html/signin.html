@@ -17,6 +17,7 @@
     <div class="radial-overlay"></div>
     <div class="radial-overlay-glow"></div>
 
+    <!-- Main Page -->
     <div class="container-main">
 
         <a href="../index.html" class="back-btn">
@@ -49,7 +50,15 @@
                         <label for="password">Password</label>
                         <a href="reset-password.html" class="forgot-link">Forgot password?</a>
                     </div>
-                    <input type="password" id="password" placeholder="Enter password" required>
+
+                    <div class="password-wrapper">
+                        <input type="password" id="password" placeholder="Enter password" required>
+                        <button type="button" class="toggle-password" aria-label="Toggle password visibility">
+                            <!-- Default: show icon -->
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3" class="icon-show"><path d="M768-90 638-220q-38 12-77.5 20t-80.5 8q-143 0-261.5-77.5T48-480q17-52 57-101.5t85-87.5L90-769l51-51 678 679-51 51ZM480-312q14 0 28-3t28-7L322-536q-3 14-6.5 28t-3.5 28q0 70 49 119t119 49Zm290 20L637-425q5-13 8-27t3-28q0-70-49-119t-119-49q-14 0-27.5 2.5T425-638L322-741q38-15 77.5-21t80.5-6q143 0 261.5 77.5T912-480q-22 57-58.5 103.5T770-292ZM575-487l-88-89q20-2 36 4.5t30 20.5q12 12 18 29.5t4 34.5Z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3" class="icon-hide" style="display:none"><path d="M480-312q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Zm0-72q-40 0-68-28t-28-68q0-40 28-68t68-28q40 0 68 28t28 68q0 40-28 68t-68 28Zm0 192q-142.6 0-259.8-78.5Q103-349 48-480q55-131 172.2-209.5Q337.4-768 480-768q142.6 0 259.8 78.5Q857-611 912-480q-55 131-172.2 209.5Q622.6-192 480-192Z"/></svg>
+                        </button>
+                    </div>
                 </div>
     
                 <button type="submit" class="sign-in-btn">Sign in</button>

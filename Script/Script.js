@@ -125,8 +125,12 @@ document.addEventListener('DOMContentLoaded', () => {
 // ----- Logout ----- //
 async function handleLogout() {
     try {
+        // Hapus avatar dari localStorage
+        localStorage.removeItem('avatar');
+
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
+
         window.location.href = '../index.html';
     } catch (err) {
         console.error('Logout error:', err);

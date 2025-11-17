@@ -215,7 +215,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         if (!validateFullname(username)) {
             finishLoading();
             fullnameInput.style.borderColor = '#ff5555';
-            document.getElementById('usernameAltert').textContent = 'Username must be 3–25 letters';
+            document.getElementById('usernameAltert').textContent = 'Username must be 3–20 letters';
             return;
         }
         if (!validatePassword(password)) {
@@ -295,7 +295,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         finishLoading();
         document.getElementById('signupSuccessModal').style.display = 'flex';
         document.getElementById('loginRedirectBtn').onclick = () => {
-            window.location.href = 'signin.html';
+            window.location.href = 'index.html';
         };
 
     } catch (err) {

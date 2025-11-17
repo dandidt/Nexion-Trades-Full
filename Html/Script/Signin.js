@@ -75,6 +75,31 @@ function drawDot(x, y, baseSize, centerX, centerY, maxDistance, glowRadius) {
 
 drawDots();
 
+function urlToBase64(url) {
+    return new Promise((resolve, reject) => {
+        console.log("🚀 Memulai konversi URL ke base64:", url);
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            console.log("✅ Gambar berhasil dimuat, ukuran:", img.width, "x", img.height);
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
+            const dataURL = canvas.toDataURL('image/png');
+            console.log("✅ Konversi ke base64 berhasil. Panjang data:", dataURL.length);
+            resolve(dataURL);
+        };
+        img.onerror = (err) => {
+            console.error("❌ Gagal memuat gambar dari URL:", url, "| Error:", err);
+            reject(new Error("Image load failed"));
+        };
+        img.src = url;
+    });
+}
+
+// Form handling - Supabase login
 // Form handling - Supabase login
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -91,12 +116,56 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         });
 
         if (error) throw error;
+        if (!data?.user) throw new Error("Login failed, user not found");
 
-        if (!data?.user) throw new Error("Login gagal, user tidak ditemukan");
+        // Ambil user lengkap
+        const { data: userData, error: userError } = await supabaseClient.auth.getUser();
+        if (userError) throw userError;
 
-        // Login sukses → redirect
+        const user = userData.user;
+        console.log("👤 Data user lengkap:", user);
+
+        // Ambil avatar_url dari tabel profiles
+        console.log("🔍 Mencari avatar_url di tabel profiles...");
+        const { data: profileData, error: profileError } = await supabaseClient
+            .from('profiles')
+            .select('avatar_url')
+            .eq('id', user.id)
+            .single();
+
+        if (profileError) {
+            console.warn("⚠️ Gagal mengambil data profile:", profileError);
+        } else {
+            console.log("📊 Data profile:", profileData);
+        }
+
+        const avatarUrl = profileData?.avatar_url;
+        console.log("🖼️ avatar_url dari profiles:", avatarUrl);
+
+        if (avatarUrl) {
+            try {
+                console.log("⏳ Memulai proses konversi avatar ke base64...");
+                const base64 = await urlToBase64(avatarUrl);
+                localStorage.setItem('avatar', base64);
+                console.log("✅ Avatar berhasil disimpan ke localStorage");
+            } catch (imgErr) {
+                console.warn("⚠️ Gagal menyimpan avatar ke cache:", imgErr);    
+            }
+        } else {
+            localStorage.removeItem('avatar');
+            console.log("🗑️ Tidak ada avatar_url — menghapus cache avatar lama");
+        }
+
+        // Tunggu sebentar untuk memastikan semua proses selesai
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         finishLoading();
-        window.location.href = "../index.html";
+        
+        // Tunggu animasi loader selesai sebelum redirect
+        setTimeout(() => {
+            console.log("➡️ Redirect ke index.html");
+            window.location.href = "../index.html";
+        }, 500);
 
     } catch (err) {
         finishLoading();
@@ -106,25 +175,21 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         const passwordInput = document.getElementById('password');
         const alertElem = document.querySelector('.altert-text');
 
-        // Reset border ke default dulu
         emailInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
         passwordInput.style.borderColor = 'rgba(255, 255, 255, 0.1)';
 
         if (alertElem) {
             if (errorMsg?.includes("invalid login credentials")) {
-                // Email atau password salah → tandai keduanya
                 emailInput.style.borderColor = '#ff5555';
                 passwordInput.style.borderColor = '#ff5555';
-                alertElem.textContent = "Email atau password salah.";
+                alertElem.textContent = "Incorrect email or password.";
             } else if (errorMsg?.includes("email not confirmed")) {
-                // Email belum diverifikasi
                 emailInput.style.borderColor = '#ff5555';
-                alertElem.textContent = "Email belum diverifikasi. Silakan cek kotak masuk Anda.";
+                alertElem.textContent = "Email not verified. Please check your inbox..";
             } else {
-                // Error umum → tandai semua input sebagai peringatan
                 emailInput.style.borderColor = '#ff5555';
                 passwordInput.style.borderColor = '#ff5555';
-                alertElem.textContent = "Gagal login. Silakan coba lagi.";
+                alertElem.textContent = "Login failed. Please try again..";
             }
         }
     }
@@ -147,6 +212,29 @@ inputs.forEach(input => {
         this.parentElement.style.transform = 'translateY(0)';
     });
 });
+
+// Toggle password visibility
+const togglePasswordBtn = document.querySelector('.toggle-password');
+const passwordInput = document.getElementById('password');
+const showIcon = togglePasswordBtn?.querySelector('.icon-show');
+const hideIcon = togglePasswordBtn?.querySelector('.icon-hide');
+
+if (togglePasswordBtn && passwordInput) {
+    togglePasswordBtn.addEventListener('click', () => {
+        const isPassword = passwordInput.type === 'password';
+        passwordInput.type = isPassword ? 'text' : 'password';
+
+        if (showIcon && hideIcon) {
+            if (isPassword) {
+                showIcon.style.display = 'none';
+                hideIcon.style.display = 'block';
+            } else {
+                showIcon.style.display = 'block';
+                hideIcon.style.display = 'none';
+            }
+        }
+    });
+}
 
 const loader = document.querySelector('.page-loader');
 
