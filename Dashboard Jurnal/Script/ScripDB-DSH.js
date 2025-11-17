@@ -25,7 +25,6 @@ function getFromCache() {
     try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
-            console.log('📁 Menggunakan data dari cache local');
             return JSON.parse(cached);
         }
     } catch (error) {
@@ -45,7 +44,6 @@ async function loadDB() {
 
         const cachedData = getFromCache();
         if (cachedData) {
-            console.log('✅ Data diambil dari cache local');
             return cachedData;
         }
 

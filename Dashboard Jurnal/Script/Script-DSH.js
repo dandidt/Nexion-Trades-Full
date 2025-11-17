@@ -12,7 +12,6 @@ function formatPercent(value) {
     return value.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + "%";
 }
 
-// --- Format Currency Compact ---
 function formatCurrencyCompact(n) {
   const v = Number(n) || 0;
   const sign = v < 0 ? '-' : '';
@@ -23,9 +22,6 @@ function formatCurrencyCompact(n) {
   if (abs >= 1_000) return sign + '$' + (abs / 1_000).toFixed(1) + 'K';
   return sign + '$' + abs.toFixed(2);
 }
-
-// ======================= Account ======================= //
-
 
 // ======================= Button Navbar ======================= //
 document.addEventListener("DOMContentLoaded", () => {
@@ -203,8 +199,8 @@ function updateDashboardFromTrades(data = []) {
     if (elStatsNavReversal) elStatsNavReversal.textContent = `${revPct}% Reversal`;
     if (elStatsNavContinuation) elStatsNavContinuation.textContent = `${conPct}% Continuation`;
   } else {
-    if (elStatsNavReversal) elStatsNavReversal.textContent = '-';
-    if (elStatsNavContinuation) elStatsNavContinuation.textContent = '-';
+    if (elStatsNavReversal) elStatsNavReversal.textContent = '0% Reversal';
+    if (elStatsNavContinuation) elStatsNavContinuation.textContent = '0% Continuation';
   }
 
   // --- Best Performer (hanya dari trade) ---
@@ -297,8 +293,8 @@ function updateDashboardFromTrades(data = []) {
   } else {
     if (elPairsBestPerformer) elPairsBestPerformer.textContent = '-';
     if (elDateBestPerformer) elDateBestPerformer.textContent = '-';
-    if (elValueBestPerformer) elValueBestPerformer.textContent = '-';
-    if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '-';
+    if (elValueBestPerformer) elValueBestPerformer.textContent = '$0';
+    if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '0%';
   }
 
   // --- Pair Stats (hanya dari trade) ---
@@ -321,7 +317,7 @@ function updateDashboardFromTrades(data = []) {
     }
   }
   if (elHighestPairs) elHighestPairs.textContent = topByPnl || '-';
-  if (elValuehighestPairs) elValuehighestPairs.textContent = topByPnl ? formatCurrencyCompact(topByPnlValue) : '-';
+  if (elValuehighestPairs) elValuehighestPairs.textContent = topByPnl ? formatCurrencyCompact(topByPnlValue) : '$0';
 
   // Most Traded Pair
   let topByCount = null, topCount = 0;
@@ -347,7 +343,7 @@ function updateDashboardFromTrades(data = []) {
     if (elProfitability) elProfitability.textContent = `${wr.toFixed(2)}%`;
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `${win} of ${denom} Profite Trade`;
   } else {
-    if (elProfitability) elProfitability.textContent = '-';
+    if (elProfitability) elProfitability.textContent = '0%';
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `0 of 0 Profite Trade`;
   }
 
@@ -1483,7 +1479,7 @@ async function updatePairsTable() {
   });
 
   if (sortedSymbols.length === 0) {
-    body.innerHTML = '<div class="no-data-pairs">Tidak ada pair yang dikenali.</div>';
+    body.innerHTML = '<div class="no-data-pairs">There is no pairs data yet.</div>';
   }
 }
 
@@ -1557,14 +1553,32 @@ timezoneSelect.addEventListener('change', function () {
 updateTime();
 const timeInterval = setInterval(updateTime, 1000);
 
-// Server
-// =========================
-// 🧠 Render Data User ke UI
-// =========================
-async function renderProfile() {
-    console.log("🔄 Mencoba memuat data user...");
+// ======================= Server ======================= //
+function renderAvatar() {
+    const container = document.getElementById("containerProfile");
+    if (!container) return;
 
-    // 1. Ambil user dari Supabase
+    const imgEl = container.querySelector("img");
+    const svgEl = container.querySelector("svg");
+
+    if (!imgEl || !svgEl) {
+        console.warn("⚠️ Elemen <img> atau <svg> tidak ditemukan di #containerProfile");
+        return;
+    }
+
+    const avatar = localStorage.getItem("avatar"); 
+
+    if (avatar) {
+        imgEl.src = avatar;
+        imgEl.style.display = "block";
+        svgEl.style.display = "none";
+    } else {
+        imgEl.style.display = "none";
+        svgEl.style.display = "block";
+    }
+}
+
+async function renderProfile() {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
     
     if (error || !user) {
@@ -1572,36 +1586,25 @@ async function renderProfile() {
         return;
     }
 
-    console.log("👤 User ditemukan:", user);
-
-    // 2. Ambil elemen DOM
     const usernameEl = document.getElementById("username");
     const emailEl = document.getElementById("email");
 
     if (!usernameEl || !emailEl) {
-        console.error("❗ Elemen DOM tidak ditemukan. Pastikan ID '#username' dan '#email' ada di HTML.");
+        console.error("❗ Elemen DOM tidak ditemukan.");
         return;
     }
 
-    console.log("📌 DOM elements ditemukan. Mengisi data...");
-
-    // 3. Render data user ke DOM
     usernameEl.textContent = user.user_metadata?.username || "User";
     emailEl.textContent = user.email || "no-email";
 
-    console.log("🎉 Berhasil render data user ke UI!");
+    renderAvatar();
 }
 
-// =========================
-// 📌 Pastikan DOM siap
-// =========================
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("📄 DOM siap, memulai rendering profil...");
     renderProfile();
 });
 
-
-// Fungsi logout dengan hapus localStorage
+// ------ Logout ------ //
 document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('logoutModal').style.display = 'flex';
@@ -1613,18 +1616,14 @@ document.getElementById('cancelLogoutBtn')?.addEventListener('click', () => {
 
 document.getElementById('confirmLogoutBtn')?.addEventListener('click', async () => {
     try {
-        // Sembunyikan modal dulu
         document.getElementById('logoutModal').style.display = 'none';
 
-        // 🔥 Hapus data cache dari localStorage
         localStorage.removeItem('dbtrade');
         localStorage.removeItem('avatar');
 
-        // Logout dari Supabase
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
 
-        // Redirect ke halaman utama
         window.location.href = '../index.html';
 
     } catch (err) {

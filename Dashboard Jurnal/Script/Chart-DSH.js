@@ -1729,8 +1729,8 @@ window.addEventListener('tradeDataUpdated', async () => {
     drawChart();
     
     // Update Chart Pairs
-    await loadCryptoData();
-    await updateTotalPairs();
+    await loadAssetData();
+    await loadPairData(); 
     
     // Update Chart Winrate
     await loadWrChartData();

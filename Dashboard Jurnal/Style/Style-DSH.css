@@ -139,7 +139,7 @@ h2 {
 }
 
 .btn-red {
-    color: var(--cr-white);
+    color: var(--color-white);
     background: var(--cr-red-sec);
     border: 1px solid var(--cr-red-sec-border);
 }
@@ -1987,6 +1987,7 @@ canvas {
     justify-content: space-between;
     height: 420px;
     width: auto;
+    min-width: 420px;
     border-radius: 15px;
     padding: 20px;
     background: var(--color-baground-20);
@@ -2427,6 +2428,14 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     color: var(--color-red);
 }
 
+.no-data-pairs {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 300px;
+    color: var(--color-gray);
+}
+
 /* ========= Setting Secsion ========= */
 .setting {
     display: flex;
@@ -2465,15 +2474,11 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     cursor: pointer;
 }
 
-.box-profile.active img{
-    border: 1px solid var(--color-baground-100);
-}
-
 .box-profile img {
     border-radius: 50%;
     height: 40px;
     width: 40px;
-    border: 1px solid var(--color-baground-70);
+    border: 2px solid var(--color-baground-70);
 }
 
 .box-profile svg {
@@ -2482,7 +2487,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     width: 40px;
     padding: 5px;
     background: var(--color-baground-50);
-    border: 1px solid var(--color-baground-70);
+    border: 2px solid var(--color-baground-70);
 }
 
 .username {
@@ -3627,7 +3632,7 @@ input[type="number"]::placeholder {
 }
 
 .text-popup {
-    color: var(--cr-gray); 
+    color: var(--color-gray); 
     margin-bottom: 32px;
     font-size: 15px;
     line-height: 1.6;
