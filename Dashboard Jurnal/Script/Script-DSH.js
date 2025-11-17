@@ -1666,7 +1666,6 @@ document.getElementById('confirmLogoutBtn')?.addEventListener('click', async () 
 document.addEventListener('DOMContentLoaded', function() {
     const feeInput = document.getElementById('fee');
     const riskInput = document.getElementById('risk');
-    const saveButton = document.getElementById('saveSetting');
     const localStorageKey = 'setting';
 
     function saveSettings() {
@@ -1678,10 +1677,8 @@ document.addEventListener('DOMContentLoaded', function() {
         try {
             localStorage.setItem(localStorageKey, JSON.stringify(settings));
             console.log('Settings berhasil disimpan:', settings);
-            alert('Pengaturan berhasil disimpan!');
         } catch (e) {
             console.error('Gagal menyimpan ke localStorage:', e);
-            alert('Gagal menyimpan pengaturan.');
         }
     }
 
@@ -1690,24 +1687,17 @@ document.addEventListener('DOMContentLoaded', function() {
             const savedSettings = localStorage.getItem(localStorageKey);
             if (savedSettings) {
                 const settings = JSON.parse(savedSettings);
-                
-                if (settings.fee !== undefined) {
-                    feeInput.value = settings.fee;
-                }
-                if (settings.risk !== undefined) {
-                    riskInput.value = settings.risk;
-                }
-            } else {
-                console.log('Tidak ada settings tersimpan.');
+                if (settings.fee !== undefined) feeInput.value = settings.fee;
+                if (settings.risk !== undefined) riskInput.value = settings.risk;
             }
         } catch (e) {
             console.error('Gagal memuat dari localStorage:', e);
         }
     }
 
-    if (saveButton) {
-        saveButton.addEventListener('click', saveSettings);
-    }
+    // Pasang event listener untuk menyimpan otomatis
+    feeInput?.addEventListener('input', saveSettings);
+    riskInput?.addEventListener('input', saveSettings);
 
     loadSettings();
 });
@@ -1836,6 +1826,105 @@ radios.forEach(radio => {
 });
 
 updateLine();
+
+// ======================= Update All UI After Data Change ======================= //
+document.addEventListener('DOMContentLoaded', function () {
+    const downloadCSVBtn = document.getElementById('downloadCSV');
+    const downloadJSONBtn = document.getElementById('downloadJSON');
+    const localStorageKey = 'dbtrade';
+
+    // Helper: Unduh file sebagai blob
+    function downloadFile(content, filename, type = 'text/plain') {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    // Helper: Flatten object untuk CSV (nested object jadi string JSON)
+    function flattenObject(obj, prefix = '') {
+        const flattened = {};
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const pre = prefix.length ? prefix + '.' : '';
+                if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+                    Object.assign(flattened, flattenObject(obj[key], pre + key));
+                } else {
+                    flattened[pre + key] = obj[key] === null ? '' : String(obj[key]);
+                }
+            }
+        }
+        return flattened;
+    }
+
+    // Format data untuk CSV
+    function convertToCSV(data) {
+        if (!Array.isArray(data) || data.length === 0) return 'No data';
+
+        const flatData = data.map(item => flattenObject(item));
+        const headers = [...new Set(flatData.flatMap(Object.keys))].sort();
+
+        const csvRows = [];
+        csvRows.push(headers.join(','));
+
+        for (const row of flatData) {
+            const values = headers.map(header => {
+                let val = row[header] || '';
+                // Escape koma, kutip, dan newline
+                if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                    val = `"${val.replace(/"/g, '""')}"`;
+                }
+                return val;
+            });
+            csvRows.push(values.join(','));
+        }
+
+        return csvRows.join('\n');
+    }
+
+    // === Event: Download JSON ===
+    if (downloadJSONBtn) {
+        downloadJSONBtn.addEventListener('click', () => {
+            try {
+                const rawData = localStorage.getItem(localStorageKey);
+                if (!rawData) {
+                    alert('Data tidak ditemukan di local storage.');
+                    return;
+                }
+                const data = JSON.parse(rawData);
+                const jsonStr = JSON.stringify(data, null, 2);
+                downloadFile(jsonStr, 'trades.json', 'application/json');
+            } catch (e) {
+                console.error('Gagal membuat file JSON:', e);
+                alert('Gagal membuat file JSON.');
+            }
+        });
+    }
+
+    // === Event: Download CSV ===
+    if (downloadCSVBtn) {
+        downloadCSVBtn.addEventListener('click', () => {
+            try {
+                const rawData = localStorage.getItem(localStorageKey);
+                if (!rawData) {
+                    alert('Data tidak ditemukan di local storage.');
+                    return;
+                }
+                const data = JSON.parse(rawData);
+                const csvContent = convertToCSV(data);
+                downloadFile(csvContent, 'trades.csv', 'text/csv');
+            } catch (e) {
+                console.error('Gagal membuat file CSV:', e);
+                alert('Gagal membuat file CSV.');
+            }
+        });
+    }
+});
 
 // ======================= Update All UI After Data Change ======================= //
 async function updateAllUI() {
