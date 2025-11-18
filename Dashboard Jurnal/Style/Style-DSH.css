@@ -2655,26 +2655,28 @@ body.popup-open .popup-container {
     gap: 6px;
     flex: 1;
 
-    margin-bottom: 15px;
+    margin-bottom: 6px;
 }
 
 .form-group label {
     font-size: var(--sz-12);
     font-weight: var(--wg-500);
     text-transform: uppercase;
-    letter-spacing: 0.5px;
 }
 
 .form-group input,
 .form-group textarea {
+    height: 42px;
     width: 100%;
-    padding: 11.5px 14px;
-    background: var(--bg-27);
+    line-height: 42px;
+    padding: 0 14px;
+    background: var(--bg-27) !important;
     border: 1px solid var(--bg-50);
     border-radius: 8px;
     font-size: var(--sz-14);
     color: var(--white);
     font-family: inherit;
+    resize: none;
     transition: all 0.3s ease;
 }
 
@@ -2696,9 +2698,11 @@ body.popup-open .popup-container {
     opacity: 0.6;
 }
 
-.form-group textarea {
-    resize: none;
-    max-height: 42px;
+input:-webkit-autofill,
+textarea:-webkit-autofill {
+    -webkit-text-fill-color: var(--white) !important;
+    caret-color: var(--white) !important;
+    transition: background-color 5000s ease-in-out 0s;
 }
 
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
@@ -2720,7 +2724,8 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 .dropdown-selected {
     width: 100%;
-    padding: 10px 14px;
+    height: 42px;
+    padding: 0 14px;
     background: var(--bg-27);
     border: 1px solid var(--bg-50);
     border-radius: 8px;
@@ -2816,7 +2821,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .file-wrapper {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 12px;
+    gap: 5px;
 }
 
 .sub-field {

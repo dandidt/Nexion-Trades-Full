@@ -150,32 +150,55 @@ document.addEventListener("DOMContentLoaded", () => {
 
         selected.addEventListener('click', (e) => {
             e.stopPropagation();
+
+            // Close other dropdowns
             document.querySelectorAll('.dropdown-options.show').forEach(o => {
                 if (o !== options) o.classList.remove('show');
             });
+
+            // Toggle current
             options.classList.toggle('show');
+            selected.classList.toggle('active'); // toggle active for arrow rotation
         });
 
         optionElements.forEach(opt => {
-        opt.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const value = opt.dataset.value;
-            const text = opt.textContent;
-            const selectedSpan = selected.querySelector('span');
+            opt.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const value = opt.dataset.value;
+                const selectedSpan = selected.querySelector('span');
 
-            selectedSpan.textContent = text;
-            selectedSpan.classList.remove('placeholder');
-            optionElements.forEach(o => o.classList.remove('selected'));
-            opt.classList.add('selected');
+                if (value === 'clear') {
+                    selectedSpan.textContent = 'Method'; // reset ke placeholder
+                    selectedSpan.classList.add('placeholder');
 
-            window.dropdownData = window.dropdownData || {};
-            window.dropdownData[name] = value;
+                    // remove stored value
+                    if (window.dropdownData) delete window.dropdownData[name];
+                } else {
+                    selectedSpan.textContent = opt.textContent;
+                    selectedSpan.classList.remove('placeholder');
 
-            options.classList.remove('show');
+                    // Save dropdown data
+                    window.dropdownData = window.dropdownData || {};
+                    window.dropdownData[name] = value;
+                }
+
+                // Update selected style
+                optionElements.forEach(o => o.classList.remove('selected'));
+                if (value !== 'clear') opt.classList.add('selected');
+
+                // Close dropdown
+                options.classList.remove('show');
+                selected.classList.remove('active');
+            });
         });
-        });
-
     });
+
+    // Close dropdowns when clicking outside
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.dropdown-options.show').forEach(o => o.classList.remove('show'));
+        document.querySelectorAll('.dropdown-selected.active').forEach(s => s.classList.remove('active'));
+    });
+
 
     document.addEventListener('click', () => {
         document.querySelectorAll('.dropdown-options').forEach(o => o.classList.remove('show'));
@@ -553,7 +576,7 @@ async function handleSaveEditTrade() {
 
         const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
         const getDropdown = (name) =>
-            document.querySelector(`.popup-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
+            document.querySelector(`.popup-edit-trade .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
                 ?.getAttribute("data-value") || "";
 
         // --- Cari berdasarkan tradeNumber hanya untuk ambil `id` lokal ---
@@ -571,7 +594,7 @@ async function handleSaveEditTrade() {
 
         // --- Data untuk SERVER (sesuai skema tabel `trades`) ---
         const serverUpdate = {
-            user_id: user_id, // opsional tapi aman
+            user_id: user_id,
             date: correctedDate.toISOString(),
             pairs: getVal("edit-pairs"),
             method: getDropdown("edit-method"),
@@ -596,13 +619,13 @@ async function handleSaveEditTrade() {
             .from("trades")
             .update(serverUpdate)
             .eq("id", recordId)
-            .eq("user_id", user_id); // 👈 tambahan keamanan
+            .eq("user_id", user_id);
 
         if (updateErr) throw updateErr;
 
         // --- Update LOCAL CACHE ---
         const updatedLocal = {
-            ...item, // pertahankan `id`, `tradeNumber`, `type`, dll
+            ...item,
             date: correctedDate.getTime(),
             Pairs: serverUpdate.pairs,
             Method: serverUpdate.method,
@@ -659,21 +682,21 @@ async function handleSaveEditTransfer() {
 
         const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
         const getDropdown = (name) =>
-            document.querySelector(`.popup-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
+            document.querySelector(`.popup-edit-transfer .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
                 ?.getAttribute("data-value") || "";
 
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const item = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!item) throw new Error("Transfer tidak ditemukan di cache lokal!");
         
-        const recordId = item.id; // ✅ id manual
+        const recordId = item.id;
 
         const dateInputValue = getVal("edit-date-financial");
         if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
         const localDate = new Date(dateInputValue);
         const correctedDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
 
-        const action = getDropdown("edit-action");
+        const action = getDropdownValue("edit-action");
         if (!action || !["Deposit", "Withdraw"].includes(action)) {
             throw new Error("Pilih action yang valid (Deposit/Withdraw)!");
         }
@@ -694,7 +717,7 @@ async function handleSaveEditTransfer() {
             .from("transactions")
             .update(serverUpdate)
             .eq("id", recordId)
-            .eq("user_id", user_id); // keamanan tambahan
+            .eq("user_id", user_id);
 
         if (updateErr) throw updateErr;
 
