@@ -1,4 +1,3 @@
-// --- FORMAT FUNCTIONS ---
 function FormatUSD(value) {
     let formatted = '';
     let suffix = '';
@@ -160,10 +159,8 @@ function filterData(range) {
 
     updateFilterStats(range);
     
-    // BARU: Simpan posisi lama sebelum menggambar yang baru
     balanceOldPoints = balancePoints.length > 0 ? [...balancePoints] : [];
     
-    // BARU: Reset progress dan mulai animasi
     balanceAnimationProgress = 0;
     startBalanceAnimation();
 }
@@ -173,14 +170,13 @@ function startBalanceAnimation() {
         cancelAnimationFrame(balanceAnimationFrameId);
     }
     
-    const duration = 600; // ms
+    const duration = 600;
     const startTime = performance.now();
     
     function animate(currentTime) {
         const elapsed = currentTime - startTime;
         balanceAnimationProgress = Math.min(elapsed / duration, 1);
         
-        // Easing function (ease-out-cubic untuk smooth ending)
         const eased = 1 - Math.pow(1 - balanceAnimationProgress, 3);
         
         drawBalanceChart(eased);
@@ -305,7 +301,6 @@ function drawBalanceChart(animProgress = 1) {
         return;
     }
 
-    // --- Bagian Pembuatan Sumbu Y (Tetap Sama) ---
     let relevantBalances = [];
 
     if (currentFilterRange === 'all') {
@@ -362,7 +357,6 @@ function drawBalanceChart(animProgress = 1) {
         ctxBalance.fillText(formatBalanceCurrency(value), balanceChartArea.left - 10, y + 4);
     }
 
-    // --- Bagian Pembuatan Titik-Titik Data untuk Grafik ---
     let fullDates = [];
     let axisStart, axisEnd;
 
@@ -451,16 +445,12 @@ function drawBalanceChart(animProgress = 1) {
         };
     });
 
-    // Animasion
     balanceTargetPoints = [...balancePoints];
     
     if (animProgress < 1 && balanceOldPoints.length > 0) {
-        // Interpolasi antara posisi lama dan baru
         balancePoints = balancePoints.map((newPoint, i) => {
-            // Cari titik terdekat di array lama berdasarkan timestamp
             let oldPoint = balanceOldPoints[i];
             
-            // Jika jumlah titik berbeda, cari yang paling mendekati
             if (!oldPoint || balanceOldPoints.length !== balanceTargetPoints.length) {
                 const closestOld = balanceOldPoints.reduce((prev, curr) => {
                     return Math.abs(curr.date - newPoint.date) < Math.abs(prev.date - newPoint.date) ? curr : prev;
@@ -478,7 +468,6 @@ function drawBalanceChart(animProgress = 1) {
         });
     }
 
-    // --- Bagian Menggambar Grafik ---
     let lineColor = 'rgb(13, 185, 129)';
     let gradientStart = 'rgba(13, 185, 129, 0.65)';
 
@@ -614,7 +603,6 @@ function drawBalanceChart(animProgress = 1) {
         });
     }
 
-    // --- Bagian Baru: Menggambar Label Sumbu X ---
     ctxBalance.fillStyle = 'rgb(163, 163, 163)';
     ctxBalance.font = '11px Inter';
     ctxBalance.textAlign = 'center';
@@ -645,8 +633,7 @@ function drawBalanceChart(animProgress = 1) {
             }
         }
 
-    // --- Bagian Baru: Menggambar Label Sumbu X ---
-    } else { // currentFilterRange === 'all'
+    } else {
         const chooseLabelFormat = (date, index, allPoints) => {
             if (index === 0 || index === allPoints.length - 1) {
                 return formatBalanceDateShort(date);
@@ -666,7 +653,6 @@ function drawBalanceChart(animProgress = 1) {
         });
     }
 
-    // --- Bagian Menampilkan Circle Terakhir (Tetap Sama) ---
     const last = balancePoints[balancePoints.length - 1];
     if (last && circlebalance) {
         circlebalance.style.display = 'block';
@@ -857,7 +843,7 @@ async function loadData() {
         const trades = rawData
             .filter(item => typeof item.date === 'number' && !isNaN(item.date))
             .map(item => ({
-                date: new Date(item.date * 1000), // ←←← INI YANG DIUPDATE
+                date: new Date(item.date * 1000),
                 pnl: (typeof item.Pnl === 'number') ? item.Pnl : 0,
                 rr: (typeof item.RR === 'number') ? item.RR : 0
             }))
@@ -1189,7 +1175,7 @@ function drawChart() {
 }
 
 canvas.addEventListener('mousemove', (e) => {
-    if (!data || data.length === 0) return; // 🛡️
+    if (!data || data.length === 0) return;
 
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -1287,7 +1273,6 @@ const DEFAULT_ICON = "https://cdn.jsdelivr.net/gh/dandidt/Crypto-Icon/Pairs%20Ic
 const DEFAULT_COLOR_START = "#6c757d";
 const DEFAULT_COLOR_END = "#adb5bd";
 
-// ---------- 1. Muat data aset ----------
 async function loadAssetData() {
     try {
         const res = await fetch('Asset/Link-Symbol.json');
@@ -1298,12 +1283,10 @@ async function loadAssetData() {
     }
 }
 
-// ---------- 2. Ekstrak simbol dasar (tanpa filter) ----------
-    function extractBaseSymbol(pairStr) {
+function extractBaseSymbol(pairStr) {
     if (!pairStr) return null;
     pairStr = pairStr.toUpperCase();
 
-    // Coba cari kecocokan dengan simbol dikenal (panjang dulu)
     const knownSymbols = assetData
         .map(a => a.symbol)
         .filter(Boolean)
@@ -1315,11 +1298,9 @@ async function loadAssetData() {
         }
     }
 
-    // Jika tidak cocok, kembalikan pair asli (misal: "XYZ123" → "XYZ123")
     return pairStr;
 }
 
-// ---------- 3. Dapatkan data aset (dengan fallback ke default) ----------
 function getAssetInfo(symbol) {
     const found = assetData.find(a => a.symbol === symbol);
     if (found) {
@@ -1332,24 +1313,21 @@ function getAssetInfo(symbol) {
         };
     }
 
-    // Jika tidak ditemukan → pakai default
     return {
         symbol: symbol,
-        name: symbol, // fallback nama = simbol
+        name: symbol,
         icon: DEFAULT_ICON,
         colorStart: DEFAULT_COLOR_START,
         colorEnd: DEFAULT_COLOR_END
     };
 }
 
-// ---------- 4. Render chart ----------
 function renderChart(chartData) {
     const svg = document.querySelector('.chart-container-pairs svg');
     const defs = svg.querySelector('defs');
     const tooltipContainer = document.querySelector('.chart-container-pairs');
     const identifierContainer = document.querySelector('.box-identifier-pairs');
 
-    // Bersihkan konten lama
     while (defs.lastChild) defs.removeChild(defs.lastChild);
     document.querySelectorAll('.dynamic-segment').forEach(el => el.remove());
     document.querySelectorAll('.dynamic-tooltip').forEach(el => el.remove());
@@ -1444,9 +1422,7 @@ function renderChart(chartData) {
     document.querySelector('.total-value-pairs').textContent = chartData.length;
 }
 
-// ---------- 5. Muat dan proses data trading ----------
 async function loadPairData() {
-    // Tunggu assetData siap (maks 1.5 detik)
     let attempts = 0;
     while (attempts < 15 && assetData.length === 0) {
         await new Promise(r => setTimeout(r, 100));
@@ -1475,7 +1451,7 @@ async function loadPairData() {
         const chartData = Object.keys(pairCount).map(symbol => {
         const count = pairCount[symbol];
         const percentage = (count / total) * 100;
-        const asset = getAssetInfo(symbol); // <-- pakai fallback otomatis
+        const asset = getAssetInfo(symbol);
         return {
             symbol: asset.symbol,
             name: asset.name,
@@ -1486,7 +1462,6 @@ async function loadPairData() {
         };
         });
 
-        // Urutkan berdasarkan persentase (terbesar dulu, opsional)
         chartData.sort((a, b) => b.percentage - a.percentage);
 
         renderChart(chartData);
@@ -1496,7 +1471,6 @@ async function loadPairData() {
     }
 }
 
-// ---------- 6. Inisialisasi ----------
 loadAssetData().then(() => {
     if (document.readyState === 'loading') {
         document.addEventListener('DOMContentLoaded', loadPairData);
@@ -1715,7 +1689,7 @@ if (document.readyState === 'loading') {
     loadWrChartData();
 }
 
-// UPDATE GLOBAL
+// ======================= Update Global ======================= //
 window.addEventListener('resize', () => {
     resizeCanvas();
     resizeBalanceCanvas();

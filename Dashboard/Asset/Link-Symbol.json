@@ -54,6 +54,24 @@
     }
   },
   {
+    "link": "https://s2.coinmarketcap.com/static/img/coins/64x64/20947.png",
+    "name": "Sui",
+    "symbol": "SUI",
+    "color": {
+      "start" : "#00AEFF",
+      "end" : "#1B99FF"
+    }
+  },
+  {
+    "link": "https://s2.coinmarketcap.com/static/img/coins/64x64/5805.png",
+    "name": "Avalanche",
+    "symbol": "AVAX",
+    "color": {
+      "start" : "#ff0013",
+      "end" : "#d01414"
+    }
+  },
+  {
     "link": "https://s3-symbol-logo.tradingview.com/metal/gold.svg",
     "name": "Gold",
     "symbol": "XAUUSD",

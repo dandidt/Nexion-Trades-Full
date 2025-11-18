@@ -409,7 +409,6 @@ function renderTradingTable(data) {
       const d = new Date(timestamp);
       if (isNaN(d.getTime())) return '-';
 
-      // Format WIB secara eksplisit
       return d.toLocaleDateString('id-ID', {
         timeZone: 'Asia/Jakarta',
         day: 'numeric',
@@ -582,8 +581,8 @@ function sortTrades(a, b, key, direction) {
       const valB = (getValue(b, "pairs") || "").toString();
 
       const cmp = valA.localeCompare(valB, undefined, { sensitivity: "base" });
-      if (direction === "asc") return cmp; // a>z
-      if (direction === "desc") return -cmp; // z>a
+      if (direction === "asc") return cmp;
+      if (direction === "desc") return -cmp;
       return 0;
     }
 
@@ -909,7 +908,7 @@ if (typeof module !== 'undefined' && module.exports) {
 // =================== DASHBOARD Navbar ===================
 async function updateEquityStats() {
   try {
-    // --- Ambil SEMUA data (trade + action) ---
+    // --- Ambil SEMUA data ---
     const tradingData = await getDB();
 
     if (!Array.isArray(tradingData)) {

@@ -168,14 +168,12 @@ document.addEventListener("DOMContentLoaded", () => {
         selected.addEventListener('click', (e) => {
             e.stopPropagation();
 
-            // Close other dropdowns
             document.querySelectorAll('.dropdown-options.show').forEach(o => {
                 if (o !== options) o.classList.remove('show');
             });
 
-            // Toggle current
             options.classList.toggle('show');
-            selected.classList.toggle('active'); // toggle active for arrow rotation
+            selected.classList.toggle('active');
         });
 
         optionElements.forEach(opt => {
@@ -185,32 +183,27 @@ document.addEventListener("DOMContentLoaded", () => {
                 const selectedSpan = selected.querySelector('span');
 
                 if (value === 'clear') {
-                    selectedSpan.textContent = 'Method'; // reset ke placeholder
+                    selectedSpan.textContent = 'Method';
                     selectedSpan.classList.add('placeholder');
 
-                    // remove stored value
                     if (window.dropdownData) delete window.dropdownData[name];
                 } else {
                     selectedSpan.textContent = opt.textContent;
                     selectedSpan.classList.remove('placeholder');
 
-                    // Save dropdown data
                     window.dropdownData = window.dropdownData || {};
                     window.dropdownData[name] = value;
                 }
 
-                // Update selected style
                 optionElements.forEach(o => o.classList.remove('selected'));
                 if (value !== 'clear') opt.classList.add('selected');
 
-                // Close dropdown
                 options.classList.remove('show');
                 selected.classList.remove('active');
             });
         });
     });
 
-    // Close dropdowns when clicking outside
     document.addEventListener('click', () => {
         document.querySelectorAll('.dropdown-options.show').forEach(o => o.classList.remove('show'));
         document.querySelectorAll('.dropdown-selected.active').forEach(s => s.classList.remove('active'));
@@ -883,7 +876,7 @@ async function handleDeleteTrade() {
             .from("trades")
             .delete()
             .eq("id", recordId)
-            .eq("user_id", user_id); // keamanan tambahan
+            .eq("user_id", user_id);
 
         if (deleteErr) throw deleteErr;
 
@@ -1002,7 +995,6 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
             }
             pnlFinal = margin * rrUsed - feeValue;
             } else if (resultValue === "Loss") {
-                // Hitungan loss → rugi sesuai margin + fee
                 rrUsed = -1;
                 pnlFinal = -(margin + feeValue);
             }
@@ -1284,7 +1276,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnShare.addEventListener("click", async () => {
         try {
-            // ✅ Destructuring benar untuk Supabase v2
             const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
 
             if (authErr || !user) {
@@ -1293,7 +1284,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 TEXT_CONTENT_SHARE.username = user.user_metadata?.username || 'User';
             }
 
-            // Buka popup
             closeAllPopups();
             document.body.classList.add("popup-open");
             document.body.style.overflow = "hidden";
@@ -1304,7 +1294,6 @@ document.addEventListener("DOMContentLoaded", () => {
         } catch (err) {
             console.error("Error saat ambil user:", err);
             TEXT_CONTENT_SHARE.username = 'User';
-            // Tetap tampilkan popup dengan fallback
             closeAllPopups();
             document.body.classList.add("popup-open");
             document.body.style.overflow = "hidden";
@@ -1613,11 +1602,6 @@ function updateDataShare() {
 
         const balanceBefore = calculateBalanceAtTime(trades, cutoff - 1);
         const balanceNow = calculateBalanceAtTime(trades, now);
-        console.log("Balance 24H lalu:", balanceBefore);
-        console.log("Balance sekarang:", balanceNow);
-        console.log("Perubahan:", balanceNow - balanceBefore);
-        console.log("ROI:", roiPercent + "%");
-
         if (balanceBefore !== 0) {
             roiPercent = ((balanceNow - balanceBefore) / balanceBefore) * 100;
         } else {
@@ -1641,12 +1625,6 @@ function updateDataShare() {
         executedTrades.length > 0 ? (executedTrades.filter(t => t.Pnl > 0).length / executedTrades.length) * 100 : 0
     ).replace('+', '');
     TEXT_CONTENT_SHARE.title = getTitleByRangeShare(selectedRangeShare);
-
-    console.log("=== ALL TRADES ===", trades);
-    console.log("=== FILTERED 24H ===", filteredTrades);
-    console.log("Total PnL:", totalPnL);
-    console.log("Total Deposit:", totalDeposit);
-    console.log("Total Withdraw:", totalWithdraw);
 }
 
 // LOAD IMAGES
