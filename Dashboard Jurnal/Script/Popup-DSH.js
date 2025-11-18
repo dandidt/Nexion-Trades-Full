@@ -1283,15 +1283,37 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = "";
     }
 
-    if (btnShare) {
-        btnShare.addEventListener("click", () => {
+    btnShare.addEventListener("click", async () => {
+        try {
+            // ✅ Destructuring benar untuk Supabase v2
+            const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+
+            if (authErr || !user) {
+                TEXT_CONTENT_SHARE.username = 'User';
+            } else {
+                TEXT_CONTENT_SHARE.username = user.user_metadata?.username || 'User';
+            }
+
+            // Buka popup
             closeAllPopups();
             document.body.classList.add("popup-open");
             document.body.style.overflow = "hidden";
             popupOverlay?.classList.add("show");
             popupShare?.classList.add("show");
-        });
-    }
+            drawCanvasShare();
+
+        } catch (err) {
+            console.error("Error saat ambil user:", err);
+            TEXT_CONTENT_SHARE.username = 'User';
+            // Tetap tampilkan popup dengan fallback
+            closeAllPopups();
+            document.body.classList.add("popup-open");
+            document.body.style.overflow = "hidden";
+            popupOverlay?.classList.add("show");
+            popupShare?.classList.add("show");
+            drawCanvasShare();
+        }
+    });
 
     popupOverlay?.addEventListener("click", closeAllPopups);
     document.getElementById("closeShare")?.addEventListener("click", () => closePopup(popupShare));

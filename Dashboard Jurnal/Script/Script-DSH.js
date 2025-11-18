@@ -1017,7 +1017,6 @@ async function updateStats() {
   document.getElementById("persentaseValueWin").textContent = winPercent + "%";
   document.getElementById("persentaseValueLoss").textContent = lossPercent + "%";
 
-  // ✅ LOGIKA BARU: Update Highlight Trade (UP/DOW)
   const bxDwn = document.querySelector(".bx-dwn");
   if (bxDwn) {
     const winNum = parseFloat(winPercent);
@@ -1039,8 +1038,8 @@ async function updateStats() {
       `;
     } else {
       bxDwn.innerHTML = `
-        <svg class="roi-bl-ath-svg" xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
-          <path d="m123-240-43-43 292-291 167 167 241-241H653v-60h227v227h-59v-123L538-321 371-488 123-240Z"/>
+        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgba(173, 173, 173, 1)">
+          <path d="m702-301-43-42 106-106H120v-60h646L660-615l42-42 178 178-178 178Z"/>
         </svg>
         <p class="value-lessons">NETRAL</p>
       `;
