@@ -117,18 +117,16 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         if (error) throw error;
         if (!data?.user) throw new Error("Login failed, user not found");
 
-        // Ambil user lengkap
         const { data: userData, error: userError } = await supabaseClient.auth.getUser();
         if (userError) throw userError;
 
         const user = userData.user;
         console.log("👤 Data user lengkap:", user);
 
-        // Ambil avatar_path (seharusnya path, bukan URL) dari tabel profiles
         console.log("🔍 Mencari avatar_path di tabel profiles...");
         const { data: profileData, error: profileError } = await supabaseClient
             .from('profiles')
-            .select('avatar_url') // ← tetap pakai kolom 'avatar_url', tapi isinya HARUS path seperti: "user-id/filename.jpg"
+            .select('avatar_url')
             .eq('id', user.id)
             .single();
 
@@ -136,7 +134,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             console.warn("⚠️ Gagal mengambil data profile:", profileError);
         }
 
-        const avatarPath = profileData?.avatar_url; // ← ini seharusnya PATH, bukan full URL
+        const avatarPath = profileData?.avatar_url;
         console.log("🖼️ avatar_path dari profiles:", avatarPath);
 
         if (avatarPath) {
@@ -145,13 +143,12 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
                 const { data: fileData, error: downloadError } = await supabaseClient
                     .storage
                     .from('avatars')
-                    .download(avatarPath); // ← ini akan otomatis pakai session auth
+                    .download(avatarPath);
 
                 if (downloadError) {
                     throw new Error(`Download gagal: ${downloadError.message}`);
                 }
 
-                // Konversi Blob ke base64
                 const arrayBuffer = await fileData.arrayBuffer();
                 const base64 = `data:${fileData.type};base64,${btoa(
                     new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
@@ -159,9 +156,11 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
 
                 localStorage.setItem('avatar', base64);
                 console.log("✅ Avatar berhasil disimpan ke localStorage");
+
+                localStorage.removeItem('dbtrade');
             } catch (imgErr) {
                 console.warn("⚠️ Gagal menyimpan avatar ke cache:", imgErr);
-                localStorage.removeItem('avatar'); // hapus jika error
+                localStorage.removeItem('avatar');
             }
         } else {
             localStorage.removeItem('avatar');

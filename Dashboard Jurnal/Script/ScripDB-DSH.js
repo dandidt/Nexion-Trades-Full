@@ -40,12 +40,9 @@ async function loadDB() {
             return [];
         }
 
-        const cachedData = getFromCache();
-        if (cachedData) {
-            return cachedData;
-        }
+        const userId = user.id;
 
-        // Query trades
+        // Query trades hanya milik user ini
         const { data: trades, error: tradesErr } = await supabaseClient
             .from('trades')
             .select(`
@@ -67,11 +64,12 @@ async function loadDB() {
                 result,
                 pnl,
                 inserted_at
-            `);
+            `)
+            .eq('user_id', userId);
 
         if (tradesErr) throw tradesErr;
 
-        // Query transactions
+        // Query transactions hanya milik user ini
         const { data: transactions, error: txErr } = await supabaseClient
             .from('transactions')
             .select(`
@@ -80,7 +78,8 @@ async function loadDB() {
                 action,
                 value,
                 inserted_at
-            `);
+            `)
+            .eq('user_id', userId);
 
         if (txErr) throw txErr;
 

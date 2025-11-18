@@ -102,12 +102,12 @@ async function checkAuthStatus() {
         if (cachedAvatar) {
             if (profileImg) {
                 profileImg.src = cachedAvatar;
-                profileImg.style.display = 'block';  // tampilkan img
+                profileImg.style.display = 'block';
             }
-            if (svgIcon) svgIcon.style.display = 'none';  // sembunyikan svg
+            if (svgIcon) svgIcon.style.display = 'none';
         } else {
-            if (profileImg) profileImg.style.display = 'none';  // sembunyikan img
-            if (svgIcon) svgIcon.style.display = 'block';  // tampilkan svg
+            if (profileImg) profileImg.style.display = 'none';
+            if (svgIcon) svgIcon.style.display = 'block';
         }
     } else {
         if (boxNoLogin) boxNoLogin.style.display = 'flex';
@@ -125,8 +125,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ----- Logout ----- //
 async function handleLogout() {
     try {
-        // Hapus avatar dari localStorage
         localStorage.removeItem('avatar');
+        localStorage.removeItem('dbtrade');
 
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
