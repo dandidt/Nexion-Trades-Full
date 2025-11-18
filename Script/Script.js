@@ -201,7 +201,7 @@ async function checkAuthStatusAndRedirectLink() {
 
     if (user) {
         // Sudah login
-        link.href = 'Dashboard Jurnal/dashboard.html';
+        link.href = 'Dashboard/dashboard.html';
     } else {
         // Belum login
         link.href = 'Html/signin.html';

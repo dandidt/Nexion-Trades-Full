@@ -17,8 +17,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // === Popup ===
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupAdd = document.querySelector(".popup-add");
-    const popupEditTrade = document.getElementById("PopupEditTrade");
-    const popupEditTransfer = document.getElementById("PopupEditTranfer");
+    const popupEditTrade = document.querySelector(".popup-edit-trade");
+    const popupEditTransfer = document.querySelector(".popup-edit-transfer");
     const popupCaculate = document.querySelector(".popup-caculate");
 
     // === Buttons ===
@@ -537,7 +537,7 @@ async function handleAddTransfer() {
 function openEditTradePopup(trade) {
     closeAllPopups();
 
-    const popup = document.getElementById("PopupEditTrade");
+    const popup = document.querySelector(".popup-edit-trade");
     const overlay = document.querySelector(".popup-overlay");
 
     overlay.classList.add("show");
@@ -552,7 +552,7 @@ function openEditTradePopup(trade) {
 function openEditTransferPopup(trade) {
     closeAllPopups();
 
-    const popup = document.getElementById("PopupEditTranfer");
+    const popup = document.querySelector(".popup-edit-transfer");
     const overlay = document.querySelector(".popup-overlay");
 
     overlay.classList.add("show");
@@ -584,7 +584,7 @@ async function handleSaveEditTrade() {
         const item = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!item) throw new Error("Trade tidak ditemukan di cache lokal!");
         
-        const recordId = item.id; // ✅ id manual yang sama di server
+        const recordId = item.id;
 
         // --- Validasi tanggal ---
         const dateInputValue = getVal("edit-date-trade");
@@ -755,8 +755,8 @@ function handleCancelEdit() {
     try {
         currentEditingTradeNo = null;
 
-        const popupEditTrade = document.getElementById("PopupEditTrade");
-        const popupEditTransfer = document.getElementById("PopupEditTranfer");
+        const popupEditTrade = document.querySelector(".popup-edit-trade");
+        const popupEditTransfer = document.querySelector(".popup-edit-transfer");
         const overlay = document.querySelector(".popup-overlay");
 
         [popupEditTrade, popupEditTransfer].forEach(p => p?.classList.remove("show"));

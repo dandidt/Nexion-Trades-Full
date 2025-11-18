@@ -71,7 +71,7 @@ document.addEventListener("DOMContentLoaded", () => {
         jurnalingSection.style.display = "block";
         animateSection(jurnalingSection);
       } 
-      else if (menuName === "stats") {
+      else if (menuName === "statistic") {
         if (statsSection) {
           statsSection.style.display = "flex";
           animateSection(statsSection);
@@ -406,8 +406,16 @@ function renderTradingTable(data) {
     if (!isTradeItem(item)) return;
 
     const trade = item;
-    const date = new Date(trade.date);
-    const formattedDate = date.toLocaleDateString("id-ID");
+    function formatDateAsUTC(dateInput) {
+      const d = new Date(dateInput);
+      const day = d.getUTCDate();
+      const month = d.getUTCMonth() + 1;
+      const year = d.getUTCFullYear();
+      return `${day}/${month}/${year}`;
+    }
+
+    // Lalu:
+    const formattedDate = formatDateAsUTC(item.date);
 
     const rr = Number(trade.RR);
     const margin = Number(trade.Margin) || 0;

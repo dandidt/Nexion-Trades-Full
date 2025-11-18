@@ -3038,7 +3038,7 @@ input[type="number"]::placeholder {
 
 /* ------ Popup Share ------ */
 .popup-share {
-    padding: 20px 40px;
+    padding: 20px;
 }
 
 .box-header {
