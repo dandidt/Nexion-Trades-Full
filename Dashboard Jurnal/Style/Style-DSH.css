@@ -13,6 +13,7 @@
     --bg-55: rgba(55, 55, 55, 1);
     --bg-60: rgba(60, 60, 60, 1);
     --bg-70: rgba(70, 70, 70, 1);
+
     --color-baground-white: rgba(255, 255, 255, 0.2);
     --color-baground-green: rgba(16, 185, 129, .1);
     --color-baground-yellow: rgba(185, 160, 16, 0.1);
@@ -22,26 +23,24 @@
     --border-popup: 1px solid var(--bg-35);
 
     --white: rgb(245, 245, 245);
+
     --gray: rgb(163, 163, 163);
-    --gray-ll: rgb(115, 115, 115);
+    --gray-primary: rgb(115, 115, 115);
+
     --green: rgb(52, 211, 153);
-    --green-lll: rgb(59, 241, 175);
-    --green-ll: #2D7D60;
-    --yellow: rgb(211, 161, 52);
-    --red: rgb(251, 113, 133);
-    --red-ll: rgb(226, 93, 113);
-
-    --cr-red-sec: #db271a;
-    --cr-red-sec-old: #be2217;
-    --cr-red-sec-border: #e42c2c;
-
-    --red-border: rgba(244, 63, 94, 0.2);
-    --yellow-border: rgba(185, 140, 16, 0.2);
+    --green-secondary: rgb(47, 180, 131);
+    --green-primary: rgb(31, 230, 157);
     --green-border: rgba(16, 185, 129, 0.2);
-    --color-border: rgba(46, 46, 46, 0.2);
-
-
-    --bg-popup: rgba(20, 20, 20, 1);
+    
+    --red: rgb(250, 93, 117);
+    --red-secondary: rgb(216, 78, 98);
+    --red-primary: rgb(247, 66, 93);
+    --red-border: rgba(244, 63, 94, 0.2);
+    
+    --yellow: rgb(211, 161, 52);
+    --yellow-secondary: rgb(179, 136, 44);
+    --yellow-primary: rgb(248, 181, 36);
+    --yellow-border: rgba(185, 140, 16, 0.2);
     
     --wg-300: 300;
     --wg-400: 400;
@@ -149,24 +148,24 @@ h2 {
 
 .btn-green {
     color: var(--bg-27);
-    background: var(--green);
-    border: 1px solid var(--green-border);
+    background: var(--green-secondary);
+    border: 1px solid var(--green);
 }
 
 .btn-green:hover {
-    background: var(--green-lll);
-    border-color: var(--green-ll);
+    background: var(--green);
+    border-color: var(--green-primary);
 }
 
 .btn-red {
     color: var(--bg-27);
-    background: var(--red);
-    border: 1px solid var(--red-border);
+    background: var(--red-secondary);
+    border: 1px solid var(--red);
 }
 
 .btn-red:hover {
-    background: var(--red-ll);
-    border-color: var(--red-ll);
+    background: var(--red);
+    border-color: var(--red-primary);
 }
 
 /* Loading Style Btn */
@@ -202,6 +201,35 @@ h2 {
 
 @keyframes spin { to { transform: translate(-50%, -50%) rotate(360deg); } }
 
+/* Button Radio */
+.btn-radio-wrapper {
+    padding: 2px;
+    border-radius: 12px;
+    border: 1px solid var(--bg-38);
+}
+
+.btn-radio {
+    background: var(--bg-20);
+    color: var(--gray);
+    border: none;
+    padding: 10px 15px;
+    border-radius: 10px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-radio:hover {
+    background: var(--bg-27);
+    color: var(--white);
+}
+
+.btn-radio.active {
+    background: var(--color-baground-green);
+    color: var(--green);
+}
+
+/* Input Clik Number None */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
     -webkit-appearance: none;
@@ -425,7 +453,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .title-mid-content {
     font-size: var(--sz-12);
-    color: var(--gray-ll);
+    color: var(--gray-primary);
     font-weight: var(--wg-400);
 }
 
@@ -477,7 +505,7 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .footer-font {
     font-size: var(--sz-12);
-    color: var(--gray-ll);
+    color: var(--gray-primary);
     font-weight: var(--wg-400);
 }
 
@@ -695,7 +723,7 @@ th.sortable {
 }
 
 .icon-causes {
-    fill: var(--gray-ll);
+    fill: var(--gray-primary);
 }
 
 /* Psychology */
@@ -1167,7 +1195,7 @@ th.sortable {
     top: 0;
     height: 100%;
     width: var(--win-percent, 0%);
-    background: linear-gradient(135deg, var(--green-ll) 0%, rgba(16, 185, 129, 0.5) 100%);
+    background: linear-gradient(135deg, var(--green-secondary) 0%, rgba(16, 185, 129, 0.5) 100%);
 }
 
 .tx-ll {
@@ -1344,59 +1372,11 @@ th.sortable {
     margin-bottom: 10px;
 }
 
-.time-filter {
-    padding: 2px;
-    border-radius: 12px;
-    border: 1px solid var(--bg-38);
-}
-
-.filter-btn {
-    background: var(--bg-20);
-    color: var(--gray);
-    border: none;
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.filter-btn:hover {
-    background: var(--bg-27);
-    color: var(--white);
-}
-
-.filter-btn.active {
-    background: var(--color-baground-green);
-    color: var(--green);
-}
-
 .bx-wr-btn {
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-}
-
-.type-btn {
-    background: var(--bg-20);
-    color: var(--gray);
-    border: none;
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.type-btn:hover {
-    background: var(--bg-27);
-    color: var(--white);
-}
-
-.type-btn.active {
-    background: var(--color-baground-green);
-    color: var(--green);
 }
 
 #toggleCircles {
@@ -1502,7 +1482,7 @@ th.sortable {
 
 .radio-label {
     font-size: var(--sz-14);
-    color: var(--gray-ll);
+    color: var(--gray-primary);
     font-weight: var(--wg-600);
     transition: color 0.3s ease;
     user-select: none;
@@ -1768,7 +1748,7 @@ canvas {
     border: 1px solid var(--bg-38);
 }
 
-/* ------ WR ------ */
+/* ------ Detailed Statistics ------ */
 .winrate {
     font-size: var(--sz-12);
     font-weight: var(--wg-500);
@@ -1809,56 +1789,6 @@ canvas {
 .data-stats-wr {
     font-size: var(--sz-12);
     font-weight: var(--wg-600);
-}
-
-/* ------ Chart WR ------ */
-.container-chart-wr {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: start;
-    justify-content: space-between;
-    height: 420px;
-    width: 420px;
-    border-radius: 15px;
-    padding: 20px;
-    background: var(--bg-20);
-    border: 1px solid var(--bg-38);
-}
-
-.title-pairs-wr {
-    font-size: var(--sz-18);
-    color: var(--white);
-    font-weight: var(--wg-500);
-    width: 100%;
-}
-
-.wrapper-chartwr {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-#wrChartSVG {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%) rotate(-90deg);
-    width: 170px;
-    height: 170px;
-    z-index: 1;
-}
-
-#donutChart {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 2;
 }
 
 /* ------ Chart Pairs ------ */
@@ -2058,7 +1988,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 
 .badge-gray {
     background: var(--color-baground-white);
-    border: 1px solid var(--gray-ll);
+    border: 1px solid var(--gray-primary);
     color: var(--white);
 }
 
@@ -2208,7 +2138,57 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     font-size: var(--sz-16);
     font-weight: var(--wg-500);
 }
-        
+
+/* ------ Chart WR ------ */
+.container-chart-wr {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: start;
+    justify-content: space-between;
+    height: 420px;
+    width: 420px;
+    border-radius: 15px;
+    padding: 20px;
+    background: var(--bg-20);
+    border: 1px solid var(--bg-38);
+}
+
+.title-pairs-wr {
+    font-size: var(--sz-18);
+    color: var(--white);
+    font-weight: var(--wg-500);
+    width: 100%;
+}
+
+.wrapper-chartwr {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#wrChartSVG {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) rotate(-90deg);
+    width: 170px;
+    height: 170px;
+    z-index: 1;
+}
+
+#donutChart {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
 /* Container Stats Pairs */
 .container-stats-pairs {
     display: flex;
@@ -2420,7 +2400,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     font-weight: var(--wg-600);
 }
 
-/* Right Container */
+/* Left Container */
 .container-informasion-setting {
     display: flex;
     flex-direction: column;
@@ -2630,33 +2610,6 @@ body.popup-open .popup-container {
     justify-content: center;
 }
 
-.row-radio-add {
-    padding: 2px;
-    border-radius: 12px;
-    border: 1px solid var(--bg-38);
-}
-
-.btn-radio-add {
-    background: var(--bg-20);
-    color: var(--gray);
-    border: none;
-    padding: 10px 20px;
-    border-radius: 10px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.btn-radio-add:hover {
-    background: var(--bg-27);
-    color: var(--white);
-}
-
-.btn-radio-add.active {
-    background: var(--color-baground-green);
-    color: var(--green);
-}
-
 .popup-body {
     display: flex;
     align-items: center;
@@ -2680,7 +2633,7 @@ body.popup-open .popup-container {
 }
 
 .popup-body::-webkit-scrollbar-thumb:hover {
-    background: var(--gray-ll);
+    background: var(--gray-primary);
 }
 
 .form-grid {
@@ -2734,12 +2687,12 @@ body.popup-open .popup-container {
 
 .form-group input:hover,
 .form-group textarea:hover {
-    border-color: var(--gray-ll);
+    border-color: var(--gray-primary);
 }
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-    color: var(--gray-ll);
+    color: var(--gray-primary);
     opacity: 0.6;
 }
 
@@ -2782,7 +2735,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .dropdown-selected:hover {
-    border-color: var(--gray-ll);
+    border-color: var(--gray-primary);
     background: var(--bg-38);
 }
 
@@ -2792,7 +2745,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .dropdown-selected .placeholder {
-    color: var(--gray-ll);
+    color: var(--gray-primary);
     opacity: 0.6;
 }
 
@@ -2810,7 +2763,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     left: 0;
     right: 0;
     background: var(--bg-27);
-    border: 1px solid var(--color-border);
+    border: 1px solid var(--bg-27);
     border-radius: 8px;
     max-height: 240px;
     overflow-y: auto;
@@ -2874,7 +2827,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 
 .sub-field label {
     font-size: var(--sz-10);
-    color: var(--gray-ll);
+    color: var(--gray-primary);
     text-transform: uppercase;
     letter-spacing: 0.3px;
 }
@@ -3065,7 +3018,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     transform: translateY(-50%);
     width: 18px;
     height: 18px;
-    color: var(--gray-ll);
+    color: var(--gray-primary);
     pointer-events: none;
 }
 
@@ -3086,7 +3039,7 @@ input[type="number"]:focus {
 }
 
 input[type="number"]::placeholder {
-    color: var(--gray-ll);
+    color: var(--gray-primary);
 }
 
 .toast {
@@ -3168,27 +3121,6 @@ input[type="number"]::placeholder {
     border: 1px solid rgb(71, 75, 72);
 }
 
-.share-btn {
-    background: var(--bg-20);
-    color: var(--gray);
-    border: none;
-    padding: 10px 15px;
-    border-radius: 10px;
-    font-size: 12px;
-    cursor: pointer;
-    transition: all 0.2s ease;
-}
-
-.share-btn:hover {
-    background: var(--bg-27);
-    color: var(--white);
-}
-
-.share-btn.active {
-    background: var(--color-baground-green);
-    color: var(--green);
-}
-
 .box-close-share {
     padding: 4px;
     cursor: pointer;
@@ -3221,7 +3153,7 @@ input[type="number"]::placeholder {
 }
 
 .box-btn-share svg {
-    fill: var(--gray-ll);
+    fill: var(--gray-primary);
 }
 
 .box-btn-share:hover {
@@ -3410,7 +3342,7 @@ input[type="number"]::placeholder {
 }
         
 .info-card.active {
-    border-color: var(--green-ll);
+    border-color: var(--green-secondary);
     background: linear-gradient(155deg, rgba(20, 20, 20, 1) 0%, rgba(16, 185, 129, 0.2) 100%);
 }
 
@@ -3470,7 +3402,7 @@ input[type="number"]::placeholder {
     width: 70px;
     height: 70px;
     margin: 24px auto 24px;
-    background: linear-gradient(135deg, var(--cr-red-sec) 0%, var(--cr-red-sec-old) 100%);
+    background: linear-gradient(135deg, var(--red) 0%, var(--red-primary) 100%);
     border-radius: 50%;
     display: flex;
     align-items: center;
@@ -3488,7 +3420,7 @@ input[type="number"]::placeholder {
 }
 
 .title-popup {
-    color: var(--cr-red-sec); 
+    color: var(--red); 
     font-size: 24px; 
     margin-bottom: 12px;
     font-weight: var(--wg-700);

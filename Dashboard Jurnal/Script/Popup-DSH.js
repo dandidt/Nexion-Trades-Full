@@ -1293,7 +1293,7 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ====================================
-// EVENT UNTUK TOMBOL RANGE (.share-btn)
+// EVENT UNTUK TOMBOL RANGE
 // ====================================
 document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', () => {

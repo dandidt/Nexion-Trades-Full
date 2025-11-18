@@ -124,6 +124,11 @@ a {
     width: 25px;
 }
 
+.box-logo {
+    display: flex;
+    gap: 6px;
+}
+
 .box-no-loggin,
 .box-loggin {
     display: none;

@@ -200,7 +200,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
     startLoading();
 
     try {
-        const accessResponse = await fetch(`https://script.google.com/macros/s/AKfycbweFTFazPzZ7T2W6ldLaUbzlU5nClZ0c0imMaUH8PITATK49ePXZI_6kyz7HQQTKgLE/exec?code=${encodeURIComponent(accessCode)}`);
+        const accessResponse = await fetch(`https://script.google.com/macros/s/AKfycbzB-oRL8sjNXO0P0dcinbAdt5DxGWIp4llHcIQNF6bQ9lVvdUFak4whdiKIxGYNMhbf/exec?code=${encodeURIComponent(accessCode)}`);
         const accessData = await accessResponse.json();
 
         console.log('Access code validation result:', accessData);
@@ -295,7 +295,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         finishLoading();
         document.getElementById('signupSuccessModal').style.display = 'flex';
         document.getElementById('loginRedirectBtn').onclick = () => {
-            window.location.href = 'index.html';
+            window.location.href = '../../../index.html';
         };
 
     } catch (err) {
