@@ -134,7 +134,6 @@ async function loadTradingData() {
   initSorting();
 }
 
-// ====== HELPER: DETEKSI TIPE DATA ======
 function isTradeItem(item) {
   return item && (item.hasOwnProperty('Pairs') || item.hasOwnProperty('Result'));
 }
@@ -371,7 +370,7 @@ function renderTradingTable(data) {
 
   data.forEach((item, index) => {
     if (isActionItem(item)) {
-      const date = new Date(item.date);
+      const date = new Date(item.date * 1000);
       const formattedDate = date.toLocaleDateString("id-ID");
       const value = item.value || 0;
       const isDeposit = item.action === "Deposit";
@@ -400,21 +399,26 @@ function renderTradingTable(data) {
       return;
     }
 
-
     // === HANDLE TRADE BIASA ===
     if (!isTradeItem(item)) return;
 
     const trade = item;
-    function formatDateAsUTC(dateInput) {
-      const d = new Date(dateInput);
-      const day = d.getUTCDate();
-      const month = d.getUTCMonth() + 1;
-      const year = d.getUTCFullYear();
-      return `${day}/${month}/${year}`;
+
+    function formatDateAsWIB(dateInput) {
+      const timestamp = typeof dateInput === 'number' ? dateInput * 1000 : dateInput;
+      const d = new Date(timestamp);
+      if (isNaN(d.getTime())) return '-';
+
+      // Format WIB secara eksplisit
+      return d.toLocaleDateString('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        day: 'numeric',
+        month: 'numeric',
+        year: 'numeric'
+      });
     }
 
-    // Lalu:
-    const formattedDate = formatDateAsUTC(item.date);
+    const formattedDate = formatDateAsWIB(item.date);
 
     const rr = Number(trade.RR);
     const margin = Number(trade.Margin) || 0;

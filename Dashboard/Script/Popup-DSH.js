@@ -3,6 +3,23 @@ let isEditMode = false;
 let currentEditingTradeNo = null;
 const dropdownData = {};
 
+// Konversi Unix timestamp WIB
+function unixToWIBDatetimeLocal(unixSeconds) {
+    if (!unixSeconds && unixSeconds !== 0) return "";
+    
+    const utcDate = new Date(unixSeconds * 1000);
+    
+    const wibDate = new Date(utcDate.getTime() + 7 * 60 * 60 * 1000);
+    
+    const y = wibDate.getUTCFullYear();
+    const m = String(wibDate.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(wibDate.getUTCDate()).padStart(2, '0');
+    const h = String(wibDate.getUTCHours()).padStart(2, '0');
+    const min = String(wibDate.getUTCMinutes()).padStart(2, '0');
+    
+    return `${y}-${m}-${d}T${h}:${min}`;
+}
+
 // ======================= POPUP & DROPDOWN SETUP ======================= //
 function closeAllPopups() {
     document.querySelector(".popup-add")?.classList.remove("show");
@@ -205,9 +222,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// ======================= FILL EDIT FORM ======================= //
+// ======================= Serch Data ======================= //
 function fillEditFormTrade(trade) {
-    document.getElementById("edit-date-trade").value = trade.date ? new Date(trade.date).toISOString().slice(0,16) : "";
+    document.getElementById("edit-date-trade").value = unixToWIBDatetimeLocal(trade.date);
     document.getElementById("edit-pairs").value = trade.Pairs || "";
     document.getElementById("edit-rr").value = trade.RR || "";
     document.getElementById("edit-margin").value = trade.Margin || "";
@@ -230,9 +247,9 @@ function fillEditFormTrade(trade) {
 }
 
 function fillEditFormTransfer(trade) {
-    document.getElementById("edit-date-financial").value = trade.date ? new Date(trade.date).toISOString().slice(0,16) : "";
+    document.getElementById("edit-date-financial").value = unixToWIBDatetimeLocal(trade.date);
     setDropdownValue("edit-action", trade.action);
-    document.getElementById("edit-value").value = trade.value || "";
+    document.getElementById("edit-value").value = Math.abs(trade.value) || "";
 
     currentEditingTradeNo = trade.tradeNumber;
 }
@@ -337,9 +354,7 @@ async function handleAddTrade() {
         // === Ambil tanggal ===
         const dateInputValue = document.getElementById("dateTrade").value;
         if (!dateInputValue) throw new Error("Tanggal belum diisi!");
-
-        const d = new Date(dateInputValue);
-        const correctedDate = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
+        const correctedDate = new Date(dateInputValue);
 
         // === Dropdown values ===
         const methodValue = getDropdownValue("method");
@@ -350,13 +365,11 @@ async function handleAddTrade() {
         const entryValue = getDropdownValue("entry");
         const timeframeValue = getDropdownValue("timeframe");
 
-        // ============================================================
-        // =============== 1. FORMAT RAW UNTUK SERVER ==================
-        // ============================================================
+        // =============== 1. FORMAT RAW UNTUK SERVER 
         const serverData = {
             id: newId,
-            user_id: user_id,                // 🟢 WAJIB
-            date: correctedDate.toISOString(),
+            user_id: user_id,
+            date: Math.floor(correctedDate.getTime() / 1000),
             pairs: document.getElementById("pairs").value.trim(),
             method: methodValue,
             entry: entryValue || "",
@@ -384,13 +397,11 @@ async function handleAddTrade() {
 
         if (insertErr) throw insertErr;
 
-        // ============================================================
         // =============== 2. LOCAL DATA (CACHE) =======================
-        // ============================================================
         const localData = {
             id: newId,
             tradeNumber: nextTradeNumber,
-            date: correctedDate.getTime(),
+            date: Math.floor(correctedDate.getTime() / 1000),
             Pairs: serverData.pairs,
             Method: serverData.method,
             Confluance: {
@@ -428,7 +439,6 @@ async function handleAddTrade() {
 
     } catch (err) {
         console.error("❌ Error:", err);
-        alert("Gagal menambah trade:\n" + err.message);
     }
     finally {
         btn.classList.remove("loading");
@@ -446,7 +456,7 @@ async function handleAddTransfer() {
         if (authErr || !user) throw new Error("User tidak login!");
         const user_id = user.id;
 
-        // --- Ambil ID lokal UNTUK CACHE SAJA (tidak dipakai di server) ---
+        // --- Ambil ID lokal UNTUK CACHE SAJA ---
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const lastId = dbTrade.length > 0
             ? Math.max(...dbTrade.map(t => t.id || 0))
@@ -460,9 +470,7 @@ async function handleAddTransfer() {
 
         // --- Tanggal ---
         const dateInputValue = document.getElementById("dateTransfer").value;
-        if (!dateInputValue) throw new Error("Tanggal belum diisi!");
-        const localDate = new Date(dateInputValue);
-        const correctedDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+        const correctedDate = new Date(dateInputValue);
 
         // --- Action & Value ---
         const selectedActionEl = document.querySelector('[data-dropdown="transfer"] .dropdown-selected span');
@@ -470,37 +478,35 @@ async function handleAddTransfer() {
         const valueInput = parseFloat(document.getElementById("valueTransfer").value);
 
         if (!selectedAction || !["Deposit", "Withdraw"].includes(selectedAction)) {
-            alert("⚠️ Pilih Action (Deposit / Withdraw)!");
             return;
         }
         if (isNaN(valueInput) || valueInput === 0) {
-            alert("⚠️ Isi Value dengan benar!");
             return;
         }
 
         const finalValue = selectedAction === "Withdraw" ? -Math.abs(valueInput) : Math.abs(valueInput);
 
-        // ✅ DATA UNTUK SERVER — TANPA `id`, TANPA `tradeNumber`
+        // DATA UNTUK SERVER — TANPA
         const serverData = {
             id: newId,
             user_id: user_id,
-            date: correctedDate.toISOString(),
+            date: Math.floor(correctedDate.getTime() / 1000),
             action: selectedAction,
             value: finalValue
         };
 
-        // 🔥 INSERT KE SUPABASE — TIDAK KIRIM `id`
+        // INSERT KE SUPABASE
         const { error: insertErr } = await supabaseClient
             .from("transactions")
-            .insert([serverData]); // .select() tidak diperlukan kalau tidak butuh respons
+            .insert([serverData]);
 
         if (insertErr) throw insertErr;
 
         // --- Simpan ke LOCAL CACHE ---
         const localData = {
-            id: newId,               // hanya untuk keperluan lokal/UI
+            id: newId,
             tradeNumber: nextTradeNumber,
-            date: correctedDate.getTime(),
+            date: Math.floor(correctedDate.getTime() / 1000),
             action: selectedAction,
             value: finalValue
         };
@@ -526,7 +532,6 @@ async function handleAddTransfer() {
 
     } catch (err) {
         console.error("❌ Gagal menambahkan transfer:", err);
-        alert(`Gagal menambahkan transfer:\n${err.message}`);
     } finally {
         btn.classList.remove("loading");
     }
@@ -589,13 +594,12 @@ async function handleSaveEditTrade() {
         // --- Validasi tanggal ---
         const dateInputValue = getVal("edit-date-trade");
         if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
-        const localDate = new Date(dateInputValue);
-        const correctedDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+        const correctedDate = new Date(dateInputValue);
 
         // --- Data untuk SERVER (sesuai skema tabel `trades`) ---
         const serverUpdate = {
             user_id: user_id,
-            date: correctedDate.toISOString(),
+            date: Math.floor(correctedDate.getTime() / 1000),
             pairs: getVal("edit-pairs"),
             method: getDropdown("edit-method"),
             entry: getDropdown("edit-entry"),
@@ -626,7 +630,7 @@ async function handleSaveEditTrade() {
         // --- Update LOCAL CACHE ---
         const updatedLocal = {
             ...item,
-            date: correctedDate.getTime(),
+            date: Math.floor(correctedDate.getTime() / 1000),
             Pairs: serverUpdate.pairs,
             Method: serverUpdate.method,
             Confluance: {
@@ -693,8 +697,7 @@ async function handleSaveEditTransfer() {
 
         const dateInputValue = getVal("edit-date-financial");
         if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
-        const localDate = new Date(dateInputValue);
-        const correctedDate = new Date(localDate.getTime() - localDate.getTimezoneOffset() * 60000);
+        const correctedDate = new Date(dateInputValue);
 
         const action = getDropdownValue("edit-action");
         if (!action || !["Deposit", "Withdraw"].includes(action)) {
@@ -707,7 +710,7 @@ async function handleSaveEditTransfer() {
         // --- Data untuk tabel `transactions` ---
         const serverUpdate = {
             user_id: user_id,
-            date: correctedDate.toISOString(),
+            date: Math.floor(correctedDate.getTime() / 1000),
             action: action,
             value: value
         };
@@ -724,7 +727,7 @@ async function handleSaveEditTransfer() {
         // --- Update LOCAL ---
         const updatedLocal = {
             ...item,
-            date: correctedDate.getTime(),
+            date: Math.floor(correctedDate.getTime() / 1000),
             action: action,
             value: value
         };
@@ -1586,8 +1589,8 @@ function updateDataShare() {
         else if (selectedRangeShare === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
         else if (selectedRangeShare === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
 
-        const balanceBefore = calculateBalanceAtTime(trades, cutoff - 1); // balance sebelum rentang
-        const balanceNow = calculateBalanceAtTime(trades, now);          // balance sampai sekarang
+        const balanceBefore = calculateBalanceAtTime(trades, cutoff - 1);
+        const balanceNow = calculateBalanceAtTime(trades, now);
         console.log("Balance 24H lalu:", balanceBefore);
         console.log("Balance sekarang:", balanceNow);
         console.log("Perubahan:", balanceNow - balanceBefore);
@@ -1596,19 +1599,13 @@ function updateDataShare() {
         if (balanceBefore !== 0) {
             roiPercent = ((balanceNow - balanceBefore) / balanceBefore) * 100;
         } else {
-            // Tidak ada balance awal → ROI tidak terdefinisi
-            // Bisa fallback ke 0, atau gunakan logika khusus
             if (balanceNow === 0) {
                 roiPercent = 0;
             } else {
-                // Misal: anggap sebagai +100% atau biarkan sebagai angka besar
-                // Tapi untuk UI, seringnya ditampilkan sebagai "+0%" atau "—"
-                // Kita pakai 0 sebagai fallback sementara
                 roiPercent = 0;
             }
         }
     } else {
-        // Untuk range 'ALL', tetap pakai logika lama: PnL / Deposit
         roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
     }
 
