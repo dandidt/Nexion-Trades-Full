@@ -160,7 +160,7 @@ function updateDashboardFromTrades(data = []) {
 
   const pad = (n) => (n < 10 ? '0' + n : n);
   const formatDateDDMMYYYY = (d) => {
-    const dt = new Date(d);
+    const dt = new Date(d * 1000);
     if (Number.isNaN(dt.getTime())) return '-';
     return `${pad(dt.getDate())}-${pad(dt.getMonth()+1)}-${dt.getFullYear()}`;
   };
@@ -255,10 +255,10 @@ function updateDashboardFromTrades(data = []) {
     }
 
     let bestIndexInOriginal = -1;
-    const bestDateMs = new Date(bestTrade.date).getTime();
+    const bestDateMs = new Date(bestTrade.date * 1000).getTime();
     for (let i = 0; i < originalData.length; i++) {
       const t = originalData[i];
-      const tDateMs = new Date(t.date).getTime();
+      const tDateMs = new Date(t.date * 1000).getTime();
       const tPair = normalizePair(t.Pairs || t.pairs);
       const tPnl = parsePnl(t.Pnl);
 
@@ -350,7 +350,7 @@ function updateDashboardFromTrades(data = []) {
   tradeData.forEach(t => {
     const pnl = parsePnl(t.Pnl);
     if (pnl <= 0) return;
-    const d = new Date(t.date);
+    const d = new Date(t.date * 1000);
     if (Number.isNaN(d.getTime())) return;
     const key = `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
     dailyWins[key] = (dailyWins[key] || 0) + pnl;

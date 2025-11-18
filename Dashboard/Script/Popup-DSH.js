@@ -1522,11 +1522,18 @@ function filterByRangeShare(data, range) {
     if (range === '24H') cutoff = now - 24 * 60 * 60 * 1000;
     else if (range === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
     else if (range === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
+
     return data.filter(item => {
-        const tDate = typeof item.date === 'string' 
-            ? new Date(item.date).getTime() 
-            : item.date;
-        return tDate && tDate >= cutoff;
+        let tDate;
+        if (typeof item.date === 'string') {
+            tDate = new Date(item.date).getTime();
+        } else if (typeof item.date === 'number') {
+            // Anggap sebagai Unix timestamp dalam DETIK → konversi ke milidetik
+            tDate = item.date * 1000;
+        } else {
+            tDate = NaN;
+        }
+        return !isNaN(tDate) && tDate >= cutoff;
     });
 }
 
@@ -1543,7 +1550,15 @@ function calculateBalanceAtTime(trades, targetTime) {
     // targetTime: timestamp (ms). Hitung balance dari semua transaksi DENGAN date <= targetTime
     let balance = 0;
     trades.forEach(t => {
-        const tDate = typeof t.date === 'string' ? new Date(t.date).getTime() : t.date;
+        let tDate;
+        if (typeof t.date === 'string') {
+            tDate = new Date(t.date).getTime();
+        } else if (typeof t.date === 'number') {
+            tDate = t.date * 1000; // ←←← KALIKAN 1000
+        } else {
+            tDate = NaN;
+        }
+        
         if (!tDate || tDate > targetTime) return;
 
         if (t.action?.toLowerCase() === 'deposit') {
@@ -1561,7 +1576,14 @@ function calculateBalanceAtTime(trades, targetTime) {
 function updateDataShare() {
     const trades = JSON.parse(localStorage.getItem('dbtrade') || '[]');
     const allDates = trades.map(t => {
-        const d = typeof t.date === 'string' ? new Date(t.date).getTime() : t.date;
+        let d;
+        if (typeof t.date === 'string') {
+            d = new Date(t.date).getTime();
+        } else if (typeof t.date === 'number') {
+            d = t.date * 1000; // ←←← KALIKAN 1000
+        } else {
+            d = NaN;
+        }
         return isNaN(d) ? 0 : d;
     }).filter(d => d > 0);
 

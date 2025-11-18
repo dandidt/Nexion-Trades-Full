@@ -72,17 +72,20 @@ async function loadTradeHistory() {
 
         const sortedTrades = tradeData
             .filter(t => t.date)
-            .sort((a, b) => a.date - b.date);
+            .sort((a, b) => Number(a.date) - Number(b.date));
 
         let cumulativeBalance = 0;
         const processedData = [];
 
         for (const entry of sortedTrades) {
+            const timestampMs = Number(entry.date) * 1000;
+            const tradeDate = new Date(timestampMs);
+
             if (entry.action === 'Deposit' || entry.action === 'Withdraw') {
                 const val = Number(entry.value) || 0;
                 cumulativeBalance += val;
                 processedData.push({
-                    date: new Date(Number(entry.date)),
+                    date: tradeDate,
                     balance: parseFloat(cumulativeBalance.toFixed(2)),
                     tradeNumber: entry.tradeNumber,
                     PnL: val,
@@ -95,7 +98,7 @@ async function loadTradeHistory() {
                 const pnl = Number(entry.Pnl) || 0;
                 cumulativeBalance += pnl;
                 processedData.push({
-                    date: new Date(Number(entry.date)),
+                    date: tradeDate,
                     balance: parseFloat(cumulativeBalance.toFixed(2)),
                     tradeNumber: entry.tradeNumber,
                     PnL: pnl
@@ -103,7 +106,8 @@ async function loadTradeHistory() {
             }
         }
 
-        const firstDate = new Date(Number(sortedTrades[0]?.date || Date.now()));
+        const firstValidDate = sortedTrades[0]?.date;
+        const firstDate = new Date((Number(firstValidDate) || Math.floor(Date.now() / 1000)) * 1000);
         const zeroPointDate = new Date(firstDate.getTime() - 2000);
 
         balanceFullData = [
@@ -845,6 +849,7 @@ function resizeCanvas() {
         drawChart();
     }
 }
+
 async function loadData() {
     try {
         const rawData = await getDB();
@@ -852,7 +857,7 @@ async function loadData() {
         const trades = rawData
             .filter(item => typeof item.date === 'number' && !isNaN(item.date))
             .map(item => ({
-                date: new Date(item.date),
+                date: new Date(item.date * 1000), // ←←← INI YANG DIUPDATE
                 pnl: (typeof item.Pnl === 'number') ? item.Pnl : 0,
                 rr: (typeof item.RR === 'number') ? item.RR : 0
             }))
