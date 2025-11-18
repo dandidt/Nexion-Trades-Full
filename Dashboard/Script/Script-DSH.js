@@ -1,5 +1,4 @@
 // ======================= Format ======================= //
-// Fungsi untuk format$xxx,xxx.xx
 function formatUSD(value) {
     return `$${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
 }

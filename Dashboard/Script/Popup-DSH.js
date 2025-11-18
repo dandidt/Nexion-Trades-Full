@@ -1242,16 +1242,12 @@ document.querySelectorAll('.editable').forEach(el => {
 updateUI();
 
 function restartSOP() {
-    // 1. Reload rules dan data
     sopRules = loadSOP();
 
-    // 2. Hitung ulang data trading hari ini
     const todaySop = getTodaySOPData();
 
-    // 3. Update objek utama
     Object.assign(tradingDataSop, todaySop);
 
-    // 4. Render ulang UI
     updateUI();
 
     console.log('🔄 SOP UI Restarted:', tradingDataSop);
@@ -1540,9 +1536,35 @@ function getTitleByRangeShare(range) {
     }
 }
 
+function calculateBalanceAtTime(trades, targetTime) {
+    // targetTime: timestamp (ms). Hitung balance dari semua transaksi DENGAN date <= targetTime
+    let balance = 0;
+    trades.forEach(t => {
+        const tDate = typeof t.date === 'string' ? new Date(t.date).getTime() : t.date;
+        if (!tDate || tDate > targetTime) return;
+
+        if (t.action?.toLowerCase() === 'deposit') {
+            balance += parseFloat(t.value) || 0;
+        } else if (t.action?.toLowerCase() === 'withdraw') {
+            balance -= parseFloat(t.value) || 0;
+        } else if ((t.Result === 'Profit' || t.Result === 'Loss') && typeof t.Pnl === 'number') {
+            balance += parseFloat(t.Pnl) || 0;
+        }
+    });
+    return balance;
+}
+
 // UPDATE DATA DARI LOCAL STORAGE
 function updateDataShare() {
     const trades = JSON.parse(localStorage.getItem('dbtrade') || '[]');
+    const allDates = trades.map(t => {
+        const d = typeof t.date === 'string' ? new Date(t.date).getTime() : t.date;
+        return isNaN(d) ? 0 : d;
+    }).filter(d => d > 0);
+
+    const maxTradeTime = allDates.length > 0 ? Math.max(...allDates) : Date.now();
+    const now = maxTradeTime;
+
     const filteredTrades = filterByRangeShare(trades, selectedRangeShare);
 
     const depositData = filteredTrades.filter(t => t.action?.toLowerCase() === 'deposit');
@@ -1554,18 +1576,58 @@ function updateDataShare() {
     const totalDeposit = depositData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
     const totalWithdraw = withdrawData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
     const totalPnL = executedTrades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
-    const roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
 
-    const profitTrades = executedTrades.filter(t => t.Pnl > 0).length;
-    const winRate = executedTrades.length > 0 ? (profitTrades / executedTrades.length) * 100 : 0;
+    // === LOGIKA BARU UNTUK PERSENTASE ===
+    let roiPercent = 0;
 
+    if (['24H', '1W', '30D'].includes(selectedRangeShare)) {
+        let cutoff = 0;
+        if (selectedRangeShare === '24H') cutoff = now - 24 * 60 * 60 * 1000;
+        else if (selectedRangeShare === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
+        else if (selectedRangeShare === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
+
+        const balanceBefore = calculateBalanceAtTime(trades, cutoff - 1); // balance sebelum rentang
+        const balanceNow = calculateBalanceAtTime(trades, now);          // balance sampai sekarang
+        console.log("Balance 24H lalu:", balanceBefore);
+        console.log("Balance sekarang:", balanceNow);
+        console.log("Perubahan:", balanceNow - balanceBefore);
+        console.log("ROI:", roiPercent + "%");
+
+        if (balanceBefore !== 0) {
+            roiPercent = ((balanceNow - balanceBefore) / balanceBefore) * 100;
+        } else {
+            // Tidak ada balance awal → ROI tidak terdefinisi
+            // Bisa fallback ke 0, atau gunakan logika khusus
+            if (balanceNow === 0) {
+                roiPercent = 0;
+            } else {
+                // Misal: anggap sebagai +100% atau biarkan sebagai angka besar
+                // Tapi untuk UI, seringnya ditampilkan sebagai "+0%" atau "—"
+                // Kita pakai 0 sebagai fallback sementara
+                roiPercent = 0;
+            }
+        }
+    } else {
+        // Untuk range 'ALL', tetap pakai logika lama: PnL / Deposit
+        roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
+    }
+
+    // Update TEXT_CONTENT_SHARE seperti biasa
     TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
     TEXT_CONTENT_SHARE.persentase = formatPersenShare(roiPercent);
     TEXT_CONTENT_SHARE.invested = formatNumberShare(totalDeposit);
     TEXT_CONTENT_SHARE.divestasi = formatNumberShare(totalWithdraw);
     TEXT_CONTENT_SHARE.trade = executedTrades.length.toString();
-    TEXT_CONTENT_SHARE.winrate = formatPersenShare(winRate).replace('+', '');
+    TEXT_CONTENT_SHARE.winrate = formatPersenShare(
+        executedTrades.length > 0 ? (executedTrades.filter(t => t.Pnl > 0).length / executedTrades.length) * 100 : 0
+    ).replace('+', '');
     TEXT_CONTENT_SHARE.title = getTitleByRangeShare(selectedRangeShare);
+
+    console.log("=== ALL TRADES ===", trades);
+    console.log("=== FILTERED 24H ===", filteredTrades);
+    console.log("Total PnL:", totalPnL);
+    console.log("Total Deposit:", totalDeposit);
+    console.log("Total Withdraw:", totalWithdraw);
 }
 
 // LOAD IMAGES
