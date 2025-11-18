@@ -799,75 +799,62 @@
                 </div>
             </div>
 
-            <div class="container-wrapper-setting">
-                <!-- Left Menu -->
-                <div class="container-setting fade-up">
-                    <h2 class="title-setting">Global Settings</h2>
-                    <div class="form-group">
-                        <label for="timezone">Time Zone</label>
-                        <div class="custom-select">
-                            <select id="timezone">
-                                <option value="Asia/Jakarta">WIB - Jakarta (GMT+7)</option>
-                                <option value="Asia/Makassar">WITA - Makassar (GMT+8)</option>
-                                <option value="Asia/Jayapura">WIT - Jayapura (GMT+9)</option>
-                                <option value="Asia/Singapore">Singapore (GMT+8)</option>
-                                <option value="Asia/Tokyo">Tokyo (GMT+9)</option>
-                                <option value="Asia/Seoul">Seoul (GMT+9)</option>
-                                <option value="Asia/Dubai">Dubai (GMT+4)</option>
-                                <option value="Europe/London">London (GMT+0)</option>
-                                <option value="Europe/Paris">Paris (GMT+1)</option>
-                                <option value="America/New_York">New York (GMT-5)</option>
-                                <option value="America/Los_Angeles">Los Angeles (GMT-8)</option>
-                                <option value="America/Chicago">Chicago (GMT-6)</option>
-                                <option value="Australia/Sydney">Sydney (GMT+11)</option>
-                                <option value="Pacific/Auckland">Auckland (GMT+13)</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <div class="time-display">
-                        <div class="label">Current Time</div>
-                        <div class="time" id="currentTime">Loading...</div>
-                    </div>
-
-                    <h2 class="title-setting">Automatic Calculator</h2>
-                    <div class="form-group">
-                        <label for="fee">Fee (%)</label>
-                        <p class="info-text">This fee will be calculated when opening and closing a position.</p>
-                        <div class="input-wrapper">
-                            <input type="number" id="fee" step="0.01" min="0" max="100" placeholder="1">
-                            <span class="percent-sign">%</span>
-                        </div>
-                    </div>
-    
-                    <div class="form-group">
-                        <label for="risk">Risk Per Trade (%)</label>
-                        <p class="info-text">Risk Per Trade from Initial Balance</p>
-                        <div class="input-wrapper">
-                            <input type="number" id="risk" step="0.1" min="0" max="100" placeholder="2.5">
-                            <span class="percent-sign">%</span>
-                        </div>
-                    </div>
-
-                    <h2 class="title-setting">Data Jurnal Trade</h2>
-                    <div class="form-group">
-                        <label>Download Data</label>
-                        <p class="info-text">To download data, you can directly click</p>
-                        <div class="column-download">
-                            <button class="btn btn-green btn-download" id="downloadCSV">Format CSV</button>
-                            <button class="btn btn-green btn-download" id="downloadJSON">Format JSON</button>
-                        </div>
+            <div class="container-setting fade-up">
+                <h2 class="title-setting">Global Settings</h2>
+                <div class="form-group">
+                    <label for="timezone">Time Zone</label>
+                    <div class="custom-select">
+                        <select id="timezone">
+                            <option value="Asia/Jakarta">WIB - Jakarta (GMT+7)</option>
+                            <option value="Asia/Makassar">WITA - Makassar (GMT+8)</option>
+                            <option value="Asia/Jayapura">WIT - Jayapura (GMT+9)</option>
+                            <option value="Asia/Singapore">Singapore (GMT+8)</option>
+                            <option value="Asia/Tokyo">Tokyo (GMT+9)</option>
+                            <option value="Asia/Seoul">Seoul (GMT+9)</option>
+                            <option value="Asia/Dubai">Dubai (GMT+4)</option>
+                            <option value="Europe/London">London (GMT+0)</option>
+                            <option value="Europe/Paris">Paris (GMT+1)</option>
+                            <option value="America/New_York">New York (GMT-5)</option>
+                            <option value="America/Los_Angeles">Los Angeles (GMT-8)</option>
+                            <option value="America/Chicago">Chicago (GMT-6)</option>
+                            <option value="Australia/Sydney">Sydney (GMT+11)</option>
+                            <option value="Pacific/Auckland">Auckland (GMT+13)</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- Right Menu -->
-                <div class="container-informasion-setting fade-up">
-                    <div class="row-banner-setting">
-                        <img src="Asset/Logo_X_Metalik_Mint.png">
+                <div class="time-display">
+                    <div class="label">Current Time</div>
+                    <div class="time" id="currentTime">Loading...</div>
+                </div>
+
+                <h2 class="title-setting">Automatic Calculator</h2>
+                <div class="form-group">
+                    <label for="fee">Fee (%)</label>
+                    <p class="info-text">This fee will be calculated when opening and closing a position.</p>
+                    <div class="input-wrapper">
+                        <input type="number" id="fee" step="0.01" min="0" max="100" placeholder="1">
+                        <span class="percent-sign">%</span>
                     </div>
-                    <p class="information-setting">
-                        This website is currently in the testing phase. You may encounter bugs or incomplete features. We're actively working on improvements and upcoming updates thank you for your patience and support.
-                    </p>
+                </div>
+
+                <div class="form-group">
+                    <label for="risk">Risk Per Trade (%)</label>
+                    <p class="info-text">Risk Per Trade from Initial Balance</p>
+                    <div class="input-wrapper">
+                        <input type="number" id="risk" step="0.1" min="0" max="100" placeholder="2.5">
+                        <span class="percent-sign">%</span>
+                    </div>
+                </div>
+
+                <h2 class="title-setting">Data Jurnal Trade</h2>
+                <div class="form-group">
+                    <label>Download Data</label>
+                    <p class="info-text">To download data, you can directly click</p>
+                    <div class="column-download">
+                        <button class="btn btn-green btn-download" id="downloadCSV">Format CSV</button>
+                        <button class="btn btn-green btn-download" id="downloadJSON">Format JSON</button>
+                    </div>
                 </div>
             </div>
         </section>
@@ -1560,12 +1547,7 @@
 
         <!-- ===== Popup Sop ===== -->
         <div class="popup-container popup-sop">
-            <div class="box-header-sop">
-                <h1>SOP Trading</h1>
-                <div class="alert" id="mainAlert">
-                    <div class="alert-text" id="alertText"></div>
-                </div>
-            </div>
+            <h1 class="title-sop">SOP Trading</h1>
 
             <div class="container-sop">
                 <div class="wrapper-sop">

@@ -99,8 +99,7 @@ function urlToBase64(url) {
     });
 }
 
-// Form handling - Supabase login
-// Form handling - Supabase login
+// Form handling - Supabase login (diperbaiki)
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -125,43 +124,54 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         const user = userData.user;
         console.log("👤 Data user lengkap:", user);
 
-        // Ambil avatar_url dari tabel profiles
-        console.log("🔍 Mencari avatar_url di tabel profiles...");
+        // Ambil avatar_path (seharusnya path, bukan URL) dari tabel profiles
+        console.log("🔍 Mencari avatar_path di tabel profiles...");
         const { data: profileData, error: profileError } = await supabaseClient
             .from('profiles')
-            .select('avatar_url')
+            .select('avatar_url') // ← tetap pakai kolom 'avatar_url', tapi isinya HARUS path seperti: "user-id/filename.jpg"
             .eq('id', user.id)
             .single();
 
-        if (profileError) {
+        if (profileError && profileError.code !== 'PGRST116') {
             console.warn("⚠️ Gagal mengambil data profile:", profileError);
-        } else {
-            console.log("📊 Data profile:", profileData);
         }
 
-        const avatarUrl = profileData?.avatar_url;
-        console.log("🖼️ avatar_url dari profiles:", avatarUrl);
+        const avatarPath = profileData?.avatar_url; // ← ini seharusnya PATH, bukan full URL
+        console.log("🖼️ avatar_path dari profiles:", avatarPath);
 
-        if (avatarUrl) {
+        if (avatarPath) {
             try {
-                console.log("⏳ Memulai proses konversi avatar ke base64...");
-                const base64 = await urlToBase64(avatarUrl);
+                console.log("⏳ Memulai download avatar via Supabase client...");
+                const { data: fileData, error: downloadError } = await supabaseClient
+                    .storage
+                    .from('avatars')
+                    .download(avatarPath); // ← ini akan otomatis pakai session auth
+
+                if (downloadError) {
+                    throw new Error(`Download gagal: ${downloadError.message}`);
+                }
+
+                // Konversi Blob ke base64
+                const arrayBuffer = await fileData.arrayBuffer();
+                const base64 = `data:${fileData.type};base64,${btoa(
+                    new Uint8Array(arrayBuffer).reduce((data, byte) => data + String.fromCharCode(byte), '')
+                )}`;
+
                 localStorage.setItem('avatar', base64);
                 console.log("✅ Avatar berhasil disimpan ke localStorage");
             } catch (imgErr) {
-                console.warn("⚠️ Gagal menyimpan avatar ke cache:", imgErr);    
+                console.warn("⚠️ Gagal menyimpan avatar ke cache:", imgErr);
+                localStorage.removeItem('avatar'); // hapus jika error
             }
         } else {
             localStorage.removeItem('avatar');
-            console.log("🗑️ Tidak ada avatar_url — menghapus cache avatar lama");
+            console.log("🗑️ Tidak ada avatar_path — menghapus cache avatar lama");
         }
 
-        // Tunggu sebentar untuk memastikan semua proses selesai
+        // Tunggu sebentar
         await new Promise(resolve => setTimeout(resolve, 100));
-        
         finishLoading();
-        
-        // Tunggu animasi loader selesai sebelum redirect
+
         setTimeout(() => {
             console.log("➡️ Redirect ke index.html");
             window.location.href = "../index.html";
@@ -185,11 +195,11 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
                 alertElem.textContent = "Incorrect email or password.";
             } else if (errorMsg?.includes("email not confirmed")) {
                 emailInput.style.borderColor = '#ff5555';
-                alertElem.textContent = "Email not verified. Please check your inbox..";
+                alertElem.textContent = "Email not verified. Please check your inbox.";
             } else {
                 emailInput.style.borderColor = '#ff5555';
                 passwordInput.style.borderColor = '#ff5555';
-                alertElem.textContent = "Login failed. Please try again..";
+                alertElem.textContent = "Login failed. Please try again.";
             }
         }
     }

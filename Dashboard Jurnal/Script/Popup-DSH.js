@@ -327,7 +327,7 @@ async function handleAddTrade() {
         const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
         if (authErr || !user) throw new Error("User tidak login!");
         
-        const user_id = user.id;   // 🟢 INI user_id yang valid dan harus dikirim ke server
+        const user_id = user.id;
 
         // --- Load local cache dulu ---
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
@@ -335,7 +335,7 @@ async function handleAddTrade() {
         const { newId, nextTradeNumber } = getNextLocalIds();
 
         // === Ambil tanggal ===
-        const dateInputValue = document.getElementById("dateTransfer").value;
+        const dateInputValue = document.getElementById("dateTrade").value;
         if (!dateInputValue) throw new Error("Tanggal belum diisi!");
 
         const d = new Date(dateInputValue);
@@ -1221,24 +1221,6 @@ function updateUI() {
         statusLoss.className = 'info-card active';
         statusLoss.querySelector('.info-value').textContent = `${lossesLeft} LEFT`;
     }
-    
-    // Main alert
-    const mainAlert = document.getElementById('mainAlert');
-    const alertText = document.getElementById('alertText');
-    
-    if (!canTrade) {
-        mainAlert.className = 'alert danger';
-        alertText.textContent = 'STOP TRADING - Daily limit reached';
-    } else if (!canEntry) {
-        mainAlert.className = 'alert danger';
-        alertText.textContent = 'ENTRY NOT ALLOWED - Max entry reached';
-    } else if (wins >= maxWin - 1 || losses >= maxLoss - 1 || entries >= maxEntry - 1) {
-        mainAlert.className = 'alert warning';
-        alertText.textContent = 'CAUTION - Approaching the daily limit';
-    } else {
-        mainAlert.className = 'alert';
-        alertText.textContent = 'Trading can be done';
-    }
 }
 
 document.querySelectorAll('.editable').forEach(el => {
@@ -1315,9 +1297,7 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("closeShare")?.addEventListener("click", () => closePopup(popupShare));
 });
 
-// ====================================
 // EVENT UNTUK TOMBOL RANGE
-// ====================================
 document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
@@ -1333,9 +1313,7 @@ const ctxShare = canvasShare.getContext('2d');
 let templateImageShare = null;
 let profileImageShare = null;
 
-// ====================================
 // TEMPLATE SWITCHER
-// ====================================
 const TEMPLATE_LIST_SHARE = [
     'Asset/Card-Default.png',
     'Asset/Card-Gold.png'
@@ -1343,7 +1321,7 @@ const TEMPLATE_LIST_SHARE = [
 
 let currentTemplateIndexShare = 0;
 
-const PROFILE_PATH_SHARE = 'Asset/dhanntara.jpg';
+const PROFILE_PATH_SHARE = localStorage.getItem('avatar') || 'Asset/dhanntara.jpg';
 
 const TEXT_CONTENT_SHARE = {
     title: 'ALL-Time Realized',
@@ -1353,10 +1331,9 @@ const TEXT_CONTENT_SHARE = {
     trade: '0',
     winrate: '0.00%',
     invested: '$0.00',
-    username: 'Dhanntara' // bisa diganti dinamis kalau mau
+    username: 'Dhanntara'
 };
 
-// === POSISI TEKS ===
 const TEXT_POSITIONS_SHARE = {
     title: [190, 232],
     profit: [430, 545],
@@ -1369,9 +1346,7 @@ const TEXT_POSITIONS_SHARE = {
     profilePhoto: [1400, 108]
 };
 
-// ====================================
 // STYLE TEKS
-// ====================================
 const STYLE_TITLE_SHARE = {
     font: `800 60px Inter`,
     color: '#ffffff',
@@ -1449,9 +1424,7 @@ function getUsernameBgColorShare() {
     return 'rgba(52, 211, 153, 0.05)';
 }
 
-// ====================================
-// FORMAT BANTUAN
-// ====================================
+// FORMAT
 function formatNumberShare(num) {
     if (num === null || num === undefined || isNaN(num)) return '0';
 
@@ -1518,9 +1491,7 @@ function formatPersenShare(pct) {
     return `${sign}${formattedValue}${suffix}%`;
 }
 
-// ====================================
 // FILTER & HITUNG DATA
-// ====================================
 let selectedRangeShare = '24H';
 
 function filterByRangeShare(data, range) {
@@ -1547,9 +1518,7 @@ function getTitleByRangeShare(range) {
     }
 }
 
-// ====================================
 // UPDATE DATA DARI LOCAL STORAGE
-// ====================================
 function updateDataShare() {
     const trades = JSON.parse(localStorage.getItem('dbtrade') || '[]');
     const filteredTrades = filterByRangeShare(trades, selectedRangeShare);
@@ -1577,9 +1546,7 @@ function updateDataShare() {
     TEXT_CONTENT_SHARE.title = getTitleByRangeShare(selectedRangeShare);
 }
 
-// ====================================
 // LOAD IMAGES
-// ====================================
 function loadTemplateShare() {
     const img = new Image();
     img.onload = function() {
@@ -1612,9 +1579,7 @@ function loadProfileImageShare() {
     img.src = PROFILE_PATH_SHARE;
 }
 
-// ====================================
 // DRAWING FUNCTIONS
-// ====================================
 function drawTextWithLetterSpacingShare(ctx, text, x, y, letterSpacing = 0, style) {
     ctx.font = style.font;
     ctx.textAlign = 'left';
@@ -1675,7 +1640,6 @@ function drawCanvasShare() {
     ctxShare.clearRect(0, 0, canvasShare.width, canvasShare.height);
     ctxShare.drawImage(templateImageShare, 0, 0);
 
-    // === USERNAME DENGAN BACKGROUND ===
     const usernameText = TEXT_CONTENT_SHARE.username;
     const [x, y] = TEXT_POSITIONS_SHARE.username;
     const style = STYLE_USERNAME_SHARE;
@@ -1698,19 +1662,15 @@ function drawCanvasShare() {
     else ctxShare.rect(boxX, boxY, boxW, boxH);
     ctxShare.fill();
 
-
     ctxShare.strokeStyle = getUsernameBorderColorShare();
     ctxShare.lineWidth = 1;
     ctxShare.stroke();
 
-
     const textY = boxY + paddingY + ascent;
     drawTextWithLetterSpacingShare(ctxShare, usernameText, boxX + paddingX, textY, letterSpacing, style);
 
-    // === PROFILE PHOTO ===
     drawProfilePhotoShare();
 
-    // === TEKS UTAMA ===
     const keys = ['title', 'profit', 'persentase', 'divestasi', 'trade', 'winrate', 'invested'];
     keys.forEach(key => {
         const text = TEXT_CONTENT_SHARE[key];
@@ -1731,9 +1691,7 @@ function drawCanvasShare() {
     });
 }
 
-// ====================================
 // UTILITAS
-// ====================================
 async function copyImageShare() {
     try {
         const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
@@ -1750,9 +1708,7 @@ function downloadImageShare() {
     link.click();
 }
 
-// ====================================
 // EVENT UNTUK GANTI RANGE
-// ====================================
 document.querySelectorAll('.range-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         selectedRangeShare = btn.dataset.range;
@@ -1761,9 +1717,7 @@ document.querySelectorAll('.range-btn').forEach(btn => {
     });
 });
 
-// ====================================
 // SWITCH TEMPLATE (LEFT & RIGHT BUTTON)
-// ====================================
 document.querySelector('.box-switch-left').addEventListener('click', () => {
     currentTemplateIndexShare--;
     if (currentTemplateIndexShare < 0) currentTemplateIndexShare = TEMPLATE_LIST_SHARE.length - 1;
@@ -1776,9 +1730,7 @@ document.querySelector('.box-switch-right').addEventListener('click', () => {
     loadTemplateShare();
 });
 
-// ====================================
 // INIT
-// ====================================
 canvasShare.width = 800;
 canvasShare.height = 600;
 ctxShare.fillStyle = '#f0f0f0';
@@ -1800,7 +1752,6 @@ shareButtons.forEach((btn) => {
         try {
             const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
             await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-            console.log('✅ Gambar disalin ke clipboard!');
         } catch (err) {
             console.warn('Gagal copy gambar, mungkin izin clipboard belum diberikan.');
         }

@@ -273,8 +273,16 @@ document.getElementById('signupForm').addEventListener('submit', async function(
                 .upload(filePath, compressedFile, { upsert: true });
             if (uploadError) throw uploadError;
 
-            const { data: urlData } = supabaseClient.storage.from('avatars').getPublicUrl(filePath);
-            avatarUrl = urlData.publicUrl;
+            avatarUrl = filePath;
+
+            // ✅ Simpan avatar ke localStorage langsung dari compressedFile
+            const reader = new FileReader();
+            const base64 = await new Promise((resolve, reject) => {
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(compressedFile);
+            });
+            localStorage.setItem('avatar', base64);
         }
 
         const { error: profileError } = await supabaseClient
