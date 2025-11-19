@@ -1623,30 +1623,70 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ------ Logout ------ //
-document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
+function showLogoutConfirm(message = "Are you sure you want to log out of this account?") {
+    return new Promise((resolve) => {
+        const popup = document.getElementById("logoutModal");
+        const msg = document.querySelector("#logoutModal .confirm-message");
+        const yes = document.getElementById("confirmLogoutBtn");
+        const no = document.getElementById("cancelLogoutBtn");
+
+        msg.textContent = message;
+
+        popup.style.zIndex = "1000";
+        popup.classList.remove("hidden");
+
+        // Force reflow
+        popup.offsetHeight;
+
+        const cleanup = (result) => {
+            popup.style.animation = "fadeOut 0.2s ease-out";
+
+            setTimeout(() => {
+                popup.classList.add("hidden");
+                popup.style.animation = "";
+                yes.removeEventListener("click", onYes);
+                no.removeEventListener("click", onNo);
+                document.removeEventListener("keydown", onEscKey);
+                resolve(result);
+            }, 200);
+        };
+
+        const onYes = (e) => {
+            e.stopPropagation();
+            cleanup(true);
+        };
+
+        const onNo = (e) => {
+            e.stopPropagation();
+            cleanup(false);
+        };
+
+        const onEscKey = (e) => {
+            if (e.key === "Escape") {
+                cleanup(false);
+            }
+        };
+
+        yes.addEventListener("click", onYes);
+        no.addEventListener("click", onNo);
+        document.addEventListener("keydown", onEscKey);
+    });
+}
+
+document.getElementById('logoutAccount')?.addEventListener('click', async (e) => {
     e.preventDefault();
-    document.getElementById('logoutModal').style.display = 'flex';
-});
-
-document.getElementById('cancelLogoutBtn')?.addEventListener('click', () => {
-    document.getElementById('logoutModal').style.display = 'none';
-});
-
-document.getElementById('confirmLogoutBtn')?.addEventListener('click', async () => {
-    try {
-        document.getElementById('logoutModal').style.display = 'none';
-
-        localStorage.removeItem('dbtrade');
-        localStorage.removeItem('avatar');
-
-        const { error } = await supabaseClient.auth.signOut();
-        if (error) throw error;
-
-        window.location.href = '../index.html';
-
-    } catch (err) {
-        console.error('Logout error:', err);
-        alert('Gagal logout. Silakan coba lagi.');
+    const shouldLogout = await showLogoutConfirm();
+    if (shouldLogout) {
+        try {
+            localStorage.removeItem('dbtrade');
+            localStorage.removeItem('avatar');
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) throw error;
+            window.location.href = '../index.html';
+        } catch (err) {
+            console.error('Logout error:', err);
+            alert('Gagal logout. Silakan coba lagi.');
+        }
     }
 });
 

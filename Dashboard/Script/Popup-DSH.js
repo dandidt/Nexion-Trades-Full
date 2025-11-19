@@ -1479,53 +1479,47 @@ const STYLE_USERNAME_SHARE = {
 };
 
 function determineTemplateIndex(persentaseText) {
-    // Hapus simbol dan ambil angka
     const clean = persentaseText.replace(/[+\-%]/g, '');
     const value = parseFloat(clean);
     
-    // Jika nilai NaN atau 0 → default
     if (isNaN(value)) return 0;
 
     if (persentaseText.startsWith('-')) {
-        return 1; // Card-Loss (merah)
+        return 1;
     } else if (value === 0) {
-        return 0; // Default
+        return 0;
     } else {
-        // Bisa tambah logika: jika > 10% → Gold, else Default
         return value >= 10 ? 2 : 0;
     }
 }
 
 function getPersentaseGradientShare() {
     if (currentTemplateIndexShare === 1) {
-        // LOSS → gradien merah
-        return ['#ffffff', '#ffebee', '#f28b82']; // putih → merah muda → merah
+        return ['#ffffff', '#ffebee', '#f28b82'];
     } else if (currentTemplateIndexShare === 2) {
-        // GOLD
         return ['#ffffff', '#ebf1ef', '#eddf83'];
     } else {
-        // DEFAULT (profit/neutral) → hijau
         return ['#ffffff', '#ebf1ef', '#71ecbf'];
     }
 }
 
 function getUsernameBorderColorShare() {
     if (currentTemplateIndexShare === 1) {
-        return 'rgba(211, 47, 47, 0.25)'; // red-700 dengan opacity
+        return 'rgba(211, 47, 47, 0.25)';
     } else if (currentTemplateIndexShare === 2) {
         return 'rgba(163, 152, 0, 0.25)';
     } else {
-        return 'rgba(0, 144, 163, 0.25)'; // teal-500
+        return 'rgba(0, 144, 163, 0.25)';
     }
 }
 
 function getUsernameBgColorShare() {
     if (currentTemplateIndexShare === 1) {
-        return 'rgba(255, 205, 210, 0.05)'; // red-100 very light
+        return 'rgba(255, 205, 210, 0.05)';
     } else if (currentTemplateIndexShare === 2) {
         return 'rgba(211, 200, 52, 0.05)';
     } else {
-        return 'rgba(52, 211, 153, 0.05)'; // teal-300
+        return 'rgba(52, 211, 153, 0.05)';
     }
 }
 
@@ -1594,6 +1588,27 @@ function formatPersenShare(pct) {
     }
 
     return `${sign}${formattedValue}${suffix}%`;
+}
+
+function parseFormattedNumber(str) {
+    if (typeof str !== 'string') return NaN;
+
+    let clean = str.trim().toLowerCase();
+    let multiplier = 1;
+
+    if (clean.endsWith('k')) {
+        multiplier = 1e3;
+        clean = clean.slice(0, -1);
+    } else if (clean.endsWith('m')) {
+        multiplier = 1e6;
+        clean = clean.slice(0, -1);
+    } else if (clean.endsWith('b')) {
+        multiplier = 1e9;
+        clean = clean.slice(0, -1);
+    }
+
+    const num = parseFloat(clean);
+    return isNaN(num) ? NaN : num * multiplier;
 }
 
 // FILTER & HITUNG DATA
@@ -1669,8 +1684,7 @@ function updateDataShare() {
         return isNaN(d) ? 0 : d;
     }).filter(d => d > 0);
 
-    const maxTradeTime = allDates.length > 0 ? Math.max(...allDates) : Date.now();
-    const now = maxTradeTime;
+    const now = Date.now();
 
     const filteredTrades = filterByRangeShare(trades, selectedRangeShare);
 
@@ -1687,16 +1701,26 @@ function updateDataShare() {
     let roiPercent = 0;
 
     if (['24H', '1W', '30D'].includes(selectedRangeShare)) {
-        if (totalDeposit > 0) {
-            roiPercent = (totalPnL / totalDeposit) * 100;
+        let cutoff = 0;
+        if (selectedRangeShare === '24H') cutoff = now - 24 * 60 * 60 * 1000;
+        else if (selectedRangeShare === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
+        else if (selectedRangeShare === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
+
+        const balanceBefore = calculateBalanceAtTime(trades, cutoff - 1);
+        const balanceNow = calculateBalanceAtTime(trades, now);
+
+        if (balanceBefore !== 0) {
+            roiPercent = ((balanceNow - balanceBefore) / balanceBefore) * 100;
         } else {
             roiPercent = 0;
         }
+
+        TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
     } else {
         roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
+        TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
     }
 
-    TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
     TEXT_CONTENT_SHARE.persentase = formatPersenShare(roiPercent);
     TEXT_CONTENT_SHARE.invested = formatNumberShare(totalDeposit);
     TEXT_CONTENT_SHARE.divestasi = formatNumberShare(totalWithdraw);
@@ -1706,32 +1730,23 @@ function updateDataShare() {
     ).replace('+', '');
     TEXT_CONTENT_SHARE.title = getTitleByRangeShare(selectedRangeShare);
 
-    // 🔁 Tentukan template berdasarkan tanda persentase
-    // Tentukan template berdasarkan nilai persentase
     const persenStr = TEXT_CONTENT_SHARE.persentase;
-    let newTemplateIndex = 0; // default: Card-Default
+    let newTemplateIndex = 0;
 
     if (persenStr.startsWith('-')) {
-        // Negatif → Loss
         newTemplateIndex = 1;
     } else {
-        // Ambil angka dari string (hilangkan '+', '%', dll)
-        const cleanNumStr = persenStr.replace(/[+\-%]/g, '');
-        const value = parseFloat(cleanNumStr);
+        const cleanStr = persenStr.replace(/[+\-%]/g, '').trim();
+        const value = parseFormattedNumber(cleanStr);
 
-        // Jika valid number dan ≥ 100 → Gold
-        if (!isNaN(value) && value >= 100) {
-            newTemplateIndex = 2;
-        } else {
-            newTemplateIndex = 0; // Default untuk 0% sampai 99.99%
-        }
+        newTemplateIndex = (!isNaN(value) && value >= 100) ? 2 : 0;
     }
 
     if (newTemplateIndex !== currentTemplateIndexShare) {
         currentTemplateIndexShare = newTemplateIndex;
-        loadTemplateShare(); // ini akan trigger drawCanvasShare setelah gambar siap
+        loadTemplateShare();
     } else {
-        drawCanvasShare(); // langsung gambar jika template tidak berubah
+        drawCanvasShare();
     }
 }
 
@@ -1904,19 +1919,6 @@ document.querySelectorAll('.range-btn').forEach(btn => {
         updateDataShare();
         drawCanvasShare();
     });
-});
-
-// SWITCH TEMPLATE (LEFT & RIGHT BUTTON)
-document.querySelector('.box-switch-left').addEventListener('click', () => {
-    currentTemplateIndexShare--;
-    if (currentTemplateIndexShare < 0) currentTemplateIndexShare = TEMPLATE_LIST_SHARE.length - 1;
-    loadTemplateShare();
-});
-
-document.querySelector('.box-switch-right').addEventListener('click', () => {
-    currentTemplateIndexShare++;
-    if (currentTemplateIndexShare >= TEMPLATE_LIST_SHARE.length) currentTemplateIndexShare = 0;
-    loadTemplateShare();
 });
 
 // INIT

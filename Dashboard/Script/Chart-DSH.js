@@ -1374,7 +1374,7 @@ function renderChart(chartData) {
         segment.setAttribute("stroke-dasharray", `${segmentLength} ${CIRCUMFERENCE}`);
         segment.setAttribute("stroke-dashoffset", -cumulativeLength);
 
-        segment.addEventListener('mouseenter', () => segment.style.filter = 'brightness(1.2)');
+        segment.addEventListener('mouseenter', () => segment.style.filter = 'brightness(1.1)');
         segment.addEventListener('mouseleave', () => segment.style.filter = 'brightness(1)');
 
         svg.appendChild(segment);
@@ -1479,6 +1479,14 @@ const canvasWrChart = document.getElementById('donutChart');
 const ctxWrChart = canvasWrChart.getContext('2d');
 const circumferenceSVG = 2 * Math.PI * 82.5;
 
+const radius = 84;
+const holeRadius = 65;
+
+let centerX = 0;
+let centerY = 0;
+let dataWrChart = [];
+let total = 0;
+
 function resizeWrChart() {
     const parent = canvasWrChart.parentElement;
     if (!parent) return { centerX: 0, centerY: 0 };
@@ -1500,28 +1508,13 @@ function resizeWrChart() {
 
     ctxWrChart.setTransform(1, 0, 0, 1, 0, 0);
     ctxWrChart.scale(dpr, dpr);
-
-    const centerX = parentWidth / 2;
-    const centerY = parentHeight / 2;
-
     ctxWrChart.imageSmoothingEnabled = false;
 
-    return { centerX, centerY };
+    return {
+        centerX: parentWidth / 2,
+        centerY: parentHeight / 2
+    };
 }
-
-let { centerX, centerY } = resizeWrChart();
-window.addEventListener('resize', () => {
-    const newCenter = resizeWrChart();
-    centerX = newCenter.centerX;
-    centerY = newCenter.centerY;
-    renderWrChart();
-});
-
-const radius = 84;
-const holeRadius = 65;
-
-let dataWrChart = [];
-let total = 0;
 
 function updateSVGRing() {
     if (total === 0) return;
@@ -1648,35 +1641,59 @@ async function loadWrChartData() {
 
         total = counts.Profite + counts.Loss + counts.Missed;
 
-        const newCenter = resizeWrChart();
-        centerX = newCenter.centerX;
-        centerY = newCenter.centerY;
-
-        if (total > 0) {
+        const attemptRender = () => {
+            const result = resizeWrChart();
+            if (result.centerX === 0 && result.centerY === 0) {
+                requestAnimationFrame(attemptRender);
+                return;
+            }
+            centerX = result.centerX;
+            centerY = result.centerY;
             renderWrChart();
-        }
+        };
+
+        attemptRender();
     } catch (err) {
         console.error("Gagal memuat data WR:", err);
         ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
     }
 }
 
-function initWrChart() {
-    loadWrChartData();
+function safeInitWrChart() {
+    const retry = () => {
+        const parent = canvasWrChart.parentElement;
+        if (parent && parent.clientWidth > 0 && parent.clientHeight > 0) {
+            loadWrChartData();
+        } else {
+            requestAnimationFrame(retry);
+        }
+    };
+    requestAnimationFrame(retry);
 }
 
 if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initWrChart);
+    document.addEventListener('DOMContentLoaded', safeInitWrChart);
 } else {
-    setTimeout(initWrChart, 100);
+    safeInitWrChart();
 }
+
+window.addEventListener('resize', () => {
+    const result = resizeWrChart();
+    if (result.centerX > 0 && result.centerY > 0) {
+        centerX = result.centerX;
+        centerY = result.centerY;
+        renderWrChart();
+    }
+});
 
 document.addEventListener('visibilitychange', () => {
     if (!document.hidden) {
-        const newCenter = resizeWrChart();
-        centerX = newCenter.centerX;
-        centerY = newCenter.centerY;
-        renderWrChart();
+        const result = resizeWrChart();
+        if (result.centerX > 0 && result.centerY > 0) {
+            centerX = result.centerX;
+            centerY = result.centerY;
+            renderWrChart();
+        }
     }
 });
 

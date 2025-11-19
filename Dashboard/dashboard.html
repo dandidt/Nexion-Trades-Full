@@ -1485,13 +1485,7 @@
             </div>
 
             <div class="container-share">
-                <div class="box-switch-left">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3"><path d="m480-320 56-56-64-64h168v-80H472l64-64-56-56-160 160 160 160Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
-                </div>
                 <canvas id="canvasShare"></canvas>
-                <div class="box-switch-right">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="40px" viewBox="0 -960 960 960" width="40px" fill="#e3e3e3"><path d="m480-320 160-160-160-160-56 56 64 64H320v80h168l-64 64 56 56Zm0 240q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Z"/></svg>
-                </div>
             </div>
 
             <div class="wrapper-btn-share">
@@ -1643,21 +1637,28 @@
             <button class="btn btn-default btn-sop" id="closeSop">Close</button>
         </div>
 
-        <!-- ===== Popup SignOut ===== -->
-        <div id="logoutModal" class="popup-modal">
-            <div class="container-popup">
-                <div class="icon-popup">
-                    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
+        <!-- ===== POPUP KONFIRMASI LOGOUT ===== -->
+        <div id="logoutModal" class="hidden">
+            <div class="confirm-popup-content">
+                <!-- Icon Logout -->
+                <div class="confirm-icon-wrapper">
+                    <div class="confirm-icon-circle" style="background: linear-gradient(135deg, var(--red) 0%, var(--red-primary) 100%);">
+                        <svg class="confirm-icon-svg" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                            <polyline points="16 17 21 12 16 7"></polyline>
+                            <line x1="21" y1="12" x2="9" y2="12"></line>
+                        </svg>
+                    </div>
                 </div>
-                <h3 class="title-popup">Logout</h3>
-                <p class="text-popup">Are you sure you want to log out of this account?</p>
-                <div class="button-signout">
-                    <button id="cancelLogoutBtn" class="btn btn-default">Cancel</button>
-                    <button id="confirmLogoutBtn" class="btn btn-red">Logout</button>
+
+                <!-- Message -->
+                <h3 class="confirm-title">Logout</h3>
+                <p class="confirm-message">Are you sure you want to log out of this account?</p>
+
+                <!-- Buttons -->
+                <div class="confirm-buttons">
+                    <button id="cancelLogoutBtn" class="btn btn-default btn-delete">Cancel</button>
+                    <button id="confirmLogoutBtn" class="btn btn-red btn-delete">Logout</button>
                 </div>
             </div>
         </div>
