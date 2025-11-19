@@ -1346,6 +1346,8 @@ document.addEventListener("DOMContentLoaded", () => {
                 TEXT_CONTENT_SHARE.username = user.user_metadata?.username || 'User';
             }
 
+            updateDataShare();
+
             closeAllPopups();
             document.body.classList.add("popup-open");
             document.body.style.overflow = "hidden";
@@ -1388,6 +1390,7 @@ let profileImageShare = null;
 // TEMPLATE SWITCHER
 const TEMPLATE_LIST_SHARE = [
     'Asset/Card-Default.png',
+    'Asset/Card-Loss.png',
     'Asset/Card-Gold.png'
 ];
 
@@ -1475,25 +1478,55 @@ const STYLE_USERNAME_SHARE = {
     align: 'left'
 };
 
+function determineTemplateIndex(persentaseText) {
+    // Hapus simbol dan ambil angka
+    const clean = persentaseText.replace(/[+\-%]/g, '');
+    const value = parseFloat(clean);
+    
+    // Jika nilai NaN atau 0 → default
+    if (isNaN(value)) return 0;
+
+    if (persentaseText.startsWith('-')) {
+        return 1; // Card-Loss (merah)
+    } else if (value === 0) {
+        return 0; // Default
+    } else {
+        // Bisa tambah logika: jika > 10% → Gold, else Default
+        return value >= 10 ? 2 : 0;
+    }
+}
+
 function getPersentaseGradientShare() {
     if (currentTemplateIndexShare === 1) {
+        // LOSS → gradien merah
+        return ['#ffffff', '#ffebee', '#f28b82']; // putih → merah muda → merah
+    } else if (currentTemplateIndexShare === 2) {
+        // GOLD
         return ['#ffffff', '#ebf1ef', '#eddf83'];
+    } else {
+        // DEFAULT (profit/neutral) → hijau
+        return ['#ffffff', '#ebf1ef', '#71ecbf'];
     }
-    return ['#ffffff', '#ebf1ef', '#71ecbf'];
 }
 
 function getUsernameBorderColorShare() {
     if (currentTemplateIndexShare === 1) {
+        return 'rgba(211, 47, 47, 0.25)'; // red-700 dengan opacity
+    } else if (currentTemplateIndexShare === 2) {
         return 'rgba(163, 152, 0, 0.25)';
+    } else {
+        return 'rgba(0, 144, 163, 0.25)'; // teal-500
     }
-    return 'rgba(0, 144, 163, 0.25)';
 }
 
 function getUsernameBgColorShare() {
     if (currentTemplateIndexShare === 1) {
+        return 'rgba(255, 205, 210, 0.05)'; // red-100 very light
+    } else if (currentTemplateIndexShare === 2) {
         return 'rgba(211, 200, 52, 0.05)';
+    } else {
+        return 'rgba(52, 211, 153, 0.05)'; // teal-300
     }
-    return 'rgba(52, 211, 153, 0.05)';
 }
 
 // FORMAT
@@ -1534,7 +1567,7 @@ function formatNumberShare(num) {
 function formatPersenShare(pct) {
     if (pct === null || pct === undefined || isNaN(pct)) return '0%';
 
-    const sign = pct >= 0 ? '+' : '-';
+    const sign = pct < 0 ? '-' : (pct > 0 ? '+' : '');
     const abs = Math.abs(pct);
 
     let value = abs;
@@ -1651,25 +1684,13 @@ function updateDataShare() {
     const totalWithdraw = withdrawData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
     const totalPnL = executedTrades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
 
-    // === LOGIKA BARU UNTUK PERSENTASE ===
     let roiPercent = 0;
 
     if (['24H', '1W', '30D'].includes(selectedRangeShare)) {
-        let cutoff = 0;
-        if (selectedRangeShare === '24H') cutoff = now - 24 * 60 * 60 * 1000;
-        else if (selectedRangeShare === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
-        else if (selectedRangeShare === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
-
-        const balanceBefore = calculateBalanceAtTime(trades, cutoff - 1);
-        const balanceNow = calculateBalanceAtTime(trades, now);
-        if (balanceBefore !== 0) {
-            roiPercent = ((balanceNow - balanceBefore) / balanceBefore) * 100;
+        if (totalDeposit > 0) {
+            roiPercent = (totalPnL / totalDeposit) * 100;
         } else {
-            if (balanceNow === 0) {
-                roiPercent = 0;
-            } else {
-                roiPercent = 0;
-            }
+            roiPercent = 0;
         }
     } else {
         roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
@@ -1684,6 +1705,34 @@ function updateDataShare() {
         executedTrades.length > 0 ? (executedTrades.filter(t => t.Pnl > 0).length / executedTrades.length) * 100 : 0
     ).replace('+', '');
     TEXT_CONTENT_SHARE.title = getTitleByRangeShare(selectedRangeShare);
+
+    // 🔁 Tentukan template berdasarkan tanda persentase
+    // Tentukan template berdasarkan nilai persentase
+    const persenStr = TEXT_CONTENT_SHARE.persentase;
+    let newTemplateIndex = 0; // default: Card-Default
+
+    if (persenStr.startsWith('-')) {
+        // Negatif → Loss
+        newTemplateIndex = 1;
+    } else {
+        // Ambil angka dari string (hilangkan '+', '%', dll)
+        const cleanNumStr = persenStr.replace(/[+\-%]/g, '');
+        const value = parseFloat(cleanNumStr);
+
+        // Jika valid number dan ≥ 100 → Gold
+        if (!isNaN(value) && value >= 100) {
+            newTemplateIndex = 2;
+        } else {
+            newTemplateIndex = 0; // Default untuk 0% sampai 99.99%
+        }
+    }
+
+    if (newTemplateIndex !== currentTemplateIndexShare) {
+        currentTemplateIndexShare = newTemplateIndex;
+        loadTemplateShare(); // ini akan trigger drawCanvasShare setelah gambar siap
+    } else {
+        drawCanvasShare(); // langsung gambar jika template tidak berubah
+    }
 }
 
 // LOAD IMAGES
