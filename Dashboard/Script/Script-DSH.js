@@ -123,26 +123,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ======================= Render Trading Jurnal ======================= //
-async function loadTradingData() {
-  const data = await getDB();
-
-  globalTrades = data;
-  originalTrades = [...data];
-
-  renderTradingTable(globalTrades);
-  initSorting();
-}
-
-function isTradeItem(item) {
-  return item && (item.hasOwnProperty('Pairs') || item.hasOwnProperty('Result'));
-}
-
-function isActionItem(item) {
-  return item && item.hasOwnProperty('action') && (item.action === 'Deposit' || item.action === 'Withdraw');
-}
-
-// ======================= UPDATE DASHBOARD ======================= //
+// ======================= Front Dashboard ======================= //
 function updateDashboardFromTrades(data = []) {
   if (!Array.isArray(data) || data.length === 0) return;
 
@@ -363,7 +344,26 @@ function updateDashboardFromTrades(data = []) {
   if (elAvgPnlPerday) elAvgPnlPerday.textContent = `Avg Daily PnL: ${formatCurrencyCompact(avgDaily)}`;
 }
 
-// ======================= RENDER TRADING TABLE ======================= //
+// ======================= Trading Jurnal ======================= //
+async function loadTradingData() {
+  const data = await getDB();
+
+  globalTrades = data;
+  originalTrades = [...data];
+
+  renderTradingTable(globalTrades);
+  initSorting();
+}
+
+function isTradeItem(item) {
+  return item && (item.hasOwnProperty('Pairs') || item.hasOwnProperty('Result'));
+}
+
+function isActionItem(item) {
+  return item && item.hasOwnProperty('action') && (item.action === 'Deposit' || item.action === 'Withdraw');
+}
+
+// ------ RENDER TRADING TABLE ------ //
 function renderTradingTable(data) {
   const tbody = document.querySelector(".tabel-trade tbody");
   tbody.innerHTML = "";
@@ -497,11 +497,11 @@ function renderTradingTable(data) {
   }
 }
 
+// ------ Short Fiilter ------ //
 let globalTrades = [];
 let originalTrades = [];
 let currentSort = { key: null, direction: null };
 
-// ====== HELPERS ======
 function getValue(item, key) {
   if (!item) return "";
   switch (key) {
@@ -522,13 +522,12 @@ function nextSortState(key) {
     return null;
   }
 
-  if (currentSort.key !== key) return "asc"; // first click => asc
+  if (currentSort.key !== key) return "asc";
   if (currentSort.direction === "asc") return "desc";
   if (currentSort.direction === "desc") return null;
   return "asc";
 }
 
-// ====== INIT SORTING ======
 function initSorting() {
   const headers = document.querySelectorAll("th.sortable");
 
@@ -564,7 +563,6 @@ function initSorting() {
   });
 }
 
-// ====== SORT FUNCTION ======
 function sortTrades(a, b, key, direction) {
   if (!key || !direction) return 0;
 
@@ -599,7 +597,6 @@ function sortTrades(a, b, key, direction) {
   }
 }
 
-// ====== UPDATE ICONS ======
 function updateSortIcons() {
   document.querySelectorAll("th.sortable").forEach(th => {
     const iconSpan = th.querySelector(".sort-icon");
@@ -617,7 +614,6 @@ function updateSortIcons() {
   });
 }
 
-// ====== GET SORT ICON ======
 function getSortIcon(columnKey = null, direction = null) {
   let upOpacity = "0.3";
   let downOpacity = "0.3";
@@ -662,7 +658,7 @@ function getSortIcon(columnKey = null, direction = null) {
 
 document.addEventListener("DOMContentLoaded", loadTradingData);
 
-// ======================= Trading Jurnal Tooltip ======================= //
+// ------ Trading Jurnal Tooltip ------ //
 class TooltipManager {
   constructor() {
     this.tooltip = document.getElementById('tooltip-box');
@@ -905,7 +901,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = { TooltipManager, initTooltip };
 }
 
-// =================== DASHBOARD Navbar ===================
+// =================== Dashboard Header =================== //
 async function updateEquityStats() {
   try {
     // --- Ambil SEMUA data ---
@@ -970,7 +966,7 @@ async function updateEquityStats() {
 document.addEventListener("DOMContentLoaded", updateEquityStats);
 window.updateEquityStats = updateEquityStats;
 
-// ======================= Stats Content 1 ======================= //
+// ======================= Container 1 Statistic ======================= //
 async function updateStats() {
   const trades = await getDB();
 
@@ -1125,7 +1121,39 @@ async function updateStats() {
 
 updateStats().catch(console.error);
 
-// ======================= Stats Content 2 ======================= //
+// ======================= Container 2 Statistic ======================= //
+
+// ------ Swap menu Detailed Statistics ------ /
+const radios = document.querySelectorAll('input[name="toggle"]');
+const activeLine = document.getElementById('activeLine');
+const qualityContainer = document.querySelector('.container-quality');
+const averagesContainer = document.querySelector('.container-averages');
+
+function updateLine() {
+  const checked = document.querySelector('input[name="toggle"]:checked');
+  const label = checked.nextElementSibling;
+  const parent = checked.closest('.radio-option');
+
+  activeLine.style.width = label.offsetWidth + 'px';
+  activeLine.style.left = parent.offsetLeft + 'px';
+
+  qualityContainer.classList.remove('active');
+  averagesContainer.classList.remove('active');
+
+  if (checked.value === 'quality') {
+    qualityContainer.classList.add('active');
+  } else {
+    averagesContainer.classList.add('active');
+  }
+}
+
+radios.forEach(radio => {
+  radio.addEventListener('change', updateLine);
+});
+
+updateLine();
+
+// ------ Detailed Statistics ------ //
 async function updateTradingStats() {
     try {
         const rawData = await getDB();
@@ -1196,7 +1224,7 @@ function calculateMaxStreak(trades, targetType) {
 
 updateTradingStats();
 
-// ======================= Stats Content 2 ======================= //
+
 async function updateTradeStats() {
   try {
     const data = await getDB();
@@ -1272,7 +1300,7 @@ async function updateTradeStats() {
 updateTradeStats();
 window.updateTradeStats = updateTradeStats;
 
-// ======================= Stats Content 3 ======================= //
+// ======================= Global Sumary  & Single Bhhavior ======================= //
 async function loadTradeStats() {
   try {
     const data = await getDB();
@@ -1543,7 +1571,7 @@ function loadSettings() {
 
 document.addEventListener('DOMContentLoaded', loadSettings);
 
-// ======================= Server ======================= //
+// ------ Server ------ //
 function renderAvatar() {
     const container = document.getElementById("containerProfile");
     if (!container) return;
@@ -1622,6 +1650,97 @@ document.getElementById('confirmLogoutBtn')?.addEventListener('click', async () 
     }
 });
 
+// ------ Download Data ------ //
+document.addEventListener('DOMContentLoaded', function () {
+    const downloadCSVBtn = document.getElementById('downloadCSV');
+    const downloadJSONBtn = document.getElementById('downloadJSON');
+    const localStorageKey = 'dbtrade';
+
+    function downloadFile(content, filename, type = 'text/plain') {
+        const blob = new Blob([content], { type });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    }
+
+    function flattenObject(obj, prefix = '') {
+        const flattened = {};
+        for (let key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const pre = prefix.length ? prefix + '.' : '';
+                if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
+                    Object.assign(flattened, flattenObject(obj[key], pre + key));
+                } else {
+                    flattened[pre + key] = obj[key] === null ? '' : String(obj[key]);
+                }
+            }
+        }
+        return flattened;
+    }
+
+    function convertToCSV(data) {
+        if (!Array.isArray(data) || data.length === 0) return 'No data';
+
+        const flatData = data.map(item => flattenObject(item));
+        const headers = [...new Set(flatData.flatMap(Object.keys))].sort();
+
+        const csvRows = [];
+        csvRows.push(headers.join(','));
+
+        for (const row of flatData) {
+            const values = headers.map(header => {
+                let val = row[header] || '';
+                if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                    val = `"${val.replace(/"/g, '""')}"`;
+                }
+                return val;
+            });
+            csvRows.push(values.join(','));
+        }
+
+        return csvRows.join('\n');
+    }
+
+    // === Event: Download JSON ===
+    if (downloadJSONBtn) {
+        downloadJSONBtn.addEventListener('click', () => {
+            try {
+                const rawData = localStorage.getItem(localStorageKey);
+                if (!rawData) {
+                    return;
+                }
+                const data = JSON.parse(rawData);
+                const jsonStr = JSON.stringify(data, null, 2);
+                downloadFile(jsonStr, 'trades.json', 'application/json');
+            } catch (e) {
+                console.error('Gagal membuat file JSON:', e);
+            }
+        });
+    }
+
+    // === Event: Download CSV ===
+    if (downloadCSVBtn) {
+        downloadCSVBtn.addEventListener('click', () => {
+            try {
+                const rawData = localStorage.getItem(localStorageKey);
+                if (!rawData) {
+                    return;
+                }
+                const data = JSON.parse(rawData);
+                const csvContent = convertToCSV(data);
+                downloadFile(csvContent, 'trades.csv', 'text/csv');
+            } catch (e) {
+                console.error('Gagal membuat file CSV:', e);
+            }
+        });
+    }
+});
+
 // ======================= Caculate Trading ======================= //
 document.addEventListener('DOMContentLoaded', function() {
     const feeInput = document.getElementById('fee');
@@ -1661,7 +1780,6 @@ document.addEventListener('DOMContentLoaded', function() {
     loadSettings();
 });
 
-//  Auto Caculate  //
 function getLocalData(key) {
     try {
         return JSON.parse(localStorage.getItem(key)) || null;
@@ -1756,128 +1874,7 @@ stopLossInput.addEventListener("input", calculate);
 
 calculate();
 
-// ======================= Swap Menu Mathematical ======================= //
-const radios = document.querySelectorAll('input[name="toggle"]');
-const activeLine = document.getElementById('activeLine');
-const qualityContainer = document.querySelector('.container-quality');
-const averagesContainer = document.querySelector('.container-averages');
-
-function updateLine() {
-  const checked = document.querySelector('input[name="toggle"]:checked');
-  const label = checked.nextElementSibling;
-  const parent = checked.closest('.radio-option');
-
-  activeLine.style.width = label.offsetWidth + 'px';
-  activeLine.style.left = parent.offsetLeft + 'px';
-
-  qualityContainer.classList.remove('active');
-  averagesContainer.classList.remove('active');
-
-  if (checked.value === 'quality') {
-    qualityContainer.classList.add('active');
-  } else {
-    averagesContainer.classList.add('active');
-  }
-}
-
-radios.forEach(radio => {
-  radio.addEventListener('change', updateLine);
-});
-
-updateLine();
-
-// ======================= Download Data ======================= //
-document.addEventListener('DOMContentLoaded', function () {
-    const downloadCSVBtn = document.getElementById('downloadCSV');
-    const downloadJSONBtn = document.getElementById('downloadJSON');
-    const localStorageKey = 'dbtrade';
-
-    function downloadFile(content, filename, type = 'text/plain') {
-        const blob = new Blob([content], { type });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    function flattenObject(obj, prefix = '') {
-        const flattened = {};
-        for (let key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                const pre = prefix.length ? prefix + '.' : '';
-                if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-                    Object.assign(flattened, flattenObject(obj[key], pre + key));
-                } else {
-                    flattened[pre + key] = obj[key] === null ? '' : String(obj[key]);
-                }
-            }
-        }
-        return flattened;
-    }
-
-    function convertToCSV(data) {
-        if (!Array.isArray(data) || data.length === 0) return 'No data';
-
-        const flatData = data.map(item => flattenObject(item));
-        const headers = [...new Set(flatData.flatMap(Object.keys))].sort();
-
-        const csvRows = [];
-        csvRows.push(headers.join(','));
-
-        for (const row of flatData) {
-            const values = headers.map(header => {
-                let val = row[header] || '';
-                if (val.includes(',') || val.includes('"') || val.includes('\n')) {
-                    val = `"${val.replace(/"/g, '""')}"`;
-                }
-                return val;
-            });
-            csvRows.push(values.join(','));
-        }
-
-        return csvRows.join('\n');
-    }
-
-    // === Event: Download JSON ===
-    if (downloadJSONBtn) {
-        downloadJSONBtn.addEventListener('click', () => {
-            try {
-                const rawData = localStorage.getItem(localStorageKey);
-                if (!rawData) {
-                    return;
-                }
-                const data = JSON.parse(rawData);
-                const jsonStr = JSON.stringify(data, null, 2);
-                downloadFile(jsonStr, 'trades.json', 'application/json');
-            } catch (e) {
-                console.error('Gagal membuat file JSON:', e);
-            }
-        });
-    }
-
-    // === Event: Download CSV ===
-    if (downloadCSVBtn) {
-        downloadCSVBtn.addEventListener('click', () => {
-            try {
-                const rawData = localStorage.getItem(localStorageKey);
-                if (!rawData) {
-                    return;
-                }
-                const data = JSON.parse(rawData);
-                const csvContent = convertToCSV(data);
-                downloadFile(csvContent, 'trades.csv', 'text/csv');
-            } catch (e) {
-                console.error('Gagal membuat file CSV:', e);
-            }
-        });
-    }
-});
-
-// ======================= UI Update ======================= //
+// ======================= Update UI Global ======================= //
 async function updateAllUI() {
   try {
     const data = await getDB();
@@ -1897,6 +1894,8 @@ async function updateAllUI() {
     await loadPsychologyStats();
 
     await updatePairsTable();
+
+    calculate();
 
     console.log("✅ All UI updated successfully.");
   } catch (error) {

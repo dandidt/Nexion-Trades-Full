@@ -333,23 +333,22 @@ async function handleAddTrade() {
     btn.classList.add("loading");
 
     try {
-        // --- Ambil user session dulu ---
+        // --- User Session ---
         const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
         if (authErr || !user) throw new Error("User tidak login!");
         
         const user_id = user.id;
 
-        // --- Load local cache dulu ---
+        // --- Load local ---
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
 
         const { newId, nextTradeNumber } = getNextLocalIds();
 
-        // === Ambil tanggal ===
+        // --- Date ---
         const dateInputValue = document.getElementById("dateTrade").value;
-        if (!dateInputValue) throw new Error("Tanggal belum diisi!");
         const correctedDate = new Date(dateInputValue);
 
-        // === Dropdown values ===
+        // --- Dropdown values ---
         const methodValue = getDropdownValue("method");
         const behaviorValue = getDropdownValue("behavior");
         const psychologyValue = getDropdownValue("psychology");
@@ -358,7 +357,7 @@ async function handleAddTrade() {
         const entryValue = getDropdownValue("entry");
         const timeframeValue = getDropdownValue("timeframe");
 
-        // =============== 1. FORMAT RAW UNTUK SERVER 
+        // --- Server --- 
         const serverData = {
             id: newId,
             user_id: user_id,
@@ -382,7 +381,6 @@ async function handleAddTrade() {
             pnl: parseFloat(document.getElementById("pnl").value) || 0
         };
 
-        // === Kirim langsung ke Supabase ===
         const { data: insertData, error: insertErr } = await supabaseClient
             .from("trades")
             .insert(serverData)
@@ -390,7 +388,7 @@ async function handleAddTrade() {
 
         if (insertErr) throw insertErr;
 
-        // =============== 2. LOCAL DATA (CACHE) =======================
+        // --- Local ---
         const localData = {
             id: newId,
             tradeNumber: nextTradeNumber,
@@ -416,10 +414,10 @@ async function handleAddTrade() {
             Pnl: serverData.pnl
         };
 
-        // === Simpan local ===
         dbTrade.push(localData);
         localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
 
+        // Update UI & Data
         refreshDBCache();
         if (typeof updateAllUI === "function") await updateAllUI();
 
@@ -444,12 +442,12 @@ async function handleAddTransfer() {
     btn.classList.add("loading");
 
     try {
-        // --- Cek user ---
+        // --- User Session ---
         const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
         if (authErr || !user) throw new Error("User tidak login!");
         const user_id = user.id;
 
-        // --- Ambil ID lokal UNTUK CACHE SAJA ---
+        // --- ID lokal ---
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const lastId = dbTrade.length > 0
             ? Math.max(...dbTrade.map(t => t.id || 0))
@@ -461,7 +459,7 @@ async function handleAddTransfer() {
             : 0;
         const nextTradeNumber = lastTradeNumber + 1;
 
-        // --- Tanggal ---
+        // --- Date ---
         const dateInputValue = document.getElementById("dateTransfer").value;
         const correctedDate = new Date(dateInputValue);
 
@@ -479,7 +477,7 @@ async function handleAddTransfer() {
 
         const finalValue = selectedAction === "Withdraw" ? -Math.abs(valueInput) : Math.abs(valueInput);
 
-        // DATA UNTUK SERVER — TANPA
+        // --- Server ---
         const serverData = {
             id: newId,
             user_id: user_id,
@@ -488,14 +486,13 @@ async function handleAddTransfer() {
             value: finalValue
         };
 
-        // INSERT KE SUPABASE
         const { error: insertErr } = await supabaseClient
             .from("transactions")
             .insert([serverData]);
 
         if (insertErr) throw insertErr;
 
-        // --- Simpan ke LOCAL CACHE ---
+        // --- Local ---
         const localData = {
             id: newId,
             tradeNumber: nextTradeNumber,
@@ -514,7 +511,6 @@ async function handleAddTransfer() {
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
 
-        // Reset form
         document.getElementById("dateTransfer").value = "";
         document.getElementById("valueTransfer").value = "";
         document.querySelectorAll("#addDataTransfer .custom-dropdown .dropdown-selected span")
@@ -567,7 +563,7 @@ async function handleSaveEditTrade() {
     btn.classList.add("loading");
 
     try {
-        // --- Cek user ---
+        // --- User Session ---
         const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
         if (authErr || !user) throw new Error("User tidak login!");
         const user_id = user.id;
@@ -577,19 +573,19 @@ async function handleSaveEditTrade() {
             document.querySelector(`.popup-edit-trade .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
                 ?.getAttribute("data-value") || "";
 
-        // --- Cari berdasarkan tradeNumber hanya untuk ambil `id` lokal ---
+        // --- Id lokal ---
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const item = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!item) throw new Error("Trade tidak ditemukan di cache lokal!");
         
         const recordId = item.id;
 
-        // --- Validasi tanggal ---
+        // --- Date ---
         const dateInputValue = getVal("edit-date-trade");
         if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
         const correctedDate = new Date(dateInputValue);
 
-        // --- Data untuk SERVER (sesuai skema tabel `trades`) ---
+        // --- Server ---
         const serverUpdate = {
             user_id: user_id,
             date: Math.floor(correctedDate.getTime() / 1000),
@@ -605,13 +601,12 @@ async function handleSaveEditTrade() {
             bias: getVal("edit-bias-url"),
             last: getVal("edit-execution-url"),
             pos: getDropdown("edit-position") === "Long" ? "B" :
-                 getDropdown("edit-position") === "Short" ? "S" : "",
+                getDropdown("edit-position") === "Short" ? "S" : "",
             margin: parseFloat(getVal("edit-margin")) || 0,
             result: getDropdown("edit-result"),
             pnl: parseFloat(getVal("edit-pnl")) || 0
         };
 
-        // ✅ UPDATE LANGSUNG KE SUPABASE BERDASARKAN `id`
         const { error: updateErr } = await supabaseClient
             .from("trades")
             .update(serverUpdate)
@@ -620,7 +615,7 @@ async function handleSaveEditTrade() {
 
         if (updateErr) throw updateErr;
 
-        // --- Update LOCAL CACHE ---
+        // --- Local ---
         const updatedLocal = {
             ...item,
             date: Math.floor(correctedDate.getTime() / 1000),
@@ -650,13 +645,22 @@ async function handleSaveEditTrade() {
             dbTrade[idx] = updatedLocal;
             localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
         }
-
-        // --- Refresh UI ---
+        
+        // --- Refresh ---
         refreshDBCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
+        closeAllPopups();
         handleCancelEdit();
+
+        document.getElementById("dateTransfer").value = "";
+        document.getElementById("valueTransfer").value = "";
+        document.querySelectorAll("#addDataTransfer .custom-dropdown .dropdown-selected span")
+            .forEach(el => {
+                el.textContent = "Select option";
+                el.classList.add("placeholder");
+            });
 
     } catch (err) {
         console.error("❌ Error update trade:", err);
@@ -672,7 +676,7 @@ async function handleSaveEditTransfer() {
     btn.classList.add("loading");
 
     try {
-        // --- Cek user ---
+        // --- User Session ---
         const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
         if (authErr || !user) throw new Error("User tidak login!");
         const user_id = user.id;
@@ -700,7 +704,7 @@ async function handleSaveEditTransfer() {
         if (isNaN(value) || value === 0) throw new Error("Nilai harus valid dan tidak nol!");
         value = action === "Withdraw" ? -Math.abs(value) : Math.abs(value);
 
-        // --- Data untuk tabel `transactions` ---
+        // --- Server ---
         const serverUpdate = {
             user_id: user_id,
             date: Math.floor(correctedDate.getTime() / 1000),
@@ -708,7 +712,6 @@ async function handleSaveEditTransfer() {
             value: value
         };
 
-        // ✅ UPDATE KE TABEL `transactions`
         const { error: updateErr } = await supabaseClient
             .from("transactions")
             .update(serverUpdate)
@@ -717,7 +720,7 @@ async function handleSaveEditTransfer() {
 
         if (updateErr) throw updateErr;
 
-        // --- Update LOCAL ---
+        // --- Local ---
         const updatedLocal = {
             ...item,
             date: Math.floor(correctedDate.getTime() / 1000),
@@ -731,12 +734,21 @@ async function handleSaveEditTransfer() {
             localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
         }
 
-        // --- Refresh UI ---
+        // --- Refresh ---
         refreshDBCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
+        closeAllPopups();
         handleCancelEdit();
+
+        document.getElementById("dateTransfer").value = "";
+        document.getElementById("valueTransfer").value = "";
+        document.querySelectorAll("#addDataTransfer .custom-dropdown .dropdown-selected span")
+            .forEach(el => {
+                el.textContent = "Select option";
+                el.classList.add("placeholder");
+            });
 
     } catch (err) {
         console.error("❌ Error update transfer:", err);
@@ -790,7 +802,7 @@ function handleCancelEdit() {
     }
 }
 
-//  FUNGSI POPUP CONFIRMASI DELETE //
+// POPUP CONFIRMASI DELETE //
 function showConfirmPopup(message) {
     return new Promise((resolve) => {
         const popup = document.getElementById("confirmPopup");
@@ -859,19 +871,19 @@ async function handleDeleteTrade() {
     }
 
     try {
-        // --- Cek user ---
+        // --- User Session ---
         const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
         if (authErr || !user) throw new Error("User tidak login!");
         const user_id = user.id;
 
-        // --- Cari di local cache berdasarkan tradeNumber untuk dapat `id` ---
+        // --- ID Local ---
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const itemToDelete = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!itemToDelete) throw new Error("Trade tidak ditemukan di cache lokal!");
 
         const recordId = itemToDelete.id;
 
-        // ✅ DELETE DI SUPABASE BERDASARKAN `id`
+        // --- Server ---
         const { error: deleteErr } = await supabaseClient
             .from("trades")
             .delete()
@@ -880,7 +892,7 @@ async function handleDeleteTrade() {
 
         if (deleteErr) throw deleteErr;
 
-        // --- Hapus dari LOCAL CACHE berdasarkan `id` ---
+        // --- Local ---
         const newDb = dbTrade.filter(t => t.id !== recordId);
         localStorage.setItem("dbtrade", JSON.stringify(newDb));
 
@@ -917,19 +929,19 @@ async function handleDeleteTransfer() {
     }
 
     try {
-        // --- Cek user ---
+        // --- User Session ---
         const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
         if (authErr || !user) throw new Error("User tidak login!");
         const user_id = user.id;
 
-        // --- Cari di local cache ---
+        // --- load Local ---
         const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
         const itemToDelete = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!itemToDelete) throw new Error("Transfer tidak ditemukan di cache lokal!");
 
         const recordId = itemToDelete.id;
 
-        // ✅ DELETE DI TABEL `transactions`
+        // --- Server ---
         const { error: deleteErr } = await supabaseClient
             .from("transactions")
             .delete()
@@ -938,7 +950,7 @@ async function handleDeleteTransfer() {
 
         if (deleteErr) throw deleteErr;
 
-        // --- Hapus dari LOCAL ---
+        // --- Local ---
         const newDb = dbTrade.filter(t => t.id !== recordId);
         localStorage.setItem("dbtrade", JSON.stringify(newDb));
 
