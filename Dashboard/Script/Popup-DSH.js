@@ -1414,8 +1414,8 @@ const TEXT_POSITIONS_SHARE = {
     trade: [208, 830],
     winrate: [584, 830],
     invested: [278, 697],
-    username: [1453, 120],
-    profilePhoto: [1400, 108]
+    username: [1553, 120],
+    profilePhoto: [1500, 108]
 };
 
 // STYLE TEKS

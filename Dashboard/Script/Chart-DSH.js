@@ -1474,15 +1474,22 @@ loadAssetData().then(() => {
     }
 });
 
-// ======================= Chart Winrate (Tanpa Animasi) ======================= //
+// ======================= Chart Winrate ======================= //
 const canvasWrChart = document.getElementById('donutChart');
 const ctxWrChart = canvasWrChart.getContext('2d');
 const circumferenceSVG = 2 * Math.PI * 82.5;
 
 function resizeWrChart() {
     const parent = canvasWrChart.parentElement;
+    if (!parent) return { centerX: 0, centerY: 0 };
+
     const parentWidth = parent.clientWidth;
     const parentHeight = parent.clientHeight;
+
+    if (parentWidth <= 0 || parentHeight <= 0) {
+        return { centerX: 0, centerY: 0 };
+    }
+
     const dpr = window.devicePixelRatio || 1;
 
     canvasWrChart.style.width = parentWidth + 'px';
@@ -1641,18 +1648,37 @@ async function loadWrChartData() {
 
         total = counts.Profite + counts.Loss + counts.Missed;
 
-        renderWrChart();
+        const newCenter = resizeWrChart();
+        centerX = newCenter.centerX;
+        centerY = newCenter.centerY;
+
+        if (total > 0) {
+            renderWrChart();
+        }
     } catch (err) {
         console.error("Gagal memuat data WR:", err);
         ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
     }
 }
 
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', loadWrChartData);
-} else {
+function initWrChart() {
     loadWrChartData();
 }
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initWrChart);
+} else {
+    setTimeout(initWrChart, 100);
+}
+
+document.addEventListener('visibilitychange', () => {
+    if (!document.hidden) {
+        const newCenter = resizeWrChart();
+        centerX = newCenter.centerX;
+        centerY = newCenter.centerY;
+        renderWrChart();
+    }
+});
 
 // ======================= Update UI Global ======================= //
 window.addEventListener('resize', () => {
