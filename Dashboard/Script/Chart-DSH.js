@@ -127,13 +127,19 @@ async function loadTradeHistory() {
 function filterData(range) {
     currentFilterRange = range;
 
-    const userTimezone = localStorage.getItem('timezone') || Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const userTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
     const now = new Date();
 
-    const todayInTz = new Date(now.toLocaleDateString('sv-SE', { timeZone: userTimezone }) + 'T00:00:00');
-    const nowInTz = new Date(now.toLocaleString('en-US', { timeZone: userTimezone }));
+    const todayInTz = new Date(
+        now.toLocaleDateString('sv-SE', { timeZone: userTimezone }) + 'T00:00:00'
+    );
+    const nowInTz = new Date(
+        now.toLocaleString('en-US', { timeZone: userTimezone })
+    );
 
-    const referenceTime = new Date(todayInTz.getTime() + (now.getTime() - nowInTz.getTime()));
+    const referenceTime = new Date(
+        todayInTz.getTime() + (now.getTime() - nowInTz.getTime())
+    );
 
     if (nowInTz < todayInTz) {
         referenceTime.setDate(referenceTime.getDate() - 1);
@@ -158,9 +164,8 @@ function filterData(range) {
     }
 
     updateFilterStats(range);
-    
     balanceOldPoints = balancePoints.length > 0 ? [...balancePoints] : [];
-    
+
     balanceAnimationProgress = 0;
     startBalanceAnimation();
 }
@@ -471,46 +476,36 @@ function drawBalanceChart(animProgress = 1) {
     let lineColor = 'rgb(13, 185, 129)';
     let gradientStart = 'rgba(13, 185, 129, 0.65)';
 
-    balanceCurrentLineColor = lineColor;
-
     const sortedData = [...balanceFullData].sort((a, b) => a.date - b.date);
 
-    if (sortedData.length === 0) {
-    } else if (currentFilterRange === 'all') {
-        const startBalance = sortedData[0].balance;
-        const endBalance = sortedData[sortedData.length - 1].balance;
-        if (endBalance < startBalance) lineColor = 'rgb(239, 68, 68)';
-        gradientStart = lineColor === 'rgb(13, 185, 129)' 
-            ? 'rgba(13, 185, 129, 0.65)' 
-            : 'rgba(239, 68, 68, 0.65)';
-    } else if (balanceTimeWindow) {
-        const dataAtOrBeforeStart = sortedData
-            .filter(d => d.date <= balanceTimeWindow.start)
-            .pop();
+    if (sortedData.length > 0) {
+        if (currentFilterRange === 'all') {
+            const startBalance = sortedData[0].balance;
+            const endBalance = sortedData[sortedData.length - 1].balance;
+            if (endBalance < startBalance) lineColor = 'rgb(239, 68, 68)';
+            gradientStart = lineColor === 'rgb(13, 185, 129)' 
+                ? 'rgba(13, 185, 129, 0.65)' 
+                : 'rgba(239, 68, 68, 0.65)';
+        } else if (balanceTimeWindow) {
+            const dataAtOrBeforeStart = sortedData
+                .filter(d => d.date <= balanceTimeWindow.start)
+                .pop();
 
-        const dataAtOrBeforeEnd = sortedData
-            .filter(d => d.date <= balanceTimeWindow.end)
-            .pop();
+            const dataAtOrBeforeEnd = sortedData
+                .filter(d => d.date <= balanceTimeWindow.end)
+                .pop();
 
-        let startBalance, endBalance;
+            let startBalance = dataAtOrBeforeStart ? dataAtOrBeforeStart.balance : sortedData[0].balance;
+            let endBalance = dataAtOrBeforeEnd ? dataAtOrBeforeEnd.balance : startBalance;
 
-        if (dataAtOrBeforeStart) {
-            startBalance = dataAtOrBeforeStart.balance;
-        } else {
-            startBalance = sortedData[0].balance;
-        }
-
-        if (dataAtOrBeforeEnd) {
-            endBalance = dataAtOrBeforeEnd.balance;
-        } else {
-            endBalance = startBalance;
-        }
-
-        if (endBalance < startBalance) {
-            lineColor = 'rgb(239, 68, 68)';
-            gradientStart = 'rgba(239, 68, 68, 0.65)';
+            if (endBalance < startBalance) {
+                lineColor = 'rgb(239, 68, 68)';
+                gradientStart = 'rgba(239, 68, 68, 0.65)';
+            }
         }
     }
+
+    balanceCurrentLineColor = lineColor;
 
     const circlebalance = document.getElementById('circlebalance');
     if (circlebalance) {
@@ -1479,7 +1474,7 @@ loadAssetData().then(() => {
     }
 });
 
-// ======================= Chart Winrate ======================= //
+// ======================= Chart Winrate (Tanpa Animasi) ======================= //
 const canvasWrChart = document.getElementById('donutChart');
 const ctxWrChart = canvasWrChart.getContext('2d');
 const circumferenceSVG = 2 * Math.PI * 82.5;
@@ -1512,12 +1507,7 @@ window.addEventListener('resize', () => {
     const newCenter = resizeWrChart();
     centerX = newCenter.centerX;
     centerY = newCenter.centerY;
-
-    if (dataWrChart.length > 0) {
-        startTime = null;
-        updateSVGRing();
-        setTimeout(() => requestAnimationFrame(animateWrChart), 50);
-    }
+    renderWrChart();
 });
 
 const radius = 84;
@@ -1525,10 +1515,6 @@ const holeRadius = 65;
 
 let dataWrChart = [];
 let total = 0;
-
-let animationProgress = 0;
-const animationDuration = 500;
-let startTime = null;
 
 function updateSVGRing() {
     if (total === 0) return;
@@ -1557,37 +1543,8 @@ function updateSVGRing() {
     missedSegment.style.strokeDashoffset = -(winLength + loseLength);
 }
 
-async function loadWrChartData() {
-    try {
-        const data = await getDB();
-
-        const counts = { Profite: 0, Loss: 0, Missed: 0 };
-        data.forEach(item => {
-            if (item.Result === "Profit") counts.Profite++;
-            else if (item.Result === "Loss") counts.Loss++;
-            else if (item.Result === "Missed") counts.Missed++;
-        });
-
-        dataWrChart = [
-            { label: 'Win', value: counts.Profite, color1: '#4dd4ac', color2: '#4dd4ac' },
-            { label: 'Lose', value: counts.Loss, color1: '#ff0000', color2: '#ff0000' },
-            { label: 'Missed', value: counts.Missed, color1: '#ffffff', color2: '#ffffff' }
-        ];
-
-        total = dataWrChart.reduce((sum, item) => sum + item.value, 0);
-
-        updateSVGRing();
-        requestAnimationFrame(animateWrChart);
-    } catch (err) {
-        console.error("Gagal memuat data WR:", err);
-    }
-}
-
-function drawLabelWrChart(item, startAngle, endAngle, delay) {
+function drawLabelWrChart(item, startAngle, endAngle) {
     if (item.value === 0) return;
-
-    const progress = Math.max(0, Math.min(1, (animationProgress - delay) / 500));
-    if (progress <= 0) return;
 
     const midAngle = startAngle + (endAngle - startAngle) / 2;
     const percentage = ((item.value / total) * 100).toFixed(1) + '%';
@@ -1620,7 +1577,6 @@ function drawLabelWrChart(item, startAngle, endAngle, delay) {
 
     ctxWrChart.strokeStyle = item.color2;
     ctxWrChart.lineWidth = 2;
-    ctxWrChart.globalAlpha = progress;
     ctxWrChart.beginPath();
     ctxWrChart.moveTo(lineStartX, lineStartY);
     ctxWrChart.lineTo(lineMidX, lineMidY);
@@ -1640,46 +1596,55 @@ function drawLabelWrChart(item, startAngle, endAngle, delay) {
     ctxWrChart.fillStyle = 'rgb(163, 163, 163)';
     ctxWrChart.font = '600 12px Inter';
     ctxWrChart.fillText(item.label, textX, lineEndY + 18);
-
-    ctxWrChart.globalAlpha = 1;
 }
 
 function drawCenterText() {
-    const progress = Math.max(0, Math.min(1, (animationProgress - 1200) / 300));
-    if (progress <= 0) return;
-
-    ctxWrChart.globalAlpha = progress;
     ctxWrChart.fillStyle = 'rgb(245, 245, 245)';
     ctxWrChart.font = 'bold 24px Inter';
     ctxWrChart.textAlign = 'center';
     ctxWrChart.fillText(total.toLocaleString('id-ID'), centerX, centerY + 10);
-    ctxWrChart.globalAlpha = 1;
 }
 
-function animateWrChart(timestamp) {
-    if (!startTime) startTime = timestamp;
-    animationProgress = timestamp - startTime;
-
+function renderWrChart() {
     ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
 
+    if (total === 0) return;
+
+    updateSVGRing();
+
     let currentAngle = -Math.PI / 2;
-
-    dataWrChart.forEach((item, index) => {
+    dataWrChart.forEach(item => {
         const sliceAngle = (item.value / total) * Math.PI * 2;
-        const itemDelay = index * 300;
-        const itemProgress = Math.max(0, Math.min(1, (animationProgress - itemDelay) / 800));
-
-        if (itemProgress >= 0.8) {
-            drawLabelWrChart(item, currentAngle, currentAngle + sliceAngle, 1000 + index * 300);
-        }
-
+        drawLabelWrChart(item, currentAngle, currentAngle + sliceAngle);
         currentAngle += sliceAngle;
     });
 
     drawCenterText();
+}
 
-    if (animationProgress < animationDuration + 1500) {
-        requestAnimationFrame(animateWrChart);
+async function loadWrChartData() {
+    try {
+        const data = await getDB();
+
+        const counts = { Profite: 0, Loss: 0, Missed: 0 };
+        data.forEach(item => {
+            if (item.Result === "Profit") counts.Profite++;
+            else if (item.Result === "Loss") counts.Loss++;
+            else if (item.Result === "Missed") counts.Missed++;
+        });
+
+        dataWrChart = [
+            { label: 'Win', value: counts.Profite, color1: '#4dd4ac', color2: '#4dd4ac' },
+            { label: 'Lose', value: counts.Loss, color1: '#ff0000', color2: '#ff0000' },
+            { label: 'Missed', value: counts.Missed, color1: '#ffffff', color2: '#ffffff' }
+        ];
+
+        total = counts.Profite + counts.Loss + counts.Missed;
+
+        renderWrChart();
+    } catch (err) {
+        console.error("Gagal memuat data WR:", err);
+        ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
     }
 }
 
@@ -1689,7 +1654,7 @@ if (document.readyState === 'loading') {
     loadWrChartData();
 }
 
-// ======================= Update Global ======================= //
+// ======================= Update UI Global ======================= //
 window.addEventListener('resize', () => {
     resizeCanvas();
     resizeBalanceCanvas();

@@ -1065,7 +1065,20 @@ function getTodayTrades(db) {
     const end = new Date(start);
     end.setDate(start.getDate() + 1);
 
-    return db.filter(t => t.date >= start.getTime() && t.date < end.getTime());
+    const startTime = start.getTime();
+    const endTime = end.getTime();
+
+    return db.filter(t => {
+        let tradeTime;
+        if (typeof t.date === 'string') {
+            tradeTime = new Date(t.date).getTime();
+        } else if (typeof t.date === 'number') {
+            tradeTime = t.date * 1000;
+        } else {
+            return false;
+        }
+        return !isNaN(tradeTime) && tradeTime >= startTime && tradeTime < endTime;
+    });
 }
 
 function getTodaySOPData() {
@@ -1073,34 +1086,71 @@ function getTodaySOPData() {
     if (!raw) return { wins: 0, losses: 0, entries: 0, drawdown: 0 };
 
     const db = JSON.parse(raw);
-    const todayTrades = getTodayTrades(db);
 
-    const deposits = db.filter(t => t.action === "Deposit");
-    const lastDeposit = deposits.length ? deposits[deposits.length - 1].value : 0;
-    let balance = lastDeposit;
+    const now = new Date();
+    const todayStart = new Date(now);
+    todayStart.setHours(0, 0, 0, 0);
+    const startTime = todayStart.getTime();
+
+    const beforeToday = [];
+    const todayTrades = [];
+
+    for (const t of db) {
+        let tradeTime;
+        if (typeof t.date === 'string') {
+            tradeTime = new Date(t.date).getTime();
+        } else if (typeof t.date === 'number') {
+            tradeTime = t.date * 1000;
+        } else {
+            continue;
+        }
+
+        if (isNaN(tradeTime)) continue;
+
+        if (tradeTime < startTime) {
+            beforeToday.push(t);
+        } else {
+            todayTrades.push(t);
+        }
+    }
+
+    let balanceAwal = 0;
+    for (const t of beforeToday) {
+        if (t.action === "Deposit") {
+            balanceAwal += t.value || 0;
+        } else if (t.action === "Withdraw") {
+            balanceAwal -= t.value || 0;
+        } else if (t.Pnl !== undefined && typeof t.Pnl === 'number') {
+            balanceAwal += t.Pnl;
+        }
+    }
+
+    if (balanceAwal <= 0) {
+        balanceAwal = 1;
+    }
 
     let wins = 0, losses = 0, entries = 0;
-    let drawdown = 0;
+    let totalPnLHariIni = 0;
 
     for (const t of todayTrades) {
         if (!t.Result || typeof t.Pnl !== 'number') continue;
         entries++;
-
-        const beforeTrade = balance;
-        balance += t.Pnl;
-
+        totalPnLHariIni += t.Pnl;
         if (t.Result === "Profit") wins++;
-        else if (t.Result === "Loss") {
-            losses++;
-            const ddPercent = (Math.abs(t.Pnl) / beforeTrade) * 100;
-            drawdown = ddPercent;
-        }
+        else if (t.Result === "Loss") losses++;
     }
 
-    return { 
-        wins, 
-        losses, 
-        entries, 
+    const balanceSekarang = balanceAwal + totalPnLHariIni;
+    let drawdown = 0;
+
+    if (balanceSekarang < balanceAwal) {
+        drawdown = ((balanceAwal - balanceSekarang) / balanceAwal) * 100;
+    }
+
+    return {
+        wins,
+        losses,
+        entries,
         drawdown: Number(drawdown.toFixed(2))
     };
 }
@@ -1517,7 +1567,6 @@ function filterByRangeShare(data, range) {
         if (typeof item.date === 'string') {
             tDate = new Date(item.date).getTime();
         } else if (typeof item.date === 'number') {
-            // Anggap sebagai Unix timestamp dalam DETIK → konversi ke milidetik
             tDate = item.date * 1000;
         } else {
             tDate = NaN;
@@ -1536,14 +1585,13 @@ function getTitleByRangeShare(range) {
 }
 
 function calculateBalanceAtTime(trades, targetTime) {
-    // targetTime: timestamp (ms). Hitung balance dari semua transaksi DENGAN date <= targetTime
     let balance = 0;
     trades.forEach(t => {
         let tDate;
         if (typeof t.date === 'string') {
             tDate = new Date(t.date).getTime();
         } else if (typeof t.date === 'number') {
-            tDate = t.date * 1000; // ←←← KALIKAN 1000
+            tDate = t.date * 1000;
         } else {
             tDate = NaN;
         }
@@ -1569,7 +1617,7 @@ function updateDataShare() {
         if (typeof t.date === 'string') {
             d = new Date(t.date).getTime();
         } else if (typeof t.date === 'number') {
-            d = t.date * 1000; // ←←← KALIKAN 1000
+            d = t.date * 1000;
         } else {
             d = NaN;
         }
@@ -1615,7 +1663,6 @@ function updateDataShare() {
         roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
     }
 
-    // Update TEXT_CONTENT_SHARE seperti biasa
     TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
     TEXT_CONTENT_SHARE.persentase = formatPersenShare(roiPercent);
     TEXT_CONTENT_SHARE.invested = formatNumberShare(totalDeposit);

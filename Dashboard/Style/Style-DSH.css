@@ -93,6 +93,7 @@ h2 {
 
 .hidden { display: none; }
 
+/* Color Hlper */
 .green {
     color: var(--green);
 }
@@ -206,6 +207,7 @@ h2 {
     padding: 2px;
     border-radius: 12px;
     border: 1px solid var(--bg-38);
+    cursor: pointer;
 }
 
 .btn-radio {
@@ -1167,7 +1169,6 @@ th.sortable {
 
 .value-lessons {
     font-size: var(--sz-12);
-    color: var(--gray);
 }
 
 .min-subttl {
@@ -1867,17 +1868,32 @@ canvas {
     z-index:1;
 }
 
-.tooltip-pairs.show { opacity:1; }
+.tooltip-pairs.show { 
+    opacity:1; 
+}
 
-.tooltip-icon { width:22px; height:22px; border-radius:50%; }
+.tooltip-icon { 
+    width:22px; 
+    height:22px; 
+    border-radius:50%; 
+}
 
-.tooltip-value-pairs { font-size:11px; color:var(--white); font-weight:var(--wg-600); }
+.tooltip-value-pairs { 
+    font-size:11px; 
+    color:var(--white); 
+    font-weight:var(--wg-600); 
+}
 
-.segment { cursor:pointer; transition: all 0.3s ease; }
+.segment { 
+    cursor:pointer; 
+    transition: all 0.3s ease; 
+}
 
 @keyframes fillChart { from { stroke-dashoffset: 628; } }
 
-circle.segment { animation: fillChart 1.5s ease-out forwards; }
+circle.segment { 
+    animation: fillChart 1.5s ease-out forwards; 
+}
 
 .box-identifier-pairs {
     display: flex;
@@ -1904,7 +1920,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     color: var(--gray);
 }
 
-/* Container Statistic Trading */
+/* ------ Global Summary ------ */
 .container-statistic-pairs {
     display: flex;
     flex-direction: column;
@@ -1926,7 +1942,6 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     margin-bottom: 10px;
 }
 
-/* ------ Global Summary ------ */
 .stat-row {
     display: flex;
     justify-content: space-between;
@@ -2004,7 +2019,6 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     background: var(--bg-38);
 }
 
-/* Mental Calibration */
 .mental-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -2031,7 +2045,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     font-weight: var(--wg-600);
 }
 
-/* Container Statistic Trading */
+/* ------ Statistic Bheavior Single ------ */
 .container-bias-pairs {
     display: flex;
     flex-direction: column;
@@ -2053,23 +2067,6 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     padding: 20px;
     background: var(--bg-20);
     border: 1px solid var(--bg-38);
-}
-
-/* Performance Cards */
-.performance-grid {
-    display: grid;
-    grid-template-rows: 1fr 1fr;
-    gap: 16px;
-    height: 100%;
-}
-
-.performance-card {
-    background: rgba(255, 255, 255, 0.02);
-    border-radius: 12px;
-    padding: 14px;
-    border: 1px solid var(--bg-38);
-    display: flex;
-    flex-direction: column;
 }
 
 .performance-header {
@@ -2190,7 +2187,7 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
     z-index: 2;
 }
 
-/* Container Stats Pairs */
+/* ------ Pair ------ */
 .container-stats-pairs {
     display: flex;
     flex-direction: column;
@@ -2398,68 +2395,6 @@ circle.segment { animation: fillChart 1.5s ease-out forwards; }
 .info-text {
     font-size: var(--sz-12);
     color: var(--gray);
-}
-
-.custom-select {
-    position: relative;
-    width: 100%;
-}
-
-.custom-select select {
-    width: 250px;
-    padding: 10px 15px;
-    font-size: 14px;
-    border: 1px solid var(--bg-55);
-    border-radius: 10px;
-    background: var(--bg-38);
-    color: var(--white);
-    cursor: pointer;
-    appearance: none;
-    transition: all 0.3s ease;
-    font-family: inherit;
-}
-
-.custom-select select:hover {
-    border-color: var(--bg-70);
-}
-
-.custom-select select:focus {
-    outline: none;
-    border-color: var(--bg-70);
-}
-
-.custom-select::after {
-    content: '⬍';
-    position: absolute;
-    left: 225px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: var(--gray);
-    pointer-events: none;
-    font-size: 12px;
-}
-        
-.time-display {
-    background: var(--bg-27);
-    border-radius: 10px;
-    padding: 25px;
-    text-align: center;
-    color: white;
-    margin-bottom: 20px;
-}
-
-.time-display .label {
-    font-size: 12px;
-    opacity: 0.9;
-    margin-bottom: 8px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-}
-
-.time-display .time {
-    font-size: 24px;
-    font-weight: bold;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .button-group {

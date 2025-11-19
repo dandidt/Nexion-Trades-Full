@@ -183,7 +183,7 @@ function updateDashboardFromTrades(data = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
-  // --- Behavior Stats (hanya dari trade) ---
+  // --- Behavior Stats ---
   let reversalCount = 0, continuCount = 0;
   tradeData.forEach(t => {
     const b = (t.Behavior || t.behavior || '').toString().toLowerCase();
@@ -201,7 +201,7 @@ function updateDashboardFromTrades(data = []) {
     if (elStatsNavContinuation) elStatsNavContinuation.textContent = '0% Continuation';
   }
 
-  // --- Best Performer (hanya dari trade) ---
+  // --- Best Performer ---
   let bestTrade = null;
   let bestPnl = -Infinity;
   for (const trade of tradeData) {
@@ -295,7 +295,7 @@ function updateDashboardFromTrades(data = []) {
     if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '0%';
   }
 
-  // --- Pair Stats (hanya dari trade) ---
+  // --- Pair Stats ---
   const countMap = {};
   const pnlMap = {};
   tradeData.forEach(t => {
@@ -328,7 +328,7 @@ function updateDashboardFromTrades(data = []) {
   if (elMostpairs) elMostpairs.textContent = topByCount || '-';
   if (elTotalMostTraded) elTotalMostTraded.textContent = topCount ? `${topCount} Trades` : '0 Trades';
 
-  // --- Profitability (Win Rate) (hanya dari trade) ---
+  // --- Profitability ---
   let win = 0, lose = 0;
   tradeData.forEach(t => {
     const r = (t.Result || t.result || '').toString().toLowerCase();
@@ -345,7 +345,7 @@ function updateDashboardFromTrades(data = []) {
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `0 of 0 Profite Trade`;
   }
 
-  // --- Avg Daily PnL (hanya profit, hanya dari trade) ---
+  // --- Avg Daily PnL ---
   const dailyWins = {};
   tradeData.forEach(t => {
     const pnl = parsePnl(t.Pnl);
@@ -381,17 +381,17 @@ function renderTradingTable(data) {
       row.innerHTML = `
         <td><p class="no">${item.tradeNumber || '-'}</p></td>
         <td><p class="date">${formattedDate}</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
-        <td><p>-</p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
+        <td><p></p></td>
         <td><p class="${isDeposit ? 'result-win' : 'result-lose'}">${item.action}</p></td>
         <td><p class="${isDeposit ? 'pnl-win' : 'pnl-loss'}">${isDeposit ? '+' : ''}${formatUSD(Math.abs(value))}</p></td>
       `;
@@ -940,6 +940,8 @@ async function updateEquityStats() {
         ? ((totalWithdraw / totalDeposit) * 100).toFixed(2)
         : "0.00";
 
+    const totalPerp = totalDeposit + totalPnl - totalWithdraw;
+
     // --- Format number ---
     const formatCurrency = (n) => {
       const v = Number(n) || 0;
@@ -948,7 +950,6 @@ async function updateEquityStats() {
       return sign + "$" + abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
-    // --- Update elemen UI ---
     const elTotalEquity = document.getElementById("totalEquity");
     const elTotalPerp = document.getElementById("total-perp");
     const elPersentaseWithdraw = document.getElementById("persentaseWithdraw");
@@ -956,7 +957,7 @@ async function updateEquityStats() {
     const elValueDeposit = document.getElementById("valueDeposit");
 
     if (elTotalEquity) elTotalEquity.textContent = formatCurrency(totalEquity);
-    if (elTotalPerp) elTotalPerp.textContent = formatCurrency(totalPnl);
+    if (elTotalPerp) elTotalPerp.textContent = formatCurrency(totalPerp);
     if (elPersentaseWithdraw) elPersentaseWithdraw.textContent = `${persentaseWithdraw}%`;
     if (elValueWithdraw) elValueWithdraw.textContent = formatCurrency(totalWithdraw);
     if (elValueDeposit) elValueDeposit.textContent = formatCurrency(totalDeposit);
@@ -1051,7 +1052,7 @@ async function updateStats() {
         <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgba(173, 173, 173, 1)">
           <path d="m702-301-43-42 106-106H120v-60h646L660-615l42-42 178 178-178 178Z"/>
         </svg>
-        <p class="value-lessons">NETRAL</p>
+        <p class="value-lessons gray">NETRAL</p>
       `;
     }
   }
@@ -1541,53 +1542,6 @@ function loadSettings() {
 }
 
 document.addEventListener('DOMContentLoaded', loadSettings);
-
-// Time Zone
-const timezoneSelect = document.getElementById('timezone');
-const currentTimeDisplay = document.getElementById('currentTime');
-
-const validTimezones = Array.from(timezoneSelect.options).map(opt => opt.value);
-
-const savedTimezone = localStorage.getItem('timezone');
-if (savedTimezone && validTimezones.includes(savedTimezone)) {
-    timezoneSelect.value = savedTimezone;
-}
-
-function updateTime() {
-    const timezone = timezoneSelect.value;
-    const now = new Date();
-
-    try {
-        const timeString = now.toLocaleTimeString('en-GB', {
-            timeZone: timezone,
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit',
-            hour12: false
-        });
-
-        const dateString = now.toLocaleDateString('en-GB', {
-            timeZone: timezone,
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-
-        currentTimeDisplay.textContent = `${dateString}, ${timeString}`;
-    } catch (error) {
-        console.warn('Timezone not supported:', timezone, error);
-        currentTimeDisplay.textContent = 'Unable to display time for this timezone.';
-    }
-}
-
-timezoneSelect.addEventListener('change', function () {
-    localStorage.setItem('timezone', this.value);
-    updateTime();
-});
-
-updateTime();
-const timeInterval = setInterval(updateTime, 1000);
 
 // ======================= Server ======================= //
 function renderAvatar() {
