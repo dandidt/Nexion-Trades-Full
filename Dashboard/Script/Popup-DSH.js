@@ -31,20 +31,17 @@ function closeAllPopups() {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    // === Popup ===
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupAdd = document.querySelector(".popup-add");
     const popupEditTrade = document.querySelector(".popup-edit-trade");
     const popupEditTransfer = document.querySelector(".popup-edit-transfer");
     const popupCaculate = document.querySelector(".popup-caculate");
 
-    // === Buttons ===
     const btnAdd = document.getElementById("btnAdd");
     const btnEdit = document.getElementById("btnEdit");
     const btnCaculate = document.getElementById("btnCaculate");
     const tableBody = document.querySelector(".tabel-trade tbody");
 
-    // === Helper ===
     function hasAnyPopupOpen() {
         return (
             popupAdd?.classList.contains("show") ||
@@ -70,7 +67,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = "";
     }
 
-    // === Buka Add Trade Popup ===
+    // ------ Trade ------ //
     btnAdd?.addEventListener("click", () => {
         closeAllPopups();
         document.body.classList.add("popup-open");
@@ -90,7 +87,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // === Buka Add Transfer Popup ===
+    // ------ Transfer ------ //
     btnAdd?.addEventListener("click", () => {
         closeAllPopups();
         document.body.classList.add("popup-open");
@@ -110,7 +107,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // === Buka Calculate Popup ===
+    // ------ Calculate ------ //
     btnCaculate?.addEventListener("click", () => {
         closeAllPopups();
         document.body.classList.add("popup-open");
@@ -119,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
         popupCaculate?.classList.add("show");
     });
 
-    // === Toggle Edit Mode ===
+    // ------ Edit Mode ------ //
     btnEdit?.addEventListener("click", () => {
         isEditMode = !isEditMode;
         document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
@@ -129,7 +126,6 @@ document.addEventListener("DOMContentLoaded", () => {
         btnEdit.classList.toggle("active", isEditMode);
     });
 
-    // === popup edit sesuai jenis data ===
     tableBody?.addEventListener("click", async (e) => {
         if (!isEditMode) return;
         const row = e.target.closest("tr");
@@ -149,16 +145,16 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // === Overlay click ===
+    // ------ Overlay ------ //
     popupOverlay?.addEventListener("click", closeAllPopups);
 
-    // === Tombol Cancel ===
+    // ------ Cancel ------ //
     document.getElementById("closeAdd")?.addEventListener("click", () => closePopup(popupAdd));
     document.getElementById("closeEditTrade")?.addEventListener("click", () => closePopup(popupEditTrade));
     document.getElementById("closeEditTransfer")?.addEventListener("click", () => closePopup(popupEditTransfer));
     document.getElementById("closeCaculate")?.addEventListener("click", () => closePopup(popupCaculate));
 
-    // === Custom Dropdowns ===
+    // ------ Custom Dropdowns ------ //
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
         const selected = dropdown.querySelector('.dropdown-selected');
         const options = dropdown.querySelector('.dropdown-options');
@@ -268,7 +264,7 @@ function setDropdownValue(dropdownName, value) {
     }
 }
 
-// ======================= HELPER FUNCTIONS ======================= //
+// ------ HELPER FUNCTIONS ------ //
 function getDropdownValue(dropdownName) {
     const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
     if (!dropdown) {
@@ -284,7 +280,7 @@ function getDropdownValue(dropdownName) {
     }
 }
 
-// Number Trade Add
+// ------ Number Trade Add ------ //
 function getNextLocalIds() {
     const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
 
