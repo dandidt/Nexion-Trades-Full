@@ -2358,7 +2358,327 @@ circle.segment {
     color: var(--gray);
 }
 
-/* --- MENU ITEMS --- */
+.wrapper-button-profile {
+    display: flex;
+    gap: 10px;
+}
+
+/* Edit Profile */
+.btn-edit-profile {
+    padding: 2px 10px;
+}
+
+.wrapper-edit-profile {
+    display: flex;
+    width: 800px;
+    height: 100%;
+    overflow: hidden;
+}
+
+.left-panel {
+    width: 50%;
+    padding: 25px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 25px;
+}
+
+.right-panel {
+    width: 50%;
+    padding: 40px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: var(--bg-35);
+    border-radius: 0 15px 15px 0;
+    overflow: hidden;
+}
+
+.right-panel svg {
+    position: absolute;
+    top: 50%;
+    height: 450px;
+}
+
+.user-card-main {
+    background: rgba(40, 40, 40, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(2px);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    border-radius: 14px;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+}
+
+.user-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: rgba(40, 40, 40, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(2px);
+    border-radius: 10px;
+    /* padding: 48px 40px; */
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+}
+
+.wrapper-chard {
+    margin: 0 auto 12px;
+    position: relative;
+}
+
+.rope-hanger {
+    background: rgba(148, 148, 148, 0.2);
+    border: 1px solid rgba(102, 102, 102, 0.6);
+    border-radius: 6px;
+    height: 100vh;
+    width: 45px;
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    
+    box-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
+}
+
+.hole-chard {
+    width: 50px;
+    height: 10px;
+    border-radius: 10px;
+    background: #000;
+}
+
+.form-group-profile {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.row-main {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.altert-text {
+    font-size: 12px;
+    font-weight: 600;
+    color: #bb0b0b;
+}
+
+.row-label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+#tooltipUsername,
+.tooltipPassword {
+    fill: #666;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+
+#tooltipUsername:hover,
+.tooltipPassword:hover {
+    fill: #fff;
+    cursor: pointer;
+}
+
+.tooltip-wrapper {
+    position: relative;
+    display: inline-block;
+    padding-top: 6px;
+    cursor: help;
+}
+
+.tooltip-content {
+    visibility: hidden;
+    width: 220px;
+    background-color: #333;
+    color: #eee;
+    text-align: left;
+    border-radius: 6px;
+    padding: 10px 12px;
+    font-size: 12px;
+    line-height: 1.4;
+    position: absolute;
+    z-index: 10;
+    bottom: 30px;
+    left: -8px;
+    opacity: 0;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    white-space: normal;
+}
+
+.tooltip-wrapper:hover .tooltip-content {
+    visibility: visible;
+    opacity: 1;
+}
+
+.tooltip-content::after {
+    content: "";
+    position: absolute;
+    bottom: -12px;
+    left: 10px;
+    margin-top: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+input[type="text"] {
+    background: var(--bg-27);
+    border: 1px solid var(--bg-45);
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 15px;
+    color: var(--white);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+input[type="text"]:focus {
+    border-color: var(--green);
+    background: var(--bg-38);
+}
+
+input[type="text"]::placeholder {
+    color: var(--gray-primary);
+}
+
+input[type="file"] {
+    display: none;
+}
+
+.file-upload-area {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    min-height: 180px;
+    padding: 40px 20px;
+    border: 1px dashed var(--bg-55);
+    border-radius: 8px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.3s;
+    background: var(--bg-38);
+}
+
+.file-upload-area:hover {
+    border-color: var(--bg-70);
+    background: var(--bg-45);
+}
+
+.file-upload-area.dragover {
+    border-color: var(--bg-70);
+    background: var(--bg-45);
+}
+
+.upload-text {
+    color: #b8b8b8;
+    font-size: 14px;
+}
+
+.upload-icon {
+    color: var(--red);
+    font-size: 32px;
+}
+
+.file-name {
+    color: var(--red);
+    font-size: 13px;
+}
+
+.btn-delete-foto {
+    padding: 6px 12px;
+}
+
+.preview-section {
+    text-align: center;
+}
+
+.profile-preview {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.avatar {
+    width: 120px;
+    height: 120px;
+    border-radius: 10px;
+    object-fit: cover;
+    background: rgba(40, 40, 40, 0.6);
+    border: 1px dashed rgba(255, 255, 255, 0.2);
+}
+
+.profile-name {
+    font-size: 22px;
+    font-weight: 600;
+    color: #fff;
+    margin-top: 10px;
+}
+
+.profile-placeholder {
+    color: #666;
+}
+
+.user-id-container {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.barcode {
+    height: 40px;
+    margin-bottom: 12px;
+    box-shadow: 0 0 8px rgba(5, 187, 102, 0.2);
+    background: repeating-linear-gradient(
+        90deg,
+        #0bbb80,
+        #0ec25f 2px,
+        transparent 2px,
+        transparent 4px,
+        #0bbb80 4px,
+        #0ec25f 6px,
+        transparent 6px,
+        transparent 10px,
+        #0bbb95 10px,
+        #0ec25f 11px,
+        transparent 11px,
+        transparent 13px
+    );
+    opacity: 0.6;
+}
+
+.user-id {
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    color: #666;
+    letter-spacing: 1px;
+}
+
+/* Logout */
 .row-profile {
     display: flex;
     align-items: center;

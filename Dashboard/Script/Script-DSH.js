@@ -1598,21 +1598,20 @@ function renderAvatar() {
 
 async function renderProfile() {
     const { data: { user }, error } = await supabaseClient.auth.getUser();
-    
-    if (error || !user) {
-        console.error("⚠️ Tidak ada user login / error auth:", error);
-        return;
-    }
+    if (error || !user) return;
+
+    const user_id = user.id;
+
+    const { data: profile, error: profileErr } = await supabaseClient
+        .from("profiles")
+        .select("username, avatar_url")
+        .eq("id", user_id)
+        .single();
 
     const usernameEl = document.getElementById("username");
     const emailEl = document.getElementById("email");
 
-    if (!usernameEl || !emailEl) {
-        console.error("❗ Elemen DOM tidak ditemukan.");
-        return;
-    }
-
-    usernameEl.textContent = user.user_metadata?.username || "User";
+    usernameEl.textContent = profile?.username || "User";
     emailEl.textContent = user.email || "no-email";
 
     renderAvatar();
