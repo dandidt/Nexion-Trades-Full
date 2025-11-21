@@ -1312,7 +1312,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const popupSop = document.querySelector(".popup-container.popup-edit-profile");
     const btnEditProfile = document.getElementById("btnEditProfile");
 
-    // 🔁 Fungsi ini WAJIB ADA
     function hasAnyPopupOpen() {
         const popupShare = document.querySelector(".popup-share");
         return (
@@ -1339,12 +1338,26 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = "";
     }
 
+    function resetEditProfileForm() {
+        namaInput.value = "";
+        previewNama.textContent = 'New Username';
+        previewNama.classList.add('profile-placeholder');
+        
+        fotoInput.value = "";
+        resetUploadArea();
+        
+        const savedAvatar = localStorage.getItem('avatar');
+        previewFoto.src = savedAvatar || htmlDefaultImage;
+    }
+
     btnEditProfile?.addEventListener("click", () => {
         closeAllPopups();
         document.body.classList.add("popup-open");
         document.body.style.overflow = "hidden";
         popupOverlay?.classList.add("show");
         popupSop?.classList.add("show");
+        
+        resetEditProfileForm();
     });
 
     popupOverlay?.addEventListener("click", closeAllPopups);
@@ -1363,9 +1376,33 @@ const previewNama = document.getElementById('previewNama');
 const previewFoto = document.getElementById('previewFoto');
 
 const htmlDefaultImage = previewFoto.src;
-let defaultImage = localStorage.getItem('avatar') || htmlDefaultImage;
 
-previewFoto.src = defaultImage;
+function resetUploadArea() {
+    fileName.textContent = '';
+    btnRemove.style.display = 'none';
+    
+    uploadArea.querySelector('.upload-icon')?.classList.remove('hidden');
+    uploadArea.querySelectorAll('.upload-text').forEach(t => t.classList.remove('hidden'));
+    
+    uploadArea.classList.remove('dragover');
+}
+
+function handleFile(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        previewFoto.src = dataUrl;
+        fileName.textContent = file.name;
+        btnRemove.style.display = 'inline-block';
+
+        uploadArea.querySelector('.upload-icon')?.classList.add('hidden');
+        uploadArea.querySelectorAll('.upload-text').forEach(t => t.classList.add('hidden'));
+    };
+    reader.readAsDataURL(file);
+}
+
+const savedAvatar = localStorage.getItem('avatar');
+previewFoto.src = savedAvatar || htmlDefaultImage;
 
 namaInput.addEventListener('input', function() {
     const value = this.value.trim();
@@ -1419,30 +1456,14 @@ uploadArea.addEventListener('drop', function(e) {
     }
 });
 
-function handleFile(file) {
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const dataUrl = e.target.result;
-        previewFoto.src = dataUrl;
-        fileName.textContent = file.name;
-        btnRemove.style.display = 'inline-block';
-
-        uploadArea.querySelector('.upload-icon').classList.add('hidden');
-        uploadArea.querySelectorAll('.upload-text').forEach(t => t.classList.add('hidden'));
-    };
-    reader.readAsDataURL(file);
-}
-
 btnRemove.addEventListener('click', function(e) {
     e.stopPropagation();
     fotoInput.value = '';
-
-    previewFoto.src = defaultImage;
-    fileName.textContent = '';
-    btnRemove.style.display = 'none';
-
-    uploadArea.querySelector('.upload-icon').classList.remove('hidden');
-    uploadArea.querySelectorAll('.upload-text').forEach(t => t.classList.remove('hidden'));
+    
+    const savedAvatar = localStorage.getItem('avatar');
+    previewFoto.src = savedAvatar || htmlDefaultImage;
+    
+    resetUploadArea();
 });
 
 async function SaveEditProfile() {
@@ -1461,7 +1482,6 @@ async function SaveEditProfile() {
         const currentPreviewSrc = previewFoto.src;
         const isUploadingNewImage = currentPreviewSrc.startsWith('data:image');
 
-        // Ambil data lama user
         const { data: currentProfile } = await supabaseClient
             .from('profiles')
             .select('username, avatar_url')
@@ -1474,9 +1494,6 @@ async function SaveEditProfile() {
         let avatarPathForDB = undefined;
         let shouldUpdate = false;
 
-        // ==============================
-        // CEK PERUBAHAN USERNAME SAJA
-        // ==============================
         if (newUsername && newUsername !== oldUsername) {
             if (!usernameIsValid) {
                 alert("Username tidak valid! Harus 3–20 huruf, tanpa angka/spasi.");
@@ -1485,12 +1502,8 @@ async function SaveEditProfile() {
             shouldUpdate = true;
         }
 
-        // ===================================
-        // CEK PERUBAHAN AVATAR SAJA
-        // ===================================
         if (isUploadingNewImage) {
-
-            shouldUpdate = true; // avatar berubah
+            shouldUpdate = true;
 
             localStorage.setItem('avatar', currentPreviewSrc);
 
@@ -1522,36 +1535,17 @@ async function SaveEditProfile() {
             avatarPathForDB = fullPath;
 
         } else if (currentPreviewSrc === htmlDefaultImage && oldAvatar !== null) {
-
-            // Avatar dihapus (kembali default)
             shouldUpdate = true;
             avatarPathForDB = null;
             localStorage.removeItem('avatar');
         }
 
-        // ===================================
-        // JIKA TIDAK ADA YANG BERUBAH
-        // ===================================
         if (!shouldUpdate) {
             btnSave.classList.remove('loading');
-
-            const popup = document.querySelector(".popup-container.popup-edit-profile");
-            const overlay = document.querySelector(".popup-overlay");
-            popup?.classList.remove("show");
-            overlay?.classList.remove("show");
-            document.body.classList.remove("popup-open");
-            document.body.style.overflow = "";
-
-            // RESET FORM
-            document.getElementById('nama').value = "";
-            document.getElementById('previewFoto').src = htmlDefaultImage;
-
+            closeEditProfilePopup();
             return;
         }
 
-        // ===================================
-        // BANGUN OBJEK UPDATE DINAMIS
-        // ===================================
         const profileUpdate = {};
 
         if (newUsername && newUsername !== oldUsername) {
@@ -1562,9 +1556,6 @@ async function SaveEditProfile() {
             profileUpdate.avatar_url = avatarPathForDB;
         }
 
-        // ===================================
-        // KIRIM UPDATE KE SERVER
-        // ===================================
         const { error: updateErr } = await supabaseClient
             .from('profiles')
             .update(profileUpdate)
@@ -1574,19 +1565,8 @@ async function SaveEditProfile() {
 
         await renderProfile();
 
-        // RESET FORM SETELAH UPDATE
-        document.getElementById('nama').value = "";
-        document.getElementById('previewFoto').src = htmlDefaultImage;
-
-        const popup = document.querySelector(".popup-container.popup-edit-profile");
-        const overlay = document.querySelector(".popup-overlay");
-        popup?.classList.remove("show");
-        const otherPopup = document.querySelector(".popup-share");
-        if (!otherPopup?.classList.contains("show")) {
-            overlay?.classList.remove("show");
-            document.body.classList.remove("popup-open");
-            document.body.style.overflow = "";
-        }
+        resetEditProfileForm();
+        closeEditProfilePopup();
 
     } catch (err) {
         console.error("❌ Error:", err);
@@ -1594,6 +1574,30 @@ async function SaveEditProfile() {
     } finally {
         btnSave.classList.remove('loading');
     }
+}
+
+function closeEditProfilePopup() {
+    const popup = document.querySelector(".popup-container.popup-edit-profile");
+    const overlay = document.querySelector(".popup-overlay");
+    popup?.classList.remove("show");
+    const otherPopup = document.querySelector(".popup-share");
+    if (!otherPopup?.classList.contains("show")) {
+        overlay?.classList.remove("show");
+        document.body.classList.remove("popup-open");
+        document.body.style.overflow = "";
+    }
+}
+
+function resetEditProfileForm() {
+    namaInput.value = "";
+    previewNama.textContent = 'New Username';
+    previewNama.classList.add('profile-placeholder');
+    
+    fotoInput.value = "";
+    resetUploadArea();
+    
+    const savedAvatar = localStorage.getItem('avatar');
+    previewFoto.src = savedAvatar || htmlDefaultImage;
 }
 
 // ======================= POPUP SHARE ======================= //
