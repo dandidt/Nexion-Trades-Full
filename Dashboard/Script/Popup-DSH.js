@@ -1644,18 +1644,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
             updateDataShare();
 
-            // ✅ Ambil avatar TERBARU dari localStorage
             const currentAvatar = getCurrentAvatarPath();
-            profileImageShare = null; // Reset agar gambar lama tidak dipakai
+            profileImageShare = null;
 
-            // Close lalu buka popup
             closeAllPopups();
             document.body.classList.add("popup-open");
             document.body.style.overflow = "hidden";
             popupOverlay?.classList.add("show");
             popupShare?.classList.add("show");
 
-            // ✅ Load ulang gambar profil dengan path terbaru
             const img = new Image();
             img.onload = () => {
                 profileImageShare = img;
@@ -1665,13 +1662,12 @@ document.addEventListener("DOMContentLoaded", () => {
                 profileImageShare = null;
                 drawCanvasShare();
             };
-            img.src = currentAvatar; // ← Ini selalu terbaru
+            img.src = currentAvatar;
 
         } catch (err) {
             console.error("Error saat ambil user:", err);
             TEXT_CONTENT_SHARE.username = 'User';
 
-            // ✅ Tetap load avatar terbaru meski error
             const currentAvatar = getCurrentAvatarPath();
             profileImageShare = null;
 
@@ -1735,7 +1731,8 @@ const TEXT_CONTENT_SHARE = {
     trade: '0',
     winrate: '0.00%',
     invested: '$0.00',
-    username: 'Dhanntara'
+    username: 'Dhanntara',
+    timestamp: getCurrentTimestamp()
 };
 
 const TEXT_POSITIONS_SHARE = {
@@ -1747,7 +1744,8 @@ const TEXT_POSITIONS_SHARE = {
     winrate: [584, 830],
     invested: [278, 697],
     username: [1553, 120],
-    profilePhoto: [1500, 108]
+    profilePhoto: [1500, 108],
+    timestamp: [1560, 168]
 };
 
 // STYLE TEKS
@@ -1755,6 +1753,13 @@ const STYLE_TITLE_SHARE = {
     font: `800 60px Inter`,
     color: '#ffffff',
     letterSpacing: 1.4,
+    align: 'left'
+};
+
+const STYLE_TIMESTAMP_SHARE = {
+    font: `500 25px Inter`,
+    color: '#cccccc',
+    letterSpacing: 0.5,
     align: 'left'
 };
 
@@ -1820,6 +1825,19 @@ function determineTemplateIndex(persentaseText) {
     } else {
         return value >= 10 ? 2 : 0;
     }
+}
+
+function getCurrentTimestamp() {
+    const now = new Date();
+    return now.getFullYear() +
+           '-' +
+           String(now.getMonth() + 1).padStart(2, '0') +
+           '-' +
+           String(now.getDate()).padStart(2, '0') +
+           ' ' +
+           String(now.getHours()).padStart(2, '0') +
+           ':' +
+           String(now.getMinutes()).padStart(2, '0');
 }
 
 function getPersentaseGradientShare() {
@@ -1966,10 +1984,10 @@ function filterByRangeShare(data, range) {
 
 function getTitleByRangeShare(range) {
     switch (range) {
-        case '30D': return '30D Realized';
-        case '1W': return '1W Realized';
-        case '24H': return '24H Realized';
-        default: return 'ALL-Time Realized';
+        case '30D': return '30D Performance';
+        case '1W': return '1W Performance';
+        case '24H': return '24H Performance';
+        default: return 'ALL-Time Performance';
     }
 }
 
@@ -2036,18 +2054,20 @@ function updateDataShare() {
         else if (selectedRangeShare === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
 
         const balanceBefore = calculateBalanceAtTime(trades, cutoff - 1);
-        const balanceNow = calculateBalanceAtTime(trades, now);
-
-        if (balanceBefore !== 0) {
-            roiPercent = ((balanceNow - balanceBefore) / balanceBefore) * 100;
-        } else {
-            roiPercent = 0;
-        }
-
+        roiPercent = balanceBefore !== 0 ? (totalPnL / balanceBefore) * 100 : 0;
         TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
+
     } else {
-        roiPercent = totalDeposit !== 0 ? (totalPnL / totalDeposit) * 100 : 0;
-        TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
+        const allDeposits = trades.filter(t => t.action?.toLowerCase() === 'deposit');
+        const totalDepositAll = allDeposits.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
+
+        const allExecutedTrades = trades.filter(
+            t => (t.Result === 'Profit' || t.Result === 'Loss') && typeof t.Pnl === 'number'
+        );
+        const totalPnLAll = allExecutedTrades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
+
+        roiPercent = totalDepositAll !== 0 ? (totalPnLAll / totalDepositAll) * 100 : 0;
+        TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnLAll);
     }
 
     TEXT_CONTENT_SHARE.persentase = formatPersenShare(roiPercent);
@@ -2222,6 +2242,18 @@ function drawCanvasShare() {
         }
         drawTextWithLetterSpacingShare(ctxShare, text, x, y, style.letterSpacing, style);
     });
+
+    // Gambar timestamp secara manual
+    const timestampText = TEXT_CONTENT_SHARE.timestamp;
+    const [timestampX, timestampY] = TEXT_POSITIONS_SHARE.timestamp;
+    drawTextWithLetterSpacingShare(
+        ctxShare,
+        timestampText,
+        timestampX,
+        timestampY,
+        STYLE_TIMESTAMP_SHARE.letterSpacing,
+        STYLE_TIMESTAMP_SHARE
+    );
 }
 
 // UTILITAS

@@ -2505,7 +2505,7 @@ circle.segment {
     cursor: help;
 }
 
-.tooltip-content {
+.tooltip-wrapper .tooltip-content {
     visibility: hidden;
     width: 220px;
     background-color: #333;
@@ -2530,7 +2530,7 @@ circle.segment {
     opacity: 1;
 }
 
-.tooltip-content::after {
+.tooltip-wrapper .tooltip-content::after {
     content: "";
     position: absolute;
     bottom: -12px;
