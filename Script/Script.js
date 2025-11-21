@@ -131,12 +131,20 @@ async function handleLogout() {
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
 
-        window.location.href = "Nexion-Trades-Full/index.html";
+        //'https:' (online) or 'http:' (local)
+        const isOnline = window.location.protocol === 'https:';
+        if (isOnline) {
+            window.location.href = "Nexion-Trades-Full/index.html";
+        } else {
+            window.location.href = "../../index.html";
+        }
+
     } catch (err) {
         console.error('Logout error:', err);
         alert('Gagal logout. Silakan coba lagi.');
     }
 }
+
 
 // Buka popup logout
 document.getElementById('logoutAccount')?.addEventListener('click', (e) => {

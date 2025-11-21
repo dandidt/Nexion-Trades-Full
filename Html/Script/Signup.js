@@ -305,7 +305,13 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         finishLoading();
         document.getElementById('signupSuccessModal').style.display = 'flex';
         document.getElementById('loginRedirectBtn').onclick = () => {
-            window.location.href = "/Nexion-Trades-Full/index.html";
+            
+            const isOnline = window.location.protocol === 'https:';
+            if (isOnline) {
+                window.location.href = "Nexion-Trades-Full/index.html";
+            } else {
+                window.location.href = "../../index.html";
+            }
         };
 
     } catch (err) {

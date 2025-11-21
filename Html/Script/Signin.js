@@ -172,7 +172,12 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         finishLoading();
 
         setTimeout(() => {
-            window.location.href = "/Nexion-Trades-Full/index.html";
+            const isOnline = window.location.protocol === 'https:';
+            if (isOnline) {
+                window.location.href = "Nexion-Trades-Full/index.html";
+            } else {
+                window.location.href = "../../index.html";
+            }
         }, 500);
 
     } catch (err) {
