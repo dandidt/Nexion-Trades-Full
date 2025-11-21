@@ -172,8 +172,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         finishLoading();
 
         setTimeout(() => {
-            console.log("➡️ Redirect ke index.html");
-            window.location.href = "../index.html";
+            window.location.href = "/Nexion-Trades-Full/index.html";
         }, 500);
 
     } catch (err) {

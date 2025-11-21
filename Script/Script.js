@@ -131,7 +131,7 @@ async function handleLogout() {
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
 
-        window.location.href = '../index.html';
+        window.location.href = "Nexion-Trades-Full/index.html";
     } catch (err) {
         console.error('Logout error:', err);
         alert('Gagal logout. Silakan coba lagi.');

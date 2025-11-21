@@ -305,7 +305,7 @@ document.getElementById('signupForm').addEventListener('submit', async function(
         finishLoading();
         document.getElementById('signupSuccessModal').style.display = 'flex';
         document.getElementById('loginRedirectBtn').onclick = () => {
-            window.location.href = "../index.html";
+            window.location.href = "/Nexion-Trades-Full/index.html";
         };
 
     } catch (err) {
