@@ -167,14 +167,13 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             console.log("🗑️ Tidak ada avatar_path — menghapus cache avatar lama");
         }
 
-        // Tunggu sebentar
         await new Promise(resolve => setTimeout(resolve, 100));
         finishLoading();
 
         setTimeout(() => {
             const isOnline = window.location.protocol === 'https:';
             if (isOnline) {
-                window.location.href = "Nexion-Trades-Full/index.html";
+                window.location.href = "/index.html";
             } else {
                 window.location.href = "../../index.html";
             }
