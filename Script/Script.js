@@ -131,13 +131,7 @@ async function handleLogout() {
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
 
-            const isGithub = window.location.hostname.includes("github.io");
-
-            const target = isGithub
-                ? "/Nexion-Trades-Full/index.html"
-                : "/index.html";
-
-            window.location.href = target;
+        window.location.href = "index.html";
 
     } catch (err) {
         console.error('Logout error:', err);
@@ -146,18 +140,15 @@ async function handleLogout() {
 }
 
 
-// Buka popup logout
 document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('logoutModal').style.display = 'flex';
 });
 
-// Tombol batal
 document.getElementById('cancelLogoutBtn')?.addEventListener('click', () => {
     document.getElementById('logoutModal').style.display = 'none';
 });
 
-// Tombol konfirmasi logout
 document.getElementById('confirmLogoutBtn')?.addEventListener('click', () => {
     handleLogout();
 });

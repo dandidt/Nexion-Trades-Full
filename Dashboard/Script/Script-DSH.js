@@ -1681,7 +1681,15 @@ document.getElementById('logoutAccount')?.addEventListener('click', async (e) =>
             localStorage.removeItem('avatar');
             const { error } = await supabaseClient.auth.signOut();
             if (error) throw error;
-            window.location.href = '../index.html';
+
+            const isGithub = window.location.hostname.includes("github.io");
+
+            const target = isGithub
+                ? "/Nexion-Trades-Full/index.html"
+                : "/index.html";
+
+            window.location.href = target;
+
         } catch (err) {
             console.error('Logout error:', err);
             alert('Gagal logout. Silakan coba lagi.');
