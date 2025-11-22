@@ -171,12 +171,13 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         finishLoading();
 
         setTimeout(() => {
-            const isOnline = window.location.protocol === 'https:';
-            if (isOnline) {
-                window.location.href = "/index.html";
-            } else {
-                window.location.href = "../../index.html";
-            }
+            const isGithub = window.location.hostname.includes("github.io");
+
+            const target = isGithub
+                ? "/Nexion-Trades-Full/index.html"
+                : "/index.html";
+
+            window.location.href = target;
         }, 500);
 
     } catch (err) {

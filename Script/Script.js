@@ -131,13 +131,13 @@ async function handleLogout() {
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
 
-        //'https:' (online) or 'http:' (local)
-        const isOnline = window.location.protocol === 'https:';
-        if (isOnline) {
-            window.location.href = "Nexion-Trades-Full/index.html";
-        } else {
-            window.location.href = "../../index.html";
-        }
+            const isGithub = window.location.hostname.includes("github.io");
+
+            const target = isGithub
+                ? "/Nexion-Trades-Full/index.html"
+                : "/index.html";
+
+            window.location.href = target;
 
     } catch (err) {
         console.error('Logout error:', err);
