@@ -1162,7 +1162,7 @@ async function updateTradingStats() {
         const trades = rawData
             .filter(item => typeof item.date === 'number' && !isNaN(item.date))
             .map(item => ({
-                date: new Date(item.date),
+                date: new Date(item.date * 1000),
                 pnl: item.Pnl,
                 rr: item.RR,
                 result: item.Result
@@ -1256,7 +1256,7 @@ async function updateTradeStats() {
 
     const daySet = new Set();
     tradeData.forEach(item => {
-      const day = new Date(item.date).setHours(0, 0, 0, 0);
+      const day = new Date(item.date * 1000).setHours(0, 0, 0, 0);
       daySet.add(day);
     });
 

@@ -2273,7 +2273,7 @@ function downloadImageShare() {
     link.click();
 }
 
-// EVENT UNTUK GANTI RANGE
+// RANGE
 document.querySelectorAll('.range-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         selectedRangeShare = btn.dataset.range;
