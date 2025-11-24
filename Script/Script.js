@@ -684,15 +684,28 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // ============== Community ============== //
+const hostname = window.location.hostname;
+const protocol = window.location.protocol;
+
 const isLocal =
-location.hostname === 'localhost' ||
-location.hostname === '127.0.0.1' ||
-location.protocol === 'file:';
+    hostname === 'localhost' ||
+    hostname === '127.0.0.1' ||
+    protocol === 'file:';
 
-const localPath = './data/user.json';
-const onlinePath = 'https://raw.githubusercontent.com/dandidt/Nexion-Trades-Full/main/Data/user.json';
+const isGithub = hostname.includes('github.io');
 
-const jsonPath = isLocal ? localPath : onlinePath;
+const localJSON = './data/user.json';
+const githubJSON = 'https://raw.githubusercontent.com/dandidt/Nexion-Trades-Full/main/Data/user.json';
+
+let jsonPath;
+
+if (isLocal) {
+    jsonPath = localJSON;
+} else if (isGithub) {
+    jsonPath = githubJSON;
+} else {
+    jsonPath = githubJSON;
+}
 
 fetch(jsonPath)
 .then(res => res.json())
