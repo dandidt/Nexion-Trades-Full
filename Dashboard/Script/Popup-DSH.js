@@ -160,14 +160,46 @@ document.addEventListener("DOMContentLoaded", () => {
         const options = dropdown.querySelector('.dropdown-options');
         const optionElements = dropdown.querySelectorAll('.dropdown-option');
         const name = dropdown.getAttribute('data-dropdown');
+        const closeIcon = selected.querySelector('.close-icon');
+        const selectedSpan = selected.querySelector('span');
+
+        function updateDropdownDisplay(hasValue, text = null) {
+            if (hasValue) {
+                selected.classList.add('has-value');
+                if (text) selectedSpan.textContent = text;
+                selectedSpan.classList.remove('placeholder');
+            } else {
+                selected.classList.remove('has-value');
+                const placeholderText = selectedSpan.getAttribute('data-placeholder') || 
+                                    (name === 'method' ? 'Method' : 
+                                    name === 'behavior' ? 'Behavior' :
+                                    name === 'psychology' ? 'Psychology' :
+                                    name === 'class' ? 'Class' :
+                                    name === 'position' ? 'Position' :
+                                    name === 'result' ? 'Result' :
+                                    name === 'timeframe' ? 'Select' :
+                                    name === 'entry' ? 'Select' : 'Select');
+                selectedSpan.textContent = placeholderText;
+                selectedSpan.classList.add('placeholder');
+            }
+        }
 
         selected.addEventListener('click', (e) => {
             e.stopPropagation();
 
+            if (e.target.closest('.close-icon')) {
+                updateDropdownDisplay(false);
+                
+                const allOptions = dropdown.querySelectorAll('.dropdown-option');
+                allOptions.forEach(opt => opt.classList.remove('selected'));
+                
+                if (window.dropdownData) delete window.dropdownData[name];
+                return;
+            }
+
             document.querySelectorAll('.dropdown-options.show').forEach(o => {
                 if (o !== options) o.classList.remove('show');
             });
-
             options.classList.toggle('show');
             selected.classList.toggle('active');
         });
@@ -176,23 +208,20 @@ document.addEventListener("DOMContentLoaded", () => {
             opt.addEventListener('click', (e) => {
                 e.stopPropagation();
                 const value = opt.dataset.value;
-                const selectedSpan = selected.querySelector('span');
 
-                if (value === 'clear') {
-                    selectedSpan.textContent = 'Method';
-                    selectedSpan.classList.add('placeholder');
-
-                    if (window.dropdownData) delete window.dropdownData[name];
-                } else {
-                    selectedSpan.textContent = opt.textContent;
-                    selectedSpan.classList.remove('placeholder');
-
-                    window.dropdownData = window.dropdownData || {};
-                    window.dropdownData[name] = value;
+                if (value === '__edit__') {
+                    options.classList.remove('show');
+                    selected.classList.remove('active');
+                    return;
                 }
 
+                window.dropdownData = window.dropdownData || {};
+                window.dropdownData[name] = value;
+
+                updateDropdownDisplay(true, opt.textContent);
+
                 optionElements.forEach(o => o.classList.remove('selected'));
-                if (value !== 'clear') opt.classList.add('selected');
+                opt.classList.add('selected');
 
                 options.classList.remove('show');
                 selected.classList.remove('active');
@@ -205,9 +234,29 @@ document.addEventListener("DOMContentLoaded", () => {
         document.querySelectorAll('.dropdown-selected.active').forEach(s => s.classList.remove('active'));
     });
 
+    document.querySelectorAll('.input-with-clear').forEach(container => {
+        const input = container.querySelector('input, textarea');
+        const clearBtn = container.querySelector('.clear-btn');
 
-    document.addEventListener('click', () => {
-        document.querySelectorAll('.dropdown-options').forEach(o => o.classList.remove('show'));
+        if (!input || !clearBtn) return;
+
+        function updateClearButton() {
+            if (input.value.trim()) {
+                container.classList.add('has-value');
+            } else {
+                container.classList.remove('has-value');
+            }
+        }
+
+        input.addEventListener('input', updateClearButton);
+
+        updateClearButton();
+
+        clearBtn.addEventListener('click', () => {
+            input.value = '';
+            input.dispatchEvent(new Event('input'));
+            input.focus();
+        });
     });
 
     // Edit Dropdown
@@ -215,6 +264,16 @@ document.addEventListener("DOMContentLoaded", () => {
     rebuildDropdown(name);
     });
 });
+
+// ======================= Show UI Remove Inptu ======================= //
+function refreshClearButtons() {
+    document.querySelectorAll('.input-with-clear').forEach(container => {
+        const input = container.querySelector('input, textarea');
+        if (input) {
+            container.classList.toggle('has-value', input.value.trim() !== '');
+        }
+    });
+}
 
 // ======================= Serch Data ======================= //
 function fillEditFormTrade(trade) {
@@ -238,6 +297,8 @@ function fillEditFormTrade(trade) {
     setDropdownValue("edit-entry", trade.Confluance?.Entry || "");
 
     currentEditingTradeNo = trade.tradeNumber;
+
+    refreshClearButtons();
 }
 
 function fillEditFormTransfer(trade) {
@@ -246,6 +307,8 @@ function fillEditFormTransfer(trade) {
     document.getElementById("edit-value").value = Math.abs(trade.value) || "";
 
     currentEditingTradeNo = trade.tradeNumber;
+
+    refreshClearButtons();
 }
 
 // ======================= DROPDOWN ======================= //
@@ -253,17 +316,26 @@ function setDropdownValue(dropdownName, value) {
     const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
     if (!dropdown) return;
 
-    const selectedSpan = dropdown.querySelector(".dropdown-selected span");
+    const selected = dropdown.querySelector(".dropdown-selected");
+    const selectedSpan = selected.querySelector("span");
     const options = dropdown.querySelectorAll(".dropdown-option");
 
     options.forEach(opt => opt.classList.remove("selected"));
 
-    const matched = Array.from(options).find(opt => opt.dataset.value === value);
-    if (matched) {
-        matched.classList.add("selected");
-        selectedSpan.textContent = matched.textContent;
-        selectedSpan.classList.remove("placeholder");
+    if (value && value !== "") {
+        const matched = Array.from(options).find(opt => opt.dataset.value === value);
+        if (matched) {
+            matched.classList.add("selected");
+            selectedSpan.textContent = matched.textContent;
+            selectedSpan.classList.remove("placeholder");
+            selected.classList.add("has-value");
+        } else {
+            selected.classList.remove("has-value");
+            selectedSpan.textContent = selectedSpan.getAttribute("data-placeholder") || "Select";
+            selectedSpan.classList.add("placeholder");
+        }
     } else {
+        selected.classList.remove("has-value");
         selectedSpan.textContent = selectedSpan.getAttribute("data-placeholder") || "Select";
         selectedSpan.classList.add("placeholder");
     }
@@ -313,13 +385,6 @@ function rebuildDropdown(dropdownName) {
         optionsContainer.appendChild(el);
     });
 
-    const clearEl = document.createElement('div');
-    clearEl.className = 'dropdown-option';
-    clearEl.dataset.value = 'clear';
-    clearEl.textContent = 'Clear';
-    optionsContainer.appendChild(clearEl);
-
-    // Tambahkan "Edit" (hanya untuk timeframe & entry)
     if (['timeframe', 'entry'].includes(dropdownName)) {
         const editEl = document.createElement('div');
         editEl.className = 'dropdown-option edit-trigger';
@@ -343,38 +408,32 @@ function rebuildDropdown(dropdownName) {
 }
 
 function handleOptionClick(e) {
-  e.stopPropagation();
-  const opt = e.currentTarget;
-  const value = opt.dataset.value;
-  const dropdown = opt.closest('.custom-dropdown');
-  const name = dropdown.getAttribute('data-dropdown');
-  const selected = dropdown.querySelector('.dropdown-selected');
-  const selectedSpan = selected.querySelector('span');
+    e.stopPropagation();
+    const opt = e.currentTarget;
+    const value = opt.dataset.value;
+    const dropdown = opt.closest('.custom-dropdown');
+    const name = dropdown.getAttribute('data-dropdown');
+    const selected = dropdown.querySelector('.dropdown-selected');
+    const selectedSpan = selected.querySelector('span');
 
-  if (value === '__edit__') {
-    openEditModal(name);
-    return;
-  }
+    if (value === '__edit__') {
+        openEditModal(name);
+        return;
+    }
 
-  if (value === 'clear') {
-    selectedSpan.textContent = 'Select';
-    selectedSpan.classList.add('placeholder');
-    if (window.dropdownData) delete window.dropdownData[name];
-  } else {
+    // ✅ INI YANG KURANG:
+    selected.classList.add('has-value');
+
     selectedSpan.textContent = opt.textContent;
     selectedSpan.classList.remove('placeholder');
     window.dropdownData = window.dropdownData || {};
     window.dropdownData[name] = value;
-  }
 
-  // Update UI selected
-  dropdown.querySelectorAll('.dropdown-option').forEach(o => o.classList.remove('selected'));
-  if (value !== 'clear' && value !== '__edit__') {
+    dropdown.querySelectorAll('.dropdown-option').forEach(o => o.classList.remove('selected'));
     opt.classList.add('selected');
-  }
 
-  dropdown.querySelector('.dropdown-options').classList.remove('show');
-  selected.classList.remove('active');
+    dropdown.querySelector('.dropdown-options').classList.remove('show');
+    selected.classList.remove('active');
 }
 
 function openEditModal(dropdownName) {

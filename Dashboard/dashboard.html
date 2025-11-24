@@ -878,7 +878,12 @@
 
                         <div class="form-group">
                             <label>Pairs </label>
-                            <input type="text" id="pairs" placeholder="BTCUSDT.P">
+                            <div class="input-with-clear">
+                                <input type="text" id="pairs" placeholder="BTCUSDT.P">
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                </button>
+                            </div>
                         </div>
     
                         <div class="form-group">
@@ -886,20 +891,29 @@
                             <div class="custom-dropdown" data-dropdown="method">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Method</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    <div class="icon-container">
+                                        <!-- Close/X Icon -->
+                                        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        <!-- Arrow Icon -->
+                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    </div>
                                 </div>
                                 <div class="dropdown-options">
                                     <div class="dropdown-option" data-value="Scalping">Scalping</div>
                                     <div class="dropdown-option" data-value="Intraday">Intraday</div>
                                     <div class="dropdown-option" data-value="Swing">Swing</div>
-                                    <div class="dropdown-option" data-value="clear">Clear</div>
                                 </div>
                             </div>
                         </div>
     
                         <div class="form-group">
                             <label>RR</label>
-                            <input type="number" id="rr" placeholder="1.5" step="0.1">
+                            <div class="input-with-clear">
+                                <input type="number" id="rr" placeholder="1.5" step="0.1">
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -909,19 +923,28 @@
                             <div class="custom-dropdown" data-dropdown="behavior">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Behavior</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    <div class="icon-container">
+                                        <!-- Close/X Icon -->
+                                        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        <!-- Arrow Icon -->
+                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    </div>
                                 </div>
                                 <div class="dropdown-options">
                                     <div class="dropdown-option" data-value="Reversal">Reversal</div>
                                     <div class="dropdown-option" data-value="Continuation">Continuation</div>
-                                    <div class="dropdown-option" data-value="clear">Clear</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Causes</label>
-                            <textarea id="causes" placeholder="Explanation..."></textarea>
+                            <div class="input-with-clear">
+                                <textarea id="causes" placeholder="Explanation..."></textarea>
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                </button>
+                            </div>
                         </div>
 
                         <div class="form-group">
@@ -929,20 +952,29 @@
                             <div class="custom-dropdown" data-dropdown="psychology">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Psychology</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    <div class="icon-container">
+                                        <!-- Close/X Icon -->
+                                        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        <!-- Arrow Icon -->
+                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    </div>
                                 </div>
                                 <div class="dropdown-options">
                                     <div class="dropdown-option" data-value="Confident">Confident</div>
                                     <div class="dropdown-option" data-value="Doubtful">Doubtful</div>
                                     <div class="dropdown-option" data-value="Reckless">Reckless</div>
-                                    <div class="dropdown-option" data-value="clear">Clear</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>Margin</label>
-                            <input type="number" id="margin" placeholder="1.5" step="0.1">
+                            <div class="input-with-clear">
+                                <input type="number" id="margin" placeholder="1.5" step="0.1">
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -952,13 +984,17 @@
                             <div class="custom-dropdown" data-dropdown="class">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Class</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    <div class="icon-container">
+                                        <!-- Close/X Icon -->
+                                        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        <!-- Arrow Icon -->
+                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    </div>
                                 </div>
                                 <div class="dropdown-options">
                                     <div class="dropdown-option" data-value="A+">A+</div>
                                     <div class="dropdown-option" data-value="A">A</div>
                                     <div class="dropdown-option" data-value="B">B</div>
-                                    <div class="dropdown-option" data-value="clear">Clear</div>
                                 </div>
                             </div>
                         </div>
@@ -968,12 +1004,16 @@
                             <div class="custom-dropdown" data-dropdown="position">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Position</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    <div class="icon-container">
+                                        <!-- Close/X Icon -->
+                                        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        <!-- Arrow Icon -->
+                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    </div>
                                 </div>
                                 <div class="dropdown-options">
                                     <div class="dropdown-option" data-value="Long">Long</div>
                                     <div class="dropdown-option" data-value="Short">Short</div>
-                                    <div class="dropdown-option" data-value="clear">Clear</div>
                                 </div>
                             </div>
                         </div>
@@ -983,21 +1023,30 @@
                             <div class="custom-dropdown" data-dropdown="result">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Result</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    <div class="icon-container">
+                                        <!-- Close/X Icon -->
+                                        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        <!-- Arrow Icon -->
+                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    </div>
                                 </div>
                                 <div class="dropdown-options">
                                     <div class="dropdown-option" data-value="Profit">Profit</div>
                                     <div class="dropdown-option" data-value="Loss">Loss</div>
                                     <div class="dropdown-option" data-value="Missed">Missed</div>
                                     <div class="dropdown-option" data-value="Break Even">Break Even</div>
-                                    <div class="dropdown-option" data-value="clear">Clear</div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-group">
                             <label>PnL</label>
-                            <input type="number" id="pnl" placeholder="1.5" step="0.1">
+                            <div class="input-with-clear">
+                                <input type="number" id="pnl" placeholder="1.5" step="0.1">
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -1010,7 +1059,12 @@
                                     <div class="custom-dropdown" data-dropdown="timeframe">
                                         <div class="dropdown-selected">
                                             <span class="placeholder">Select</span>
-                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                            <div class="icon-container">
+                                                <!-- Close/X Icon -->
+                                                <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                                <!-- Arrow Icon -->
+                                                <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                            </div>
                                         </div>
                                         <div class="dropdown-options">
                                             <div class="dropdown-option" data-value="1M">1M</div>
@@ -1020,7 +1074,6 @@
                                             <div class="dropdown-option" data-value="2H">2H</div>
                                             <div class="dropdown-option" data-value="4H">4H</div>
                                             <div class="dropdown-option" data-value="1D">1D</div>
-                                            <div class="dropdown-option" data-value="clear">Clear</div>
                                             <div class="dropdown-option edit-trigger" data-value="__edit__">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M216-216h51l375-375-51-51-375 375v51Zm-72 72v-153l498-498q11-11 23.84-16 12.83-5 27-5 14.16 0 27.16 5t24 16l51 51q11 11 16 24t5 26.54q0 14.45-5.02 27.54T795-642L297-144H144Zm600-549-51-51 51 51Zm-127.95 76.95L591-642l51 51-25.95-25.05Z"/></svg> Edit List</div>
                                         </div>
@@ -1031,12 +1084,16 @@
                                     <div class="custom-dropdown" data-dropdown="entry">
                                         <div class="dropdown-selected">
                                             <span class="placeholder">Select</span>
-                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                            <div class="icon-container">
+                                                <!-- Close/X Icon -->
+                                                <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                                <!-- Arrow Icon -->
+                                                <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                            </div>
                                         </div>
                                         <div class="dropdown-options">
                                             <div class="dropdown-option" data-value="OB">OB</div>
                                             <div class="dropdown-option" data-value="FVG">FVG</div>
-                                            <div class="dropdown-option" data-value="clear">Clear</div>
                                             <div class="dropdown-option edit-trigger" data-value="__edit__">
                                                 <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M216-216h51l375-375-51-51-375 375v51Zm-72 72v-153l498-498q11-11 23.84-16 12.83-5 27-5 14.16 0 27.16 5t24 16l51 51q11 11 16 24t5 26.54q0 14.45-5.02 27.54T795-642L297-144H144Zm600-549-51-51 51 51Zm-127.95 76.95L591-642l51 51-25.95-25.05Z"/></svg> Edit List</div>
                                         </div>
@@ -1050,11 +1107,21 @@
                             <div class="file-wrapper">
                                 <div class="sub-field">
                                     <label>Bias</label>
-                                    <input type="url" id="bias-url" placeholder="https://...">
+                                    <div class="input-with-clear">
+                                        <input type="url" id="bias-url" placeholder="https://...">
+                                        <button type="button" class="clear-btn" aria-label="Clear">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        </button>
+                                    </div>
                                 </div>
                                 <div class="sub-field">
                                     <label>Execution</label>
-                                    <input type="url" id="execution-url" placeholder="https://...">
+                                    <div class="input-with-clear">
+                                        <input type="url" id="execution-url" placeholder="https://...">
+                                        <button type="button" class="clear-btn" aria-label="Clear">
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -1077,12 +1144,16 @@
                             <div class="custom-dropdown" data-dropdown="transfer">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Transfer</span>
-                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    <div class="icon-container">
+                                        <!-- Close/X Icon -->
+                                        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        <!-- Arrow Icon -->
+                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    </div>
                                 </div>
                                 <div class="dropdown-options">
                                     <div class="dropdown-option" data-value="Deposit">Deposit</div>
                                     <div class="dropdown-option" data-value="Withdraw">Withdraw</div>
-                                    <div class="dropdown-option" data-value="clear">Clear</div>
                                 </div>
                             </div>
                         </div>
@@ -1091,7 +1162,12 @@
                     <div class="grid-sesion">
                         <div class="form-group">
                             <label>Value Transfer</label>
-                            <input type="number" id="valueTransfer" placeholder="1.000" step="1">
+                            <div class="input-with-clear">
+                                <input type="number" id="valueTransfer" placeholder="1.000" step="1">
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1131,90 +1207,111 @@
                     </div>
 
                     <div class="form-group">
-                    <label>Pairs</label>
-                    <input type="text" id="edit-pairs" list="pairs-list-edit" placeholder="BTCUSDT.P">
-                    <datalist id="pairs-list-edit">
-                        <option value="BTCUSDT.P">
-                        <option value="ETHUSDT.P">
-                        <option value="SOLUSDT.P">
-                    </datalist>
+                        <label>Pairs</label>
+                        <div class="input-with-clear">
+                            <input type="text" id="edit-pairs" list="pairs-list-edit" placeholder="BTCUSDT.P">
+                            <button type="button" class="clear-btn" aria-label="Clear">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                            </button>
+                        </div>
+                        <datalist id="pairs-list-edit">
+                            <option value="BTCUSDT.P">
+                            <option value="ETHUSDT.P">
+                            <option value="SOLUSDT.P">
+                        </datalist>
                     </div>
 
                     <div class="form-group">
-                    <label>Method</label>
-                    <div class="custom-dropdown" data-dropdown="edit-method">
-                        <div class="dropdown-selected">
-                        <span class="placeholder">Method</span>
-                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                            width="20px" fill="#e3e3e3">
-                            <path
-                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
-                        </svg>
+                        <label>Method</label>
+                        <div class="custom-dropdown" data-dropdown="edit-method">
+                            <div class="dropdown-selected">
+                            <span class="placeholder">Method</span>
+                                <div class="icon-container">
+                                    <!-- Close/X Icon -->
+                                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                    <!-- Arrow Icon -->
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                            </div>
+                            <div class="dropdown-options">
+                                <div class="dropdown-option" data-value="Scalping">Scalping</div>
+                                <div class="dropdown-option" data-value="Intraday">Intraday</div>
+                                <div class="dropdown-option" data-value="Swing">Swing</div>
+                                <div class="dropdown-option" data-value="clear">Clear</div>
+                            </div>
                         </div>
-                        <div class="dropdown-options">
-                            <div class="dropdown-option" data-value="Scalping">Scalping</div>
-                            <div class="dropdown-option" data-value="Intraday">Intraday</div>
-                            <div class="dropdown-option" data-value="Swing">Swing</div>
-                            <div class="dropdown-option" data-value="clear">Clear</div>
-                        </div>
-                    </div>
                     </div>
 
                     <div class="form-group">
-                    <label>RR (Risk Reward)</label>
-                    <input type="number" id="edit-rr" placeholder="1.5" step="0.1">
+                        <label>RR (Risk Reward)</label>
+                        <div class="input-with-clear">
+                            <input type="number" id="edit-rr" placeholder="1.5" step="0.1">
+                            <button type="button" class="clear-btn" aria-label="Clear">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
                 <!-- === Grid 2 === -->
                 <div class="grid-sesion">
                     <div class="form-group">
-                    <label>Behavior</label>
-                    <div class="custom-dropdown" data-dropdown="edit-behavior">
-                        <div class="dropdown-selected">
-                        <span class="placeholder">Behavior</span>
-                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                            width="20px" fill="#e3e3e3">
-                            <path
-                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
-                        </svg>
+                        <label>Behavior</label>
+                        <div class="custom-dropdown" data-dropdown="edit-behavior">
+                            <div class="dropdown-selected">
+                            <span class="placeholder">Behavior</span>
+                                <div class="icon-container">
+                                    <!-- Close/X Icon -->
+                                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                    <!-- Arrow Icon -->
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                            </div>
+                            <div class="dropdown-options">
+                                <div class="dropdown-option" data-value="Reversal">Reversal</div>
+                                <div class="dropdown-option" data-value="Continuation">Continuation</div>
+                            </div>
                         </div>
-                        <div class="dropdown-options">
-                            <div class="dropdown-option" data-value="Reversal">Reversal</div>
-                            <div class="dropdown-option" data-value="Continuation">Continuation</div>
-                            <div class="dropdown-option" data-value="clear">Clear</div>
-                        </div>
-                    </div>
                     </div>
 
                     <div class="form-group">
-                    <label>Causes</label>
-                    <textarea id="edit-causes" placeholder="Explanation..."></textarea>
+                        <label>Causes</label>
+                        <div class="input-with-clear">
+                            <textarea id="edit-causes" placeholder="Explanation..."></textarea>
+                            <button type="button" class="clear-btn" aria-label="Clear">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                            </button>
+                        </div>
                     </div>
 
                     <div class="form-group">
-                    <label>Psychology</label>
-                    <div class="custom-dropdown" data-dropdown="edit-psychology">
-                        <div class="dropdown-selected">
-                        <span class="placeholder">Psychology</span>
-                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                            width="20px" fill="#e3e3e3">
-                            <path
-                            d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
-                        </svg>
+                        <label>Psychology</label>
+                        <div class="custom-dropdown" data-dropdown="edit-psychology">
+                            <div class="dropdown-selected">
+                                <span class="placeholder">Psychology</span>
+                                <div class="icon-container">
+                                    <!-- Close/X Icon -->
+                                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                    <!-- Arrow Icon -->
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
+                            </div>
+                            <div class="dropdown-options">
+                                <div class="dropdown-option" data-value="Confident">Confident</div>
+                                <div class="dropdown-option" data-value="Doubtful">Doubtful</div>
+                                <div class="dropdown-option" data-value="Reckless">Reckless</div>
+                            </div>
                         </div>
-                        <div class="dropdown-options">
-                            <div class="dropdown-option" data-value="Confident">Confident</div>
-                            <div class="dropdown-option" data-value="Doubtful">Doubtful</div>
-                            <div class="dropdown-option" data-value="Reckless">Reckless</div>
-                            <div class="dropdown-option" data-value="clear">Clear</div>
-                        </div>
-                    </div>
                     </div>
 
                     <div class="form-group">
-                    <label>Margin</label>
-                    <input type="number" id="edit-margin" placeholder="1.5" step="0.1">
+                        <label>Margin</label>
+                        <div class="input-with-clear">
+                            <input type="number" id="edit-margin" placeholder="1.5" step="0.1">
+                            <button type="button" class="clear-btn" aria-label="Clear">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1224,18 +1321,18 @@
                         <label>Class</label>
                         <div class="custom-dropdown" data-dropdown="edit-class">
                             <div class="dropdown-selected">
-                            <span class="placeholder">Class</span>
-                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                                width="20px" fill="#e3e3e3">
-                                <path
-                                d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
-                            </svg>
+                                <span class="placeholder">Class</span>
+                                <div class="icon-container">
+                                    <!-- Close/X Icon -->
+                                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                    <!-- Arrow Icon -->
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
                             </div>
                             <div class="dropdown-options">
                                 <div class="dropdown-option" data-value="A+">A+</div>
                                 <div class="dropdown-option" data-value="A">A</div>
                                 <div class="dropdown-option" data-value="B">B</div>
-                                <div class="dropdown-option" data-value="clear">Clear</div>
                             </div>
                         </div>
                     </div>
@@ -1244,17 +1341,17 @@
                         <label>Position</label>
                         <div class="custom-dropdown" data-dropdown="edit-position">
                             <div class="dropdown-selected">
-                            <span class="placeholder">Position</span>
-                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                                width="20px" fill="#e3e3e3">
-                                <path
-                                d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
-                            </svg>
+                                <span class="placeholder">Position</span>
+                                <div class="icon-container">
+                                    <!-- Close/X Icon -->
+                                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                    <!-- Arrow Icon -->
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
                             </div>
                             <div class="dropdown-options">
                                 <div class="dropdown-option" data-value="Long">Long</div>
                                 <div class="dropdown-option" data-value="Short">Short</div>
-                                <div class="dropdown-option" data-value="clear">Clear</div>
                             </div>
                         </div>
                     </div>
@@ -1263,26 +1360,31 @@
                         <label>Result</label>
                         <div class="custom-dropdown" data-dropdown="edit-result">
                             <div class="dropdown-selected">
-                            <span class="placeholder">Result</span>
-                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960"
-                                width="20px" fill="#e3e3e3">
-                                <path
-                                d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" />
-                            </svg>
+                                <span class="placeholder">Result</span>
+                                <div class="icon-container">
+                                    <!-- Close/X Icon -->
+                                    <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                    <!-- Arrow Icon -->
+                                    <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                </div>
                             </div>
                             <div class="dropdown-options">
                                 <div class="dropdown-option" data-value="Profit">Profit</div>
                                 <div class="dropdown-option" data-value="Loss">Loss</div>
                                 <div class="dropdown-option" data-value="Missed">Missed</div>
                                 <div class="dropdown-option" data-value="Break Even">Break Even</div>
-                                <div class="dropdown-option" data-value="clear">Clear</div>
                             </div>
                         </div>
                     </div>
 
                     <div class="form-group">
-                    <label>PnL</label>
-                    <input type="number" id="edit-pnl" placeholder="1.5" step="0.1">
+                        <label>PnL</label>
+                        <div class="input-with-clear">
+                            <input type="number" id="edit-pnl" placeholder="1.5" step="0.1">
+                            <button type="button" class="clear-btn" aria-label="Clear">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
 
@@ -1296,7 +1398,12 @@
                                 <div class="custom-dropdown" data-dropdown="edit-timeframe">
                                     <div class="dropdown-selected">
                                         <span class="placeholder">Select</span>
-                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" /></svg>
+                                        <div class="icon-container">
+                                            <!-- Close/X Icon -->
+                                            <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                            <!-- Arrow Icon -->
+                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                        </div>
                                     </div>
                                     <div class="dropdown-options">
                                         <div class="dropdown-option" data-value="1M">1M</div>
@@ -1306,7 +1413,6 @@
                                         <div class="dropdown-option" data-value="2H">2H</div>
                                         <div class="dropdown-option" data-value="4H">4H</div>
                                         <div class="dropdown-option" data-value="1D">1D</div>
-                                        <div class="dropdown-option" data-value="clear">Clear</div>
                                     </div>
                                 </div>
                             </div>
@@ -1315,12 +1421,16 @@
                                 <div class="custom-dropdown" data-dropdown="edit-entry">
                                     <div class="dropdown-selected">
                                         <span class="placeholder">Select</span>
-                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z" /></svg>
+                                        <div class="icon-container">
+                                            <!-- Close/X Icon -->
+                                            <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                            <!-- Arrow Icon -->
+                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                        </div>
                                     </div>
                                     <div class="dropdown-options">
                                         <div class="dropdown-option" data-value="OB">OB</div>
                                         <div class="dropdown-option" data-value="FVG">FVG</div>
-                                        <div class="dropdown-option" data-value="clear">Clear</div>
                                     </div>
                                 </div>
                             </div>
@@ -1331,12 +1441,22 @@
                         <label>Files (URLs)</label>
                         <div class="file-wrapper">
                             <div class="sub-field">
-                            <label>Bias</label>
-                            <input type="url" id="edit-bias-url" placeholder="https://...">
+                                <label>Bias</label>
+                                <div class="input-with-clear">
+                                    <input type="url" id="edit-bias-url" placeholder="https://...">
+                                    <button type="button" class="clear-btn" aria-label="Clear">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                    </button>
+                                </div>
                             </div>
                             <div class="sub-field">
-                            <label>Execution</label>
-                            <input type="url" id="edit-execution-url" placeholder="https://...">
+                                <label>Execution</label>
+                                <div class="input-with-clear">
+                                    <input type="url" id="edit-execution-url" placeholder="https://...">
+                                    <button type="button" class="clear-btn" aria-label="Clear">
+                                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1379,10 +1499,13 @@
                             <label>Action</label>
                             <div class="custom-dropdown" data-dropdown="edit-action">
                                 <div class="dropdown-selected">
-                                <span class="placeholder">Action</span>
-                                <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
-                                    <path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/>
-                                </svg>
+                                    <span class="placeholder">Action</span>
+                                    <div class="icon-container">
+                                        <!-- Close/X Icon -->
+                                        <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                        <!-- Arrow Icon -->
+                                        <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                    </div>
                                 </div>
                                 <div class="dropdown-options">
                                     <div class="dropdown-option" data-value="Deposit">Deposit</div>
@@ -1394,7 +1517,12 @@
                     <div class="grid-sesion">
                         <div class="form-group">
                             <label>Amount</label>
-                            <input type="number" id="edit-value" placeholder="100" step="0.01">
+                            <div class="input-with-clear">
+                                <input type="number" id="edit-value" placeholder="100" step="0.01">
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
