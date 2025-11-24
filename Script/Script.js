@@ -683,9 +683,18 @@ document.addEventListener("DOMContentLoaded", () => {
     updateUI("table");
 });
 
-// ============== Footer ============== //
-// --- Ambil data dan bangun elemen ---
-fetch('./data/user.json')
+// ============== Community ============== //
+const isLocal =
+location.hostname === 'localhost' ||
+location.hostname === '127.0.0.1' ||
+location.protocol === 'file:';
+
+const localPath = './data/user.json';
+const onlinePath = 'https://raw.githubusercontent.com/dandidt/Nexion-Trades-Full/main/Data/user.json';
+
+const jsonPath = isLocal ? localPath : onlinePath;
+
+fetch(jsonPath)
 .then(res => res.json())
 .then(users => {
     const container = document.querySelector('.container-community');
@@ -693,7 +702,6 @@ fetch('./data/user.json')
     container.style.gap = '10px';
     container.innerHTML = '';
 
-    // Buat semua wrapper-column (3 user per wrapper)
     const wrappers = [];
     for (let i = 0; i < users.length; i += 3) {
     const wrapper = document.createElement('div');
@@ -716,13 +724,11 @@ fetch('./data/user.json')
     wrappers.push(wrapper);
     }
 
-    // Tambahkan semua wrapper + duplikat untuk loop
     wrappers.forEach(w => container.appendChild(w));
-    wrappers.forEach(w => container.appendChild(w.cloneNode(true))); // duplikat
+    wrappers.forEach(w => container.appendChild(w.cloneNode(true)));
 
-    // --- Animasi scroll full JS ---
     let position = 0;
-    const speed = 0.5; // pixel per frame
+    const speed = 0.5;
     let isAnimating = true;
     let animationId = null;
 
@@ -735,17 +741,14 @@ fetch('./data/user.json')
     position -= speed;
     container.style.transform = `translateX(${position}px)`;
 
-    // Reset posisi saat melewati setengah konten (karena sudah diduplikat)
     if (Math.abs(position) >= container.scrollWidth / 2) {
         position = 0;
     }
     animationId = requestAnimationFrame(animate);
     };
 
-    // Mulai animasi
     animate();
 
-    // Event listeners untuk hover pada container
     container.addEventListener('mouseenter', () => {
     isAnimating = false;
     });
@@ -754,7 +757,6 @@ fetch('./data/user.json')
     isAnimating = true;
     });
 
-    // Cleanup function (optional)
     container.cleanupAnimation = () => {
     if (animationId) {
         cancelAnimationFrame(animationId);
