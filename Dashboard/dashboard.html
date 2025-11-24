@@ -733,6 +733,10 @@
                                     <stop offset="0%" style="stop-color:#cfcfcf;stop-opacity:1" />
                                     <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
                                 </linearGradient>
+                                <linearGradient id="breakEvenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffaa00;stop-opacity:1" />
+                                </linearGradient>
                             </defs>
                             
                             <!-- Ring dengan radius 100, stroke-width 35 -->
@@ -750,6 +754,10 @@
                                     fill="none" stroke="url(#missedGradient)" stroke-width="35"
                                     style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
                             </circle>
+                            <circle id="breakEvenSegment" cx="100" cy="100" r="82.5" 
+                                    fill="none" stroke="url(#breakEvenGradient)" stroke-width="35"
+                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
+                            </circle>
                         </svg>
                         
                         <!-- Canvas -->
@@ -763,7 +771,7 @@
                     <div class="pairs-container">
                         <div class="pairs-header">
                             <div>Pairs</div>
-                            <div>All.T</div>
+                            <div>Trade</div>
                             <div>TP</div>
                             <div>SL</div>
                             <div>B</div>
@@ -869,12 +877,12 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Pairs <span class="required">*</span></label>
+                            <label>Pairs </label>
                             <input type="text" id="pairs" placeholder="BTCUSDT.P">
                         </div>
     
                         <div class="form-group">
-                            <label>Method <span class="required">*</span></label>
+                            <label>Method </label>
                             <div class="custom-dropdown" data-dropdown="method">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Method</span>
@@ -897,7 +905,7 @@
 
                     <div class="grid-sesion">
                         <div class="form-group">
-                            <label>Behavior <span class="required">*</span></label>
+                            <label>Behavior </label>
                             <div class="custom-dropdown" data-dropdown="behavior">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Behavior</span>
@@ -917,7 +925,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Psychology <span class="required">*</span></label>
+                            <label>Psychology </label>
                             <div class="custom-dropdown" data-dropdown="psychology">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Psychology</span>
@@ -940,7 +948,7 @@
 
                     <div class="grid-sesion">
                         <div class="form-group">
-                            <label>Class <span class="required">*</span></label>
+                            <label>Class </label>
                             <div class="custom-dropdown" data-dropdown="class">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Class</span>
@@ -956,7 +964,7 @@
                         </div>
     
                         <div class="form-group">
-                            <label>Position <span class="required">*</span></label>
+                            <label>Position </label>
                             <div class="custom-dropdown" data-dropdown="position">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Position</span>
@@ -995,7 +1003,7 @@
 
                     <div class="grid-sesion">
                         <div class="form-group">
-                            <label>Confluance <span class="required">*</span></label>
+                            <label>Confluance </label>
                             <div class="confluance-wrapper">
                                 <div class="sub-field">
                                     <label>Timeframe</label>
@@ -1013,6 +1021,8 @@
                                             <div class="dropdown-option" data-value="4H">4H</div>
                                             <div class="dropdown-option" data-value="1D">1D</div>
                                             <div class="dropdown-option" data-value="clear">Clear</div>
+                                            <div class="dropdown-option edit-trigger" data-value="__edit__">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M216-216h51l375-375-51-51-375 375v51Zm-72 72v-153l498-498q11-11 23.84-16 12.83-5 27-5 14.16 0 27.16 5t24 16l51 51q11 11 16 24t5 26.54q0 14.45-5.02 27.54T795-642L297-144H144Zm600-549-51-51 51 51Zm-127.95 76.95L591-642l51 51-25.95-25.05Z"/></svg> Edit List</div>
                                         </div>
                                     </div>
                                 </div>
@@ -1027,6 +1037,8 @@
                                             <div class="dropdown-option" data-value="OB">OB</div>
                                             <div class="dropdown-option" data-value="FVG">FVG</div>
                                             <div class="dropdown-option" data-value="clear">Clear</div>
+                                            <div class="dropdown-option edit-trigger" data-value="__edit__">
+                                                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M216-216h51l375-375-51-51-375 375v51Zm-72 72v-153l498-498q11-11 23.84-16 12.83-5 27-5 14.16 0 27.16 5t24 16l51 51q11 11 16 24t5 26.54q0 14.45-5.02 27.54T795-642L297-144H144Zm600-549-51-51 51 51Zm-127.95 76.95L591-642l51 51-25.95-25.05Z"/></svg> Edit List</div>
                                         </div>
                                     </div>
                                 </div>
@@ -1061,7 +1073,7 @@
                         </div>
     
                         <div class="form-group">
-                            <label>Action <span class="required">*</span></label>
+                            <label>Action </label>
                             <div class="custom-dropdown" data-dropdown="transfer">
                                 <div class="dropdown-selected">
                                     <span class="placeholder">Transfer</span>
@@ -1593,7 +1605,7 @@
                     <div class="rule-row">
                         <div class="rule-info">
                             <div class="rule-label">Max Drawdown / Day</div>
-                            <div class="rule-value editable" data-rule="maxDD" id="maxDDDisplay">10%</div>
+                            <div class="rule-value editable" data-rule="maxDD" id="maxDDDisplay">1%</div>
                         </div>
                         <div class="progress-wrapper">
                             <div class="progress-header">
@@ -1736,6 +1748,20 @@
                     <button id="cancelLogoutBtn" class="btn btn-default btn-delete">Cancel</button>
                     <button id="confirmLogoutBtn" class="btn btn-red btn-delete">Logout</button>
                 </div>
+            </div>
+        </div>
+
+        <!-- ===== Edit Dropdown ===== -->
+        <div id="editDropdownModal" class="modal container-edit-dropdown">
+            <h3>Edit Dropdown: <span id="editDropdownName"></span></h3>
+            <div id="editOptionsList"></div>
+            <div class="wrapper-btn-dropdown">
+                <input type="text" id="newOptionInput" placeholder="Add new options" />
+                <button id="addNewOption" class="btn btn-green btn-dropdown">ADD</button>
+            </div>
+            <div class="wrapper-btn-dropdown">
+                <button id="saveDropdownEdit" class="btn btn-green btn-dropdown">Save</button>
+                <button id="cancelDropdownEdit" class="btn btn-default btn-dropdown">Cancel</button>
             </div>
         </div>
 

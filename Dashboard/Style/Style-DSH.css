@@ -3070,10 +3070,6 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     gap: 8px;
 }
 
-.required {
-    color: var(--red);
-}
-
 .btn-add {
     padding: 10px 25px;
 }
@@ -3559,4 +3555,53 @@ input[type="number"]::placeholder {
 
 #logoutModal.hidden {
     display: none;
+}
+
+/* ------ Popup Edit Dropdown ------ */
+.container-edit-dropdown {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(1);
+    display: none;
+    flex-direction: column;
+    border-radius: 15px;
+    padding: 15px;
+    width: auto;
+    z-index: 101;
+    background: var(--bg-20);
+    border: var(--border-popup);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.3s ease;
+    z-index:10000;
+}
+
+.container-edit-dropdown h3 {
+    margin-bottom: 15px;
+}
+
+.wrapper-btn-dropdown {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 15px;
+    gap: 10px;
+}
+
+.btn-dropdown {
+    padding: 10px 20px;
+}
+
+.btn-remove {
+    padding: 6px;
+}
+
+#editOptionsList {
+    min-height: 150px;
+    max-height: 150px;
+    padding: 4px 15px;
+    border: 1px solid var(--bg-38);
+    border-radius: 8px;
+    overflow: hidden;
+    overflow-y: auto;
 }

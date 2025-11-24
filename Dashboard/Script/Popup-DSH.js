@@ -209,6 +209,11 @@ document.addEventListener("DOMContentLoaded", () => {
     document.addEventListener('click', () => {
         document.querySelectorAll('.dropdown-options').forEach(o => o.classList.remove('show'));
     });
+
+    // Edit Dropdown
+    ['timeframe', 'entry'].forEach(name => {
+    rebuildDropdown(name);
+    });
 });
 
 // ======================= Serch Data ======================= //
@@ -264,6 +269,171 @@ function setDropdownValue(dropdownName, value) {
     }
 }
 
+// ------ EDIT DROPDOWN ------ //
+function getCustomOptions(dropdownName) {
+    const saved = JSON.parse(localStorage.getItem("customDropdownOptions")) || {};
+    if (!saved[dropdownName]) {
+        const defaults = {
+        timeframe: ["1M", "5M", "15M", "1H", "2H", "4H", "1D"],
+        entry: ["OB", "FVG"]
+        };
+        return defaults[dropdownName] || [];
+    }
+    return saved[dropdownName];
+}
+
+function saveCustomOptions(dropdownName, options) {
+    const all = JSON.parse(localStorage.getItem("customDropdownOptions")) || {};
+    all[dropdownName] = options;
+    localStorage.setItem("customDropdownOptions", JSON.stringify(all));
+}
+
+function rebuildDropdown(dropdownName) {
+    const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
+    if (!dropdown) return;
+
+    const optionsContainer = dropdown.querySelector('.dropdown-options');
+    const currentSelection = getDropdownValue(dropdownName);
+
+    optionsContainer.innerHTML = '';
+
+    const customOpts = getCustomOptions(dropdownName);
+    customOpts.forEach(opt => {
+        const el = document.createElement('div');
+        el.className = 'dropdown-option';
+        el.dataset.value = opt;
+        el.textContent = opt;
+        if (opt === currentSelection) el.classList.add('selected');
+        optionsContainer.appendChild(el);
+    });
+
+    const clearEl = document.createElement('div');
+    clearEl.className = 'dropdown-option';
+    clearEl.dataset.value = 'clear';
+    clearEl.textContent = 'Clear';
+    optionsContainer.appendChild(clearEl);
+
+    // Tambahkan "Edit" (hanya untuk timeframe & entry)
+    if (['timeframe', 'entry'].includes(dropdownName)) {
+        const editEl = document.createElement('div');
+        editEl.className = 'dropdown-option edit-trigger';
+        editEl.dataset.value = '__edit__';
+        editEl.style.display = 'flex';
+        editEl.style.alignItems = 'center';
+        editEl.style.gap = '8px';
+        editEl.innerHTML = `
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                <path d="M216-216h51l375-375-51-51-375 375v51Zm-72 72v-153l498-498q11-11 23.84-16 12.83-5 27-5 14.16 0 27.16 5t24 16l51 51q11 11 16 24t5 26.54q0 14.45-5.02 27.54T795-642L297-144H144Zm600-549-51-51 51 51Zm-127.95 76.95L591-642l51 51-25.95-25.05Z"/>
+            </svg>
+            Edit List
+        `;
+        optionsContainer.appendChild(editEl);
+    }
+
+    optionsContainer.querySelectorAll('.dropdown-option').forEach(opt => {
+        opt.removeEventListener('click', handleOptionClick);
+        opt.addEventListener('click', handleOptionClick);
+    });
+}
+
+function handleOptionClick(e) {
+  e.stopPropagation();
+  const opt = e.currentTarget;
+  const value = opt.dataset.value;
+  const dropdown = opt.closest('.custom-dropdown');
+  const name = dropdown.getAttribute('data-dropdown');
+  const selected = dropdown.querySelector('.dropdown-selected');
+  const selectedSpan = selected.querySelector('span');
+
+  if (value === '__edit__') {
+    openEditModal(name);
+    return;
+  }
+
+  if (value === 'clear') {
+    selectedSpan.textContent = 'Select';
+    selectedSpan.classList.add('placeholder');
+    if (window.dropdownData) delete window.dropdownData[name];
+  } else {
+    selectedSpan.textContent = opt.textContent;
+    selectedSpan.classList.remove('placeholder');
+    window.dropdownData = window.dropdownData || {};
+    window.dropdownData[name] = value;
+  }
+
+  // Update UI selected
+  dropdown.querySelectorAll('.dropdown-option').forEach(o => o.classList.remove('selected'));
+  if (value !== 'clear' && value !== '__edit__') {
+    opt.classList.add('selected');
+  }
+
+  dropdown.querySelector('.dropdown-options').classList.remove('show');
+  selected.classList.remove('active');
+}
+
+function openEditModal(dropdownName) {
+    document.querySelectorAll('.dropdown-options').forEach(o => o.classList.remove('show'));
+    
+    const modal = document.getElementById('editDropdownModal');
+    document.getElementById('editDropdownName').textContent = dropdownName;
+    
+    const options = getCustomOptions(dropdownName);
+    const listEl = document.getElementById('editOptionsList');
+    listEl.innerHTML = '';
+
+    options.forEach((opt, i) => {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.style.alignItems = 'center';
+        item.style.padding = '3px 0';
+        item.innerHTML = `
+        <span>${opt}</span>
+        <button class="remove-opt btn btn-red btn-remove" data-index="${i}">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg>
+        </button>
+        `;
+        listEl.appendChild(item);
+    });
+
+    document.getElementById('saveDropdownEdit').onclick = () => {
+        const newOpts = Array.from(listEl.children).map(el => el.querySelector('span').textContent);
+        saveCustomOptions(dropdownName, newOpts);
+        rebuildDropdown(dropdownName);
+        modal.style.display = 'none';
+    };
+
+    document.getElementById('cancelDropdownEdit').onclick = () => {
+        modal.style.display = 'none';
+    };
+
+    document.getElementById('addNewOption').onclick = () => {
+        const input = document.getElementById('newOptionInput');
+        const val = input.value.trim();
+        if (val && !options.includes(val)) {
+        const item = document.createElement('div');
+        item.style.display = 'flex';
+        item.style.justifyContent = 'space-between';
+        item.style.alignItems = 'center';
+        item.style.padding = '3px 0';
+        item.innerHTML = `
+        <span>${val}</span><button class="remove-opt btn btn-red btn-remove" data-index="${options.length}">
+            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg>
+        </button>`;
+        listEl.appendChild(item);
+        input.value = '';
+        }
+    };
+
+    listEl.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-opt')) {
+        e.target.parentElement.remove();
+        }
+    });
+
+    modal.style.display = 'block';
+}
+
 // ------ HELPER FUNCTIONS ------ //
 function getDropdownValue(dropdownName) {
     const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
@@ -275,7 +445,6 @@ function getDropdownValue(dropdownName) {
     if (selectedOption) {
         return selectedOption.getAttribute('data-value');
     } else {
-        console.warn(`[getDropdownValue] Tidak ada opsi yang dipilih untuk "${dropdownName}".`);
         return null;
     }
 }
@@ -1056,7 +1225,7 @@ function loadSOP() {
         maxWin: 2,
         maxLoss: 2,
         maxEntry: 3,
-        maxDD: 10
+        maxDD: 1
     };
 }
 
@@ -1716,6 +1885,7 @@ const TEMPLATE_LIST_SHARE = [
     'Asset/Card-Loss.png',
     'Asset/Card-Gold.png'
 ];
+const TEMPLATE_SHARE_VERSION = "1.0";
 
 let currentTemplateIndexShare = 0;
 
@@ -2100,25 +2270,132 @@ function updateDataShare() {
 }
 
 // LOAD IMAGES
-function loadTemplateShare() {
+// ------ CACHE UTILS ------
+function getTemplateCache() {
+    try {
+        const cached = JSON.parse(localStorage.getItem("templateShareCache"));
+        if (cached && cached.version === TEMPLATE_SHARE_VERSION) {
+            return cached.images;
+        }
+    } catch (e) {
+        console.warn("Gagal baca cache template:", e);
+    }
+    return null;
+}
+
+function setTemplateCache(imagesObj) {
+    try {
+        localStorage.setItem("templateShareCache", JSON.stringify({
+            version: TEMPLATE_SHARE_VERSION,
+            images: imagesObj
+        }));
+    } catch (e) {
+        console.error("Gagal simpan cache template:", e);
+    }
+}
+
+// ------ LOAD ALL TEMPLATES ONCE ------
+async function preloadAllTemplates() {
+    const cached = getTemplateCache();
+    if (cached) {
+        // console.log("✅ Template diambil dari cache (versi:", TEMPLATE_SHARE_VERSION, ")");
+        return cached;
+    }
+
+    console.log("📥 Memuat template dari server... (versi:", TEMPLATE_SHARE_VERSION, ")");
+
+    const images = {};
+    const promises = TEMPLATE_LIST_SHARE.map(url =>
+        fetch(url)
+            .then(res => {
+                if (!res.ok) throw new Error(`Gagal load: ${url}`);
+                return res.blob();
+            })
+            .then(blob => new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsDataURL(blob);
+            }))
+            .then(base64 => {
+                images[url] = base64;
+            })
+    );
+
+    try {
+        await Promise.all(promises);
+        setTemplateCache(images);
+        console.log("💾 Template berhasil disimpan ke cache");
+        return images;
+    } catch (err) {
+        console.error("❌ Gagal preload template:", err);
+        return {};
+    }
+}
+
+// ------ LOAD SINGLE TEMPLATE ------
+async function loadTemplateShare() {
+    const cached = getTemplateCache();
+    const targetUrl = TEMPLATE_LIST_SHARE[currentTemplateIndexShare];
+
+    let imgSrc = null;
+
+    if (cached && cached[targetUrl]) {
+        imgSrc = cached[targetUrl];
+    } else {
+        console.warn("Template tidak ada di cache, load dari server:", targetUrl);
+        try {
+            const res = await fetch(targetUrl);
+            if (!res.ok) throw new Error("File tidak ditemukan");
+            const blob = await res.blob();
+            imgSrc = URL.createObjectURL(blob);
+        } catch (err) {
+            console.error("Gagal load template:", err);
+            drawErrorCanvas();
+            return;
+        }
+    }
+
     const img = new Image();
-    img.onload = function() {
+    img.onload = () => {
         templateImageShare = img;
         canvasShare.width = img.width;
         canvasShare.height = img.height;
         drawCanvasShare();
+
+        if (!cached || !cached[targetUrl]) {
+            const reader = new FileReader();
+            reader.onload = () => {
+                const fullCache = getTemplateCache() || {};
+                const newImages = { ...(fullCache || {}), [targetUrl]: reader.result };
+                setTemplateCache(newImages);
+            };
+            fetch(imgSrc).then(r => r.blob()).then(b => reader.readAsDataURL(b));
+        }
     };
-    img.onerror = function() {
-        canvasShare.width = 800;
-        canvasShare.height = 600;
-        ctxShare.fillStyle = '#ff0000';
-        ctxShare.font = '20px Inter';
-        ctxShare.textAlign = 'center';
-        ctxShare.fillText('Error: template.png tidak ditemukan!', canvasShare.width / 2, canvasShare.height / 2);
-        ctxShare.fillText('Pastikan file template.png ada di folder yang sama', canvasShare.width / 2, canvasShare.height / 2 + 30);
+    img.onerror = () => {
+        drawErrorCanvas();
     };
-    img.src = TEMPLATE_LIST_SHARE[currentTemplateIndexShare];
+    img.src = imgSrc;
 }
+
+function drawErrorCanvas() {
+    canvasShare.width = 800;
+    canvasShare.height = 600;
+    ctxShare.fillStyle = '#ff0000';
+    ctxShare.font = '20px Inter';
+    ctxShare.textAlign = 'center';
+    ctxShare.fillText('Error: template tidak bisa dimuat!', canvasShare.width / 2, canvasShare.height / 2);
+}
+
+// ------ INIT ON PAGE LOAD ------
+document.addEventListener("DOMContentLoaded", async () => {
+    const allCached = await preloadAllTemplates();
+
+    currentTemplateIndexShare = 0;
+
+    loadTemplateShare();
+});
 
 function loadProfileImageShare() {
     const img = new Image();

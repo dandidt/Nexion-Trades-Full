@@ -1519,28 +1519,34 @@ function resizeWrChart() {
 function updateSVGRing() {
     if (total === 0) return;
 
-    const winPercentage = (dataWrChart[0].value / total) * 100;
-    const losePercentage = (dataWrChart[1].value / total) * 100;
-    const missedPercentage = (dataWrChart[2].value / total) * 100;
+    const winPct = (dataWrChart[0].value / total) * 100;
+    const losePct = (dataWrChart[1].value / total) * 100;
+    const missedPct = (dataWrChart[2].value / total) * 100;
+    const bePct = (dataWrChart[3].value / total) * 100; // Break Even
 
-    const winLength = (winPercentage / 100) * circumferenceSVG;
-    const loseLength = (losePercentage / 100) * circumferenceSVG;
-    const missedLength = (missedPercentage / 100) * circumferenceSVG;
+    const winLen = (winPct / 100) * circumferenceSVG;
+    const loseLen = (losePct / 100) * circumferenceSVG;
+    const missedLen = (missedPct / 100) * circumferenceSVG;
+    const beLen = (bePct / 100) * circumferenceSVG;
 
-    const winSegment = document.getElementById('winSegment');
-    const loseSegment = document.getElementById('loseSegment');
-    const missedSegment = document.getElementById('missedSegment');
+    const winSeg = document.getElementById('winSegment');
+    const loseSeg = document.getElementById('loseSegment');
+    const missedSeg = document.getElementById('missedSegment');
+    const beSeg = document.getElementById('breakEvenSegment'); // ← tambahkan
 
-    if (!winSegment || !loseSegment || !missedSegment) return;
+    if (!winSeg || !loseSeg || !missedSeg || !beSeg) return;
 
-    winSegment.style.strokeDasharray = `${winLength} ${circumferenceSVG}`;
-    winSegment.style.strokeDashoffset = '0';
+    winSeg.style.strokeDasharray = `${winLen} ${circumferenceSVG}`;
+    winSeg.style.strokeDashoffset = '0';
 
-    loseSegment.style.strokeDasharray = `${loseLength} ${circumferenceSVG}`;
-    loseSegment.style.strokeDashoffset = -winLength;
+    loseSeg.style.strokeDasharray = `${loseLen} ${circumferenceSVG}`;
+    loseSeg.style.strokeDashoffset = -winLen;
 
-    missedSegment.style.strokeDasharray = `${missedLength} ${circumferenceSVG}`;
-    missedSegment.style.strokeDashoffset = -(winLength + loseLength);
+    missedSeg.style.strokeDasharray = `${missedLen} ${circumferenceSVG}`;
+    missedSeg.style.strokeDashoffset = -(winLen + loseLen);
+
+    beSeg.style.strokeDasharray = `${beLen} ${circumferenceSVG}`;
+    beSeg.style.strokeDashoffset = -(winLen + loseLen + missedLen);
 }
 
 function drawLabelWrChart(item, startAngle, endAngle) {
@@ -1626,20 +1632,22 @@ async function loadWrChartData() {
     try {
         const data = await getDB();
 
-        const counts = { Profite: 0, Loss: 0, Missed: 0 };
+        const counts = { Profite: 0, Loss: 0, Missed: 0, BreakEven: 0 };
         data.forEach(item => {
             if (item.Result === "Profit") counts.Profite++;
             else if (item.Result === "Loss") counts.Loss++;
             else if (item.Result === "Missed") counts.Missed++;
+            else if (item.Result === "Break Even") counts.BreakEven++;
         });
 
         dataWrChart = [
             { label: 'Win', value: counts.Profite, color1: '#4dd4ac', color2: '#4dd4ac' },
             { label: 'Lose', value: counts.Loss, color1: '#ff0000', color2: '#ff0000' },
-            { label: 'Missed', value: counts.Missed, color1: '#ffffff', color2: '#ffffff' }
+            { label: 'Missed', value: counts.Missed, color1: '#cfcfcf', color2: '#cfcfcf' },
+            { label: 'Break Even', value: counts.BreakEven, color1: '#FFD700', color2: '#FFD700' } // ← warna kustom opsional
         ];
 
-        total = counts.Profite + counts.Loss + counts.Missed;
+        total = counts.Profite + counts.Loss + counts.Missed + counts.BreakEven;
 
         const attemptRender = () => {
             const result = resizeWrChart();
