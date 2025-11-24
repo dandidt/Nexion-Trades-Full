@@ -271,15 +271,21 @@ function setDropdownValue(dropdownName, value) {
 
 // ------ EDIT DROPDOWN ------ //
 function getCustomOptions(dropdownName) {
+    const alias = {
+        'edit-timeframe': 'timeframe',
+        'edit-entry': 'entry'
+    };
+    const actualName = alias[dropdownName] || dropdownName;
+
     const saved = JSON.parse(localStorage.getItem("customDropdownOptions")) || {};
-    if (!saved[dropdownName]) {
+    if (!saved[actualName]) {
         const defaults = {
-        timeframe: ["1M", "5M", "15M", "1H", "2H", "4H", "1D"],
-        entry: ["OB", "FVG"]
+            timeframe: ["1M", "5M", "15M", "1H", "2H", "4H", "1D"],
+            entry: ["OB", "FVG"]
         };
-        return defaults[dropdownName] || [];
+        return defaults[actualName] || [];
     }
-    return saved[dropdownName];
+    return saved[actualName];
 }
 
 function saveCustomOptions(dropdownName, options) {
@@ -399,7 +405,15 @@ function openEditModal(dropdownName) {
     document.getElementById('saveDropdownEdit').onclick = () => {
         const newOpts = Array.from(listEl.children).map(el => el.querySelector('span').textContent);
         saveCustomOptions(dropdownName, newOpts);
+        
         rebuildDropdown(dropdownName);
+        
+        if (dropdownName === 'timeframe') {
+            rebuildDropdown('edit-timeframe');
+        } else if (dropdownName === 'entry') {
+            rebuildDropdown('edit-entry');
+        }
+        
         modal.style.display = 'none';
     };
 

@@ -3596,6 +3596,10 @@ input[type="number"]::placeholder {
     padding: 6px;
 }
 
+.btn-remove svg {
+    pointer-events: none;
+}
+
 #editOptionsList {
     min-height: 150px;
     max-height: 150px;
