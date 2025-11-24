@@ -749,7 +749,7 @@ th.sortable {
     padding: 2px 0;
 }
 
-.reackless {
+.reckless {
     font-size: var(--sz-12);
     font-weight: var(--wg-400);
     color: var(--red);
@@ -2988,9 +2988,10 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     left: 0;
     right: 0;
     background: var(--bg-27);
-    border: 1px solid var(--bg-27);
+    border: 1px solid var(--bg-38);
+    /* border: 1px solid var(--red); */
     border-radius: 8px;
-    max-height: 240px;
+    max-height: 123px;
     overflow-y: auto;
     z-index: 1000;
     opacity: 0;
