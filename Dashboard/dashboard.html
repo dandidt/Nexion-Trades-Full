@@ -563,6 +563,55 @@
                 </div>
             </div>
 
+            <!-- Monly Reerformance & Calender Trade -->
+            <div class="container-statistic fade-up">
+                <div class="container-monly">
+                    <p class="title-monly">Monly Performance</p>
+                    <div class="months-grid" id="monthsGrid"></div>
+
+                    <div class="chart-container-performance">
+                        <h3>12-Month Return Performance</h3>
+                        <div class="bar-chart" id="barChart"></div>
+                    </div>
+                </div>
+                
+                <div class="calendar-wrapper">
+                    <div class="calendar-header">
+                        <button class="btn btn-green nav-btn" id="prevBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#e3e3e3"><path d="M576-288 384-480l192-192v384Z"/></svg>
+                        </button>
+                        <div class="month-year-selector">
+                            <div class="current-month" id="currentMonth"></div>
+                            <div class="date-picker" id="datePicker">
+                                <div class="date-picker-inputs">
+                                    <select id="monthSelect"></select>
+                                    <select id="yearSelect"></select>
+                                </div>
+                                <div class="date-picker-buttons">
+                                    <button class="btn btn-green date-picker-btn" id="applyDateBtn">Apply</button>
+                                    <button class="btn btn-default date-picker-btn" id="cancelDateBtn">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button class="btn btn-green nav-btn" id="nextBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="30px" viewBox="0 -960 960 960" width="30px" fill="#e3e3e3"><path d="M384-288v-384l192 192-192 192Z"/></svg>
+                        </button>
+                    </div>
+
+                    <div class="days-header">
+                        <div class="day-name">SUN</div>
+                        <div class="day-name">MON</div>
+                        <div class="day-name">TUE</div>
+                        <div class="day-name">WED</div>
+                        <div class="day-name">THU</div>
+                        <div class="day-name">FRI</div>
+                        <div class="day-name">SAT</div>
+                    </div>
+
+                    <div class="calendar-grid" id="calendar"></div>
+                </div>
+            </div>
+
             <!-- Persentase Pairs & Other Statistics -->
             <div class="container-statistic fade-up">
 
@@ -1238,7 +1287,7 @@
                     </div>
 
                     <div class="form-group">
-                        <label>RR (Risk Reward)</label>
+                        <label>RR</label>
                         <div class="input-with-clear">
                             <input type="number" id="edit-rr" placeholder="1.5" step="0.1">
                             <button type="button" class="clear-btn" aria-label="Clear">

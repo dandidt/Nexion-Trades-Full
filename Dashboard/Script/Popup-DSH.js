@@ -1647,6 +1647,11 @@ const savedAvatar = localStorage.getItem('avatar');
 previewFoto.src = savedAvatar || htmlDefaultImage;
 
 namaInput.addEventListener('input', function() {
+    const alertEl = document.getElementById("usernameAltert");
+    if (alertEl) {
+        alertEl.style.display = "none";
+    }
+
     const value = this.value.trim();
     const isValid = /^[a-zA-Z]{3,20}$/.test(value);
 
@@ -1738,7 +1743,11 @@ async function SaveEditProfile() {
 
         if (newUsername && newUsername !== oldUsername) {
             if (!usernameIsValid) {
-                alert("Username tidak valid! Harus 3–20 huruf, tanpa angka/spasi.");
+                const alertEl = document.getElementById("usernameAltert");
+                if (alertEl) {
+                    alertEl.textContent = "Username format is incorrect";
+                    alertEl.style.display = "block";
+                }
                 return;
             }
             shouldUpdate = true;
@@ -1812,7 +1821,19 @@ async function SaveEditProfile() {
 
     } catch (err) {
         console.error("❌ Error:", err);
-        alert("Gagal menyimpan: " + err.message);
+        const alertEl = document.getElementById("usernameAltert");
+        if (alertEl) {
+            let message = "Failed to save: " + (err.message || "Unknown error");
+
+            if (err.message && 
+                err.message.includes('duplicate key value violates unique constraint') &&
+                err.message.includes('profiles_username_key')) {
+                message = "Username is already taken.";
+            }
+
+            alertEl.textContent = message;
+            alertEl.style.display = "block";
+        }
     } finally {
         btnSave.classList.remove('loading');
     }

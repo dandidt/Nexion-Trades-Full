@@ -665,23 +665,12 @@ class TooltipManager {
     this.tooltipContent = document.getElementById('tooltip-content');
     this.hideTimeout = null;
     this.showTimeout = null;
-    this.isVisible = false;
     this.currentTarget = null;
-    
+
     this.tooltipData = {
       "box-causes": {
         title: "Causes",
         content: `<div class="tooltip-text">ini adalah box untuk kasus kamu saat mengambil trade</div>`
-      },
-      "box-files": {
-        title: "Files",
-        content: `
-          <div class="tooltip-imgs">
-            <img src="https://blackbull.com/wp-content/uploads/2023/08/2021-12-10_13-53-50-FAQ5.-B-1024x500.png" alt="Preview 1">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSW_6LEhgel1nyJ7cqL2mCcuqOB9Mctv0BAYH_CTVg_M1yj9oCZxLfdarVmkwvRGYsZ3Bw&usqp=CAU" alt="Preview 2">
-          </div>
-          <a href="#" class="tooltip-link">Buka file lengkap →</a>
-        `
       }
     };
 
@@ -692,122 +681,148 @@ class TooltipManager {
     this.bindEvents();
   }
 
+  bindGlobally() {
+    this.tooltip.addEventListener('mouseenter', () => this.clearHideTimeout());
+    this.tooltip.addEventListener('mouseleave', () => this.scheduleHideTooltip(300));
+
+    document.addEventListener('keydown', (e) => this.handleKeydown(e));
+    window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
+    window.addEventListener('resize', () => this.hideTooltip(true), { passive: true });
+  }
+
   bindEvents() {
-    this.cleanupEvents();
-    
-    document.querySelectorAll('.box-causes').forEach(el => {
+    document.querySelectorAll('#box-causes').forEach(el => {
       el.addEventListener('mouseenter', (e) => this.handleMouseEnter(e));
       el.addEventListener('mouseleave', () => this.handleMouseLeave());
       el.addEventListener('click', (e) => e.preventDefault());
     });
 
-    this.tooltip.addEventListener('mouseenter', () => this.clearHideTimeout());
-    this.tooltip.addEventListener('mouseleave', () => this.scheduleHideTooltip());
-
-    document.addEventListener('keydown', (e) => this.handleKeydown(e));
-    window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
-    window.addEventListener('resize', () => this.handleResize(), { passive: true });
-  }
-
-  cleanupEvents() {
-    document.querySelectorAll('.box-causes').forEach(el => {
-      const newEl = el.cloneNode(true);
-      el.parentNode.replaceChild(newEl, el);
+    document.querySelectorAll('#box-files').forEach(el => {
+      el.addEventListener('mouseenter', (e) => this.handleMouseEnter(e));
+      el.addEventListener('mouseleave', () => this.handleMouseLeave());
+      el.addEventListener('click', (e) => e.preventDefault());
     });
+
+    this.bindGlobally();
   }
 
   handleMouseEnter(event) {
+    this.hideTooltip(true);
+
     this.currentTarget = event.currentTarget;
     this.clearAllTimeouts();
-    
+
     this.showTimeout = setTimeout(() => {
       this.showTooltip(event);
-    }, 30);
+    }, 0);
   }
 
   handleMouseLeave() {
     this.clearAllTimeouts();
-    this.scheduleHideTooltip();
+    this.scheduleHideTooltip(300);
   }
 
-showTooltip(event) {
-  if (!this.currentTarget) return;
+  showTooltip(event) {
+    if (!this.currentTarget) return;
 
-  let content = "";
-  let title = "";
+    let content = "";
+    let title = "";
 
-  if (this.currentTarget.id === "box-causes") {
-    title = "Causes";
-    content = `<div class="tooltip-text">${this.currentTarget.dataset.content || "No causes"}</div>`;
-  } else if (this.currentTarget.id === "box-files") {
-    title = "Files";
-    const bias = this.currentTarget.dataset.bias || "#";
-    const last = this.currentTarget.dataset.last || "#";
-    content = `
-      <div class="tooltip-imgs">
-        <a href="${bias}" target="_blank">Bias Preview →</a><br>
-        <a href="${last}" target="_blank">Last Preview →</a>
-      </div>
-    `;
-  } else {
-    const data = this.tooltipData[this.currentTarget.id];
-    if (data) {
-      title = data.title;
-      content = data.content;
+    if (this.currentTarget.id === "box-causes") {
+      title = "Causes";
+      content = `<div class="tooltip-text">${this.currentTarget.dataset.content || "No causes"}</div>`;
+    } else if (this.currentTarget.id === "box-files") {
+      title = "Files";
+      const bias = this.currentTarget.dataset.bias || "";
+      const last = this.currentTarget.dataset.last || "";
+      const biasLink = this.currentTarget.dataset.biasLink || bias;
+      const lastLink = this.currentTarget.dataset.lastLink || last;
+
+      content = `
+        <div class="tooltip-imgs-grid" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 8px;">
+          ${bias ? `
+            <div style="text-align: center;">
+              <a href="${biasLink}" target="_blank" style="display: inline-block;">
+                <img src="${bias}" alt="Preview 1" style="width: 160px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;">
+              </a>
+              <div style="margin-top: 6px; font-size: 12px;">
+                <a href="${biasLink}" target="_blank" class="tooltip-link">Image Before</a>
+              </div>
+            </div>
+          ` : ''}
+          
+          ${last ? `
+            <div style="text-align: center;">
+              <a href="${lastLink}" target="_blank" style="display: inline-block;">
+                <img src="${last}" alt="Preview 2" style="width: 160px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;">
+              </a>
+              <div style="margin-top: 6px; font-size: 12px;">
+                <a href="${lastLink}" target="_blank" class="tooltip-link">Image After</a>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+    } else {
+      const data = this.tooltipData[this.currentTarget.id];
+      if (data) {
+        title = data.title;
+        content = data.content;
+      }
     }
+
+    this.tooltipContent.innerHTML = `<div class="tooltip-title">${title}</div>${content}`;
+    this.tooltip.classList.remove('hidden');
+    this.tooltip.classList.add('show');
+
+    requestAnimationFrame(() => {
+      this.positionTooltip(this.currentTarget);
+    });
   }
 
-  this.tooltipContent.innerHTML = `<div class="tooltip-title">${title}</div>${content}`;
-  this.tooltip.classList.remove('hidden');
-  this.tooltip.classList.add('show');
+  positionTooltip(targetElement) {
+    const rect = targetElement.getBoundingClientRect();
+    const tooltipRect = this.tooltip.getBoundingClientRect();
 
-  requestAnimationFrame(() => {
-    this.positionTooltip(this.currentTarget);
-  });
-}
+    const scrollTop = window.scrollY || document.documentElement.scrollTop;
+    const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
 
-positionTooltip(targetElement) {
-  const rect = targetElement.getBoundingClientRect();
-  const tooltipRect = this.tooltip.getBoundingClientRect();
-  const scrollTop = window.scrollY || document.documentElement.scrollTop;
-  const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
+    const gap = 10;
+    const top = rect.top + scrollTop - tooltipRect.height - gap;
+    const left = rect.left + scrollLeft + (rect.width / 2) - (tooltipRect.width / 2);
 
-  const gap = 10;
-  let top = rect.top + scrollTop - tooltipRect.height - gap;
-  let left = rect.left + scrollLeft + rect.width / 2 - tooltipRect.width / 2;
+    const margin = 10;
+    const viewportWidth = window.innerWidth;
+    const safeLeft = Math.max(margin, Math.min(left, viewportWidth - tooltipRect.width - margin));
 
-  if (top < scrollTop) {
-    top = rect.bottom + scrollTop + gap;
+    this.tooltip.style.position = 'absolute';
+    this.tooltip.style.left = `${safeLeft}px`;
+    this.tooltip.style.top = `${top}px`;
   }
 
-  const viewportWidth = window.innerWidth;
-  const margin = 8;
-  if (left < margin) left = margin;
-  if (left + tooltipRect.width > viewportWidth - margin)
-    left = viewportWidth - tooltipRect.width - margin;
-
-  this.tooltip.style.position = 'absolute';
-  this.tooltip.style.left = `${left}px`;
-  this.tooltip.style.top = `${top}px`;
-}
-
-
-  scheduleHideTooltip() {
+  scheduleHideTooltip(delay = 150) {
     this.clearHideTimeout();
     this.hideTimeout = setTimeout(() => {
       this.hideTooltip();
-    }, 150);
+    }, delay);
   }
 
-  hideTooltip() {
-    if (!this.isVisible) return;
+  hideTooltip(force = false) {
+    if (!this.tooltip.classList.contains('show')) return;
+
+    if (force) {
+      this.tooltip.classList.remove('show');
+      this.tooltip.classList.add('hidden');
+      this.currentTarget = null;
+      this.tooltipContent.innerHTML = '';
+      this.clearAllTimeouts();
+      return;
+    }
 
     this.tooltip.classList.remove('show');
-    
     setTimeout(() => {
       if (!this.tooltip.classList.contains('show')) {
         this.tooltip.classList.add('hidden');
-        this.isVisible = false;
         this.currentTarget = null;
         this.tooltipContent.innerHTML = '';
       }
@@ -835,7 +850,7 @@ positionTooltip(targetElement) {
 
   handleKeydown(event) {
     if (event.key === 'Escape' && this.tooltip.classList.contains('show')) {
-      this.hideTooltip();
+      this.hideTooltip(true);
     }
   }
 
@@ -847,29 +862,9 @@ positionTooltip(targetElement) {
     }
   }
 
-  handleResize() {
-    if (this.tooltip.classList.contains('show')) {
-      this.hideTooltip();
-    }
-  }
-
-  get isVisible() {
-    return this.tooltip.classList.contains('show');
-  }
-
-  set isVisible(value) {
-  }
-
   destroy() {
+    this.hideTooltip(true);
     this.clearAllTimeouts();
-    document.querySelectorAll('.box-causes').forEach(el => {
-      const newEl = el.cloneNode(true);
-      el.parentNode.replaceChild(newEl, el);
-    });
-    
-    document.removeEventListener('keydown', this.handleKeydown);
-    window.removeEventListener('scroll', this.handleScroll);
-    window.removeEventListener('resize', this.handleResize);
   }
 }
 
@@ -1120,6 +1115,445 @@ async function updateStats() {
 }
 
 updateStats().catch(console.error);
+
+// ======================= Calender Trade ======================= //
+// ------ Monthly Report ------ //
+function generateMonthlyData() {
+    const rawData = localStorage.getItem('dbtrade');
+    if (!rawData) {
+        console.warn('No dbtrade found');
+        return { allMonths: [], displayMonths: [] };
+    }
+
+    let entries;
+    try {
+        entries = JSON.parse(rawData);
+    } catch (e) {
+        console.error('Parse error:', e);
+        return { allMonths: [], displayMonths: [] };
+    }
+
+    entries.sort((a, b) => a.date - b.date);
+
+    let initialCapital = null;
+    const tradeOrCashEntries = [];
+
+    for (const entry of entries) {
+        if (entry.action === 'Deposit' && initialCapital === null) {
+            initialCapital = entry.value;
+        } else {
+            tradeOrCashEntries.push(entry);
+        }
+    }
+
+    const monthlyPnL = {};
+
+    const getMonthKey = (dateObj) => {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        return `${y}-${m}`;
+    };
+
+    for (const entry of tradeOrCashEntries) {
+        const date = new Date(entry.date * 1000);
+        const monthKey = getMonthKey(date);
+
+        if (!monthlyPnL[monthKey]) {
+            monthlyPnL[monthKey] = 0;
+        }
+
+        if (entry.hasOwnProperty('Pnl') && entry.Result !== 'Missed') {
+            monthlyPnL[monthKey] += entry.Pnl;
+        } else if (entry.action === 'Deposit' || entry.action === 'Withdraw') {
+            const value = entry.action === 'Withdraw' ? -entry.value : entry.value;
+            monthlyPnL[monthKey] += value;
+        }
+    }
+
+    const monthsArray = Object.entries(monthlyPnL)
+        .map(([key, profitLoss]) => {
+            const [year, month] = key.split('-');
+            return {
+                year: parseInt(year),
+                month: parseInt(month) - 1,
+                profitLoss: parseFloat(profitLoss.toFixed(2)),
+                key
+            };
+        })
+        .sort((a, b) => a.year - b.year || a.month - b.month);
+
+    let cumulativeBefore = 0;
+    const fullResult = [];
+
+    for (let i = 0; i < monthsArray.length; i++) {
+        const item = monthsArray[i];
+        const pnlThisMonth = item.profitLoss;
+
+        let returnRate = null;
+
+        if (i === 0) {
+            if (initialCapital !== null && initialCapital > 0) {
+                returnRate = (pnlThisMonth / initialCapital) * 100;
+            }
+        } else {
+            const base = cumulativeBefore;
+            if (base !== 0) {
+                returnRate = (pnlThisMonth / base) * 100;
+            }
+        }
+
+        fullResult.push({
+            year: item.year,
+            month: item.month,
+            monthName: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][item.month],
+            profitLoss: pnlThisMonth,
+            returnRate: returnRate !== null ? parseFloat(returnRate.toFixed(2)) : null
+        });
+
+        cumulativeBefore += pnlThisMonth;
+    }
+
+    const currentYear = new Date().getFullYear();
+    const displayMonths = fullResult.filter(m => m.year === currentYear);
+
+    return { allMonths: fullResult, displayMonths };
+}
+
+const { displayMonths: monthlyData } = generateMonthlyData();
+
+function renderMonthsGrid() {
+    const grid = document.getElementById('monthsGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+
+    if (monthlyData.length === 0) {
+        grid.innerHTML = '<div class="no-data">No trading data in 2025</div>';
+        return;
+    }
+
+    monthlyData.forEach(item => {
+        const isPositive = item.profitLoss >= 0;
+        const card = document.createElement('div');
+        card.className = 'month-card';
+
+        let displayReturn = '–';
+        if (item.returnRate !== null) {
+            const sign = item.returnRate >= 0 ? '+' : '';
+            displayReturn = sign + formatPercent(item.returnRate);
+        }
+
+        card.innerHTML = `
+            <div class="month-name">${item.monthName} ${item.year}</div>
+            <div class="profit-loss ${isPositive ? 'positive' : 'negative'}">
+                ${formatCurrencyCompact(item.profitLoss)}
+            </div>
+            <div class="return-rate ${isPositive ? 'positive' : 'negative'}">
+                ${displayReturn}
+            </div>
+        `;
+        grid.appendChild(card);
+    });
+}
+
+function renderBarChart() {
+    const chart = document.getElementById('barChart');
+    if (!chart) return;
+    chart.innerHTML = '';
+
+    if (monthlyData.length === 0) {
+        chart.innerHTML = '<div class="no-data-chart">No data to display</div>';
+        return;
+    }
+
+    const validRates = monthlyData
+        .map(m => m.returnRate)
+        .filter(r => r !== null && !isNaN(r));
+
+    if (validRates.length === 0) {
+        chart.innerHTML = '<div class="no-data-chart">Return rate not available</div>';
+        return;
+    }
+
+    const maxValue = Math.max(...validRates.map(r => Math.abs(r)));
+
+    monthlyData.forEach(item => {
+        const bar = document.createElement('div');
+        bar.className = 'bar';
+
+        if (item.returnRate === null || isNaN(item.returnRate)) {
+            bar.style.height = '0';
+            bar.style.background = '#ccc';
+        } else {
+            const heightPercent = (Math.abs(item.returnRate) / maxValue) * 100;
+            bar.style.height = `${Math.max(2, heightPercent)}%`;
+
+            if (item.returnRate >= 0) {
+                bar.style.background = 'linear-gradient(to top, rgba(23, 158, 109, 1), rgb(52, 211, 153))';
+            } else {
+                bar.style.background = 'linear-gradient(to top, rgba(185, 33, 56, 1), rgb(250, 93, 117))';
+            }
+        }
+
+        const label = document.createElement('div');
+        label.className = 'bar-label';
+        label.textContent = item.monthName;
+
+        const valueLabel = document.createElement('div');
+        valueLabel.className = 'bar-value';
+        valueLabel.textContent = item.returnRate !== null ? formatPercent(item.returnRate) : '–';
+
+        bar.appendChild(valueLabel);
+        bar.appendChild(label);
+        chart.appendChild(bar);
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    renderMonthsGrid();
+    renderBarChart();
+});
+
+// ------ Calender Trade ------ //
+function generateDataPnLDaily() {
+    const rawData = localStorage.getItem('dbtrade');
+    if (!rawData) {
+        console.warn('No dbtrade found in localStorage. Using empty PnL data.');
+        return {};
+    }
+
+    let trades;
+    try {
+        trades = JSON.parse(rawData);
+    } catch (e) {
+        console.error('Failed to parse dbtrade:', e);
+        return {};
+    }
+
+    const dailyTotals = {};
+
+    for (const trade of trades) {
+        if (trade.Result === "Missed" || !('Pnl' in trade) || trade.Pnl === 0) continue;
+
+        const date = new Date(trade.date * 1000);
+        const dateKey = getDateKey(date);
+        dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + trade.Pnl;
+    }
+
+    const result = {};
+
+    for (const [dateKey, totalPnl] of Object.entries(dailyTotals)) {
+        const rounded = Math.round(totalPnl * 100) / 100;
+        const isPositive = rounded >= 0;
+        const abs = Math.abs(rounded);
+
+        let display;
+        if (abs >= 1000) {
+            display = (abs / 1000).toFixed(2) + 'K';
+        } else {
+            display = abs.toFixed(2);
+        }
+        display = (isPositive ? '+' : '-') + display;
+
+        const raw = (isPositive ? '+' : '') + rounded.toFixed(2);
+
+        result[dateKey] = { display, raw };
+    }
+
+    return result;
+}
+
+const DataPnLDaily = generateDataPnLDaily();
+
+// DOM
+const calendar = document.getElementById('calendar');
+const currentMonthEl = document.getElementById('currentMonth');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const datePicker = document.getElementById('datePicker');
+const monthSelect = document.getElementById('monthSelect');
+const yearSelect = document.getElementById('yearSelect');
+const applyDateBtn = document.getElementById('applyDateBtn');
+const cancelDateBtn = document.getElementById('cancelDateBtn');
+
+// State
+let currentDate = new Date();
+const months = [
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
+];
+const today = new Date();
+today.setHours(0, 0, 0, 0);
+
+// === INIT DATE PICKER ===
+function initDatePicker() {
+    months.forEach((month, index) => {
+        const opt = document.createElement('option');
+        opt.value = index;
+        opt.textContent = month;
+        monthSelect.appendChild(opt);
+    });
+
+    const currentYear = today.getFullYear();
+    for (let y = currentYear - 10; y <= currentYear + 10; y++) {
+        const opt = document.createElement('option');
+        opt.value = y;
+        opt.textContent = y;
+        yearSelect.appendChild(opt);
+    }
+}
+
+function updateDatePicker() {
+    monthSelect.value = currentDate.getMonth();
+    yearSelect.value = currentDate.getFullYear();
+}
+
+// === UTILS ===
+function getDateKey(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
+
+function formatFullDate(date) {
+    const options = { day: 'numeric', month: 'long', year: 'numeric' };
+    return date.toLocaleDateString('en-US', options);
+}
+
+// === RENDER ===
+function renderCalendar() {
+    calendar.innerHTML = '';
+    const year = currentDate.getFullYear();
+    const month = currentDate.getMonth();
+    currentMonthEl.textContent = `${months[month]} ${year}`;
+    updateDatePicker();
+
+    const firstDay = new Date(year, month, 1).getDay();
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+    // Previous month
+    for (let i = firstDay - 1; i >= 0; i--) {
+        const day = daysInPrevMonth - i;
+        const date = new Date(year, month - 1, day);
+        calendar.appendChild(createDayCell(date));
+    }
+
+    // Current month
+    for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        calendar.appendChild(createDayCell(date));
+    }
+
+    // Next month — fill until 42 cells (6 rows)
+    const total = firstDay + daysInMonth;
+    const remaining = 42 - total;
+    for (let day = 1; day <= remaining; day++) {
+        const date = new Date(year, month + 1, day);
+        calendar.appendChild(createDayCell(date));
+    }
+}
+
+function createDayCell(date) {
+    const dayCell = document.createElement('div');
+    dayCell.className = 'day-cell';
+
+    const dateKey = getDateKey(date);
+    const dayNum = date.getDate();
+    const cellDate = new Date(date);
+    cellDate.setHours(0, 0, 0, 0);
+
+    // --- NEW: detect days outside current month ---
+    if (date.getMonth() !== currentDate.getMonth()) {
+        dayCell.classList.add('other-month');
+    }
+
+    // Classify date (today/past/future)
+    if (cellDate > today) {
+        dayCell.classList.add('future');
+    } else if (cellDate.getTime() === today.getTime()) {
+        dayCell.classList.add('today');
+    } else {
+        dayCell.classList.add('past');
+    }
+
+    // Day number
+    const dayNumber = document.createElement('div');
+    dayNumber.className = 'day-number';
+    dayNumber.textContent = String(dayNum).padStart(2, '0');
+    dayCell.appendChild(dayNumber);
+
+    // PnL display
+    const pnlValue = document.createElement('div');
+    pnlValue.className = 'pnl-value';
+
+    if (cellDate > today) {
+        pnlValue.textContent = '';
+    } else {
+        const data = DataPnLDaily[dateKey];
+        if (data) {
+            pnlValue.textContent = `PnL: ${data.display}`;
+            if (data.raw.startsWith('+')) {
+                dayCell.classList.add('positive');
+            } else {
+                dayCell.classList.add('negative');
+            }
+        } else {
+            dayCell.classList.add('empty');
+            pnlValue.textContent = 'No Trade';
+        }
+    }
+    dayCell.appendChild(pnlValue);
+
+    // Tooltip
+    if (cellDate <= today && DataPnLDaily[dateKey]) {
+        const tooltip = document.createElement('div');
+        tooltip.className = 'tooltip-calender';
+        const fullDate = formatFullDate(date);
+        const rawPnL = DataPnLDaily[dateKey].raw;
+        tooltip.textContent = `${fullDate} — PnL: ${rawPnL}`;
+        dayCell.appendChild(tooltip);
+    }
+
+    return dayCell;
+}
+
+// === EVENT LISTENERS ===
+prevBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() - 1);
+    renderCalendar();
+});
+
+nextBtn.addEventListener('click', () => {
+    currentDate.setMonth(currentDate.getMonth() + 1);
+    renderCalendar();
+});
+
+currentMonthEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    datePicker.classList.toggle('active');
+});
+
+applyDateBtn.addEventListener('click', () => {
+    currentDate = new Date(yearSelect.value, monthSelect.value, 1);
+    renderCalendar();
+    datePicker.classList.remove('active');
+});
+
+cancelDateBtn.addEventListener('click', () => {
+    datePicker.classList.remove('active');
+    updateDatePicker();
+});
+
+document.addEventListener('click', (e) => {
+    if (!datePicker.contains(e.target) && e.target !== currentMonthEl) {
+        datePicker.classList.remove('active');
+        updateDatePicker();
+    }
+});
+
+initDatePicker();
+renderCalendar();
 
 // ======================= Container 2 Statistic ======================= //
 
@@ -1930,19 +2364,26 @@ async function updateAllUI() {
 
     updateDashboardFromTrades(data);
     await updateEquityStats();
-
     await updateTradeStats();
-
     await updateStats();     
     await updateTradingStats();
-
     await loadTradeStats();  
     await loadBehaviorStats();
     await loadPsychologyStats();
-
     await updatePairsTable();
 
     calculate();
+
+    const { displayMonths: monthlyData } = generateMonthlyData();
+    window.monthlyData = monthlyData;
+
+    const newDailyData = generateDataPnLDaily();
+    window.DataPnLDaily = newDailyData;
+
+    renderMonthsGrid();
+    renderBarChart();
+
+    renderCalendar();
 
     console.log("✅ All UI updated successfully.");
   } catch (error) {

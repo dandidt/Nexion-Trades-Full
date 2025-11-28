@@ -1752,6 +1752,348 @@ canvas {
     border: 1px solid var(--bg-38);
 }
 
+/* ------ Monly Report ------ */
+.container-monly {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 15px;
+    height: 515px;
+    width: 500px;
+    padding: 20px;
+    border-radius: 15px;
+    background: var(--bg-20);
+    border: 1px solid var(--bg-38);
+}
+
+.title-monly {
+    font-size: var(--sz-18);
+    color: var(--white);
+    font-weight: var(--wg-500);
+}
+
+.months-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 6px;
+}
+
+.month-card {
+    background: var(--bg-27);    
+    border-radius: 8px;
+    padding: 8px;
+    text-align: center;
+    border: 1px solid var(--bg-45);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.month-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    margin-bottom: 6px;
+}
+
+.profit-loss {
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 6px;
+}
+
+.profit-loss.positive {
+    color: var(--green);
+}
+
+.profit-loss.negative {
+    color: var(--red);
+}
+
+.return-rate {
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.return-rate.positive {
+    color: var(--green-secondary);
+}
+
+.return-rate.negative {
+    color: var(--red-secondary);
+}
+
+.chart-container-performance {
+    display: flex;
+    flex-direction: column;
+    background: var(--bg-27);
+    padding: 15px;
+    border-radius: 10px;
+    width: 100%;
+    height: 100%;
+}
+
+.chart-container-performance h3 {
+    color: var(--white);
+    font-size: 12px;
+    text-align: center;
+    
+    margin-bottom: 10px;
+}
+
+.bar-chart {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 8px;
+    height: 100%;
+    padding: 12px 0 10px;
+}
+
+.bar {
+    flex: 1;
+    border-radius: 4px 4px 0 0;
+    position: relative;
+    transition: all 0.3s;
+    cursor: pointer;
+    min-width: 10px;
+}
+
+.bar:hover {
+    filter: brightness(1.3);
+}
+
+.bar-label {
+    position: absolute;
+    bottom: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: var(--gray-primary);
+    white-space: nowrap;
+}
+
+.bar-value {
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 9px;
+    font-weight: bold;
+    color: var(--gray);
+}
+
+/* ------ Calender Trading ------ */
+.calendar-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: 515px;
+    flex: 1;
+    padding: 20px;
+    border-radius: 15px;
+    background: var(--bg-20);
+    border: 1px solid var(--bg-38);
+}
+
+.calendar-header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    padding: 6px;
+}
+
+.nav-btn {
+    width: 30px;
+    height: 30px;
+}
+
+.month-year-selector {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    position: relative;
+}
+
+.current-month {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--white);
+    cursor: pointer;
+    padding: 8px 16px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    user-select: none;
+}
+
+.current-month:hover {
+    background: var(--bg-35);
+}
+
+.date-picker {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 8px;
+    background: var(--bg-27);
+    border: 1px solid var(--bg-35);
+    border-radius: 10px;
+    padding: 15px;
+    z-index: 100;
+    display: none;
+}
+
+.date-picker.active {
+    display: block;
+}
+
+.date-picker-inputs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.date-picker select {
+    padding: 10px 15px;
+    border: 1px solid var(--bg-45);
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    background: var(--bg-35);
+}
+
+.date-picker select:focus {
+    outline: none;
+    border-color: var(--green);
+}
+
+.date-picker-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.date-picker-btn {
+    flex: 1;
+    padding: 8px;
+}
+
+.days-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 8px;
+    padding: 0 8px;
+}
+
+.day-name {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--gray);
+    padding: 8px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    grid-template-rows: repeat(6, 1fr);
+    height: 100%;
+    gap: 4px;
+}
+
+.day-cell {
+    background: var(--bg-27);
+    border: 1px solid var(--bg-45);
+    border-radius: 8px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    cursor: default;
+}
+
+.day-cell.future {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.day-cell.other-month {
+    opacity: 0.3;
+    pointer-events: none;
+}
+
+.day-cell.past, .day-cell.today {
+    background: var(--white);
+}
+
+.day-cell.positive {
+    background: var(--color-baground-green);
+    border-color: var(--green-secondary);
+}
+
+.day-cell.negative {
+    background: var(--color-baground-red);
+    border-color: var(--red-secondary);
+}
+
+.day-cell.empty {
+    background: var(--bg-27);
+}
+
+.day-number {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--white);
+}
+
+.pnl-value {
+    font-size: 12px;
+    font-weight: 500;
+    margin-top: 4px;
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.positive .pnl-value {
+    color: var(--green);
+}
+
+.negative .pnl-value {
+    color: var(--red);
+}
+
+.empty .pnl-value {
+    color: var(--gray-primary);
+}
+
+/* Tooltip */
+.tooltip-calender {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%) translateY(-10px);
+    background: var(--bg-38);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 10;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+}
+
+.day-cell:hover .tooltip-calender {
+    opacity: 1;
+}
+
 /* ------ Detailed Statistics ------ */
 .winrate {
     font-size: var(--sz-12);
