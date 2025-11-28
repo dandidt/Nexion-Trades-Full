@@ -1328,7 +1328,7 @@ async function loadDailyPnLData() {
         const rawData = await getDB();
         if (!Array.isArray(rawData) || rawData.length === 0) {
             DataPnLDaily = {};
-            renderCalendar(); // ← update kalender
+            renderCalendar();
             return;
         }
 
@@ -1347,8 +1347,10 @@ async function loadDailyPnLData() {
             const isPositive = rounded >= 0;
             const abs = Math.abs(rounded);
 
-            let display = abs >= 1000 ? (abs / 1000).toFixed(2) + 'K' : abs.toFixed(2);
-            display = (isPositive ? '+' : '-') + display;
+            let display = abs >= 1000 
+                ? (abs / 1000).toFixed(2) + 'K' 
+                : abs.toFixed(2);
+            display = (isPositive ? '+$' : '-$') + display;
             const raw = (isPositive ? '+' : '') + rounded.toFixed(2);
 
             result[dateKey] = { display, raw };
@@ -1407,6 +1409,10 @@ function updateDatePicker() {
 function formatFullDate(date) {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return date.toLocaleDateString('en-US', options);
+}
+
+function formatCurrency(value) {
+    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 }
 
 function renderCalendar() {
@@ -1483,12 +1489,40 @@ function createDayCell(date) {
     }
     dayCell.appendChild(pnlValue);
 
-    if (cellDate <= today && DataPnLDaily[dateKey]) {
+    if (cellDate <= today && DataPnLDaily[dateKey] !== undefined) {
         const tooltip = document.createElement('div');
         tooltip.className = 'tooltip-calender';
-        const fullDate = formatFullDate(date);
-        const rawPnL = DataPnLDaily[dateKey].raw;
-        tooltip.textContent = `${fullDate} — PnL: ${rawPnL}`;
+
+        const dateEl = document.createElement('p');
+        dateEl.className = 'date-daily-pnl';
+        dateEl.textContent = formatFullDate(date);
+
+        const wrapper = document.createElement('div');
+        wrapper.className = 'wrapper-pnl-daily';
+
+        const labelEl = document.createElement('p');
+        labelEl.className = 'pnl-label';
+        labelEl.textContent = 'PnL:';
+
+        const valueEl = document.createElement('p');
+        const rawValue = DataPnLDaily[dateKey].raw;
+
+        const isPositive = rawValue >= 0;
+        const formattedNumber = new Intl.NumberFormat('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        }).format(Math.abs(rawValue));
+
+        const sign = isPositive ? '+' : '-';
+        valueEl.textContent = `${sign}$${formattedNumber}`;
+        valueEl.className = `pnl-value ${isPositive ? 'positive' : 'negative'}`;
+
+        wrapper.appendChild(labelEl);
+        wrapper.appendChild(valueEl);
+
+        tooltip.appendChild(dateEl);
+        tooltip.appendChild(wrapper);
+
         dayCell.appendChild(tooltip);
     }
 
