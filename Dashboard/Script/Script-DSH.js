@@ -1116,110 +1116,110 @@ async function updateStats() {
 
 updateStats().catch(console.error);
 
-// ======================= Calender Trade ======================= //
-// ------ Monthly Report ------ //
-function generateMonthlyData() {
-    const rawData = localStorage.getItem('dbtrade');
-    if (!rawData) {
-        console.warn('No dbtrade found');
-        return { allMonths: [], displayMonths: [] };
-    }
+// ======================= Monthly Prtformance & Calender Trade ======================= //
+// ------ Monthly Prtformance ------ //
 
-    let entries;
+let monthlyData = [];
+
+async function loadMonthlyData() {
     try {
-        entries = JSON.parse(rawData);
-    } catch (e) {
-        console.error('Parse error:', e);
-        return { allMonths: [], displayMonths: [] };
-    }
-
-    entries.sort((a, b) => a.date - b.date);
-
-    let initialCapital = null;
-    const tradeOrCashEntries = [];
-
-    for (const entry of entries) {
-        if (entry.action === 'Deposit' && initialCapital === null) {
-            initialCapital = entry.value;
-        } else {
-            tradeOrCashEntries.push(entry);
-        }
-    }
-
-    const monthlyPnL = {};
-
-    const getMonthKey = (dateObj) => {
-        const y = dateObj.getFullYear();
-        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
-        return `${y}-${m}`;
-    };
-
-    for (const entry of tradeOrCashEntries) {
-        const date = new Date(entry.date * 1000);
-        const monthKey = getMonthKey(date);
-
-        if (!monthlyPnL[monthKey]) {
-            monthlyPnL[monthKey] = 0;
+        const rawData = await getDB();
+        if (!Array.isArray(rawData) || rawData.length === 0) {
+            monthlyData = [];
+            renderMonthsGrid();
+            renderBarChart();
+            return;
         }
 
-        if (entry.hasOwnProperty('Pnl') && entry.Result !== 'Missed') {
-            monthlyPnL[monthKey] += entry.Pnl;
-        } else if (entry.action === 'Deposit' || entry.action === 'Withdraw') {
-            const value = entry.action === 'Withdraw' ? -entry.value : entry.value;
-            monthlyPnL[monthKey] += value;
-        }
-    }
+        const entries = [...rawData].sort((a, b) => Number(a.date) - Number(b.date));
 
-    const monthsArray = Object.entries(monthlyPnL)
-        .map(([key, profitLoss]) => {
-            const [year, month] = key.split('-');
-            return {
-                year: parseInt(year),
-                month: parseInt(month) - 1,
-                profitLoss: parseFloat(profitLoss.toFixed(2)),
-                key
-            };
-        })
-        .sort((a, b) => a.year - b.year || a.month - b.month);
+        let initialCapital = null;
+        const tradeOrCashEntries = [];
 
-    let cumulativeBefore = 0;
-    const fullResult = [];
-
-    for (let i = 0; i < monthsArray.length; i++) {
-        const item = monthsArray[i];
-        const pnlThisMonth = item.profitLoss;
-
-        let returnRate = null;
-
-        if (i === 0) {
-            if (initialCapital !== null && initialCapital > 0) {
-                returnRate = (pnlThisMonth / initialCapital) * 100;
-            }
-        } else {
-            const base = cumulativeBefore;
-            if (base !== 0) {
-                returnRate = (pnlThisMonth / base) * 100;
+        for (const entry of entries) {
+            if (entry.action === 'Deposit' && initialCapital === null) {
+                initialCapital = Number(entry.value) || 0;
+            } else {
+                tradeOrCashEntries.push(entry);
             }
         }
 
-        fullResult.push({
-            year: item.year,
-            month: item.month,
-            monthName: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][item.month],
-            profitLoss: pnlThisMonth,
-            returnRate: returnRate !== null ? parseFloat(returnRate.toFixed(2)) : null
-        });
+        const monthlyPnL = {};
+        const getMonthKey = (dateObj) => {
+            const y = dateObj.getFullYear();
+            const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+            return `${y}-${m}`;
+        };
 
-        cumulativeBefore += pnlThisMonth;
+        for (const entry of tradeOrCashEntries) {
+            const date = new Date(Number(entry.date) * 1000);
+            const monthKey = getMonthKey(date);
+
+            if (!monthlyPnL[monthKey]) monthlyPnL[monthKey] = 0;
+
+            if (entry.hasOwnProperty('Pnl') && entry.Result !== 'Missed') {
+                monthlyPnL[monthKey] += Number(entry.Pnl) || 0;
+            } else if (entry.action === 'Deposit' || entry.action === 'Withdraw') {
+                const value = entry.action === 'Withdraw' ? -(Number(entry.value) || 0) : (Number(entry.value) || 0);
+                monthlyPnL[monthKey] += value;
+            }
+        }
+
+        const monthsArray = Object.entries(monthlyPnL)
+            .map(([key, profitLoss]) => {
+                const [year, month] = key.split('-');
+                return {
+                    year: parseInt(year, 10),
+                    month: parseInt(month, 10) - 1,
+                    profitLoss: parseFloat(profitLoss.toFixed(2)),
+                    key
+                };
+            })
+            .sort((a, b) => a.year - b.year || a.month - b.month);
+
+        let cumulativeBefore = 0;
+        const fullResult = [];
+
+        for (let i = 0; i < monthsArray.length; i++) {
+            const item = monthsArray[i];
+            const pnlThisMonth = item.profitLoss;
+            let returnRate = null;
+
+            if (i === 0) {
+                if (initialCapital !== null && initialCapital > 0) {
+                    returnRate = (pnlThisMonth / initialCapital) * 100;
+                }
+            } else {
+                const base = cumulativeBefore;
+                if (base !== 0) {
+                    returnRate = (pnlThisMonth / base) * 100;
+                }
+            }
+
+            fullResult.push({
+                year: item.year,
+                month: item.month,
+                monthName: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][item.month],
+                profitLoss: pnlThisMonth,
+                returnRate: returnRate !== null ? parseFloat(returnRate.toFixed(2)) : null
+            });
+
+            cumulativeBefore += pnlThisMonth;
+        }
+
+        const currentYear = new Date().getFullYear();
+        monthlyData = fullResult.filter(m => m.year === currentYear);
+
+        renderMonthsGrid();
+        renderBarChart();
+
+    } catch (error) {
+        console.error('Error loading monthly data:', error);
+        monthlyData = [];
+        renderMonthsGrid();
+        renderBarChart();
     }
-
-    const currentYear = new Date().getFullYear();
-    const displayMonths = fullResult.filter(m => m.year === currentYear);
-
-    return { allMonths: fullResult, displayMonths };
 }
-
-const { displayMonths: monthlyData } = generateMonthlyData();
 
 function renderMonthsGrid() {
     const grid = document.getElementById('monthsGrid');
@@ -1260,23 +1260,28 @@ function renderBarChart() {
     if (!chart) return;
     chart.innerHTML = '';
 
-    if (monthlyData.length === 0) {
-        chart.innerHTML = '<div class="no-data-chart">No data to display</div>';
-        return;
-    }
+    const monthsNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const currentYear = new Date().getFullYear();
 
-    const validRates = monthlyData
+    // Buat array 12 bulan
+    const fullMonthsData = monthsNames.map((monthName, idx) => {
+        const existing = monthlyData.find(m => m.month === idx && m.year === currentYear);
+        return existing || {
+            year: currentYear,
+            month: idx,
+            monthName,
+            profitLoss: 0,
+            returnRate: null
+        };
+    });
+
+    const validRates = fullMonthsData
         .map(m => m.returnRate)
         .filter(r => r !== null && !isNaN(r));
 
-    if (validRates.length === 0) {
-        chart.innerHTML = '<div class="no-data-chart">Return rate not available</div>';
-        return;
-    }
+    const maxValue = validRates.length > 0 ? Math.max(...validRates.map(r => Math.abs(r))) : 1;
 
-    const maxValue = Math.max(...validRates.map(r => Math.abs(r)));
-
-    monthlyData.forEach(item => {
+    fullMonthsData.forEach(item => {
         const bar = document.createElement('div');
         bar.className = 'bar';
 
@@ -1308,63 +1313,57 @@ function renderBarChart() {
     });
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    renderMonthsGrid();
-    renderBarChart();
-});
+// ------ Calendar Trade ------ //
+let DataPnLDaily = {};
 
-// ------ Calender Trade ------ //
-function generateDataPnLDaily() {
-    const rawData = localStorage.getItem('dbtrade');
-    if (!rawData) {
-        console.warn('No dbtrade found in localStorage. Using empty PnL data.');
-        return {};
-    }
-
-    let trades;
-    try {
-        trades = JSON.parse(rawData);
-    } catch (e) {
-        console.error('Failed to parse dbtrade:', e);
-        return {};
-    }
-
-    const dailyTotals = {};
-
-    for (const trade of trades) {
-        if (trade.Result === "Missed" || !('Pnl' in trade) || trade.Pnl === 0) continue;
-
-        const date = new Date(trade.date * 1000);
-        const dateKey = getDateKey(date);
-        dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + trade.Pnl;
-    }
-
-    const result = {};
-
-    for (const [dateKey, totalPnl] of Object.entries(dailyTotals)) {
-        const rounded = Math.round(totalPnl * 100) / 100;
-        const isPositive = rounded >= 0;
-        const abs = Math.abs(rounded);
-
-        let display;
-        if (abs >= 1000) {
-            display = (abs / 1000).toFixed(2) + 'K';
-        } else {
-            display = abs.toFixed(2);
-        }
-        display = (isPositive ? '+' : '-') + display;
-
-        const raw = (isPositive ? '+' : '') + rounded.toFixed(2);
-
-        result[dateKey] = { display, raw };
-    }
-
-    return result;
+function getDateKey(date) {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
 }
 
-const DataPnLDaily = generateDataPnLDaily();
+async function loadDailyPnLData() {
+    try {
+        const rawData = await getDB();
+        if (!Array.isArray(rawData) || rawData.length === 0) {
+            DataPnLDaily = {};
+            renderCalendar(); // ← update kalender
+            return;
+        }
 
-// DOM
+        const dailyTotals = {};
+
+        for (const trade of rawData) {
+            if (trade.Result === "Missed" || !('Pnl' in trade) || trade.Pnl === 0) continue;
+            const date = new Date(Number(trade.date) * 1000);
+            const dateKey = getDateKey(date);
+            dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + (Number(trade.Pnl) || 0);
+        }
+
+        const result = {};
+        for (const [dateKey, totalPnl] of Object.entries(dailyTotals)) {
+            const rounded = Math.round(totalPnl * 100) / 100;
+            const isPositive = rounded >= 0;
+            const abs = Math.abs(rounded);
+
+            let display = abs >= 1000 ? (abs / 1000).toFixed(2) + 'K' : abs.toFixed(2);
+            display = (isPositive ? '+' : '-') + display;
+            const raw = (isPositive ? '+' : '') + rounded.toFixed(2);
+
+            result[dateKey] = { display, raw };
+        }
+
+        DataPnLDaily = result;
+        renderCalendar();
+
+    } catch (error) {
+        console.error('Error loading daily PnL:', error);
+        DataPnLDaily = {};
+        renderCalendar();
+    }
+}
+
 const calendar = document.getElementById('calendar');
 const currentMonthEl = document.getElementById('currentMonth');
 const prevBtn = document.getElementById('prevBtn');
@@ -1375,7 +1374,6 @@ const yearSelect = document.getElementById('yearSelect');
 const applyDateBtn = document.getElementById('applyDateBtn');
 const cancelDateBtn = document.getElementById('cancelDateBtn');
 
-// State
 let currentDate = new Date();
 const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
@@ -1384,7 +1382,6 @@ const months = [
 const today = new Date();
 today.setHours(0, 0, 0, 0);
 
-// === INIT DATE PICKER ===
 function initDatePicker() {
     months.forEach((month, index) => {
         const opt = document.createElement('option');
@@ -1407,21 +1404,13 @@ function updateDatePicker() {
     yearSelect.value = currentDate.getFullYear();
 }
 
-// === UTILS ===
-function getDateKey(date) {
-    const y = date.getFullYear();
-    const m = String(date.getMonth() + 1).padStart(2, '0');
-    const d = String(date.getDate()).padStart(2, '0');
-    return `${y}-${m}-${d}`;
-}
-
 function formatFullDate(date) {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return date.toLocaleDateString('en-US', options);
 }
 
-// === RENDER ===
 function renderCalendar() {
+    if (!calendar) return;
     calendar.innerHTML = '';
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
@@ -1432,20 +1421,17 @@ function renderCalendar() {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-    // Previous month
     for (let i = firstDay - 1; i >= 0; i--) {
         const day = daysInPrevMonth - i;
         const date = new Date(year, month - 1, day);
         calendar.appendChild(createDayCell(date));
     }
 
-    // Current month
     for (let day = 1; day <= daysInMonth; day++) {
         const date = new Date(year, month, day);
         calendar.appendChild(createDayCell(date));
     }
 
-    // Next month — fill until 42 cells (6 rows)
     const total = firstDay + daysInMonth;
     const remaining = 42 - total;
     for (let day = 1; day <= remaining; day++) {
@@ -1463,12 +1449,10 @@ function createDayCell(date) {
     const cellDate = new Date(date);
     cellDate.setHours(0, 0, 0, 0);
 
-    // --- NEW: detect days outside current month ---
     if (date.getMonth() !== currentDate.getMonth()) {
         dayCell.classList.add('other-month');
     }
 
-    // Classify date (today/past/future)
     if (cellDate > today) {
         dayCell.classList.add('future');
     } else if (cellDate.getTime() === today.getTime()) {
@@ -1477,13 +1461,11 @@ function createDayCell(date) {
         dayCell.classList.add('past');
     }
 
-    // Day number
     const dayNumber = document.createElement('div');
     dayNumber.className = 'day-number';
     dayNumber.textContent = String(dayNum).padStart(2, '0');
     dayCell.appendChild(dayNumber);
 
-    // PnL display
     const pnlValue = document.createElement('div');
     pnlValue.className = 'pnl-value';
 
@@ -1493,11 +1475,7 @@ function createDayCell(date) {
         const data = DataPnLDaily[dateKey];
         if (data) {
             pnlValue.textContent = `PnL: ${data.display}`;
-            if (data.raw.startsWith('+')) {
-                dayCell.classList.add('positive');
-            } else {
-                dayCell.classList.add('negative');
-            }
+            dayCell.classList.add(data.raw.startsWith('+') ? 'positive' : 'negative');
         } else {
             dayCell.classList.add('empty');
             pnlValue.textContent = 'No Trade';
@@ -1505,7 +1483,6 @@ function createDayCell(date) {
     }
     dayCell.appendChild(pnlValue);
 
-    // Tooltip
     if (cellDate <= today && DataPnLDaily[dateKey]) {
         const tooltip = document.createElement('div');
         tooltip.className = 'tooltip-calender';
@@ -1518,7 +1495,6 @@ function createDayCell(date) {
     return dayCell;
 }
 
-// === EVENT LISTENERS ===
 prevBtn.addEventListener('click', () => {
     currentDate.setMonth(currentDate.getMonth() - 1);
     renderCalendar();
@@ -1552,8 +1528,14 @@ document.addEventListener('click', (e) => {
     }
 });
 
-initDatePicker();
-renderCalendar();
+document.addEventListener('DOMContentLoaded', async () => {
+    initDatePicker();
+    // Tunggu data selesai dimuat
+    await Promise.all([
+        loadMonthlyData(),
+        loadDailyPnLData()
+    ]);
+});
 
 // ======================= Container 2 Statistic ======================= //
 
@@ -2361,7 +2343,6 @@ async function updateAllUI() {
     const data = await getDB();
 
     renderTradingTable(data);
-
     updateDashboardFromTrades(data);
     await updateEquityStats();
     await updateTradeStats();
@@ -2371,19 +2352,9 @@ async function updateAllUI() {
     await loadBehaviorStats();
     await loadPsychologyStats();
     await updatePairsTable();
-
+    await loadMonthlyData(); 
+    await loadDailyPnLData();
     calculate();
-
-    const { displayMonths: monthlyData } = generateMonthlyData();
-    window.monthlyData = monthlyData;
-
-    const newDailyData = generateDataPnLDaily();
-    window.DataPnLDaily = newDailyData;
-
-    renderMonthsGrid();
-    renderBarChart();
-
-    renderCalendar();
 
     console.log("✅ All UI updated successfully.");
   } catch (error) {

@@ -1776,6 +1776,7 @@ canvas {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     gap: 6px;
+    width: 100%;
 }
 
 .month-card {
@@ -1819,6 +1820,15 @@ canvas {
 
 .return-rate.negative {
     color: var(--red-secondary);
+}
+
+.no-data {
+    grid-column: 1 / -1;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .chart-container-performance {
