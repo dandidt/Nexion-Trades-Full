@@ -318,6 +318,14 @@ input[type="number"]::-webkit-outer-spin-button {
     width: 25px;
 }
 
+.icon-account {
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    border: 1px solid var(--bg-70);
+    cursor: pointer;
+}
+
 /* ------ Animasi In Style ------ */
 .fade-up {
     opacity: 0;
@@ -2764,7 +2772,7 @@ circle.segment {
 
 /* Edit Profile */
 .btn-edit-profile {
-    padding: 2px 10px;
+    padding: 8px;
 }
 
 .wrapper-edit-profile {
@@ -4119,4 +4127,174 @@ input[type="number"]::placeholder {
     border-radius: 8px;
     overflow: hidden;
     overflow-y: auto;
+}
+
+/* ------ Popup Account Menu ------ */
+.container-popup-account {
+    display: none;
+    position: fixed;
+    background: var(--bg-38);
+    min-width: 200px;
+    border-radius: 6px;
+    padding: 0 5px;
+    border: 1px solid var(--bg-55);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.line-gap {
+    height: 1px;
+    width: 100%;
+    background: var(--bg-55);
+}
+
+.row-account {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 12px;
+    cursor: pointer;
+    margin: 5px 0;
+    transition: background 0.15s ease, color 0.15s ease, fill 0.15s ease;
+}
+
+.row-account svg {
+    fill: var(--gray);
+}
+
+.row-account:hover {
+    background: var(--bg-55);
+}
+
+.row-account:hover .title-menu {
+    color: var(--white);
+}
+
+.row-account:hover svg {
+    fill: var(--white);
+}
+
+/* ------ Popup Account ------ */
+.popup-account {
+    padding: 20px;
+}
+
+#closeAccount {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+}
+
+.popup-account h1 {
+    font-size: var(--sz-18);
+
+    margin-bottom: 8px;
+}
+
+.subtitle-account {
+    font-size: var(--sz-14);
+    color: var(--gray);
+
+    margin-bottom: 25px;
+}
+
+.wrapper-account {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-35);
+    border-radius: 10px;
+    padding: 10px;
+    width: 450px;
+
+    margin-bottom: 25px;
+}
+
+.column-account {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin: 4px 0;
+}
+
+.column-box-account {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.column-box-account img {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--bg-60);
+}
+
+.usernmae-account {
+    font-size: var(--sz-14);
+    font-weight: var(--wg-700);
+    color: var(--white);
+}
+
+.text-account-active {
+    font-size: var(--sz-12);
+    font-weight: var(--wg-600);
+    color: var(--green);
+}
+
+.btn-logout {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 10px;
+    cursor: pointer;
+    height: 37px;
+    width: 37px;
+}
+
+.btn-switch {
+    color: var(--white);
+    background: var(--bg-45);
+    border: 1px solid var(--bg-50);
+    padding: 10px 24px;
+}
+
+.btn-logout:hover ,
+.btn-switch:hover {
+    background: var(--bg-50);
+    border-color: var(--bg-60);
+}
+
+.btn-add-account {
+    padding: 10px;
+}
+
+/* ------ Signout Popup ------ */
+.container-logout {
+    display: none;
+    position: absolute;
+    background: var(--bg-27);
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid var(--bg-45);
+    z-index: 999;
+}
+
+.container-logout.show {
+    display: block;
+}
+
+.signout-btn-universal {
+    padding: 6px 25px;
+    cursor: pointer;
+}
+
+.signout-btn-universal:hover {
+    background: var(--color-baground-red);
+}
+
+.text-signout {
+    font-size: var(--sz-12);
 }

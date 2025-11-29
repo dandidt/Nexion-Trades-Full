@@ -20,6 +20,334 @@ function unixToWIBDatetimeLocal(unixSeconds) {
     return `${y}-${m}-${d}T${h}:${min}`;
 }
 
+// ======================= Navbar Popup Menu ======================= //
+// ------ Popup Account Menu ------ //
+const profileBox = document.querySelector('#navbarAccountIcon');
+const popupAccount = document.querySelector('#popupAccount');
+
+if (!profileBox || !popupAccount) {
+    console.warn('Popup account elements not found');
+} else {
+    function positionPopup() {
+        const rect = profileBox.getBoundingClientRect();
+        popupAccount.style.top = `${rect.bottom + 6}px`;
+        popupAccount.style.left = `${rect.right - popupAccount.offsetWidth}px`;
+    }
+
+    profileBox.addEventListener('click', (e) => {
+        e.stopPropagation();
+        profileBox.classList.toggle('active');
+
+        if (popupAccount.style.display === 'block') {
+            popupAccount.style.display = 'none';
+            window.removeEventListener('scroll', positionPopup);
+            window.removeEventListener('resize', positionPopup);
+        } else {
+            popupAccount.style.display = 'block';
+            positionPopup();
+            window.addEventListener('scroll', positionPopup);
+            window.addEventListener('resize', positionPopup);
+        }
+    });
+
+    document.addEventListener('click', (e) => {
+        const isInsideOtherPopup = e.target.closest('.popup-account') || 
+                                e.target.closest('.container-logout');
+
+        if (!popupAccount.contains(e.target) && 
+            e.target !== profileBox && 
+            !isInsideOtherPopup) {
+            
+            popupAccount.style.display = 'none';
+            profileBox.classList.remove('active');
+            window.removeEventListener('scroll', positionPopup);
+            window.removeEventListener('resize', positionPopup);
+        }
+    });
+}
+
+// ------ Account Icon ------ //
+function renderNavbarAvatar() {
+    const imgEl = document.getElementById("navbarAccountIcon");
+    if (!imgEl) return;
+
+    const avatar = localStorage.getItem("avatar");
+
+    if (avatar) {
+        imgEl.src = avatar;
+    }
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    renderNavbarAvatar();
+});
+
+// ------ Popup Account Switch ------ //
+document.addEventListener("DOMContentLoaded", () => {
+    const btnAccountManage = document.getElementById("accountManage");
+    const popupAccount = document.querySelector(".popup-account");
+    const popupOverlay = document.querySelector(".popup-overlay");
+    const closeAccountBtn = document.getElementById("closeAccount");
+
+    if (!btnAccountManage || !popupAccount) return;
+
+    function isAnyOtherPopupOpen() {
+        const otherPopups = [
+            ".popup-add",
+            ".popup-edit-trade",
+            ".popup-edit-transfer",
+            ".popup-caculate"
+        ];
+        return otherPopups.some(selector => {
+            const el = document.querySelector(selector);
+            return el && el.classList.contains("show");
+        });
+    }
+
+    function closeAccountPopup() {
+        popupAccount.classList.remove("show");
+        
+        const logoutPopup = document.querySelector(".container-logout");
+        if (logoutPopup) {
+            logoutPopup.style.display = "none";
+            pendingRemoveAccountId = null;
+            document.removeEventListener("click", hidePopupOnClick);
+        }
+
+        if (!isAnyOtherPopupOpen()) {
+            if (popupOverlay) popupOverlay.classList.remove("show");
+            document.body.classList.remove("popup-open");
+            document.body.style.overflow = "";
+        }
+    }
+
+    btnAccountManage.addEventListener("click", (e) => {
+        e.stopPropagation();
+
+        if (popupOverlay) popupOverlay.classList.add("show");
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+
+        popupAccount.classList.add("show");
+    });
+
+    if (closeAccountBtn) {
+        closeAccountBtn.addEventListener("click", (e) => {
+            e.stopPropagation();
+            closeAccountPopup();
+        });
+    }
+
+    if (popupOverlay) {
+        popupOverlay.addEventListener("click", (e) => {
+            if (popupAccount.classList.contains("show") && !popupAccount.contains(e.target)) {
+                closeAccountPopup();
+            }
+        });
+    }
+
+    document.addEventListener("keydown", (e) => {
+        if (e.key === "Escape" && popupAccount.classList.contains("show")) {
+            closeAccountPopup();
+        }
+    });
+});
+
+// ------ Render Account List ------ //
+async function renderAccountList() {
+    const wrapper = document.querySelector('.wrapper-account');
+    if (!wrapper) return;
+
+    const savedRaw = localStorage.getItem('saved_accounts');
+    const accounts = savedRaw ? JSON.parse(savedRaw) : [];
+
+    if (accounts.length === 0) {
+        wrapper.innerHTML = '<p class="no-accounts">No saved accounts.</p>';
+        return;
+    }
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const activeUserId = session?.user?.id;
+
+    let html = '';
+    accounts.forEach((acc, index) => {
+        const isActive = acc.user_id === activeUserId;
+        const avatarSrc = acc.avatar || 'Asset/Nexion.png';
+        const email = acc.email;
+
+        html += `
+            <div class="column-account">
+                <div class="column-box-account">
+                    <img src="${avatarSrc}" onerror="this.src='Asset/Nexion.png'" />
+                    <div class="wrapper-active-account">
+                        <p class="usernmae-account">${email}</p> <!-- 🔹 tetap email asli -->
+                        ${isActive ? '<p class="text-account-active">Active account</p>' : ''}
+                    </div>
+                </div>
+                <div class="column-box-account">
+                    ${isActive 
+                        ? '' 
+                        : `<button class="btn btn-switch" data-refresh="${acc.refresh_token}">Switch</button>`
+                    }
+                    <div class="btn btn-logout logout-account" data-id="${acc.user_id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 860" width="20px" fill="#e3e3e3">
+                            <path d="M263.79-408Q234-408 213-429.21t-21-51Q192-510 213.21-531t51-21Q294-552 315-530.79t21 51Q336-450 314.79-429t-51 21Zm216 0Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Zm216 0Q666-408 645-429.21t-21-51Q624-510 645.21-531t51-21Q726-552 747-530.79t21 51Q768-450 746.79-429t-51 21Z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+            ${index < accounts.length - 1 ? '<div class="line-gap"></div>' : ''}
+        `;
+    });
+
+    wrapper.innerHTML = html;
+
+    document.querySelectorAll('.btn-switch').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const refreshToken = e.currentTarget.dataset.refresh;
+            switchToAccount(refreshToken);
+        });
+    });
+
+    document.querySelectorAll('.logout-account').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            const userId = e.currentTarget.dataset.id;
+            removeAccount(userId);
+        });
+    });
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (typeof supabaseClient !== 'undefined') {
+        renderAccountList();
+    }
+});
+
+// ------ Switch Akun ------ //
+async function switchToAccount(refreshToken) {
+    const savedRaw = localStorage.getItem('saved_accounts');
+    const savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];
+    const account = savedAccounts.find(acc => acc.refresh_token === refreshToken);
+
+    if (!account) {
+        alert('Account not found.');
+        return;
+    }
+
+    try {
+        localStorage.removeItem('avatar');
+        localStorage.removeItem('dbtrade');
+
+        const { data, error } = await supabaseClient.auth.refreshSession({
+            refresh_token: refreshToken
+        });
+
+        if (error) throw error;
+        if (!data.session) throw new Error("No session returned after refresh!");
+
+        console.log("🔄 Switched to:", data.session.user.email);
+
+        if (account.avatar) {
+            localStorage.setItem('avatar', account.avatar);
+            console.log("✅ Avatar akun baru disimpan ke localStorage");
+        } else {
+            localStorage.removeItem('avatar');
+        }
+
+        const isGithub = window.location.hostname.includes("github.io");
+
+        const target = isGithub
+            ? "/Nexion-Trades-Full/Dashboard/dashboard.html"
+            : "/Dashboard/dashboard.html"
+
+        window.location.href = target;
+
+    } catch (err) {
+        console.error("Switch account error:", err);
+        alert("Failed to switch account. Please log in again.");
+    }
+}
+
+// ------ Fungsi Logout / Active Akun ------ //
+let pendingRemoveAccountId = null;
+
+function removeAccount(accountId) {
+    pendingRemoveAccountId = accountId;
+    const anchorBtn = event.currentTarget;
+    showLogoutPopup(anchorBtn);
+}
+
+function showLogoutPopup(anchorBtn) {
+    const popup = document.querySelector(".container-logout");
+    if (!popup) return;
+
+    const rect = anchorBtn.getBoundingClientRect();
+    const top = rect.top + window.scrollY + rect.height - 10;
+    const left = rect.left + window.scrollX + rect.width - 10;
+
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    popup.style.display = "block";
+
+    setTimeout(() => {
+        document.addEventListener("click", hidePopupOnClick);
+    }, 10);
+}
+
+function hidePopupOnClick(e) {
+    const popup = document.querySelector(".container-logout");
+    if (popup && !popup.contains(e.target)) {
+        popup.style.display = "none";
+        document.removeEventListener("click", hidePopupOnClick);
+        pendingRemoveAccountId = null;
+    }
+}
+
+document.querySelector(".signout-btn-universal")?.addEventListener("click", async () => {
+    if (!pendingRemoveAccountId) return;
+
+    const accountId = pendingRemoveAccountId;
+
+    const savedRaw = localStorage.getItem('saved_accounts');
+    let savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    const isActiveAccount = session?.user?.id === accountId;
+
+    savedAccounts = savedAccounts.filter(acc => acc.user_id !== accountId);
+    localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
+
+    if (isActiveAccount) {
+        await supabaseClient.auth.signOut();
+        localStorage.removeItem('avatar');
+        localStorage.removeItem('dbtrade');
+
+        const isGithub = window.location.hostname.includes("github.io");
+
+        const target = isGithub
+            ? "/Nexion-Trades-Full/index.html"
+            : "/index.html"
+
+        window.location.href = target;
+    }
+
+    pendingRemoveAccountId = null;
+    const popup = document.querySelector(".container-logout");
+    if (popup) popup.style.display = "none";
+    document.removeEventListener("click", hidePopupOnClick);
+
+    renderAccountList();
+});
+
+// ------ Add Account ------ //
+document.querySelector('.btn-add-account')?.addEventListener('click', () => {
+    const isGithub = window.location.hostname.includes('github.io');
+    const loginPage = isGithub 
+        ? '/Nexion-Trades-Full/signin.html' 
+        : '/Html/signin.html';
+    window.location.href = loginPage;
+});
+
 // ======================= POPUP & DROPDOWN SETUP ======================= //
 function closeAllPopups() {
     document.querySelector(".popup-add")?.classList.remove("show");
@@ -1758,6 +2086,9 @@ async function SaveEditProfile() {
 
             localStorage.setItem('avatar', currentPreviewSrc);
 
+            // Multi Account Update Avatar
+            updateAvatarInSavedAccounts(user_id, currentPreviewSrc);
+
             if (oldAvatar) {
                 await supabaseClient.storage
                     .from('avatars')
@@ -1789,6 +2120,7 @@ async function SaveEditProfile() {
             shouldUpdate = true;
             avatarPathForDB = null;
             localStorage.removeItem('avatar');
+            updateAvatarInSavedAccounts(user_id, null);
         }
 
         if (!shouldUpdate) {
@@ -1818,6 +2150,9 @@ async function SaveEditProfile() {
 
         resetEditProfileForm();
         closeEditProfilePopup();
+
+        renderNavbarAvatar();
+        renderAccountList();
 
     } catch (err) {
         console.error("❌ Error:", err);
@@ -1861,6 +2196,21 @@ function resetEditProfileForm() {
     
     const savedAvatar = localStorage.getItem('avatar');
     previewFoto.src = savedAvatar || htmlDefaultImage;
+}
+
+// Perbarui avatar di saved_accounts untuk user_id tertentu
+function updateAvatarInSavedAccounts(user_id, newAvatarBase64) {
+    const savedRaw = localStorage.getItem('saved_accounts');
+    if (!savedRaw) return;
+
+    let savedAccounts = JSON.parse(savedRaw);
+    const accountIndex = savedAccounts.findIndex(acc => acc.user_id === user_id);
+    
+    if (accountIndex !== -1) {
+        savedAccounts[accountIndex].avatar = newAvatarBase64;
+        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
+        console.log('✅ Avatar di saved_accounts diperbarui untuk user:', user_id);
+    }
 }
 
 // ======================= POPUP SHARE ======================= //

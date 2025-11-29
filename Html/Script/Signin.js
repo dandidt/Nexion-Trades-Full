@@ -5,6 +5,8 @@ const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
+const STORAGE_KEY = 'saved_accounts';
+
 const canvas = document.getElementById('dotCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -99,6 +101,46 @@ function urlToBase64(url) {
     });
 }
 
+async function saveAccountToLocalStorage() {
+    try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (error || !session) {
+            console.warn('No active session to save');
+            return;
+        }
+
+        // Ambil avatar base64 dari localStorage (yang sudah disimpan saat login)
+        const avatarBase64 = localStorage.getItem('avatar') || null;
+
+        const accountData = {
+            user_id: session.user.id,
+            email: session.user.email,
+            refresh_token: session.refresh_token,
+            avatar: avatarBase64 // 🔹 tambahkan avatar di sini
+        };
+
+        // Ambil akun yang sudah tersimpan
+        let savedAccounts = [];
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            savedAccounts = JSON.parse(stored);
+        }
+
+        // Cek duplikat berdasarkan user_id
+        const existingIndex = savedAccounts.findIndex(acc => acc.user_id === accountData.user_id);
+        if (existingIndex !== -1) {
+            savedAccounts[existingIndex] = accountData; // perbarui (termasuk avatar baru)
+        } else {
+            savedAccounts.push(accountData); // tambah baru
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedAccounts));
+        console.log('✅ Akun + avatar berhasil disimpan ke local cache:', accountData.email);
+    } catch (err) {
+        console.error('❌ Gagal menyimpan akun ke local cache:', err);
+    }
+}
+
 // Form handling - Supabase login (diperbaiki)
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
@@ -166,6 +208,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             localStorage.removeItem('avatar');
             console.log("🗑️ Tidak ada avatar_path — menghapus cache avatar lama");
         }
+
+        await saveAccountToLocalStorage();
 
         await new Promise(resolve => setTimeout(resolve, 100));
         finishLoading();

@@ -185,6 +185,46 @@ async function compressImage(file, maxSizeKB = 50) {
     return new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), { type: 'image/jpeg' });
 }
 
+async function saveAccountToLocalStorage() {
+    try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (error || !session) {
+            console.warn('No active session to save');
+            return;
+        }
+
+        // Ambil avatar base64 dari localStorage (yang sudah disimpan saat login)
+        const avatarBase64 = localStorage.getItem('avatar') || null;
+
+        const accountData = {
+            user_id: session.user.id,
+            email: session.user.email,
+            refresh_token: session.refresh_token,
+            avatar: avatarBase64 // 🔹 tambahkan avatar di sini
+        };
+
+        // Ambil akun yang sudah tersimpan
+        let savedAccounts = [];
+        const stored = localStorage.getItem(STORAGE_KEY);
+        if (stored) {
+            savedAccounts = JSON.parse(stored);
+        }
+
+        // Cek duplikat berdasarkan user_id
+        const existingIndex = savedAccounts.findIndex(acc => acc.user_id === accountData.user_id);
+        if (existingIndex !== -1) {
+            savedAccounts[existingIndex] = accountData; // perbarui (termasuk avatar baru)
+        } else {
+            savedAccounts.push(accountData); // tambah baru
+        }
+
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedAccounts));
+        console.log('✅ Akun + avatar berhasil disimpan ke local cache:', accountData.email);
+    } catch (err) {
+        console.error('❌ Gagal menyimpan akun ke local cache:', err);
+    }
+}
+
 // =======================
 // Form Submission
 // =======================
@@ -308,6 +348,8 @@ document.getElementById('signupForm')?.addEventListener('submit', async function
             if (profileError.message?.includes('unique')) throw new Error('USERNAME_TAKEN');
             throw profileError;
         }
+
+        await saveAccountToLocalStorage();
 
         // Sukses
         finishLoading();

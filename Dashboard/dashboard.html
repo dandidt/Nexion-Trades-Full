@@ -32,6 +32,9 @@
                     <span>Setting</span>
                 </div>
             </div>
+            <div class="box-logo">
+                <img id="navbarAccountIcon" class="icon-account" src="Asset/Nexion.png">
+            </div>
         </nav>
 
         <!-- ===== Jurnaling Section ===== -->
@@ -856,10 +859,6 @@
                     <button class="btn btn-default btn-edit-profile" id="btnEditProfile">
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M180-180h44l472-471-44-44-472 471v44Zm-60 60v-128l575-574q8-8 19-12.5t23-4.5q11 0 22 4.5t20 12.5l44 44q9 9 13 20t4 22q0 11-4.5 22.5T823-694L248-120H120Zm659-617-41-41 41 41Zm-105 64-22-22 44 44-22-22Z"/></svg>
                     </button>
-                    <div class="row-profile" id="logoutAccount">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="var(--gray)"><path d="m5.92,39.08c-1.12,0-2.09-.4-2.89-1.2-.8-.8-1.2-1.76-1.2-2.89V5.01c0-1.12.4-2.09,1.2-2.89.8-.8,1.76-1.2,2.89-1.2h14.99v4.09H5.92v29.99h14.99v4.09H5.92Zm24.54-9.54l-2.9-2.9,4.6-4.6H15.46v-4.09h16.7l-4.6-4.6,2.9-2.9,9.54,9.54-9.54,9.54Z"/></svg>
-                        <p class="title-menu">Logout</p>
-                    </div>
                 </div>
             </div>
 
@@ -1926,6 +1925,68 @@
             <div class="wrapper-btn-dropdown">
                 <button id="saveDropdownEdit" class="btn btn-green btn-dropdown">Save</button>
                 <button id="cancelDropdownEdit" class="btn btn-default btn-dropdown">Cancel</button>
+            </div>
+        </div>
+        
+        <!-- ===== Popup Profile Menu ===== -->
+        <div class="container-popup-account" id="popupAccount">
+            <div class="row-account" id="accountManage">
+                <svg xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="#e3e3e3"><path class="cls-1" d="m20,19.58c-2.73,0-5.04-.95-6.94-2.85-1.9-1.9-2.85-4.22-2.85-6.94s.95-5.04,2.85-6.94c1.9-1.9,4.22-2.84,6.94-2.84s5.04.95,6.94,2.84c1.9,1.9,2.85,4.21,2.85,6.94s-.95,5.04-2.85,6.94c-1.9,1.9-4.22,2.85-6.94,2.85ZM.93,39.17v-6.74c0-1.08.29-2.1.88-3.06.59-.96,1.4-1.76,2.43-2.4,2.39-1.38,4.92-2.45,7.6-3.19,2.67-.74,5.39-1.11,8.14-1.11,2.77,0,5.5.37,8.18,1.1,2.68.73,5.21,1.79,7.58,3.18,1.03.6,1.84,1.39,2.43,2.37.59.98.88,2.02.88,3.12v6.74s-38.13,0-38.13,0Zm5.34-5.34h27.45v-1.31c0-.21-.06-.41-.19-.58-.13-.17-.3-.31-.51-.41-1.91-1.16-3.97-2.04-6.17-2.63-2.2-.59-4.48-.89-6.84-.89-2.34,0-4.62.3-6.84.89-2.22.59-4.28,1.47-6.17,2.63-.21.17-.39.33-.52.48-.13.15-.19.32-.19.51v1.31Zm13.74-19.59c1.23,0,2.27-.44,3.14-1.31.87-.87,1.3-1.93,1.3-3.15s-.44-2.27-1.31-3.13c-.87-.86-1.92-1.29-3.15-1.29s-2.27.44-3.14,1.31c-.87.87-1.3,1.92-1.3,3.14s.44,2.27,1.31,3.14c.87.86,1.92,1.3,3.15,1.3Z"/></svg>
+                <p class="title-menu">Account Preferences</p>
+            </div>
+            <div class="line-gap"></div>
+            <div class="row-account" id="logoutAccount">
+                <svg xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="#e3e3e3"><path d="m5.92,39.08c-1.12,0-2.09-.4-2.89-1.2-.8-.8-1.2-1.76-1.2-2.89V5.01c0-1.12.4-2.09,1.2-2.89.8-.8,1.76-1.2,2.89-1.2h14.99v4.09H5.92v29.99h14.99v4.09H5.92Zm24.54-9.54l-2.9-2.9,4.6-4.6H15.46v-4.09h16.7l-4.6-4.6,2.9-2.9,9.54,9.54-9.54,9.54Z"/></svg>
+                <p class="title-menu">Logout</p>
+            </div>
+        </div>
+
+        <!-- ===== Swap Account ===== -->
+        <div class="popup-container popup-account">
+            <h1>Manage Accounts</h1>
+            <p class="subtitle-account">Switch accounts, sign in, sign out, go wild.</p>
+            <div class="wrapper-account">
+                <!-- <div class="column-account">
+                    <div class="column-box-account">
+                        <img src="Asset/Nexion.png">
+                        <div class="wrapper-active-account">
+                            <p class="usernmae-account">dhanntara</p>
+                            <p class="text-account-active">Active account</p>
+                        </div>
+                    </div>
+                    <div class="column-box-account">
+                        <div class="btn btn-logout logout-account">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 860" width="20px" fill="#e3e3e3"><path d="M263.79-408Q234-408 213-429.21t-21-51Q192-510 213.21-531t51-21Q294-552 315-530.79t21 51Q336-450 314.79-429t-51 21Zm216 0Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Zm216 0Q666-408 645-429.21t-21-51Q624-510 645.21-531t51-21Q726-552 747-530.79t21 51Q768-450 746.79-429t-51 21Z"/></svg>
+                        </div>
+                    </div>
+                </div>
+                <div class="line-gap"></div>
+                <div class="column-account">
+                    <div class="column-box-account">
+                        <img src="Asset/Nexion.png">
+                        <div class="wrapper-active-account">
+                            <p class="usernmae-account">dhanntara</p>
+                        </div>
+                    </div>
+                    <div class="column-box-account">
+                        <button class="btn btn-switch">Switch</button>
+                        <div class="btn btn-logout">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 860" width="20px" fill="#e3e3e3"><path d="M263.79-408Q234-408 213-429.21t-21-51Q192-510 213.21-531t51-21Q294-552 315-530.79t21 51Q336-450 314.79-429t-51 21Zm216 0Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Zm216 0Q666-408 645-429.21t-21-51Q624-510 645.21-531t51-21Q726-552 747-530.79t21 51Q768-450 746.79-429t-51 21Z"/></svg>
+                        </div>
+                    </div>
+                </div> -->
+            </div>
+            <button class="btn btn-default btn-add-account">Add an account</button>
+
+            <div class="btn btn-logout" id="closeAccount">
+                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+            </div>
+        </div>
+
+        <!-- ===== Logout ===== -->
+        <div class="container-logout">
+            <div class="signout-btn-universal">
+                <p class="text-signout">Log Out</p>
             </div>
         </div>
 
