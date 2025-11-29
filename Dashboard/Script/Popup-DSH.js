@@ -343,7 +343,7 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
 document.querySelector('.btn-add-account')?.addEventListener('click', () => {
     const isGithub = window.location.hostname.includes('github.io');
     const loginPage = isGithub 
-        ? '/Nexion-Trades-Full/Html/signin.html' 
+        ? '/Nexion-Trades-Full/Html/signin.html' // update
         : '/Html/signin.html';
     window.location.href = loginPage;
 });
