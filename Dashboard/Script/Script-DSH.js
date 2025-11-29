@@ -2027,22 +2027,14 @@ function renderAvatar() {
     if (!container) return;
 
     const imgEl = container.querySelector("img");
-    const svgEl = container.querySelector("svg");
+    if (!imgEl) return;
 
-    if (!imgEl || !svgEl) {
-        console.warn("⚠️ Elemen <img> atau <svg> tidak ditemukan di #containerProfile");
-        return;
-    }
-
-    const avatar = localStorage.getItem("avatar"); 
+    const avatar = localStorage.getItem("avatar");
 
     if (avatar) {
         imgEl.src = avatar;
-        imgEl.style.display = "block";
-        svgEl.style.display = "none";
     } else {
-        imgEl.style.display = "none";
-        svgEl.style.display = "block";
+        imgEl.src = "../Asset/User.png";
     }
 }
 

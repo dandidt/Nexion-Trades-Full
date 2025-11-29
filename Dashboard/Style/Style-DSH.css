@@ -2742,17 +2742,8 @@ circle.segment {
 
 .box-profile img {
     border-radius: 50%;
-    height: 40px;
-    width: 40px;
-    border: 2px solid var(--bg-70);
-}
-
-.box-profile svg {
-    border-radius: 50%;
-    height: 40px;
-    width: 40px;
-    padding: 5px;
-    background: var(--bg-50);
+    height: 38px;
+    width: 38px;
     border: 2px solid var(--bg-70);
 }
 

@@ -172,7 +172,7 @@ async function renderAccountList() {
     let html = '';
     accounts.forEach((acc, index) => {
         const isActive = acc.user_id === activeUserId;
-        const avatarSrc = acc.avatar || 'Asset/Nexion.png';
+        const avatarSrc = acc.avatar || '../Asset/User.png';
         const email = acc.email;
 
         html += `
@@ -2334,7 +2334,7 @@ const TEMPLATE_SHARE_VERSION = "1.0";
 let currentTemplateIndexShare = 0;
 
 function getCurrentAvatarPath() {
-    return localStorage.getItem('avatar') || 'Asset/dhanntara.jpg';
+    return localStorage.getItem('avatar') || '../Asset/User.png';
 }
 
 const TEXT_CONTENT_SHARE = {
