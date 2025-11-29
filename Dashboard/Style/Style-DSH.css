@@ -1915,13 +1915,23 @@ canvas {
 .nav-btn {
     width: 30px;
     height: 30px;
+    color: var(--bg-27);
+    background: rgba(16, 185, 129, 0.5);
+    border: 1px solid var(--green-secondary);
+}
+
+.nav-btn:hover {
+    background: rgba(16, 185, 129, 0.8);
+    border-color: var(--green-primary);
 }
 
 .month-year-selector {
+    position: relative;
     display: flex;
     align-items: center;
+    justify-content: center;
     gap: 6px;
-    position: relative;
+    min-width: 150px;
 }
 
 .current-month {
@@ -2041,6 +2051,7 @@ canvas {
 .day-cell.positive {
     background: var(--color-baground-green);
     border-color: var(--green-secondary);
+    cursor: pointer;
 }
 
 .day-cell.positive:hover {
@@ -2050,6 +2061,7 @@ canvas {
 .day-cell.negative {
     background: var(--color-baground-red);
     border-color: var(--red-secondary);
+    cursor: pointer;
 }
 
 .day-cell.negative:hover {
