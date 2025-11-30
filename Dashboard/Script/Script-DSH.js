@@ -2358,6 +2358,7 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('DOMContentLoaded', function() {
     const feeInput = document.getElementById('fee');
     const riskInput = document.getElementById('risk');
+    const riskInfoEl = document.querySelector(".informasion-risk");
     const localStorageKey = 'setting';
 
     function saveSettings() {
@@ -2381,16 +2382,34 @@ document.addEventListener('DOMContentLoaded', function() {
                 const settings = JSON.parse(savedSettings);
                 if (settings.fee !== undefined) feeInput.value = settings.fee;
                 if (settings.risk !== undefined) riskInput.value = settings.risk;
+                // Update tampilan risk info setelah load
+                renderRiskInfo();
             }
         } catch (e) {
             console.error('Gagal memuat dari localStorage:', e);
         }
     }
 
-    feeInput?.addEventListener('input', saveSettings);
-    riskInput?.addEventListener('input', saveSettings);
+    // Fungsi renderRiskInfo didefinisikan di dalam DOMContentLoaded
+    function renderRiskInfo() {
+        if (riskInfoEl) {
+            const risk = parseFloat(setting.risk) || 0;
+            riskInfoEl.textContent = `Risk Persentase: ${risk}%`;
+        }
+    }
 
+    // Pasang event listener
+    if (feeInput) feeInput.addEventListener('input', saveSettings);
+    if (riskInput) {
+        riskInput.addEventListener('input', () => {
+            saveSettings();
+            renderRiskInfo(); // Update tampilan saat input berubah
+        });
+    }
+
+    // Load setting awal
     loadSettings();
+    renderRiskInfo(); // Render awal
 });
 
 function getLocalData(key) {
@@ -2469,6 +2488,14 @@ document.querySelector(".popup-caculate").addEventListener("click", function (e)
         }
     }
 });
+
+function renderRiskInfo() {
+    const riskInfoEl = document.querySelector(".informasion-risk");
+    if (riskInfoEl) {
+        const risk = parseFloat(setting.risk) || 0;
+        riskInfoEl.textContent = `Risk Persentase: ${risk}%`;
+    }
+}
 
 function showToast(message) {
     let toast = document.querySelector(".toast");
