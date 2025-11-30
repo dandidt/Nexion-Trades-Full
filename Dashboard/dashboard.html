@@ -180,6 +180,53 @@
                         </tr> -->
                     </tbody>
                 </table>
+
+                <div class="container-pagination">
+                    <div class="wrapper-pagination">
+                        <div class="btn-pagination left-frist-page">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M432-240 192-480l240-240 51 51-189 189 189 189-51 51Zm285 0L477-480l240-240 51 51-189 189 189 189-51 51Z"/></svg>
+                        </div>
+                        <div class="btn-pagination left-one-page">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M576-240 336-480l240-240 51 51-189 189 189 189-51 51Z"/></svg>
+                        </div>
+                        <div class="wrapper-page-pagination">
+                            <div class="box-number-page active">
+                                <p class="number-page">1</p>
+                            </div>
+                            <div class="box-number-page">
+                                <p class="number-page">2</p>
+                            </div>
+                            <div class="box-more">
+                                <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z"/></svg>
+                            </div>
+                            <div class="box-number-page">
+                                <p class="number-page">32</p>
+                            </div>
+                        </div>
+                        <div class="btn-pagination right-one-page">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M522-480 333-669l51-51 240 240-240 240-51-51 189-189Z"/></svg>
+                        </div>
+                        <div class="btn-pagination right-frist-page">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M381-480 192-669l51-51 240 240-240 240-51-51 189-189Zm285 0L477-669l51-51 240 240-240 240-51-51 189-189Z"/></svg>
+                        </div>
+                    </div>
+
+                    <div class="wrapper-pagination">
+                        <div class="wrapper-page-of">
+                            <p class="page-text">Page</p>
+                            <div class="box-page-of" id="pageSelector">
+                                <span class="number-page-active">1</span>
+                                <div class="dropdown-menu" id="pageDropdown"></div>
+                            </div>
+                            <p class="page-text" id="pageOf">Of 10</p>
+                        </div>
+                        <div class="box-page-rows" id="rowsSelector">
+                            <span class="number-page-active">50</span>
+                            <div class="dropdown-menu" id="rowsDropdown"></div>
+                        </div>
+                        <p class="page-text" id="tradeTotal">10 Trade</p>
+                    </div>
+                </div>
             </div>
 
             <!-- Tooltip Container -->
@@ -1927,7 +1974,7 @@
             </div>
         </div>
         
-        <!-- ===== Popup Profile Menu ===== -->
+        <!-- ===== Profile Menu ===== -->
         <div class="container-popup-account" id="popupAccount">
             <div class="row-account" id="accountManage">
                 <svg xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="#e3e3e3"><path class="cls-1" d="m20,19.58c-2.73,0-5.04-.95-6.94-2.85-1.9-1.9-2.85-4.22-2.85-6.94s.95-5.04,2.85-6.94c1.9-1.9,4.22-2.84,6.94-2.84s5.04.95,6.94,2.84c1.9,1.9,2.85,4.21,2.85,6.94s-.95,5.04-2.85,6.94c-1.9,1.9-4.22,2.85-6.94,2.85ZM.93,39.17v-6.74c0-1.08.29-2.1.88-3.06.59-.96,1.4-1.76,2.43-2.4,2.39-1.38,4.92-2.45,7.6-3.19,2.67-.74,5.39-1.11,8.14-1.11,2.77,0,5.5.37,8.18,1.1,2.68.73,5.21,1.79,7.58,3.18,1.03.6,1.84,1.39,2.43,2.37.59.98.88,2.02.88,3.12v6.74s-38.13,0-38.13,0Zm5.34-5.34h27.45v-1.31c0-.21-.06-.41-.19-.58-.13-.17-.3-.31-.51-.41-1.91-1.16-3.97-2.04-6.17-2.63-2.2-.59-4.48-.89-6.84-.89-2.34,0-4.62.3-6.84.89-2.22.59-4.28,1.47-6.17,2.63-.21.17-.39.33-.52.48-.13.15-.19.32-.19.51v1.31Zm13.74-19.59c1.23,0,2.27-.44,3.14-1.31.87-.87,1.3-1.93,1.3-3.15s-.44-2.27-1.31-3.13c-.87-.86-1.92-1.29-3.15-1.29s-2.27.44-3.14,1.31c-.87.87-1.3,1.92-1.3,3.14s.44,2.27,1.31,3.14c.87.86,1.92,1.3,3.15,1.3Z"/></svg>

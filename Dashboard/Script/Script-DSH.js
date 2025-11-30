@@ -351,8 +351,13 @@ async function loadTradingData() {
   globalTrades = data;
   originalTrades = [...data];
 
-  renderTradingTable(globalTrades);
+  // Reset ke halaman 1 setiap kali load ulang
+  currentPage = 1;
+  rowsPerPage = parseInt(document.querySelector('#rowsSelector .number-page-active').textContent) || 50;
+
+  renderPaginatedTable(); // <-- ubah ini
   initSorting();
+  updatePaginationUI(); // <-- tambahkan ini
 }
 
 function isTradeItem(item) {
@@ -364,6 +369,13 @@ function isActionItem(item) {
 }
 
 // ------ RENDER TRADING TABLE ------ //
+function renderPaginatedTable() {
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const pageData = globalTrades.slice(startIndex, endIndex);
+  renderTradingTable(pageData);
+}
+
 function renderTradingTable(data) {
   const tbody = document.querySelector(".tabel-trade tbody");
   tbody.innerHTML = "";
@@ -485,7 +497,7 @@ function renderTradingTable(data) {
     window.tooltipManager = new TooltipManager();
   }, 100);
 
-  updateDashboardFromTrades(data);
+  updateDashboardFromTrades(originalTrades);
 
   if (isEditMode) {
     document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
@@ -537,25 +549,31 @@ function initSorting() {
 
       const nextDirection = nextSortState(key);
       if (!nextDirection) {
+        // Kembalikan ke data asli halaman ini (tanpa sort)
         currentSort = { key: null, direction: null };
+        renderPaginatedTable(); // render ulang dari globalTrades
       } else {
         currentSort = { key, direction: nextDirection };
-      }
 
-      let sortedData = [];
-      if (!currentSort.key) {
-        sortedData = [...originalTrades];
-      } else {
-        sortedData = [...globalTrades].sort((a, b) =>
+        // Ambil data halaman ini SAAT INI
+        const startIndex = (currentPage - 1) * rowsPerPage;
+        const endIndex = startIndex + rowsPerPage;
+        let pageData = globalTrades.slice(startIndex, endIndex);
+
+        // Sort hanya data halaman ini
+        pageData = [...pageData].sort((a, b) =>
           sortTrades(a, b, currentSort.key, currentSort.direction)
         );
+
+        // Render langsung data yang sudah disort
+        renderTradingTable(pageData);
       }
 
-      renderTradingTable(sortedData);
       updateSortIcons();
     });
   });
 
+  // Reset ikon
   document.querySelectorAll("th.sortable .sort-icon").forEach(span => {
     const th = span.closest("th.sortable");
     const key = th ? th.dataset.key : null;
@@ -666,14 +684,6 @@ class TooltipManager {
     this.hideTimeout = null;
     this.showTimeout = null;
     this.currentTarget = null;
-
-    this.tooltipData = {
-      "box-causes": {
-        title: "Causes",
-        content: `<div class="tooltip-text">ini adalah box untuk kasus kamu saat mengambil trade</div>`
-      }
-    };
-
     this.init();
   }
 
@@ -684,37 +694,25 @@ class TooltipManager {
   bindGlobally() {
     this.tooltip.addEventListener('mouseenter', () => this.clearHideTimeout());
     this.tooltip.addEventListener('mouseleave', () => this.scheduleHideTooltip(300));
-
     document.addEventListener('keydown', (e) => this.handleKeydown(e));
     window.addEventListener('scroll', () => this.handleScroll(), { passive: true });
     window.addEventListener('resize', () => this.hideTooltip(true), { passive: true });
   }
 
   bindEvents() {
-    document.querySelectorAll('#box-causes').forEach(el => {
+    document.querySelectorAll('#box-causes, #box-files').forEach(el => {
       el.addEventListener('mouseenter', (e) => this.handleMouseEnter(e));
       el.addEventListener('mouseleave', () => this.handleMouseLeave());
       el.addEventListener('click', (e) => e.preventDefault());
     });
-
-    document.querySelectorAll('#box-files').forEach(el => {
-      el.addEventListener('mouseenter', (e) => this.handleMouseEnter(e));
-      el.addEventListener('mouseleave', () => this.handleMouseLeave());
-      el.addEventListener('click', (e) => e.preventDefault());
-    });
-
     this.bindGlobally();
   }
 
   handleMouseEnter(event) {
     this.hideTooltip(true);
-
     this.currentTarget = event.currentTarget;
     this.clearAllTimeouts();
-
-    this.showTimeout = setTimeout(() => {
-      this.showTooltip(event);
-    }, 0);
+    this.showTimeout = setTimeout(() => this.showTooltip(event), 0);
   }
 
   handleMouseLeave() {
@@ -763,12 +761,6 @@ class TooltipManager {
           ` : ''}
         </div>
       `;
-    } else {
-      const data = this.tooltipData[this.currentTarget.id];
-      if (data) {
-        title = data.title;
-        content = data.content;
-      }
     }
 
     this.tooltipContent.innerHTML = `<div class="tooltip-title">${title}</div>${content}`;
@@ -783,7 +775,6 @@ class TooltipManager {
   positionTooltip(targetElement) {
     const rect = targetElement.getBoundingClientRect();
     const tooltipRect = this.tooltip.getBoundingClientRect();
-
     const scrollTop = window.scrollY || document.documentElement.scrollTop;
     const scrollLeft = window.scrollX || document.documentElement.scrollLeft;
 
@@ -802,9 +793,7 @@ class TooltipManager {
 
   scheduleHideTooltip(delay = 150) {
     this.clearHideTimeout();
-    this.hideTimeout = setTimeout(() => {
-      this.hideTooltip();
-    }, delay);
+    this.hideTimeout = setTimeout(() => this.hideTooltip(), delay);
   }
 
   hideTooltip(force = false) {
@@ -856,9 +845,7 @@ class TooltipManager {
 
   handleScroll() {
     if (this.tooltip.classList.contains('show') && this.currentTarget) {
-      requestAnimationFrame(() => {
-        this.positionTooltip(this.currentTarget);
-      });
+      requestAnimationFrame(() => this.positionTooltip(this.currentTarget));
     }
   }
 
@@ -886,15 +873,225 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-if (document.readyState !== 'loading') {
-  setTimeout(() => {
-    window.tooltipManager = initTooltip();
-  }, 100);
+// ------ Pagination ------ //
+let currentPage = 1;
+let rowsPerPage = 50;
+
+function updatePaginationUI() {
+  const totalTrades = globalTrades.length;
+  const totalPages = Math.max(1, Math.ceil(totalTrades / rowsPerPage));
+
+  // Update total trade
+  document.getElementById('tradeTotal').textContent = `${totalTrades} Trade${totalTrades !== 1 ? 's' : ''}`;
+
+  // Update "Of X"
+  document.getElementById('pageOf').textContent = `Of ${totalPages}`;
+
+  // Batasi currentPage agar tidak melebihi total
+  if (currentPage > totalPages) currentPage = totalPages;
+  if (currentPage < 1) currentPage = 1;
+
+  // Update dropdown halaman
+  const pageMenu = document.getElementById('pageDropdown');
+  const pageItems = Array.from({ length: totalPages }, (_, i) => (i + 1).toString());
+  const pageActive = document.querySelector('#pageSelector .number-page-active');
+  pageActive.textContent = currentPage;
+
+  // Re-init dropdown halaman (hapus event lama, buat baru)
+  pageMenu.innerHTML = '';
+  pageItems.forEach(num => {
+    const div = document.createElement('div');
+    div.className = 'dropdown-item';
+    div.textContent = num;
+    div.addEventListener('click', (e) => {
+      e.stopPropagation();
+      goToPage(parseInt(num));
+      pageMenu.classList.remove('active');
+    });
+    pageMenu.appendChild(div);
+  });
+
+  // Update tampilan kotak angka halaman (maks 3)
+  updatePageNumberBoxes(totalPages);
 }
 
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { TooltipManager, initTooltip };
+function updatePageNumberBoxes(totalPages) {
+  const container = document.querySelector('.wrapper-page-pagination');
+
+  // Bersihkan semua anak (tapi simpan dulu reference tombol kiri/kanan)
+  const leftFirst = document.querySelector('.left-frist-page');
+  const leftOne = document.querySelector('.left-one-page');
+  const rightOne = document.querySelector('.right-one-page');
+  const rightFirst = document.querySelector('.right-frist-page');
+
+  // Kosongkan container
+  container.innerHTML = '';
+
+  // Helper buat nomor
+  const addPage = (num, active = false) => {
+    const div = createPageBox(num, active);
+    container.appendChild(div);
+  };
+
+  // Helper titik
+  const addDots = () => {
+    const div = document.createElement('div');
+    div.className = 'box-more';
+    div.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3">
+        <path d="M240-400q-33 0-56.5-23.5T160-480q0-33 23.5-56.5T240-560q33 0 56.5 23.5T320-480q0 33-23.5 56.5T240-400Zm240 0q-33 0-56.5-23.5T400-480q0-33 23.5-56.5T480-560q33 0 56.5 23.5T560-480q0 33-23.5 56.5T480-400Zm240 0q-33 0-56.5-23.5T640-480q0-33 23.5-56.5T720-560q33 0 56.5 23.5T800-480q0 33-23.5 56.5T720-400Z"/>
+      </svg>`;
+    container.appendChild(div);
+  };
+
+  // CASE 1
+  if (totalPages <= 5) {
+    for (let i = 1; i <= totalPages; i++) {
+      addPage(i, currentPage === i);
+    }
+    return;
+  }
+
+  const last = totalPages;
+
+  // CASE 2 — awal
+  if (currentPage <= 3) {
+    addPage(1, currentPage === 1);
+    addPage(2, currentPage === 2);
+    addPage(3, currentPage === 3);
+
+    addDots();
+
+    addPage(last, currentPage === last);
+    return;
+  }
+
+  // CASE 4 — akhir
+  if (currentPage >= last - 2) {
+    addPage(1, currentPage === 1);
+
+    addDots();
+
+    addPage(last - 2, currentPage === last - 2);
+    addPage(last - 1, currentPage === last - 1);
+    addPage(last, currentPage === last);
+    return;
+  }
+
+  // CASE 3 — tengah
+  addPage(1, false);
+
+  addDots();
+
+  addPage(currentPage - 1);
+  addPage(currentPage, true);
+  addPage(currentPage + 1);
+
+  addDots();
+
+  addPage(last, false);
 }
+
+function createPageBox(pageNum, isActive) {
+  const div = document.createElement('div');
+  div.className = `box-number-page ${isActive ? 'active' : ''}`;
+  div.innerHTML = `<p class="number-page">${pageNum}</p>`;
+  div.addEventListener('click', () => goToPage(pageNum));
+  return div;
+}
+
+function goToPage(page) {
+  const totalPages = Math.ceil(globalTrades.length / rowsPerPage);
+  if (page < 1 || page > totalPages || page === currentPage) return;
+
+  currentPage = page;
+  
+  // Reset sort saat ganti halaman (karena sort hanya berlaku di halaman saat ini)
+  currentSort = { key: null, direction: null };
+  
+  renderPaginatedTable();
+  updatePaginationUI();
+}
+
+function extractNumber(str) {
+  const match = str.match(/^\d+/);
+  return match ? match[0] : str;
+}
+
+function createDropdown(triggerEl, menuEl, items, activeSpan) {
+  menuEl.innerHTML = '';
+
+  items.forEach(item => {
+    const div = document.createElement('div');
+    div.className = 'dropdown-item';
+    div.textContent = item;
+    div.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const displayValue = extractNumber(item);
+      activeSpan.textContent = displayValue;
+      menuEl.classList.remove('active');
+    });
+    menuEl.appendChild(div);
+  });
+
+  triggerEl.addEventListener('click', (e) => {
+    e.stopPropagation();
+    document.querySelectorAll('.dropdown-menu').forEach(menu => {
+      if (menu !== menuEl) menu.classList.remove('active');
+    });
+    menuEl.classList.toggle('active');
+  });
+}
+
+document.addEventListener('click', () => {
+  document.querySelectorAll('.dropdown-menu').forEach(menu => {
+    menu.classList.remove('active');
+  });
+});
+
+const pageTrigger = document.getElementById('pageSelector');
+const pageMenu = document.getElementById('pageDropdown');
+const pageActive = pageTrigger.querySelector('.number-page-active');
+createDropdown(pageTrigger, pageMenu, ['1', '2'], pageActive);
+
+const rowsTrigger = document.getElementById('rowsSelector');
+const rowsMenu = document.getElementById('rowsDropdown');
+const rowsActive = rowsTrigger.querySelector('.number-page-active');
+
+rowsTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  document.querySelectorAll('.dropdown-menu').forEach(menu => {
+    if (menu !== rowsMenu) menu.classList.remove('active');
+  });
+  rowsMenu.classList.toggle('active');
+});
+
+['50 Rows', '100 Rows', '200 Rows', '400 Rows', '600 Rows', '1000 Rows'].forEach(item => {
+  const div = document.createElement('div');
+  div.className = 'dropdown-item';
+  div.textContent = item;
+  div.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const newRows = parseInt(item);
+    rowsActive.textContent = newRows;
+    rowsMenu.classList.remove('active');
+    
+    // Update rowsPerPage dan reset ke halaman 1
+    rowsPerPage = newRows;
+    currentPage = 1;
+    renderPaginatedTable();
+    updatePaginationUI();
+  });
+  rowsMenu.appendChild(div);
+});
+
+document.querySelector('.left-frist-page').addEventListener('click', () => goToPage(1));
+document.querySelector('.left-one-page').addEventListener('click', () => goToPage(currentPage - 1));
+document.querySelector('.right-one-page').addEventListener('click', () => goToPage(currentPage + 1));
+document.querySelector('.right-frist-page').addEventListener('click', () => {
+  const totalPages = Math.ceil(globalTrades.length / rowsPerPage);
+  goToPage(totalPages);
+});
 
 // =================== Dashboard Header =================== //
 async function updateEquityStats() {
@@ -1409,10 +1606,6 @@ function updateDatePicker() {
 function formatFullDate(date) {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
     return date.toLocaleDateString('en-US', options);
-}
-
-function formatCurrency(value) {
-    return new Intl.NumberFormat('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(value);
 }
 
 function renderCalendar() {

@@ -10,7 +10,6 @@ async function checkAuthStatus() {
     const boxNoLogin = document.querySelector('.box-no-loggin');
     const boxLogin = document.querySelector('.box-loggin');
     const profileImg = document.querySelector('.box-profile img');
-    const svgIcon = document.querySelector('.box-profile svg');
     const emailAccount = document.getElementById('emailAccount');
 
     if (user) {
@@ -20,22 +19,18 @@ async function checkAuthStatus() {
         if (emailAccount) emailAccount.textContent = user.email;
 
         const cachedAvatar = localStorage.getItem('avatar');
-        if (cachedAvatar) {
-            if (profileImg) {
-                profileImg.src = cachedAvatar;
-                profileImg.style.display = 'block';
-            }
-            if (svgIcon) svgIcon.style.display = 'none';
-        } else {
-            if (profileImg) profileImg.style.display = 'none';
-            if (svgIcon) svgIcon.style.display = 'block';
+        if (profileImg) {
+            profileImg.src = cachedAvatar || 'Asset/User.png';
         }
     } else {
         if (boxNoLogin) boxNoLogin.style.display = 'flex';
         if (boxLogin) boxLogin.style.display = 'none';
+
         if (emailAccount) emailAccount.textContent = '';
-        if (profileImg) profileImg.style.display = 'none';
-        if (svgIcon) svgIcon.style.display = 'block';
+
+        if (profileImg) {
+            profileImg.src = 'Asset/User.png';
+        }
     }
 }
 
