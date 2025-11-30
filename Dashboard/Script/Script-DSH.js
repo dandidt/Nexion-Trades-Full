@@ -351,13 +351,20 @@ async function loadTradingData() {
   globalTrades = data;
   originalTrades = [...data];
 
-  // Reset ke halaman 1 setiap kali load ulang
-  currentPage = 1;
+  // JANGAN reset ke halaman 1. Biarkan currentPage tetap seperti sebelumnya.
+  // currentPage = 1; // <-- Hapus baris ini
   rowsPerPage = parseInt(document.querySelector('#rowsSelector .number-page-active').textContent) || 50;
 
-  renderPaginatedTable(); // <-- ubah ini
-  initSorting();
-  updatePaginationUI(); // <-- tambahkan ini
+  // Penting: Update UI pagination DULU untuk menyesuaikan currentPage jika jumlah total halaman berubah
+  updatePaginationUI(); // <-- Pindahkan ini ke sebelum renderPaginatedTable
+  // Atau pastikan updatePaginationUI() dipanggil SEBELUM render, mungkin panggil manual sekali di sini
+  // Atau panggil updatePaginationUI() di awal renderPaginatedTable sebelum menghitung startIndex/endIndex
+  // Lebih aman jika updatePaginationUI() menyesuaikan currentPage sebelum render.
+  // updatePaginationUI() sudah menyesuaikan currentPage, jadi ini OK.
+
+  renderPaginatedTable(); // <-- render halaman saat ini (setelah disesuaikan oleh updatePaginationUI jika perlu)
+  initSorting(); // <-- ini tetap di sini, karena header bisa berubah ikonnya
+  // updatePaginationUI(); // <-- Hapus baris ini dari sini, karena sudah dipanggil sebelum render
 }
 
 function isTradeItem(item) {
@@ -2561,7 +2568,8 @@ async function updateAllUI() {
   try {
     const data = await getDB();
 
-    renderTradingTable(data);
+    // renderTradingTable(data);
+    await loadTradingData()
     updateDashboardFromTrades(data);
     await updateEquityStats();
     await updateTradeStats();

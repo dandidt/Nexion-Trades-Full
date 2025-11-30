@@ -1357,11 +1357,6 @@ function handleCancelEdit() {
             });
         });
 
-        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        if (typeof renderTradingTable === "function") {
-            renderTradingTable(dbTrade);
-        }
-
         console.log("[UI] Edit popup closed & state reset");
     } catch (err) {
         console.error("handleCancelEdit error:", err);
