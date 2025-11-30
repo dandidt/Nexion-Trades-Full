@@ -42,6 +42,8 @@ if (!profileBox || !popupAccount) {
             popupAccount.style.display = 'none';
             window.removeEventListener('scroll', positionPopup);
             window.removeEventListener('resize', positionPopup);
+
+            forceCloseLogoutPopup();
         } else {
             popupAccount.style.display = 'block';
             positionPopup();
@@ -65,6 +67,79 @@ if (!profileBox || !popupAccount) {
         }
     });
 }
+
+// ------ Logout ------ //
+let logoutPopupAnchor = null;
+
+function showLogoutPopupAccount(anchorBtn) {
+    const popup = document.querySelector(".container-logout");
+    if (!popup) return;
+
+    logoutPopupAnchor = anchorBtn;
+
+    const rect = anchorBtn.getBoundingClientRect();
+    const top = rect.bottom + -8;
+    const left = rect.left + 85;
+
+    popup.style.top = `${top}px`;
+    popup.style.left = `${left}px`;
+    popup.style.display = "block";
+
+    setTimeout(() => {
+        document.addEventListener("click", hideLogoutPopupAccount);
+    }, 10);
+}
+
+function hideLogoutPopupAccount(e) {
+    const popup = document.querySelector(".container-logout");
+    if (popup && !popup.contains(e.target) && e.target !== logoutPopupAnchor) {
+        popup.style.display = "none";
+        document.removeEventListener("click", hideLogoutPopupAccount);
+        logoutPopupAnchor = null;
+    }
+}
+
+function forceCloseLogoutPopup() {
+    const popup = document.querySelector(".container-logout");
+    if (popup) {
+        popup.style.display = "none";
+        document.removeEventListener("click", hideLogoutPopupAccount);
+        logoutPopupAnchor = null;
+    }
+}
+
+document.getElementById("logoutAccount")?.addEventListener("click", function (e) {
+    e.stopPropagation();
+    showLogoutPopupAccount(this);
+});
+
+document.querySelector(".signout-btn-universal")?.addEventListener("click", async () => {
+    try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const currentUserId = session?.user?.id;
+
+        localStorage.removeItem('dbtrade');
+        localStorage.removeItem('avatar');
+
+        const savedRaw = localStorage.getItem('saved_accounts');
+        let savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];
+        savedAccounts = savedAccounts.filter(acc => acc.user_id !== currentUserId);
+        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
+        // ---------------------------------------
+
+        const { error } = await supabaseClient.auth.signOut();
+        if (error) throw error;
+
+        const isGithub = window.location.hostname.includes("github.io");
+        const target = isGithub
+            ? "/Nexion-Trades-Full/index.html"
+            : "/index.html";
+        window.location.href = target;
+
+    } catch (err) {
+        console.error("Logout error:", err);
+    }
+});
 
 // ------ Account Icon ------ //
 function renderNavbarAvatar() {
@@ -1370,24 +1445,21 @@ function showConfirmPopup(message) {
         const msg = document.getElementById("confirmMessage");
         const yes = document.getElementById("confirmYes");
         const no = document.getElementById("confirmNo");
+        const popupContent = document.querySelector(".confirm-popup-content");
 
         msg.textContent = message;
 
         popup.style.zIndex = "99999";
-
         popup.classList.remove("hidden");
-
         popup.offsetHeight;
 
         const cleanup = (result) => {
-            popup.style.animation = "fadeOut 0.2s ease-out";
-
             setTimeout(() => {
                 popup.classList.add("hidden");
-                popup.style.animation = "";
                 yes.removeEventListener("click", onYes);
                 no.removeEventListener("click", onNo);
                 document.removeEventListener("keydown", onEscKey);
+                document.removeEventListener("click", onOutsideClick);
                 resolve(result);
             }, 200);
         };
@@ -1403,7 +1475,11 @@ function showConfirmPopup(message) {
         };
 
         const onEscKey = (e) => {
-            if (e.key === "Escape") {
+            if (e.key === "Escape") cleanup(false);
+        };
+
+        const onOutsideClick = (e) => {
+            if (!popupContent.contains(e.target)) {
                 cleanup(false);
             }
         };
@@ -1411,6 +1487,7 @@ function showConfirmPopup(message) {
         yes.addEventListener("click", onYes);
         no.addEventListener("click", onNo);
         document.addEventListener("keydown", onEscKey);
+        popup.addEventListener("click", onOutsideClick);
     });
 }
 
@@ -3044,3 +3121,33 @@ shareButtons.forEach((btn) => {
         window.open(url, '_blank');
     });
 });
+
+// ======================= Block 1000px ======================= //
+function checkDeviceWidth() {
+    const minWidth = 999;
+    let overlay = document.getElementById("deviceBlocker");
+
+    if (window.innerWidth < minWidth) {
+        if (!overlay) {
+            overlay = document.createElement("div");
+            overlay.id = "deviceBlocker";
+
+            overlay.innerHTML = `
+                <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3"><path d="M0-160v-60h141v-42q-24 0-42-18t-18-42v-458q0-24 18-42t42-18h678q24 0 42 18t18 42v458q0 24-18 42t-42 18v42h141v60H0Zm141-162h678v-458H141v458Zm0 0v-458 458Z"/></svg>
+                <h1>Desktop Required</h1>
+                <p>This website is optimized for desktop computers only. Your device screen is too small to display this site properly.</p>
+            `;
+
+            document.body.appendChild(overlay);
+            document.body.style.overflow = "hidden";
+        }
+    } else {
+        if (overlay) {
+            overlay.remove();
+            document.body.style.overflow = "";
+        }
+    }
+}
+
+window.addEventListener("load", checkDeviceWidth);
+window.addEventListener("resize", checkDeviceWidth);

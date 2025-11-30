@@ -239,30 +239,6 @@
                 <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M360-144v-144H192l288-336 288 336H600v144H360ZM192-480l288-336 288 336h-95L480-706 287-480h-95Z"/></svg>
             </div>
 
-            <!-- POPUP KONFIRMASI DELETE -->
-            <div id="confirmPopup" class="hidden">
-                <div class="confirm-popup-content">
-                    <!-- Icon Warning -->
-                    <div class="confirm-icon-wrapper">
-                        <div class="confirm-icon-circle">
-                            <svg class="confirm-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-                            </svg>
-                        </div>
-                    </div>
-                    
-                    <!-- Message -->
-                    <h3 class="confirm-title">Confirm Delete</h3>
-                    <p id="confirmMessage" class="confirm-message"></p>
-                    
-                    <!-- Buttons -->
-                    <div class="confirm-buttons">
-                        <button id="confirmNo" class="btn btn-default btn-delete">Cancel</button>
-                        <button id="confirmYes" class="btn btn-red btn-delete">Confirm</button>
-                    </div>
-                </div>
-            </div>
-
         </section>
 
         <!-- ===== Statistic Section ===== -->
@@ -1633,6 +1609,30 @@
             </div>
         </div>
 
+        <!-- ===== Delete Data ===== -->
+        <div id="confirmPopup" class="hidden">
+            <div class="confirm-popup-content">
+                <!-- Icon Warning -->
+                <div class="confirm-icon-wrapper">
+                    <div class="confirm-icon-circle">
+                        <svg class="confirm-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Message -->
+                <h3 class="confirm-title">Confirm Delete</h3>
+                <p id="confirmMessage" class="confirm-message"></p>
+                
+                <!-- Buttons -->
+                <div class="confirm-buttons">
+                    <button id="confirmNo" class="btn btn-default btn-delete">Cancel</button>
+                    <button id="confirmYes" class="btn btn-red btn-delete">Confirm</button>
+                </div>
+            </div>
+        </div>
+
         <!-- ===== Caculate ===== -->
         <div class="popup-container popup-caculate">
             <h1>Trading Calculator</h1>
@@ -1934,32 +1934,6 @@
             </div>
         </div>
 
-        <!-- ===== Logout ===== -->
-        <div id="logoutModal" class="hidden">
-            <div class="confirm-popup-content">
-                <!-- Icon Logout -->
-                <div class="confirm-icon-wrapper">
-                    <div class="confirm-icon-circle" style="background: linear-gradient(135deg, var(--red) 0%, var(--red-primary) 100%);">
-                        <svg class="confirm-icon-svg" fill="none" stroke="white" stroke-width="2.5" viewBox="0 0 24 24">
-                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                            <polyline points="16 17 21 12 16 7"></polyline>
-                            <line x1="21" y1="12" x2="9" y2="12"></line>
-                        </svg>
-                    </div>
-                </div>
-
-                <!-- Message -->
-                <h3 class="confirm-title">Logout</h3>
-                <p class="confirm-message">Are you sure you want to log out of this account?</p>
-
-                <!-- Buttons -->
-                <div class="confirm-buttons">
-                    <button id="cancelLogoutBtn" class="btn btn-default btn-delete">Cancel</button>
-                    <button id="confirmLogoutBtn" class="btn btn-red btn-delete">Logout</button>
-                </div>
-            </div>
-        </div>
-
         <!-- ===== Edit Dropdown ===== -->
         <div id="editDropdownModal" class="modal container-edit-dropdown">
             <h3>Edit Dropdown: <span id="editDropdownName"></span></h3>
@@ -2024,7 +1998,7 @@
             </div>
             <button class="btn btn-default btn-add-account">Add an account</button>
 
-            <div class="btn btn-logout" id="closeAccount">
+            <div class="btn btn-default btn-close-account" id="closeAccount">
                 <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
             </div>
         </div>

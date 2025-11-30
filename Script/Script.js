@@ -41,8 +41,16 @@ document.addEventListener('DOMContentLoaded', () => {
 // ----- Logout ----- //
 async function handleLogout() {
     try {
+        const { data: { session } } = await supabaseClient.auth.getSession();
+        const currentUserId = session?.user?.id;
+
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbtrade');
+
+        const savedRaw = localStorage.getItem('saved_accounts');
+        let savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];
+        savedAccounts = savedAccounts.filter(acc => acc.user_id !== currentUserId);
+        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
 
         const { error } = await supabaseClient.auth.signOut();
         if (error) throw error;
@@ -55,7 +63,7 @@ async function handleLogout() {
     }
 }
 
-
+// ----- Event Modal Logout -----
 document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
     e.preventDefault();
     document.getElementById('logoutModal').style.display = 'flex';
