@@ -2480,6 +2480,14 @@ circle.segment {
 
 @keyframes fillChart { from { stroke-dashoffset: 628; } }
 
+.wrapper-paris-identifier {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 380px;
+    overflow-y: auto;
+}
+
 .box-identifier-pairs {
     display: flex;
     flex-direction: column;
@@ -2781,6 +2789,7 @@ circle.segment {
     padding: 20px;
     background: var(--bg-20);
     border: 1px solid var(--bg-38);
+    max-height: 420px;
 }
 
 .container-stats-pairs h2 {
@@ -2797,6 +2806,10 @@ circle.segment {
     border-radius: 8px;
     padding: 0 4px;
     overflow: hidden;
+}
+
+.pairs-body {
+    overflow-y: auto;
 }
 
 /* Header */
@@ -4108,6 +4121,7 @@ input[type="number"]::placeholder {
     width: 100%;
     border: 1px solid var(--bg-55);
     border-left: 2px solid var(--green);
+    cursor: pointer;
 }
 
 .rule-info {
@@ -4237,6 +4251,37 @@ input[type="number"]::placeholder {
 .btn-sop {
     padding: 10px 0;
 }
+
+/* ------ Popup Logout ------ */
+.popup-edit-sop {
+    width: 320px;
+    padding: 24px;
+    text-align: center;
+}
+
+.popup-edit-sop .popup-title {
+    margin: 0 0 12px;
+    font-size: 18px;
+}
+
+.popup-edit-sop .edit-rule-label {
+    font-size: 14px;
+    color: var(--text-secondary, #888);
+    margin-bottom: 16px;
+}
+
+.popup-edit-sop .popup-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: space-between;
+    margin-top: 20px;
+}
+
+.btn-edit-sop {
+    padding: 10px 0;
+    flex: 1;
+}
+
 
 /* ------ Popup Logout ------ */
 #logoutModal {

@@ -1667,26 +1667,35 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
 });
 
 // ======================= Popup SOP  ======================= //
+let globalPopupOverlay = null;
+let globalPopupSop = null;
+
+function closePopupSop() {
+    if (!globalPopupSop || !globalPopupOverlay) return;
+    globalPopupSop.classList.remove("show");
+    globalPopupOverlay.classList.remove("show");
+    document.body.classList.remove("popup-open");
+    document.body.style.overflow = "";
+}
+
+function openPopupSop() {
+    if (!globalPopupSop || !globalPopupOverlay) return;
+    closePopupSop(); 
+    
+    document.body.classList.add("popup-open");
+    document.body.style.overflow = "hidden";
+    globalPopupOverlay.classList.add("show");
+    globalPopupSop.classList.add("show");
+}
+
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupSop = document.querySelector(".popup-sop");
     const btnSopTrading = document.getElementById("sopTrading");
 
-    function closePopupSop() {
-        popupSop?.classList.remove("show");
-        popupOverlay?.classList.remove("show");
-        document.body.classList.remove("popup-open");
-        document.body.style.overflow = "";
-    }
-
-    function openPopupSop() {
-        closePopupSop(); 
-        
-        document.body.classList.add("popup-open");
-        document.body.style.overflow = "hidden";
-        popupOverlay?.classList.add("show");
-        popupSop?.classList.add("show");
-    }
+    // Simpan referensi global
+    globalPopupOverlay = popupOverlay;
+    globalPopupSop = popupSop;
 
     if (btnSopTrading) {
         btnSopTrading.addEventListener("click", openPopupSop);
@@ -1925,18 +1934,77 @@ function updateUI() {
     }
 }
 
-document.querySelectorAll('.editable').forEach(el => {
-    el.addEventListener('click', function() {
-        const ruleName = this.getAttribute('data-rule');
-        const currentValue = sopRules[ruleName];
-        const label = this.parentElement.querySelector('.rule-label').textContent;
-        
-        const newValue = prompt(`Edit ${label}\nMasukkan nilai baru:`, currentValue);
-        
-        if (newValue !== null && !isNaN(newValue) && newValue > 0) {
-            sopRules[ruleName] = parseInt(newValue);
-            saveSOP(sopRules);
-            updateUI();
+// ------ Popup Edit SOP ------ //
+document.addEventListener("DOMContentLoaded", () => {
+    const popupOverlay = document.querySelector(".popup-overlay");
+    const popupEdit = document.querySelector(".popup-edit-sop");
+    const editRuleLabel = document.getElementById("editRuleLabel");
+    const editRuleInput = document.getElementById("editRuleInput");
+    const cancelEditBtn = document.getElementById("cancelEditRule");
+    const saveEditBtn = document.getElementById("saveEditRule");
+
+    let currentRule = null;
+
+    // ✅ Perubahan: tutup edit → buka SOP lagi
+    function closePopupEdit() {
+        popupEdit?.classList.remove("show");
+        popupOverlay?.classList.remove("show");
+        document.body.classList.remove("popup-open");
+        document.body.style.overflow = "";
+        currentRule = null;
+
+        // 🔁 Buka kembali popup SOP setelah selesai edit
+        setTimeout(() => {
+            openPopupSop();
+        }, 100);
+    }
+
+    function openPopupEdit(ruleName, label, currentValue) {
+        const popupSop = document.querySelector(".popup-sop");
+        if (popupSop?.classList.contains("show")) {
+            popupSop.classList.remove("show");
+        }
+
+        currentRule = ruleName;
+        editRuleLabel.textContent = label;
+        editRuleInput.value = currentValue;
+        editRuleInput.focus();
+
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        popupOverlay?.classList.add("show");
+        popupEdit?.classList.add("show");
+    }
+
+    document.querySelectorAll(".rule-row").forEach(row => {
+        const editable = row.querySelector(".editable");
+        if (!editable) return;
+
+        row.addEventListener("click", () => {
+            const ruleName = editable.getAttribute("data-rule");
+            const label = editable.closest(".rule-info").querySelector(".rule-label").textContent;
+            const currentValue = sopRules[ruleName];
+            openPopupEdit(ruleName, label, currentValue);
+        });
+    });
+
+    cancelEditBtn?.addEventListener("click", closePopupEdit);
+    saveEditBtn?.addEventListener("click", () => {
+        const raw = editRuleInput.value.trim();
+        if (raw === "" || isNaN(raw) || parseInt(raw) <= 0) {
+            alert("Masukkan angka valid (> 0)");
+            return;
+        }
+
+        sopRules[currentRule] = parseInt(raw);
+        saveSOP(sopRules);
+        updateUI();
+        closePopupEdit(); // ✅ Ini akan trigger openPopupSop()
+    });
+
+    popupOverlay?.addEventListener("click", (e) => {
+        if (popupEdit?.classList.contains("show")) {
+            closePopupEdit(); // ✅ Ini juga akan trigger openPopupSop()
         }
     });
 });
