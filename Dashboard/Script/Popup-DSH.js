@@ -68,7 +68,7 @@ if (!profileBox || !popupAccount) {
     });
 }
 
-// ------ Logout ------ //
+// ------ Popup Setting Logout ------ //
 let logoutPopupAnchor = null;
 
 function showLogoutPopupAccount(anchorBtn) {
@@ -338,8 +338,15 @@ async function switchToAccount(refreshToken) {
         window.location.href = target;
 
     } catch (err) {
-        console.error("Switch account error:", err);
         alert("Failed to switch account. Please log in again.");
+
+        const isGithub = window.location.hostname.includes("github.io");
+
+        const signinTarget = isGithub
+            ? "/Nexion-Trades-Full/Html/signin.html"
+            : "/Html/signin.html";
+
+        window.location.href = signinTarget;
     }
 }
 
