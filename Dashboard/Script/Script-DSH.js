@@ -1567,40 +1567,14 @@ const currentMonthEl = document.getElementById('currentMonth');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
 const datePicker = document.getElementById('datePicker');
-const monthSelect = document.getElementById('monthSelect');
-const yearSelect = document.getElementById('yearSelect');
-const applyDateBtn = document.getElementById('applyDateBtn');
-const cancelDateBtn = document.getElementById('cancelDateBtn');
 
 let currentDate = new Date();
 const months = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
+    'January','February','March','April','May','June',
+    'July','August','September','October','November','December'
 ];
 const today = new Date();
-today.setHours(0, 0, 0, 0);
-
-function initDatePicker() {
-    months.forEach((month, index) => {
-        const opt = document.createElement('option');
-        opt.value = index;
-        opt.textContent = month;
-        monthSelect.appendChild(opt);
-    });
-
-    const currentYear = today.getFullYear();
-    for (let y = currentYear - 10; y <= currentYear + 10; y++) {
-        const opt = document.createElement('option');
-        opt.value = y;
-        opt.textContent = y;
-        yearSelect.appendChild(opt);
-    }
-}
-
-function updateDatePicker() {
-    monthSelect.value = currentDate.getMonth();
-    yearSelect.value = currentDate.getFullYear();
-}
+today.setHours(0,0,0,0);
 
 function formatFullDate(date) {
     const options = { day: 'numeric', month: 'long', year: 'numeric' };
@@ -1610,6 +1584,7 @@ function formatFullDate(date) {
 function renderCalendar() {
     if (!calendar) return;
     calendar.innerHTML = '';
+
     const year = currentDate.getFullYear();
     const month = currentDate.getMonth();
     currentMonthEl.textContent = `${months[month]} ${year}`;
@@ -1645,7 +1620,7 @@ function createDayCell(date) {
     const dateKey = getDateKey(date);
     const dayNum = date.getDate();
     const cellDate = new Date(date);
-    cellDate.setHours(0, 0, 0, 0);
+    cellDate.setHours(0,0,0,0);
 
     if (date.getMonth() !== currentDate.getMonth()) {
         dayCell.classList.add('other-month');
@@ -1661,7 +1636,7 @@ function createDayCell(date) {
 
     const dayNumber = document.createElement('div');
     dayNumber.className = 'day-number';
-    dayNumber.textContent = String(dayNum).padStart(2, '0');
+    dayNumber.textContent = String(dayNum).padStart(2,'0');
     dayCell.appendChild(dayNumber);
 
     const pnlValue = document.createElement('div');
@@ -1706,6 +1681,7 @@ function createDayCell(date) {
         }).format(Math.abs(rawValue));
 
         const sign = isPositive ? '+' : '-';
+
         valueEl.textContent = `${sign}$${formattedNumber}`;
         valueEl.className = `pnl-value ${isPositive ? 'positive' : 'negative'}`;
 
@@ -1736,27 +1712,136 @@ currentMonthEl.addEventListener('click', (e) => {
     datePicker.classList.toggle('active');
 });
 
+// ------ Calendar Dropdown ------ //
+let currentMonth = currentDate.getMonth();
+let currentYear = currentDate.getFullYear();
+
+function initDatePicker() {
+    const monthOptions = document.getElementById('monthOptions');
+    monthOptions.innerHTML = '';
+    months.forEach((month, index) => {
+        const option = document.createElement('div');
+        option.className = 'select-option';
+        option.dataset.value = index;
+        option.textContent = month;
+        option.addEventListener('click', () => selectMonth(index));
+        monthOptions.appendChild(option);
+    });
+
+    const yearOptions = document.getElementById('yearOptions');
+    yearOptions.innerHTML = '';
+    const baseYear = today.getFullYear();
+    for (let y = baseYear - 10; y <= baseYear + 10; y++) {
+        const option = document.createElement('div');
+        option.className = 'select-option';
+        option.dataset.value = y;
+        option.textContent = y;
+        option.addEventListener('click', () => selectYear(y));
+        yearOptions.appendChild(option);
+    }
+
+    setupCustomDropdowns();
+}
+
+function setupCustomDropdowns() {
+    const monthHeader = document.getElementById('monthHeader');
+    const yearHeader = document.getElementById('yearHeader');
+    const monthSelect = document.getElementById('monthSelectWrapper');
+    const yearSelect = document.getElementById('yearSelectWrapper');
+
+    monthHeader.addEventListener('click', (e) => {
+        e.stopPropagation();
+        monthSelect.classList.toggle('active');
+        yearSelect.classList.remove('active');
+    });
+
+    yearHeader.addEventListener('click', (e) => {
+        e.stopPropagation();
+        yearSelect.classList.toggle('active');
+        monthSelect.classList.remove('active');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!monthSelect.contains(e.target)) monthSelect.classList.remove('active');
+        if (!yearSelect.contains(e.target)) yearSelect.classList.remove('active');
+    });
+
+    updateMonthDisplay(currentMonth);
+    updateYearDisplay(currentYear);
+}
+
+function selectMonth(monthIndex) {
+    currentMonth = monthIndex;
+    updateMonthDisplay(monthIndex);
+    document.getElementById('monthSelectWrapper').classList.remove('active');
+}
+
+function selectYear(year) {
+    currentYear = year;
+    updateYearDisplay(year);
+    document.getElementById('yearSelectWrapper').classList.remove('active');
+}
+
+function updateMonthDisplay(monthIndex) {
+    const monthDisplay = document.getElementById('monthDisplay');
+    const monthOptions = document.querySelectorAll('#monthOptions .select-option');
+    
+    monthDisplay.textContent = months[monthIndex];
+    
+    monthOptions.forEach(option => {
+        option.classList.remove('selected');
+        if (parseInt(option.dataset.value) === monthIndex) {
+            option.classList.add('selected');
+        }
+    });
+}
+
+function updateYearDisplay(year) {
+    const yearDisplay = document.getElementById('yearDisplay');
+    const yearOptions = document.querySelectorAll('#yearOptions .select-option');
+    
+    yearDisplay.textContent = year;
+    
+    yearOptions.forEach(option => {
+        option.classList.remove('selected');
+        if (parseInt(option.dataset.value) === year) {
+            option.classList.add('selected');
+        }
+    });
+}
+
+function updateDatePicker() {
+    updateMonthDisplay(currentDate.getMonth());
+    updateYearDisplay(currentDate.getFullYear());
+}
+
 applyDateBtn.addEventListener('click', () => {
-    currentDate = new Date(yearSelect.value, monthSelect.value, 1);
+    currentDate = new Date(currentYear, currentMonth, 1);
     renderCalendar();
     datePicker.classList.remove('active');
+    document.getElementById('monthSelectWrapper').classList.remove('active');
+    document.getElementById('yearSelectWrapper').classList.remove('active');
 });
 
 cancelDateBtn.addEventListener('click', () => {
     datePicker.classList.remove('active');
-    updateDatePicker();
+    updateMonthDisplay(currentDate.getMonth());
+    updateYearDisplay(currentDate.getFullYear());
+    document.getElementById('monthSelectWrapper').classList.remove('active');
+    document.getElementById('yearSelectWrapper').classList.remove('active');
 });
 
 document.addEventListener('click', (e) => {
     if (!datePicker.contains(e.target) && e.target !== currentMonthEl) {
         datePicker.classList.remove('active');
         updateDatePicker();
+        document.getElementById('monthSelectWrapper').classList.remove('active');
+        document.getElementById('yearSelectWrapper').classList.remove('active');
     }
 });
 
 document.addEventListener('DOMContentLoaded', async () => {
     initDatePicker();
-    // Tunggu data selesai dimuat
     await Promise.all([
         loadMonthlyData(),
         loadDailyPnLData()
@@ -2345,146 +2430,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// ======================= Caculate Trading ======================= //
-document.addEventListener('DOMContentLoaded', function() {
-    const feeInput = document.getElementById('fee');
-    const riskInput = document.getElementById('risk');
-    const riskInfoEl = document.querySelector(".informasion-risk");
-    const localStorageKey = 'setting';
-
-    function saveSettings() {
-        const settings = {
-            fee: feeInput.value,
-            risk: riskInput.value
-        };
-
-        try {
-            localStorage.setItem(localStorageKey, JSON.stringify(settings));
-            console.log('Settings berhasil disimpan:', settings);
-        } catch (e) {
-            console.error('Gagal menyimpan ke localStorage:', e);
-        }
-    }
-
-    function loadSettings() {
-        try {
-            const savedSettings = localStorage.getItem(localStorageKey);
-            if (savedSettings) {
-                const settings = JSON.parse(savedSettings);
-                if (settings.fee !== undefined) feeInput.value = settings.fee;
-                if (settings.risk !== undefined) riskInput.value = settings.risk;
-                // Update tampilan risk info setelah load
-                renderRiskInfo();
-            }
-        } catch (e) {
-            console.error('Gagal memuat dari localStorage:', e);
-        }
-    }
-
-    // Fungsi renderRiskInfo didefinisikan di dalam DOMContentLoaded
-    function renderRiskInfo() {
-        if (riskInfoEl) {
-            const risk = parseFloat(setting.risk) || 0;
-            riskInfoEl.textContent = `Risk Persentase: ${risk}%`;
-        }
-    }
-
-    // Pasang event listener
-    if (feeInput) feeInput.addEventListener('input', saveSettings);
-    if (riskInput) {
-        riskInput.addEventListener('input', () => {
-            saveSettings();
-            renderRiskInfo(); // Update tampilan saat input berubah
-        });
-    }
-
-    // Load setting awal
-    loadSettings();
-    renderRiskInfo(); // Render awal
-});
-
+// ======================= Caculate ======================= //
 function getLocalData(key) {
     try {
         return JSON.parse(localStorage.getItem(key)) || null;
     } catch {
         return null;
-    }
-}
-
-const dbtrade = getLocalData("dbtrade") || [];
-const setting = getLocalData("setting") || { fee: 0, risk: 0 };
-
-const totalPnl = dbtrade.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
-
-const deposit = dbtrade.reduce((sum, trade) => {
-    if (trade.action && trade.action.toLowerCase() === "deposit") {
-        return sum + (parseFloat(trade.value) || 0);
-    }
-    return sum;
-}, 0);
-
-const balance = deposit + totalPnl;
-
-const riskPercent = (parseFloat(setting.risk) || 0) / 100;
-const feePercent = (parseFloat(setting.fee) || 0) / 100;
-
-const leverageInput = document.getElementById("inputLeverage");
-const stopLossInput = document.getElementById("inputStopLoss");
-
-const cachedData = JSON.parse(localStorage.getItem("calculate")) || {};
-if (cachedData.leverage) leverageInput.value = cachedData.leverage;
-if (cachedData.stopLoss) stopLossInput.value = cachedData.stopLoss;
-
-function calculate() {
-    const leverage = parseFloat(leverageInput.value);
-    const stopLoss = parseFloat(stopLossInput.value);
-
-    if (isNaN(leverage) || isNaN(stopLoss) || leverage <= 0 || stopLoss <= 0) return;
-
-    const riskPerTrade = balance * riskPercent;
-    const positionSize = riskPerTrade / (stopLoss / 100); // P Size
-    const margin = positionSize / leverage;               // Margin
-    const marginOpen = (margin / balance) * 100;          // Margin %
-
-    const roiTP = stopLoss * leverage;   // ROI TP positif
-    const roiSL = -stopLoss * leverage;  // ROI SL negatif
-
-    const feeValue = positionSize * feePercent / 100;
-
-    const values = document.querySelectorAll(".value-caculate");
-    values[0].textContent = formatUSD(positionSize);       // P. Size
-    values[1].textContent = formatUSD(margin);             // Margin
-    values[2].textContent = `${marginOpen.toFixed(2)}%`;      // Margin Open
-    values[3].textContent = formatUSD(feeValue);           // Fee
-    values[4].textContent = `${roiTP.toFixed(2)}%`;           // ROI TP
-    values[5].textContent = `${roiSL.toFixed(2)}%`;           // ROI SL
-
-    document.querySelector(".risk-value").textContent = formatUSD(riskPerTrade);
-
-    localStorage.setItem("calculate", JSON.stringify({
-        leverage: leverageInput.value,
-        stopLoss: stopLossInput.value
-    }));
-}
-
-document.querySelector(".popup-caculate").addEventListener("click", function (e) {
-    const row = e.target.closest(".row-if");
-    if (row) {
-        const valueEl = row.querySelector(".value-caculate");
-        if (valueEl) {
-            let text = valueEl.textContent.replace('$', '');
-            navigator.clipboard.writeText(text)
-                .then(() => showToast(`Copied: ${text}`))
-                .catch(() => showToast(`Gagal copy`));
-        }
-    }
-});
-
-function renderRiskInfo() {
-    const riskInfoEl = document.querySelector(".informasion-risk");
-    if (riskInfoEl) {
-        const risk = parseFloat(setting.risk) || 0;
-        riskInfoEl.textContent = `Risk Persentase: ${risk}%`;
     }
 }
 
@@ -2500,10 +2451,130 @@ function showToast(message) {
     setTimeout(() => toast.classList.remove("show"), 2000);
 }
 
-leverageInput.addEventListener("input", calculate);
-stopLossInput.addEventListener("input", calculate);
+document.addEventListener('DOMContentLoaded', function () {
+    const feeInput = document.getElementById('fee');
+    const riskInput = document.getElementById('risk');
+    const riskInfoEl = document.querySelector(".informasion-risk");
+    const leverageInput = document.getElementById("inputLeverage");
+    const stopLossInput = document.getElementById("inputStopLoss");
+    const localStorageKey = 'setting';
 
-calculate();
+    const cachedData = getLocalData("calculate") || {};
+    if (cachedData.leverage) leverageInput.value = cachedData.leverage;
+    if (cachedData.stopLoss) stopLossInput.value = cachedData.stopLoss;
+
+    function saveSettings() {
+        const settings = {
+            fee: feeInput?.value || 0,
+            risk: riskInput?.value || 0
+        };
+        try {
+            localStorage.setItem(localStorageKey, JSON.stringify(settings));
+        } catch (e) {
+            console.error('Gagal menyimpan ke localStorage:', e);
+        }
+    }
+
+    function loadSettings() {
+        const saved = getLocalData(localStorageKey);
+        if (saved) {
+            if (feeInput && saved.fee !== undefined) feeInput.value = saved.fee;
+            if (riskInput && saved.risk !== undefined) riskInput.value = saved.risk;
+        }
+        renderRiskInfo();
+    }
+
+    function renderRiskInfo() {
+        if (riskInfoEl) {
+            const setting = getLocalData(localStorageKey) || { risk: 0 };
+            const risk = parseFloat(setting.risk) || 0;
+            riskInfoEl.textContent = `Risk Persentase: ${risk}%`;
+        }
+    }
+
+    async function calculate() {
+        await getDB();
+
+        const leverage = parseFloat(leverageInput?.value);
+        const stopLoss = parseFloat(stopLossInput?.value);
+
+        if (isNaN(leverage) || isNaN(stopLoss) || leverage <= 0 || stopLoss <= 0) return;
+
+        const setting = getLocalData("setting") || { fee: 0, risk: 0 };
+        const dbtrade = getLocalData("dbtrade") || [];
+
+        const totalPnl = dbtrade.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
+        const deposit = dbtrade.reduce((sum, trade) => {
+            if (trade.action && trade.action.toLowerCase() === "deposit") {
+                return sum + (parseFloat(trade.value) || 0);
+            }
+            return sum;
+        }, 0);
+        const balance = deposit + totalPnl;
+
+        const riskPercent = (parseFloat(setting.risk) || 0) / 100;
+        const feePercent = (parseFloat(setting.fee) || 0) / 100;
+
+        const riskPerTrade = balance * riskPercent;
+        const positionSize = riskPerTrade / (stopLoss / 100);
+        const margin = positionSize / leverage;
+        const marginOpen = (margin / balance) * 100;
+        const roiTP = stopLoss * leverage;
+        const roiSL = -stopLoss * leverage;
+        const feeValue = positionSize * feePercent / 100;
+
+        const values = document.querySelectorAll(".value-caculate");
+        if (values.length >= 6) {
+            values[0].textContent = formatUSD(positionSize);
+            values[1].textContent = formatUSD(margin);
+            values[2].textContent = `${marginOpen.toFixed(2)}%`;
+            values[3].textContent = formatUSD(feeValue);
+            values[4].textContent = `${roiTP.toFixed(2)}%`;
+            values[5].textContent = `${roiSL.toFixed(2)}%`;
+        }
+
+        const riskValueEl = document.querySelector(".risk-value");
+        if (riskValueEl) {
+            riskValueEl.textContent = formatUSD(riskPerTrade);
+        }
+
+        localStorage.setItem("calculate", JSON.stringify({
+            leverage: leverageInput.value,
+            stopLoss: stopLossInput.value
+        }));
+    }
+
+    window.addEventListener('recalculateTrading', calculate);
+
+    // Copy to clipboard on popup click
+    document.querySelector(".popup-caculate")?.addEventListener("click", function (e) {
+        const row = e.target.closest(".row-if");
+        if (row) {
+            const valueEl = row.querySelector(".value-caculate");
+            if (valueEl) {
+                let text = valueEl.textContent.replace('$', '').replace(/,/g, '');
+                navigator.clipboard.writeText(text)
+                    .then(() => showToast(`Copied: ${text}`))
+                    .catch(() => showToast("Gagal copy"));
+            }
+        }
+    });
+
+    // Event listeners
+    feeInput?.addEventListener('input', saveSettings);
+    riskInput?.addEventListener('input', () => {
+        saveSettings();
+        renderRiskInfo();
+        calculate();
+    });
+
+    leverageInput?.addEventListener("input", calculate);
+    stopLossInput?.addEventListener("input", calculate);
+
+    // Init
+    loadSettings();
+    calculate();
+});
 
 // ======================= Update UI Global ======================= //
 async function updateAllUI() {
@@ -2523,7 +2594,8 @@ async function updateAllUI() {
     await updatePairsTable();
     await loadMonthlyData(); 
     await loadDailyPnLData();
-    calculate();
+
+    window.dispatchEvent(new Event('recalculateTrading'));
 
     console.log("✅ All UI updated successfully.");
   } catch (error) {

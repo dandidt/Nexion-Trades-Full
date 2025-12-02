@@ -611,8 +611,31 @@
                             <div class="current-month" id="currentMonth"></div>
                             <div class="date-picker" id="datePicker">
                                 <div class="date-picker-inputs">
-                                    <select id="monthSelect"></select>
-                                    <select id="yearSelect"></select>
+                                    <!-- Custom Month Dropdown -->
+                                    <div class="custom-select" id="monthSelectWrapper">
+                                        <div class="select-header" id="monthHeader">
+                                            <span id="monthDisplay">January</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16" fill="#e3e3e3">
+                                                <path d="M480-345 240-585l43-43 197 198 197-197 43 43-240 239Z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="select-options" id="monthOptions">
+                                            <!-- Options akan di-generate oleh JavaScript -->
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- Custom Year Dropdown -->
+                                    <div class="custom-select" id="yearSelectWrapper">
+                                        <div class="select-header" id="yearHeader">
+                                            <span id="yearDisplay">2024</span>
+                                            <svg xmlns="http://www.w3.org/2000/svg" height="16" viewBox="0 -960 960 960" width="16" fill="#e3e3e3">
+                                                <path d="M480-345 240-585l43-43 197 198 197-197 43 43-240 239Z"/>
+                                            </svg>
+                                        </div>
+                                        <div class="select-options" id="yearOptions">
+                                            <!-- Options akan di-generate oleh JavaScript -->
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="date-picker-buttons">
                                     <button class="btn btn-green date-picker-btn" id="applyDateBtn">Apply</button>
@@ -931,7 +954,7 @@
         <!-- ===== Add ===== -->
         <div class="popup-container popup-add">
             <div class="popup-header">
-                <h2>Add Journal</h2>
+                <h3>Add Journal</h3>
                 <div class="wrapper-add">
                     <div class="btn-radio-wrapper">
                         <button class="btn-radio btn-radio-add active">Trade</button>
@@ -1263,7 +1286,7 @@
         <!-- ===== Edit Add ===== -->
         <div class="popup-container popup-edit-trade">
             <div class="popup-header">
-                <h2>Edit Trade</h2>
+                <h3>Edit Trade</h3>
                 <div class="box-auto" id="btnAuto">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M279-288h74.96l39.45-110H567l39.31 110H681L518-720h-77L279-288Zm136-173 63.06-179H482l63 179H415Zm65.28 365Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30ZM480-480Zm.23 312Q610-168 701-259.23t91-221Q792-610 700.77-701t-221-91Q350-792 259-700.77t-91 221Q168-350 259.23-259t221 91Z"/></svg>
                 </div>
@@ -1551,9 +1574,7 @@
 
         <!-- ===== Edit Transfer ===== -->
         <div class="popup-container popup-edit-transfer">
-            <div class="popup-header">
-                <h2>Edit Transfer</h2>
-            </div>
+            <h3>Edit Transfer</h3>
 
             <div class="popup-body">
                 <div class="form-grid">
@@ -1639,7 +1660,7 @@
         <!-- ===== Caculate ===== -->
         <div class="popup-container popup-caculate">
             <div class="wrapper-title-caculate">
-                <h1>Trading Calculator</h1>
+                <h3>Trading Calculator</h3>
                 <p class="informasion-risk"></p>
             </div>
             
@@ -1709,10 +1730,10 @@
 
         <!-- ===== Share ===== -->
         <div class="popup-container popup-share">
-            <div class="box-header">
-                <h1>Share Profite</h1>
-                <div class="btn btn-default box-close-share" id="closeShare">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="25px" viewBox="0 -960 960 960" width="25px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+            <div class="popup-header">
+                <h3>Share Profite</h3>
+                <div class="btn btn-default btn-close" id="closeShare">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
                 </div>
             </div>
 
@@ -1745,11 +1766,17 @@
                     </div>
                 </div>
             </div>
+
         </div>
 
-        <!-- ===== Sop ===== -->
+        <!-- ===== Trading Rules ===== -->
         <div class="popup-container popup-sop">
-            <h1 class="title-sop">SOP Trading</h1>
+            <div class="popup-header">
+                <h3>Trading Rules</h3>
+                <div class="btn btn-default btn-close" id="closeSop">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                </div>
+            </div>
 
             <div class="container-sop">
                 <div class="wrapper-sop">
@@ -1866,10 +1893,9 @@
                 </div>
             </div>
 
-            <button class="btn btn-default btn-sop" id="closeSop">Close</button>
         </div>
 
-        <!-- ------ Sop Edit ------ -->
+        <!-- ------ Trading Rules Edit ------ -->
         <div class="popup-container popup-edit-sop">
             <h2 class="popup-title">Edit Rule</h2>
             <div class="edit-rule-label" id="editRuleLabel">Rule Name</div>
@@ -1885,7 +1911,7 @@
             <div class="wrapper-edit-profile">
                 <!-- Panel Kiri: Form Input -->
                 <div class="left-panel">
-                    <h2>Edit Profile</h2>
+                    <h3>Edit Profile</h3>
                     
                     <div class="form-group-profile">
                         <div class="row-main">
@@ -1980,7 +2006,7 @@
 
         <!-- ===== Swap Account ===== -->
         <div class="popup-container popup-account">
-            <h1>Manage Accounts</h1>
+            <h3>Manage Accounts</h3>
             <p class="subtitle-account">Switch accounts, sign in, sign out, go wild.</p>
             <div class="wrapper-account">
                 <!-- <div class="column-account">
@@ -2029,7 +2055,12 @@
 
         <!-- ===== Monthly ===== -->
         <div class="popup-container popup-monthly">
-            <h3>Mhonthly Report</h3>
+            <div class="popup-header">
+                <h3>Mhonthly Report</h3>
+                <div class="btn btn-default btn-close" id="closeMonthly">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                </div>
+            </div>
 
             <div class="maincontainer-stats">
                 <div class="leftcontainer">
@@ -2106,9 +2137,6 @@
                 </div>
             </div>
 
-            <div class="btn btn-default btn-close-monthly" id="closeMonthly">
-                <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
-            </div>
         </div>
 
         <!-- Script -->
