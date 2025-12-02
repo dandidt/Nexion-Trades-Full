@@ -351,20 +351,12 @@ async function loadTradingData() {
   globalTrades = data;
   originalTrades = [...data];
 
-  // JANGAN reset ke halaman 1. Biarkan currentPage tetap seperti sebelumnya.
-  // currentPage = 1; // <-- Hapus baris ini
   rowsPerPage = parseInt(document.querySelector('#rowsSelector .number-page-active').textContent) || 50;
 
-  // Penting: Update UI pagination DULU untuk menyesuaikan currentPage jika jumlah total halaman berubah
-  updatePaginationUI(); // <-- Pindahkan ini ke sebelum renderPaginatedTable
-  // Atau pastikan updatePaginationUI() dipanggil SEBELUM render, mungkin panggil manual sekali di sini
-  // Atau panggil updatePaginationUI() di awal renderPaginatedTable sebelum menghitung startIndex/endIndex
-  // Lebih aman jika updatePaginationUI() menyesuaikan currentPage sebelum render.
-  // updatePaginationUI() sudah menyesuaikan currentPage, jadi ini OK.
+  updatePaginationUI();
 
-  renderPaginatedTable(); // <-- render halaman saat ini (setelah disesuaikan oleh updatePaginationUI jika perlu)
-  initSorting(); // <-- ini tetap di sini, karena header bisa berubah ikonnya
-  // updatePaginationUI(); // <-- Hapus baris ini dari sini, karena sudah dipanggil sebelum render
+  renderPaginatedTable();
+  initSorting();
 }
 
 function isTradeItem(item) {
@@ -1873,7 +1865,6 @@ function calculateMaxStreak(trades, targetType) {
 }
 
 updateTradingStats();
-
 
 async function updateTradeStats() {
   try {

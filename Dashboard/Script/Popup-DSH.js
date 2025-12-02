@@ -3197,6 +3197,314 @@ shareButtons.forEach((btn) => {
     });
 });
 
+// ======================= MONTHLY DETAIL POPUP TRIGGER ======================= //
+
+let selectedMonthlyEntry = null;
+
+function closeMonthlyPopup() {
+    const popup = document.querySelector(".popup-monthly");
+    const overlay = document.querySelector(".popup-overlay");
+    if (!popup || !overlay) return;
+
+    popup.classList.remove("show");
+    overlay.classList.remove("show");
+    document.body.classList.remove("popup-open");
+    document.body.style.overflow = "";
+}
+
+function calculateCumulativeBalanceUpToMonth(targetYear, targetMonth) {
+    let cumulativeBalance = 0;
+    
+    // Urutkan bulan dari yang paling lama
+    const sortedMonths = [...monthlyData].sort((a, b) => 
+        a.year - b.year || a.month - b.month
+    );
+    
+    // Akumulasi semua profitLoss sampai bulan target
+    for (const month of sortedMonths) {
+        cumulativeBalance += month.profitLoss;
+        
+        if (month.year === targetYear && month.month === targetMonth) {
+            break;
+        }
+    }
+    
+    return cumulativeBalance;
+}
+
+// Fungsi untuk menghitung statistik trading bulanan
+async function calculateMonthlyStats(targetYear, targetMonth) {
+    try {
+        const rawData = await getDB();
+        if (!Array.isArray(rawData)) return null;
+
+        // Filter data untuk bulan yang dipilih
+        const monthlyTrades = rawData.filter(item => {
+            if (!item.date) return false;
+            const tradeDate = new Date(item.date * 1000);
+            return tradeDate.getFullYear() === targetYear && 
+                   tradeDate.getMonth() === targetMonth;
+        });
+
+        // 1. Average Trade Stats
+        const validTrades = monthlyTrades.filter(t => 
+            t.Pnl !== null && t.Pnl !== undefined && t.Result !== 'Missed'
+        );
+
+        const profitTrades = validTrades.filter(t => t.Pnl > 0);
+        const lossTrades = validTrades.filter(t => t.Pnl < 0);
+
+        const avgProfit = profitTrades.length
+            ? parseFloat((profitTrades.reduce((sum, t) => sum + t.Pnl, 0) / profitTrades.length).toFixed(2))
+            : 0;
+
+        const avgLoss = lossTrades.length
+            ? parseFloat((Math.abs(lossTrades.reduce((sum, t) => sum + t.Pnl, 0)) / lossTrades.length).toFixed(2))
+            : 0;
+
+        const rrProfitTrades = profitTrades.filter(t => typeof t.RR === 'number');
+        const avgRR = rrProfitTrades.length
+            ? parseFloat((rrProfitTrades.reduce((sum, t) => sum + t.RR, 0) / rrProfitTrades.length).toFixed(2))
+            : 0;
+
+        // 2. Trade Statistics
+        let profit = 0, loss = 0, missed = 0, breakEven = 0;
+
+        monthlyTrades.forEach(item => {
+            switch (item.Result) {
+                case 'Profit': profit++; break;
+                case 'Loss': loss++; break;
+                case 'Missed': missed++; break;
+                case 'Break Even': breakEven++; break;
+            }
+        });
+
+        const totalTrade = profit + loss + missed + breakEven;
+        const totalTradeExecuted = profit + loss;
+        const winrate = totalTradeExecuted > 0
+            ? ((profit / totalTradeExecuted) * 100).toFixed(2)
+            : "0.00";
+
+        // 3. Streaks
+        const sortedValidTrades = [...validTrades].sort((a, b) => a.date - b.date);
+        const maxProfitStreak = calculateMaxStreak(sortedValidTrades, 'Profit');
+        const maxLossStreak = calculateMaxStreak(sortedValidTrades, 'Loss');
+
+        // 4. Daily streak untuk bulan ini
+        const daySet = new Set();
+        monthlyTrades.forEach(item => {
+            const day = new Date(item.date * 1000).setHours(0, 0, 0, 0);
+            daySet.add(day);
+        });
+
+        const sortedDays = Array.from(daySet).sort((a, b) => a - b);
+        const totalDailyTrade = sortedDays.length;
+
+        let bestStreak = 0;
+        let currentStreak = 0;
+        let lastDay = null;
+
+        for (const day of sortedDays) {
+            if (lastDay === null) {
+                currentStreak = 1;
+            } else {
+                const diff = (day - lastDay) / (1000 * 60 * 60 * 24);
+                if (diff === 1) currentStreak++;
+                else currentStreak = 1;
+            }
+            bestStreak = Math.max(bestStreak, currentStreak);
+            lastDay = day;
+        }
+
+        const dailyStreak = sortedDays.length > 0 ? currentStreak : 0;
+
+        return {
+            // Average Trade
+            avgProfit,
+            avgLoss,
+            avgRR,
+            maxProfitStreak,
+            maxLossStreak,
+            
+            // Trade Statistics
+            winrate,
+            totalTrade,
+            profit,
+            loss,
+            missed,
+            breakEven,
+            totalTradeExecuted,
+            
+            // Daily Stats
+            totalDailyTrade,
+            dailyStreak,
+            bestStreak
+        };
+
+    } catch (error) {
+        console.error('Error calculating monthly stats:', error);
+        return null;
+    }
+}
+
+function calculateMaxStreak(trades, targetType) {
+    let maxStreak = 0;
+    let currentStreak = 0;
+
+    for (const trade of trades) {
+        if (trade.Result === targetType) {
+            currentStreak++;
+            if (currentStreak > maxStreak) maxStreak = currentStreak;
+        } else if (trade.Result === 'Loss' || trade.Result === 'Profit') {
+            currentStreak = 0;
+        }
+    }
+
+    return maxStreak;
+}
+
+// Fungsi untuk update popup dengan data bulan yang dipilih
+async function updateMonthlyPopupData(monthData) {
+    if (!monthData) return;
+    
+    // 1. Update balanceValueMonthly (total kumulatif sampai bulan ini)
+    const cumulativeBalance = calculateCumulativeBalanceUpToMonth(monthData.year, monthData.month);
+    const balanceElement = document.getElementById("balanceValueMonthly");
+    if (balanceElement) {
+        balanceElement.textContent = formatCurrencyCompact(cumulativeBalance);
+    }
+    
+    // 2. Update pnlgainMonthly (profit loss bulan ini + persentase)
+    const pnlElement = document.getElementById("pnlgainMonthly");
+    if (pnlElement) {
+        const profitLoss = monthData.profitLoss;
+        const returnRate = monthData.returnRate;
+        
+        // Format untuk profitLoss
+        const profitLossFormatted = formatCurrencyCompact(profitLoss);
+        
+        // Format untuk returnRate
+        let returnRateFormatted = "N/A";
+        if (returnRate !== null && !isNaN(returnRate)) {
+            const sign = returnRate >= 0 ? "+" : "";
+            returnRateFormatted = `${sign}${formatPercent(returnRate)}`;
+        }
+        
+        // Tampilkan: +$1,000.00 (+10.50%)
+        const sign = profitLoss >= 0 ? "+" : "";
+        pnlElement.textContent = `${sign}${profitLossFormatted} (${returnRateFormatted})`;
+        
+        // Tambahkan class untuk styling warna
+        pnlElement.className = `pnl-value-monthly ${profitLoss >= 0 ? 'positive' : 'negative'}`;
+    }
+
+    // 3. Hitung dan update semua statistik bulanan
+    const monthlyStats = await calculateMonthlyStats(monthData.year, monthData.month);
+    
+    if (monthlyStats) {
+        // Update Average Trade Stats
+        document.getElementById('averageProfitMonthly').textContent = formatUSD(monthlyStats.avgProfit);
+        document.getElementById('averageLossMonthly').textContent = formatUSD(monthlyStats.avgLoss);
+        document.getElementById('averageRRMonthly').textContent = monthlyStats.avgRR.toFixed(2);
+        
+        // Update Trade Statistics
+        document.getElementById('winrateMonthly').textContent = `${monthlyStats.winrate}%`;
+        document.getElementById('alltredeMonthly').textContent = monthlyStats.totalTrade;
+        document.getElementById('tradeprofitMonthly').textContent = monthlyStats.profit;
+        document.getElementById('tradelossMonthly').textContent = monthlyStats.loss;
+        document.getElementById('trademissedMonthly').textContent = monthlyStats.missed;
+        document.getElementById('tradebreakevenMonthly').textContent = monthlyStats.breakEven;
+        document.getElementById('profitstreakMonthly').textContent = monthlyStats.maxProfitStreak;
+        document.getElementById('lossstreakMonthly').textContent = monthlyStats.maxLossStreak;
+        
+        // Update Daily Stats (opsional - jika ada elemen HTML-nya)
+        // document.getElementById('totalDailyTradeMonthly').textContent = monthlyStats.totalDailyTrade;
+        // document.getElementById('dailyStreakMonthly').textContent = monthlyStats.dailyStreak;
+        // document.getElementById('bestStreakMonthly').textContent = monthlyStats.bestStreak;
+    }
+}
+
+// Tutup popup saat tombol close diklik atau overlay diklik
+document.addEventListener("DOMContentLoaded", () => {
+    const popupMonthly = document.querySelector(".popup-monthly");
+    const closeBtn = document.getElementById("closeMonthly");
+    const overlay = document.querySelector(".popup-overlay");
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", closeMonthlyPopup);
+    }
+    if (overlay) {
+        overlay.addEventListener("click", closeMonthlyPopup);
+    }
+
+    // Event delegation pada grid bulanan
+    const grid = document.getElementById("monthsGrid");
+    if (!grid) return;
+
+    grid.addEventListener("click", async (e) => {  // tambahkan async di sini
+        const card = e.target.closest(".month-card");
+        if (!card) return;
+
+        // Ambil teks dari .month-name, contoh: "Nov 2025"
+        const monthNameText = card.querySelector(".month-name")?.textContent?.trim();
+        if (!monthNameText) return;
+
+        // Parsing: "Nov 2025" → bulan = 10 (Nov = index 10), tahun = 2025
+        const parts = monthNameText.split(" ");
+        const monthStr = parts[0]; // "Nov"
+        const year = parseInt(parts[1], 10); // 2025
+
+        const monthIndex = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(monthStr);
+        if (monthIndex === -1 || isNaN(year)) {
+            console.warn("Invalid month format:", monthNameText);
+            return;
+        }
+
+        // Cari data di monthlyData (global)
+        const matchedEntry = monthlyData.find(
+            m => m.month === monthIndex && m.year === year
+        );
+
+        if (!matchedEntry) {
+            console.warn("No monthly data found for", monthStr, year);
+            return;
+        }
+
+        // Simpan sementara
+        selectedMonthlyEntry = matchedEntry;
+
+        // Nama bulan lengkap dalam bahasa Inggris
+        const fullMonthNames = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        // Update judul popup dengan nama bulan lengkap
+        const titleEl = popupMonthly?.querySelector("h3");
+        if (titleEl) {
+            const fullMonthName = fullMonthNames[monthIndex] || monthStr;
+            titleEl.textContent = `Monthly Report ${fullMonthName}`;
+        }
+
+        // Update data di popup dengan data yang dipilih
+        await updateMonthlyPopupData(matchedEntry);
+
+        // Tutup popup lain, buka monthly
+        closeAllOtherPopups();
+
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        overlay?.classList.add("show");
+        popupMonthly?.classList.add("show");
+    });
+});
+
+// Helper: Tutup semua popup selain monthly
+function closeAllOtherPopups() {
+    const popups = document.querySelectorAll(".popup-container:not(.popup-monthly)");
+    popups.forEach(p => p.classList.remove("show"));
+}
+
 // ======================= Block 1000px ======================= //
 function checkDeviceWidth() {
     const minWidth = 999;

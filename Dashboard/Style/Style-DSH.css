@@ -26,6 +26,7 @@
 
     --gray: rgb(163, 163, 163);
     --gray-primary: rgb(115, 115, 115);
+    --gray-secondary: rgb(201, 201, 201);
 
     --green: rgb(52, 211, 153);
     --green-secondary: rgb(47, 180, 131);
@@ -104,6 +105,10 @@ h2 {
 
 .gray {
     color: var(--gray);
+}
+
+.gray-secondary {
+    color: var(--gray-secondary);
 }
 
 .white {
@@ -1962,6 +1967,11 @@ canvas {
     text-align: center;
     border: 1px solid var(--bg-45);
     transition: transform 0.2s, box-shadow 0.2s;
+    cursor: pointer;
+}
+
+.month-card:active {
+    transform: scale(0.98);
 }
 
 .month-name {
@@ -4527,6 +4537,115 @@ input[type="number"]::placeholder {
     font-size: var(--sz-12);
 }
 
+/* ------ Popup Monthly ------ */
+.popup-monthly {
+    /* display: flex; */
+    flex-direction: column;
+    min-height: 380px;
+    min-width: 700px;
+    padding: 20px;
+}
+
+.column-title-popup {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.maincontainer-stats {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    flex: 1;
+    padding-top: 15px;
+    height: 100%;
+}
+
+.leftcontainer,
+.rightcontainer {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.subcontainer-trading-summary {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.subcontainer-stats {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-between;
+    padding: 10px 0;
+    min-height: 0;
+
+    border-radius: 10px;
+    border: 1px solid var(--bg-45);
+    background: var(--bg-27);
+    padding: 10px 16px;
+    margin-top: 8px;
+}
+
+.subcolumn-stats {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+}
+
+.text-title {
+    font-size: var(--sz-14);
+    color: var(--gray);
+}
+
+.value-stats {
+    font-size: var(--sz-14);
+}
+
+.wr-red {
+    font-weight: var(--wg-600);
+    color: var(--red);
+}
+
+.wr-green {
+    font-weight: var(--wg-600);
+    color: var(--green);
+}
+
+.subcolumn-stats-one {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 0;
+    flex: 1;
+}
+
+.balance-value-monthly {
+    font-size: var(--sz-18);
+    font-weight: var(--wg-700);
+}
+
+.pnl-value-monthly {
+    font-size: var(--sz-14);
+    color: var(--green);
+}
+
+
+
+
+
+.btn-close-monthly {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    padding: 6px;
+}
 
 /* ------ Block Non Dekstop ------ */
 #deviceBlocker {
