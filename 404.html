@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Page Not Found</title>
+    <link rel="shortcut icon" href="Nexion.ico" type="image/x-icon">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400..800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+
+        :root {
+            --bg-15: rgba(15, 15, 15, 1);
+            --bg-20: rgba(20, 20, 20, 1);
+            --bg-27: rgba(27, 27, 27, 1);
+            --bg-35: rgba(35, 35, 35, 1);
+            --bg-38: rgba(38, 38, 38, 1);
+            --bg-45: rgba(45, 45, 45, 1);
+            --bg-50: rgba(50, 50, 50, 1);
+            --bg-55: rgba(55, 55, 55, 1);
+            --bg-60: rgba(60, 60, 60, 1);
+            --bg-70: rgba(70, 70, 70, 1);
+
+            --color-baground-white: rgba(255, 255, 255, 0.2);
+            --color-baground-green: rgba(16, 185, 129, .1);
+            --color-baground-yellow: rgba(185, 160, 16, 0.1);
+            --color-baground-red: rgba(244, 63, 94, 0.1);
+
+            --bg-popup: rgba(20, 20, 20, 1);
+            --border-popup: 1px solid var(--bg-35);
+
+            --white: rgb(245, 245, 245);
+
+            --gray: rgb(163, 163, 163);
+            --gray-primary: rgb(115, 115, 115);
+            --gray-secondary: rgb(201, 201, 201);
+
+            --green: rgb(52, 211, 153);
+            --green-secondary: rgb(47, 180, 131);
+            --green-primary: rgb(31, 230, 157);
+            --green-border: rgba(16, 185, 129, 0.2);
+            
+            --red: rgb(250, 93, 117);
+            --red-secondary: rgb(216, 78, 98);
+            --red-primary: rgb(247, 66, 93);
+            --red-border: rgba(244, 63, 94, 0.2);
+            
+            --yellow: rgb(211, 161, 52);
+            --yellow-secondary: rgb(179, 136, 44);
+            --yellow-primary: rgb(248, 181, 36);
+            --yellow-border: rgba(185, 140, 16, 0.2);
+            
+            --wg-300: 300;
+            --wg-400: 400;
+            --wg-500: 500;
+            --wg-600: 600;
+            --wg-700: 700;
+            --wg-800: 800;
+
+            --sz-10: 10px;
+            --sz-12: 12px;
+            --sz-14: 14px;
+            --sz-16: 16px;
+            --sz-18: 18px;
+            --sz-20: 20px;
+            --sz-22: 22px;
+            --sz-24: 24px;
+            --sz-26: 26px;
+            --sz-28: 28px;
+            --sz-30: 30px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            color: var(--white);
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-15);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .container {
+            text-align: center;
+            z-index: 10;
+            position: relative;
+            padding: 20px;
+        }
+
+        .error-code {
+            font-family: 'Space Mono', monospace;
+            font-size: clamp(80px, 20vw, 180px);
+            font-weight: var(--wg-700);
+            color: var(--white);
+            line-height: 1;
+            margin-bottom: 20px;
+            position: relative;
+            display: inline-block;
+            animation: glitch 3s infinite;
+        }
+
+        .error-code::before,
+        .error-code::after {
+            content: '404';
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .error-code::before {
+            color: var(--red);
+            animation: glitch-1 2s infinite;
+            clip-path: polygon(0 0, 100% 0, 100% 45%, 0 45%);
+        }
+
+        .error-code::after {
+            color: var(--green);
+            animation: glitch-2 2.5s infinite;
+            clip-path: polygon(0 55%, 100% 55%, 100% 100%, 0 100%);
+        }
+
+        @keyframes glitch {
+            0%, 100% { transform: translate(0); }
+            20% { transform: translate(-2px, 2px); }
+            40% { transform: translate(-2px, -2px); }
+            60% { transform: translate(2px, 2px); }
+            80% { transform: translate(2px, -2px); }
+        }
+
+        @keyframes glitch-1 {
+            0%, 100% { transform: translate(0); }
+            33% { transform: translate(-4px, 0); }
+        }
+
+        @keyframes glitch-2 {
+            0%, 100% { transform: translate(0); }
+            33% { transform: translate(4px, 0); }
+        }
+
+        h1 {
+            font-size: clamp(var(--sz-24), 4vw, var(--sz-30));
+            font-weight: var(--wg-700);
+            margin-bottom: 16px;
+            color: var(--white);
+        }
+
+        p {
+            font-size: var(--sz-16);
+            color: var(--gray);
+            margin-bottom: 32px;
+            max-width: 500px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .btn-home {
+            display: inline-block;
+            padding: 14px 32px;
+            background: var(--bg-35);
+            border: 1px solid var(--bg-50);
+            border-radius: 8px;
+            color: var(--white);
+            text-decoration: none;
+            font-size: var(--sz-16);
+            font-weight: var(--wg-500);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .btn-home:hover {
+            background: var(--bg-45);
+            border-color: var(--green-border);
+            box-shadow: 0 0 20px var(--color-baground-green);
+            transform: translateY(-2px);
+        }
+
+        .particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--gray-primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 6s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); }
+            50% { transform: translateY(-30px) translateX(20px); }
+        }
+
+        .status-bar {
+            display: flex;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            margin-top: 40px;
+            font-family: 'Space Mono', monospace;
+            font-size: var(--sz-14);
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: var(--bg-27);
+            border: 1px solid var(--bg-45);
+            border-radius: 6px;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--red);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        @media (max-width: 600px) {
+            .status-bar {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .status-item {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="container">
+        <div class="error-code">404</div>
+        <h1>Page Not Found</h1>
+        <p>Sorry, the page you're looking for seems to be hiding in another dimension. It may have been moved or never existed.</p>
+        <button class="btn-home" onclick="goHome()">Back to Home</button>
+        
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="status-dot"></span>
+                <span>ERROR</span>
+            </div>
+            <div class="status-item">
+                <span>Status: Not Found</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goHome() {
+            const isGithub = window.location.hostname.includes("github.io");
+            const target = isGithub
+                ? "/Nexion-Trades-Full/index.html"
+                : "/index.html";
+            window.location.href = target;
+        }
+
+        const particlesContainer = document.getElementById('particles');
+        const particleCount = 30;
+
+        for (let i = 0; i < particleCount; i++) {
+            const particle = document.createElement('div');
+            particle.className = 'particle';
+            particle.style.left = Math.random() * 100 + '%';
+            particle.style.top = Math.random() * 100 + '%';
+            particle.style.animationDelay = Math.random() * 6 + 's';
+            particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+            particlesContainer.appendChild(particle);
+        }
+
+        document.addEventListener('mousemove', (e) => {
+            const particles = document.querySelectorAll('.particle');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+
+            particles.forEach((particle, index) => {
+                const speed = (index % 3 + 1) * 10;
+                particle.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
+    </script>
+</body>
+</html>
