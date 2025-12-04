@@ -3211,44 +3211,47 @@ function closeMonthlyPopup() {
     document.body.style.overflow = "";
 }
 
+async function getInitialDeposit() {
+    const rawData = await getDB();
+    const sorted = [...rawData].sort((a, b) => a.date - b.date);
+    const firstDeposit = sorted.find(item => item.action === "Deposit");
+    return firstDeposit ? firstDeposit.value : 0;
+}
+
 async function calculateCumulativeBalanceUpToMonth(targetYear, targetMonth) {
-    try {
-        const rawData = await getDB();
-        if (!Array.isArray(rawData)) return 0;
-        
-        let cumulativeBalance = 0;
-        
-        // Urutkan data dari yang paling lama
-        const sortedTrades = [...rawData].sort((a, b) => a.date - b.date);
-        
-        for (const trade of sortedTrades) {
-            if (!trade.date) continue;
-            
-            const tradeDate = new Date(trade.date * 1000);
-            const tradeYear = tradeDate.getFullYear();
-            const tradeMonth = tradeDate.getMonth();
-            
-            // Hitung deposit/withdraw dan PnL
-            if (trade.action === 'Deposit') {
-                cumulativeBalance += trade.value || 0;
-            } else if (trade.action === 'Withdraw') {
-                cumulativeBalance -= trade.value || 0;
-            } else if (trade.Pnl !== undefined && trade.Pnl !== null) {
-                cumulativeBalance += trade.Pnl;
-            }
-            
-            // Stop jika sudah melewati bulan target
-            if (tradeYear > targetYear || (tradeYear === targetYear && tradeMonth > targetMonth)) {
-                break;
-            }
+    const rawData = await getDB();
+    if (!Array.isArray(rawData)) return 0;
+
+    const sorted = [...rawData].sort((a, b) => a.date - b.date);
+    const initialDeposit = await getInitialDeposit();
+    const firstDeposit = sorted.find(item => item.action === "Deposit");
+
+    let balance = initialDeposit;
+    let depositFirstProcessed = false;
+
+    for (const item of sorted) {
+        const date = new Date(item.date * 1000);
+        const year = date.getFullYear();
+        const month = date.getMonth();
+
+        if (year > targetYear || (year === targetYear && month > targetMonth)) {
+            break;
         }
-        
-        return cumulativeBalance;
-        
-    } catch (error) {
-        console.error('Error calculating cumulative balance:', error);
-        return 0;
+
+        if (item === firstDeposit) {
+            continue;
+        }
+
+        if (item.Pnl !== undefined && item.Pnl !== null) {
+            balance += item.Pnl;
+        } else if (item.action === "Deposit") {
+            balance += item.value || 0;
+        } else if (item.action === "Withdraw") {
+            balance -= item.value || 0;
+        }
     }
+
+    return balance;
 }
 
 async function calculateMonthlyStats(targetYear, targetMonth) {
