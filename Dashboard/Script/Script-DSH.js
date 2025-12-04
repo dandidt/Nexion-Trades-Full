@@ -1373,23 +1373,17 @@ async function loadMonthlyData() {
             })
             .sort((a, b) => a.year - b.year || a.month - b.month);
 
-        let cumulativeBefore = 0;
+        let balanceBefore = initialCapital || 0;
         const fullResult = [];
 
         for (let i = 0; i < monthsArray.length; i++) {
             const item = monthsArray[i];
             const pnlThisMonth = item.profitLoss;
+
             let returnRate = null;
 
-            if (i === 0) {
-                if (initialCapital !== null && initialCapital > 0) {
-                    returnRate = (pnlThisMonth / initialCapital) * 100;
-                }
-            } else {
-                const base = cumulativeBefore;
-                if (base !== 0) {
-                    returnRate = (pnlThisMonth / base) * 100;
-                }
+            if (balanceBefore > 0) {
+                returnRate = (pnlThisMonth / balanceBefore) * 100;
             }
 
             fullResult.push({
@@ -1400,8 +1394,9 @@ async function loadMonthlyData() {
                 returnRate: returnRate !== null ? parseFloat(returnRate.toFixed(2)) : null
             });
 
-            cumulativeBefore += pnlThisMonth;
+            balanceBefore += pnlThisMonth;
         }
+
 
         const currentYear = new Date().getFullYear();
         monthlyData = fullResult.filter(m => m.year === currentYear);
@@ -2488,7 +2483,7 @@ document.addEventListener('DOMContentLoaded', function () {
         if (riskInfoEl) {
             const setting = getLocalData(localStorageKey) || { risk: 0 };
             const risk = parseFloat(setting.risk) || 0;
-            riskInfoEl.textContent = `Risk Persentase: ${risk}%`;
+            riskInfoEl.textContent = `Risk: ${risk}%`;
         }
     }
 

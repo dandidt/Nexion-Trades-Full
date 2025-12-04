@@ -3198,7 +3198,6 @@ shareButtons.forEach((btn) => {
 });
 
 // ======================= MONTHLY DETAIL POPUP TRIGGER ======================= //
-
 let selectedMonthlyEntry = null;
 
 function closeMonthlyPopup() {
@@ -3212,27 +3211,46 @@ function closeMonthlyPopup() {
     document.body.style.overflow = "";
 }
 
-function calculateCumulativeBalanceUpToMonth(targetYear, targetMonth) {
-    let cumulativeBalance = 0;
-    
-    // Urutkan bulan dari yang paling lama
-    const sortedMonths = [...monthlyData].sort((a, b) => 
-        a.year - b.year || a.month - b.month
-    );
-    
-    // Akumulasi semua profitLoss sampai bulan target
-    for (const month of sortedMonths) {
-        cumulativeBalance += month.profitLoss;
+async function calculateCumulativeBalanceUpToMonth(targetYear, targetMonth) {
+    try {
+        const rawData = await getDB();
+        if (!Array.isArray(rawData)) return 0;
         
-        if (month.year === targetYear && month.month === targetMonth) {
-            break;
+        let cumulativeBalance = 0;
+        
+        // Urutkan data dari yang paling lama
+        const sortedTrades = [...rawData].sort((a, b) => a.date - b.date);
+        
+        for (const trade of sortedTrades) {
+            if (!trade.date) continue;
+            
+            const tradeDate = new Date(trade.date * 1000);
+            const tradeYear = tradeDate.getFullYear();
+            const tradeMonth = tradeDate.getMonth();
+            
+            // Hitung deposit/withdraw dan PnL
+            if (trade.action === 'Deposit') {
+                cumulativeBalance += trade.value || 0;
+            } else if (trade.action === 'Withdraw') {
+                cumulativeBalance -= trade.value || 0;
+            } else if (trade.Pnl !== undefined && trade.Pnl !== null) {
+                cumulativeBalance += trade.Pnl;
+            }
+            
+            // Stop jika sudah melewati bulan target
+            if (tradeYear > targetYear || (tradeYear === targetYear && tradeMonth > targetMonth)) {
+                break;
+            }
         }
+        
+        return cumulativeBalance;
+        
+    } catch (error) {
+        console.error('Error calculating cumulative balance:', error);
+        return 0;
     }
-    
-    return cumulativeBalance;
 }
 
-// Fungsi untuk menghitung statistik trading bulanan
 async function calculateMonthlyStats(targetYear, targetMonth) {
     try {
         const rawData = await getDB();
@@ -3363,12 +3381,11 @@ function calculateMaxStreak(trades, targetType) {
     return maxStreak;
 }
 
-// Fungsi untuk update popup dengan data bulan yang dipilih
 async function updateMonthlyPopupData(monthData) {
     if (!monthData) return;
     
     // 1. Update balanceValueMonthly (total kumulatif sampai bulan ini)
-    const cumulativeBalance = calculateCumulativeBalanceUpToMonth(monthData.year, monthData.month);
+    const cumulativeBalance = await calculateCumulativeBalanceUpToMonth(monthData.year, monthData.month);
     const balanceElement = document.getElementById("balanceValueMonthly");
     if (balanceElement) {
         balanceElement.textContent = formatCurrencyCompact(cumulativeBalance);
@@ -3376,27 +3393,48 @@ async function updateMonthlyPopupData(monthData) {
     
     // 2. Update pnlgainMonthly (profit loss bulan ini + persentase)
     const pnlElement = document.getElementById("pnlgainMonthly");
+    // --- ganti bagian yang menghitung profitLoss + returnRate di updateMonthlyPopupData ---
     if (pnlElement) {
         const profitLoss = monthData.profitLoss;
-        const returnRate = monthData.returnRate;
-        
+
+        // Hitung starting balance = cumulative balance sampai bulan sebelumnya
+        // bulan sebelumnya:
+        let prevYear = monthData.year;
+        let prevMonth = monthData.month - 1;
+        if (prevMonth < 0) {
+            prevMonth = 11;
+            prevYear = monthData.year - 1;
+        }
+
+        const startingBalance = await calculateCumulativeBalanceUpToMonth(prevYear, prevMonth);
+
+        // Hitung returnRate berdasarkan startingBalance yang benar
+        let returnRate = null;
+        if (startingBalance === 0 || startingBalance === null || isNaN(startingBalance)) {
+            // Tidak bisa dibagi — tampilkan N/A
+            returnRate = null;
+        } else {
+            returnRate = (profitLoss / startingBalance) * 100;
+        }
+
         // Format untuk profitLoss
         const profitLossFormatted = formatCurrencyCompact(profitLoss);
-        
+
         // Format untuk returnRate
         let returnRateFormatted = "N/A";
         if (returnRate !== null && !isNaN(returnRate)) {
-            const sign = returnRate >= 0 ? "+" : "";
-            returnRateFormatted = `${sign}${formatPercent(returnRate)}`;
+            const signRR = returnRate >= 0 ? "+" : "";
+            returnRateFormatted = `${signRR}${formatPercent(returnRate)}`; // tetap gunakan formatPercent
         }
-        
+
         // Tampilkan: +$1,000.00 (+10.50%)
         const sign = profitLoss >= 0 ? "+" : "";
         pnlElement.textContent = `${sign}${profitLossFormatted} (${returnRateFormatted})`;
-        
+
         // Tambahkan class untuk styling warna
         pnlElement.className = `pnl-value-monthly ${profitLoss >= 0 ? 'positive' : 'negative'}`;
     }
+
 
     // 3. Hitung dan update semua statistik bulanan
     const monthlyStats = await calculateMonthlyStats(monthData.year, monthData.month);
@@ -3424,7 +3462,6 @@ async function updateMonthlyPopupData(monthData) {
     }
 }
 
-// Tutup popup saat tombol close diklik atau overlay diklik
 document.addEventListener("DOMContentLoaded", () => {
     const popupMonthly = document.querySelector(".popup-monthly");
     const closeBtn = document.getElementById("closeMonthly");
@@ -3489,21 +3526,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // Update data di popup dengan data yang dipilih
         await updateMonthlyPopupData(matchedEntry);
 
-        // Tutup popup lain, buka monthly
-        closeAllOtherPopups();
-
         document.body.classList.add("popup-open");
         document.body.style.overflow = "hidden";
         overlay?.classList.add("show");
         popupMonthly?.classList.add("show");
     });
 });
-
-// Helper: Tutup semua popup selain monthly
-function closeAllOtherPopups() {
-    const popups = document.querySelectorAll(".popup-container:not(.popup-monthly)");
-    popups.forEach(p => p.classList.remove("show"));
-}
 
 // ======================= Block 1000px ======================= //
 function checkDeviceWidth() {

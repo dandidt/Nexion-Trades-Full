@@ -1981,6 +1981,11 @@ canvas {
     transform: scale(0.98);
 }
 
+.month-card:hover {
+    background: var(--bg-35);
+    border-color: var(--bg-45);    
+}
+
 .month-name {
     font-size: 12px;
     font-weight: 600;
