@@ -3644,6 +3644,7 @@ body.popup-open .popup-container {
 
 .form-group input,
 .form-group textarea {
+    position: relative;
     height: 42px;
     width: 100%;
     line-height: 42px;
@@ -3684,8 +3685,9 @@ textarea:-webkit-autofill {
 }
 
 input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="%23e3e3e3"><path d="M216-96q-29.7 0-50.85-21.5Q144-139 144-168v-528q0-29 21.15-50.5T216-768h72v-96h72v96h240v-96h72v96h72q29.7 0 50.85 21.5Q816-725 816-696v528q0 29-21.15 50.5T744-96H216Zm0-72h528v-360H216v360Zm0-432h528v-96H216v96Zm0 0v-96 96Z"/></svg>') no-repeat center;
-    background-size: 18px;
+    position: absolute;
+    right: 10px;
+    background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="%23e3e3e3"><path d="M202.87-71.87q-37.78 0-64.39-26.61t-26.61-64.39v-554.26q0-37.78 26.61-64.39t64.39-26.61H240v-80h85.5v80h309v-80H720v80h37.13q37.78 0 64.39 26.61t26.61 64.39v195.7h-91V-560H202.87v397.13h275.7v91h-275.7Zm0-568.13h554.26v-77.13H202.87V-640Zm0 0v-77.13V-640Zm355.7 568.13v-129.7L781-423q9.72-9.76 21.59-14.1 11.88-4.33 23.76-4.33 12.95 0 24.8 4.85Q863-431.72 872.7-422l37 37q8.67 9.72 13.55 21.59 4.88 11.88 4.88 23.76 0 12.19-4.36 24.41T909.7-293.3L688.26-71.87H558.57Zm304.78-267.78-37-37 37 37Zm-240 203h38L781.39-257.7l-18-19-19-18-121.04 120.05v38ZM763.39-276.7l-19-18 37 37-18-19Z"/></svg>') no-repeat center;
     opacity: 0.8;
     cursor: pointer;
 }
