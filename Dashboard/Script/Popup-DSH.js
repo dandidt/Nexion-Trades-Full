@@ -332,8 +332,8 @@ async function switchToAccount(refreshToken) {
         const isGithub = window.location.hostname.includes("github.io");
 
         const target = isGithub
-            ? "/Nexion-Trades-Full/Dashboard/dashboard.html"
-            : "/Dashboard/dashboard.html"
+            ? "/Nexion-Trades-Full/Dashboard/index.html"
+            : "/Dashboard/index.html"
 
         window.location.href = target;
 
@@ -343,8 +343,8 @@ async function switchToAccount(refreshToken) {
         const isGithub = window.location.hostname.includes("github.io");
 
         const signinTarget = isGithub
-            ? "/Nexion-Trades-Full/Html/signin.html"
-            : "/Html/signin.html";
+            ? "/Nexion-Trades-Full/Signin/index.html"
+            : "/Signin/index.html";
 
         window.location.href = signinTarget;
     }
@@ -425,8 +425,8 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
 document.querySelector('.btn-add-account')?.addEventListener('click', () => {
     const isGithub = window.location.hostname.includes('github.io');
     const loginPage = isGithub 
-        ? '/Nexion-Trades-Full/Html/signin.html' // update
-        : '/Html/signin.html';
+        ? '/Nexion-Trades-Full/Signin/index.html'
+        : '/Signin/index.html';
     window.location.href = loginPage;
 });
 
