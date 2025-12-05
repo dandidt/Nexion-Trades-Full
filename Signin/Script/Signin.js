@@ -218,8 +218,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
             const isGithub = window.location.hostname.includes("github.io");
 
             const target = isGithub
-                ? "/Nexion-Trades-Full/index.html"
-                : "/index.html";
+                ? "/Nexion-Trades-Full"
+                : "../";
 
             window.location.href = target;
         }, 500);

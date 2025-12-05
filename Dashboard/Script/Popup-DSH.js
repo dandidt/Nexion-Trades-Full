@@ -104,41 +104,15 @@ function forceCloseLogoutPopup() {
     if (popup) {
         popup.style.display = "none";
         document.removeEventListener("click", hideLogoutPopupAccount);
+        document.removeEventListener("click", hidePopupOnClick);
         logoutPopupAnchor = null;
+        pendingRemoveAccountId = null;
     }
 }
 
 document.getElementById("logoutAccount")?.addEventListener("click", function (e) {
     e.stopPropagation();
     showLogoutPopupAccount(this);
-});
-
-document.querySelector(".signout-btn-universal")?.addEventListener("click", async () => {
-    try {
-        const { data: { session } } = await supabaseClient.auth.getSession();
-        const currentUserId = session?.user?.id;
-
-        localStorage.removeItem('dbtrade');
-        localStorage.removeItem('avatar');
-
-        const savedRaw = localStorage.getItem('saved_accounts');
-        let savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];
-        savedAccounts = savedAccounts.filter(acc => acc.user_id !== currentUserId);
-        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
-        // ---------------------------------------
-
-        const { error } = await supabaseClient.auth.signOut();
-        if (error) throw error;
-
-        const isGithub = window.location.hostname.includes("github.io");
-        const target = isGithub
-            ? "/Nexion-Trades-Full"
-            : "";
-        window.location.href = target;
-
-    } catch (err) {
-        console.error("Logout error:", err);
-    }
 });
 
 // ------ Account Icon ------ //
@@ -386,30 +360,44 @@ function hidePopupOnClick(e) {
 }
 
 document.querySelector(".signout-btn-universal")?.addEventListener("click", async () => {
-    if (!pendingRemoveAccountId) return;
-
-    const accountId = pendingRemoveAccountId;
-
     const savedRaw = localStorage.getItem('saved_accounts');
     let savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];
 
     const { data: { session } } = await supabaseClient.auth.getSession();
-    const isActiveAccount = session?.user?.id === accountId;
+    const activeUserId = session?.user?.id;
 
-    savedAccounts = savedAccounts.filter(acc => acc.user_id !== accountId);
-    localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
+    if (pendingRemoveAccountId) {
+        const accountId = pendingRemoveAccountId;
+        const isActiveAccount = activeUserId === accountId;
 
-    if (isActiveAccount) {
+        savedAccounts = savedAccounts.filter(acc => acc.user_id !== accountId);
+        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
+
+        if (isActiveAccount) {
+            await supabaseClient.auth.signOut();
+            localStorage.removeItem('avatar');
+            localStorage.removeItem('dbtrade');
+
+            const isGithub = window.location.hostname.includes("github.io");
+            const target = isGithub ? "/Nexion-Trades-Full" : "";
+            window.location.href = target;
+        } else {
+            const popup = document.querySelector(".container-logout");
+            if (popup) popup.style.display = "none";
+            document.removeEventListener("click", hidePopupOnClick);
+            pendingRemoveAccountId = null;
+            renderAccountList();
+        }
+    } else {
+        savedAccounts = savedAccounts.filter(acc => acc.user_id !== activeUserId);
+        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
+
         await supabaseClient.auth.signOut();
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbtrade');
 
         const isGithub = window.location.hostname.includes("github.io");
-
-        const target = isGithub
-            ? "/Nexion-Trades-Full"
-            : ""
-
+        const target = isGithub ? "/Nexion-Trades-Full" : "";
         window.location.href = target;
     }
 
@@ -417,8 +405,7 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
     const popup = document.querySelector(".container-logout");
     if (popup) popup.style.display = "none";
     document.removeEventListener("click", hidePopupOnClick);
-
-    renderAccountList();
+    document.removeEventListener("click", hideLogoutPopupAccount);
 });
 
 // ------ Add Account ------ //
