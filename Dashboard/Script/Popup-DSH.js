@@ -132,8 +132,8 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
 
         const isGithub = window.location.hostname.includes("github.io");
         const target = isGithub
-            ? "/Nexion-Trades-Full/index.html"
-            : "/index.html";
+            ? "/Nexion-Trades-Full"
+            : "";
         window.location.href = target;
 
     } catch (err) {
@@ -332,8 +332,8 @@ async function switchToAccount(refreshToken) {
         const isGithub = window.location.hostname.includes("github.io");
 
         const target = isGithub
-            ? "/Nexion-Trades-Full/Dashboard/index.html"
-            : "/Dashboard/index.html"
+            ? "/Nexion-Trades-Full/Dashboard"
+            : "/Dashboard"
 
         window.location.href = target;
 
@@ -343,8 +343,8 @@ async function switchToAccount(refreshToken) {
         const isGithub = window.location.hostname.includes("github.io");
 
         const signinTarget = isGithub
-            ? "/Nexion-Trades-Full/Signin/index.html"
-            : "/Signin/index.html";
+            ? "/Nexion-Trades-Full/Signin"
+            : "/Signin";
 
         window.location.href = signinTarget;
     }
@@ -407,8 +407,8 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
         const isGithub = window.location.hostname.includes("github.io");
 
         const target = isGithub
-            ? "/Nexion-Trades-Full/index.html"
-            : "/index.html"
+            ? "/Nexion-Trades-Full"
+            : ""
 
         window.location.href = target;
     }
@@ -425,8 +425,8 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
 document.querySelector('.btn-add-account')?.addEventListener('click', () => {
     const isGithub = window.location.hostname.includes('github.io');
     const loginPage = isGithub 
-        ? '/Nexion-Trades-Full/Signin/index.html'
-        : '/Signin/index.html';
+        ? '/Nexion-Trades-Full/Signin'
+        : '/Signin';
     window.location.href = loginPage;
 });
 

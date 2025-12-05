@@ -123,11 +123,9 @@ async function checkAuthStatusAndRedirectLink() {
     if (!link) return;
 
     if (user) {
-        // Sudah login
-        link.href = 'Dashboard/dashboard.html';
+        link.href = '../Dashboard';
     } else {
-        // Belum login
-        link.href = 'Html/signin.html';
+        link.href = '../Signin';
     }
 }
 
