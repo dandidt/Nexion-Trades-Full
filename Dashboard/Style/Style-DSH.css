@@ -97,6 +97,10 @@ h3 {
     font-weight: var(--wg-700);
 }
 
+a {
+    text-decoration: none;
+}
+
 .hidden { display: none; }
 
 /* Color Hlper */

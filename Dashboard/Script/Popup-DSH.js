@@ -25,9 +25,7 @@ function unixToWIBDatetimeLocal(unixSeconds) {
 const profileBox = document.querySelector('#navbarAccountIcon');
 const popupAccount = document.querySelector('#popupAccount');
 
-if (!profileBox || !popupAccount) {
-    console.warn('Popup account elements not found');
-} else {
+if (profileBox && popupAccount) {
     function positionPopup() {
         const rect = profileBox.getBoundingClientRect();
         popupAccount.style.top = `${rect.bottom + 6}px`;
@@ -42,7 +40,6 @@ if (!profileBox || !popupAccount) {
             popupAccount.style.display = 'none';
             window.removeEventListener('scroll', positionPopup);
             window.removeEventListener('resize', positionPopup);
-
             forceCloseLogoutPopup();
         } else {
             popupAccount.style.display = 'block';
@@ -53,13 +50,7 @@ if (!profileBox || !popupAccount) {
     });
 
     document.addEventListener('click', (e) => {
-        const isInsideOtherPopup = e.target.closest('.popup-account') || 
-                                e.target.closest('.container-logout');
-
-        if (!popupAccount.contains(e.target) && 
-            e.target !== profileBox && 
-            !isInsideOtherPopup) {
-            
+        if (!popupAccount.contains(e.target) && e.target !== profileBox) {
             popupAccount.style.display = 'none';
             profileBox.classList.remove('active');
             window.removeEventListener('scroll', positionPopup);
@@ -68,51 +59,88 @@ if (!profileBox || !popupAccount) {
     });
 }
 
-// ------ Popup Setting Logout ------ //
-let logoutPopupAnchor = null;
+// ------ Unified Logout Popup ------ //
+let activeLogoutPopup = {
+    anchor: null,
+    accountId: null,
+    isOpen: false
+};
 
-function showLogoutPopupAccount(anchorBtn) {
+function showLogoutPopup(anchor, accountId = null) {
     const popup = document.querySelector(".container-logout");
     if (!popup) return;
 
-    logoutPopupAnchor = anchorBtn;
+    if (activeLogoutPopup.isOpen) {
+        hideLogoutPopup();
+    }
 
-    const rect = anchorBtn.getBoundingClientRect();
-    const top = rect.bottom + -8;
-    const left = rect.left + 85;
+    activeLogoutPopup.anchor = anchor;
+    activeLogoutPopup.accountId = accountId;
+    activeLogoutPopup.isOpen = true;
+
+    const rect = anchor.getBoundingClientRect();
+
+    let top = rect.bottom;
+    let left = rect.left + 40;
+
+    const viewportWidth = window.innerWidth;
+    const viewportHeight = window.innerHeight;
+
+    const popupWidth = 200;
+    const popupHeight = 80;
+
+    if (left + popupWidth > viewportWidth) {
+        left = viewportWidth - popupWidth - 10;
+    }
+
+    if (top + popupHeight > viewportHeight) {
+        top = rect.top - popupHeight - 10;
+    }
+
+    if (top < 0) {
+        top = 10;
+    }
 
     popup.style.top = `${top}px`;
     popup.style.left = `${left}px`;
     popup.style.display = "block";
 
     setTimeout(() => {
-        document.addEventListener("click", hideLogoutPopupAccount);
+        document.addEventListener("click", handleLogoutPopupClick);
     }, 10);
 }
 
-function hideLogoutPopupAccount(e) {
+function handleLogoutPopupClick(e) {
     const popup = document.querySelector(".container-logout");
-    if (popup && !popup.contains(e.target) && e.target !== logoutPopupAnchor) {
-        popup.style.display = "none";
-        document.removeEventListener("click", hideLogoutPopupAccount);
-        logoutPopupAnchor = null;
+    const isClickInsidePopup = popup && popup.contains(e.target);
+    const isClickOnAnchor = e.target === activeLogoutPopup.anchor;
+
+    if (!isClickInsidePopup && !isClickOnAnchor) {
+        hideLogoutPopup();
     }
 }
 
-function forceCloseLogoutPopup() {
+function hideLogoutPopup() {
     const popup = document.querySelector(".container-logout");
     if (popup) {
         popup.style.display = "none";
-        document.removeEventListener("click", hideLogoutPopupAccount);
-        document.removeEventListener("click", hidePopupOnClick);
-        logoutPopupAnchor = null;
-        pendingRemoveAccountId = null;
     }
+
+    document.removeEventListener("click", handleLogoutPopupClick);
+    activeLogoutPopup = {
+        anchor: null,
+        accountId: null,
+        isOpen: false
+    };
+}
+
+function forceCloseLogoutPopup() {
+    hideLogoutPopup();
 }
 
 document.getElementById("logoutAccount")?.addEventListener("click", function (e) {
     e.stopPropagation();
-    showLogoutPopupAccount(this);
+    showLogoutPopup(this, null);
 });
 
 // ------ Account Icon ------ //
@@ -121,18 +149,15 @@ function renderNavbarAvatar() {
     if (!imgEl) return;
 
     const avatar = localStorage.getItem("avatar");
-
     if (avatar) {
         imgEl.src = avatar;
     }
 }
 
+// ------ Popup Account Switch (Manage Account) ------ //
 document.addEventListener("DOMContentLoaded", () => {
     renderNavbarAvatar();
-});
 
-// ------ Popup Account Switch ------ //
-document.addEventListener("DOMContentLoaded", () => {
     const btnAccountManage = document.getElementById("accountManage");
     const popupAccount = document.querySelector(".popup-account");
     const popupOverlay = document.querySelector(".popup-overlay");
@@ -155,13 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function closeAccountPopup() {
         popupAccount.classList.remove("show");
-        
-        const logoutPopup = document.querySelector(".container-logout");
-        if (logoutPopup) {
-            logoutPopup.style.display = "none";
-            pendingRemoveAccountId = null;
-            document.removeEventListener("click", hidePopupOnClick);
-        }
+        forceCloseLogoutPopup(); // Gunakan fungsi terpusat
 
         if (!isAnyOtherPopupOpen()) {
             if (popupOverlay) popupOverlay.classList.remove("show");
@@ -172,11 +191,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnAccountManage.addEventListener("click", (e) => {
         e.stopPropagation();
-
         if (popupOverlay) popupOverlay.classList.add("show");
         document.body.classList.add("popup-open");
         document.body.style.overflow = "hidden";
-
         popupAccount.classList.add("show");
     });
 
@@ -229,7 +246,7 @@ async function renderAccountList() {
                 <div class="column-box-account">
                     <img src="${avatarSrc}" onerror="this.src='Asset/Nexion.png'" />
                     <div class="wrapper-active-account">
-                        <p class="usernmae-account">${email}</p> <!-- 🔹 tetap email asli -->
+                        <p class="usernmae-account">${email}</p>
                         ${isActive ? '<p class="text-account-active">Active account</p>' : ''}
                     </div>
                 </div>
@@ -261,7 +278,7 @@ async function renderAccountList() {
     document.querySelectorAll('.logout-account').forEach(btn => {
         btn.addEventListener('click', (e) => {
             const userId = e.currentTarget.dataset.id;
-            removeAccount(userId);
+            removeAccount(userId, e.currentTarget);
         });
     });
 }
@@ -304,59 +321,20 @@ async function switchToAccount(refreshToken) {
         }
 
         const isGithub = window.location.hostname.includes("github.io");
-
-        const target = isGithub
-            ? "/Nexion-Trades-Full/Dashboard"
-            : "/Dashboard"
-
+        const target = isGithub ? "/Nexion-Trades-Full/Dashboard" : "/Dashboard";
         window.location.href = target;
 
     } catch (err) {
         alert("Failed to switch account. Please log in again.");
-
         const isGithub = window.location.hostname.includes("github.io");
-
-        const signinTarget = isGithub
-            ? "/Nexion-Trades-Full/Signin"
-            : "/Signin";
-
+        const signinTarget = isGithub ? "/Nexion-Trades-Full/Signin" : "/Signin";
         window.location.href = signinTarget;
     }
 }
 
-// ------ Fungsi Logout / Active Akun ------ //
-let pendingRemoveAccountId = null;
-
-function removeAccount(accountId) {
-    pendingRemoveAccountId = accountId;
-    const anchorBtn = event.currentTarget;
-    showLogoutPopup(anchorBtn);
-}
-
-function showLogoutPopup(anchorBtn) {
-    const popup = document.querySelector(".container-logout");
-    if (!popup) return;
-
-    const rect = anchorBtn.getBoundingClientRect();
-    const top = rect.top + window.scrollY + rect.height - 10;
-    const left = rect.left + window.scrollX + rect.width - 10;
-
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
-    popup.style.display = "block";
-
-    setTimeout(() => {
-        document.addEventListener("click", hidePopupOnClick);
-    }, 10);
-}
-
-function hidePopupOnClick(e) {
-    const popup = document.querySelector(".container-logout");
-    if (popup && !popup.contains(e.target)) {
-        popup.style.display = "none";
-        document.removeEventListener("click", hidePopupOnClick);
-        pendingRemoveAccountId = null;
-    }
+// ------ Logout Akun (Single & Manage) ------ //
+function removeAccount(accountId, anchorBtn) {
+    showLogoutPopup(anchorBtn, accountId);
 }
 
 document.querySelector(".signout-btn-universal")?.addEventListener("click", async () => {
@@ -366,54 +344,30 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
     const { data: { session } } = await supabaseClient.auth.getSession();
     const activeUserId = session?.user?.id;
 
-    if (pendingRemoveAccountId) {
-        const accountId = pendingRemoveAccountId;
-        const isActiveAccount = activeUserId === accountId;
+    const accountIdToLogout = activeLogoutPopup.accountId || activeUserId;
+    const isActiveAccount = activeUserId === accountIdToLogout;
 
-        savedAccounts = savedAccounts.filter(acc => acc.user_id !== accountId);
-        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
+    savedAccounts = savedAccounts.filter(acc => acc.user_id !== accountIdToLogout);
+    localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
 
-        if (isActiveAccount) {
-            await supabaseClient.auth.signOut();
-            localStorage.removeItem('avatar');
-            localStorage.removeItem('dbtrade');
-
-            const isGithub = window.location.hostname.includes("github.io");
-            const target = isGithub ? "/Nexion-Trades-Full" : "";
-            window.location.href = target;
-        } else {
-            const popup = document.querySelector(".container-logout");
-            if (popup) popup.style.display = "none";
-            document.removeEventListener("click", hidePopupOnClick);
-            pendingRemoveAccountId = null;
-            renderAccountList();
-        }
-    } else {
-        savedAccounts = savedAccounts.filter(acc => acc.user_id !== activeUserId);
-        localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
-
+    if (isActiveAccount) {
         await supabaseClient.auth.signOut();
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbtrade');
 
         const isGithub = window.location.hostname.includes("github.io");
-        const target = isGithub ? "/Nexion-Trades-Full" : "";
+        const target = isGithub ? "/Nexion-Trades-Full" : "/";
         window.location.href = target;
+    } else {
+        hideLogoutPopup();
+        renderAccountList(); 
     }
-
-    pendingRemoveAccountId = null;
-    const popup = document.querySelector(".container-logout");
-    if (popup) popup.style.display = "none";
-    document.removeEventListener("click", hidePopupOnClick);
-    document.removeEventListener("click", hideLogoutPopupAccount);
 });
 
 // ------ Add Account ------ //
 document.querySelector('.btn-add-account')?.addEventListener('click', () => {
     const isGithub = window.location.hostname.includes('github.io');
-    const loginPage = isGithub 
-        ? '/Nexion-Trades-Full/Signin'
-        : '/Signin';
+    const loginPage = isGithub ? '/Nexion-Trades-Full/Signin' : '/Signin';
     window.location.href = loginPage;
 });
 

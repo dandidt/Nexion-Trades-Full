@@ -1438,3 +1438,21 @@ b {
     from {  transform: scale(0); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
+
+#deviceBlocker {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: #111;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    gap: 10px;
+    z-index: 999999;
+    padding: 20px;
+}
