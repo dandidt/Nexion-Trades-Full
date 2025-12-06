@@ -858,6 +858,15 @@ function openEditModal(dropdownName) {
     modal.style.display = 'block';
 }
 
+function initializeEditDropdowns() {
+    rebuildDropdown('edit-timeframe');
+    rebuildDropdown('edit-entry');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    initializeEditDropdowns();
+});
+
 // ------ HELPER FUNCTIONS ------ //
 function getDropdownValue(dropdownName) {
     const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
