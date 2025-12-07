@@ -90,6 +90,10 @@ a {
     color: var(--bg-15);
 }
 
+body.nexion-no-scroll {
+    overflow: hidden;
+}
+
 /* ============== Navbar ============== */
 .navbar {
     position: fixed;
@@ -1439,6 +1443,169 @@ b {
     to { transform: scale(1); opacity: 1; }
 }
 
+/* Popup Discord */
+.nexion-popup-overlay-v1 {
+    background: rgba(0, 0, 0, 0.7);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    animation: nexionFadeIn 0.3s ease;
+    z-index: 99999;
+}
+
+@keyframes nexionFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes nexionFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+.nexion-popup-container-v1 {
+    background: var(--bg-27);
+    border: 1px solid var(--bg-45);
+    border-radius: 20px;
+    max-width: 500px;
+    width: 100%;
+    padding: 20px;
+    position: relative;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    animation: nexionSlideUp 0.4s ease;
+}
+
+@keyframes nexionSlideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.nexion-close-btn-v1 {
+    position: absolute;
+    right: 20px;
+    top: 20px;
+    height: 31px;
+    width: 20px;
+}
+
+.nexion-discord-icon-v1 {
+    width: 60px;
+    height: 60px;
+    margin: 40px auto 20px;
+    background: linear-gradient(135deg, #5865F2, #7289da);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 10px 25px rgba(88, 101, 242, 0.3);
+}
+
+.nexion-discord-icon-v1 svg {
+    width: 32px;
+    height: 32px;
+    fill: white;
+}
+
+.nexion-popup-title-v1 {
+    color: var(--white);
+    font-size: 28px;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.nexion-popup-subtitle-v1 {
+    color: #5865F2;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.nexion-popup-description-v1 {
+    font-size: var(--sz-14);
+    color: var(--gray);
+    line-height: 1.6;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.nexion-benefits-box-v1 {
+    background: var(--bg-36);
+    border-radius: 10px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.nexion-benefit-item-v1 {
+    display: flex;
+    align-items: start;
+    margin-bottom: 15px;
+    color: var(--gray);
+    font-size: var(--sz-14);
+}
+
+.nexion-benefit-item-v1:last-child {
+    margin-bottom: 0;
+}
+
+.nexion-benefit-item-v1 span strong {
+    color: var(--white);
+}
+
+.nexion-benefit-icon-v1 {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.nexion-benefit-icon-v1 svg {
+    fill: #bdc2ff;
+}
+
+.nexion-join-btn-v1 {
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(135deg, #5865F2, #7289da);
+    color: var(--white);
+    border: none;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.nexion-join-btn-v1:hover {
+    box-shadow: 0 6px 20px rgba(88, 101, 242, 0.2);
+}
+
+.nexion-join-btn-v1:active {
+    transform: translateY(1px);
+}
+
+@keyframes nexionFadeOut {
+    from { opacity: 1; }
+    to { opacity: 0; }
+}
+
+/* Block Overlay */
 #deviceBlocker {
     position: fixed;
     top: 0;
