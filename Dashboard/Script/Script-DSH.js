@@ -1123,28 +1123,23 @@ async function updateEquityStats() {
       } else if (item.action === "Withdraw") {
         totalWithdraw += Math.abs(item.value || 0);
       } else if (item.hasOwnProperty("Pnl")) {
-        // Akumulasi PnL semua trade
         totalPnl += Number(item.Pnl) || 0;
 
-        // Ambil data untuk estimasi fee
         const rr = parseFloat(item.RR);
-        const margin = parseFloat(item.Margin); // <-- PENTING: "Margin" (kapital M)
+        const margin = parseFloat(item.Margin);
         const actualPnl = parseFloat(item.Pnl);
 
-        // Pastikan data valid dan ini bukan trade missed (margin > 0)
         if (!isNaN(rr) && !isNaN(margin) && margin > 0 && !isNaN(actualPnl)) {
           const expectedPnl = rr * margin;
           let fee = 0;
 
           if (expectedPnl >= 0) {
-            // Profit trade: fee hanya jika actual < expected
             if (actualPnl < expectedPnl) {
               fee = expectedPnl - actualPnl;
             }
           } else {
-            // Loss trade: fee hanya jika actual lebih rugi (lebih kecil)
             if (actualPnl < expectedPnl) {
-              fee = expectedPnl - actualPnl; // hasil positif
+              fee = expectedPnl - actualPnl;
             }
           }
 
@@ -1158,27 +1153,35 @@ async function updateEquityStats() {
       ? ((totalWithdraw / totalDeposit) * 100).toFixed(2)
       : "0.00";
 
-    // Update elemen di UI
+    // === HITUNG PERSENTASE FEE ===
+    let persentaseFee = "0.00";
+    if (totalEquity > 0) {
+      persentaseFee = ((totalFeePaid / totalEquity) * 100).toFixed(2);
+    }
+    // Jika totalEquity <= 0, biarkan "0.00" (atau ganti jadi "N/A" jika mau)
+
+    // Update elemen
     const elTotalEquity = document.getElementById("totalEquity");
     const elTotalPerp = document.getElementById("total-perp");
     const elPersentaseWithdraw = document.getElementById("persentaseWithdraw");
     const elValueWithdraw = document.getElementById("valueWithdraw");
     const elValueDeposit = document.getElementById("valueDeposit");
     const elValueFeePaid = document.getElementById("valueFeePaid");
+    const elPersentaseFeePaid = document.getElementById("persentaseFeePaid"); // <-- BARU
 
     if (elTotalEquity) elTotalEquity.textContent = formatCurrency(totalEquity);
     if (elTotalPerp) elTotalPerp.textContent = formatCurrency(totalEquity);
     if (elPersentaseWithdraw) elPersentaseWithdraw.textContent = `${persentaseWithdraw}%`;
     if (elValueWithdraw) elValueWithdraw.textContent = formatCurrency(totalWithdraw);
     if (elValueDeposit) elValueDeposit.textContent = formatCurrency(totalDeposit);
-    if (elValueFeePaid) elValueFeePaid.textContent = formatCurrency(-totalFeePaid); // tampilkan sebagai biaya (negatif)
+    if (elValueFeePaid) elValueFeePaid.textContent = formatCurrency(-totalFeePaid);
+    if (elPersentaseFeePaid) elPersentaseFeePaid.textContent = `(${persentaseFee}%)`; // <-- TAMPILKAN
 
   } catch (error) {
     console.error("Gagal update equity stats:", error);
   }
 }
 
-// Inisialisasi
 document.addEventListener("DOMContentLoaded", updateEquityStats);
 window.updateEquityStats = updateEquityStats;
 

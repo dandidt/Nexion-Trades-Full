@@ -1255,6 +1255,12 @@ th.sortable {
     gap: 8px;
 }
 
+.row-box-statistic {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
 .min-title {
     font-size: var(--sz-14);
     color: var(--gray);
@@ -1263,6 +1269,11 @@ th.sortable {
 .total-equity {
     font-size: var(--sz-18);
     font-weight: var(--wg-500);
+}
+
+.persentase-fees {
+    font-size: var(--sz-14);
+    color: var(--red);
 }
 
 .bx-in-st {
