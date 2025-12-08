@@ -1095,7 +1095,6 @@ document.querySelector('.right-frist-page').addEventListener('click', () => {
 // =================== Dashboard Header =================== //
 async function updateEquityStats() {
   try {
-    // --- Ambil SEMUA data ---
     const tradingData = await getDB();
 
     if (!Array.isArray(tradingData)) {
@@ -1106,30 +1105,8 @@ async function updateEquityStats() {
     let totalPnl = 0;
     let totalDeposit = 0;
     let totalWithdraw = 0;
+    let totalFeePaid = 0;
 
-    // --- Pisahkan dan hitung berdasarkan tipe ---
-    tradingData.forEach(item => {
-      if (item.action === "Deposit") {
-        totalDeposit += Math.abs(item.value || 0);
-      } else if (item.action === "Withdraw") {
-        totalWithdraw += Math.abs(item.value || 0);
-      } else if (item.hasOwnProperty("Pnl")) {
-        totalPnl += Number(item.Pnl) || 0;
-      }
-    });
-
-    // --- Hitung equity baru ---
-    const totalEquity = totalDeposit + totalPnl - totalWithdraw;
-
-    // --- Persentase Withdraw relatif terhadap Deposit ---
-    const persentaseWithdraw =
-      totalDeposit > 0
-        ? ((totalWithdraw / totalDeposit) * 100).toFixed(2)
-        : "0.00";
-
-    const totalPerp = totalDeposit + totalPnl - totalWithdraw;
-
-    // --- Format number ---
     const formatCurrency = (n) => {
       const v = Number(n) || 0;
       const sign = v < 0 ? "-" : "";
@@ -1137,17 +1114,45 @@ async function updateEquityStats() {
       return sign + "$" + abs.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     };
 
+    tradingData.forEach(item => {
+      if (item.action === "Deposit") {
+        totalDeposit += Math.abs(item.value || 0);
+      } else if (item.action === "Withdraw") {
+        totalWithdraw += Math.abs(item.value || 0);
+      } else if (item.hasOwnProperty("Pnl")) {
+        totalPnl += Number(item.Pnl) || 0;
+
+        const rr = parseFloat(item.RR);
+        const margin = parseFloat(item.Margin);
+        const actualPnl = parseFloat(item.Pnl);
+
+        if (!isNaN(rr) && !isNaN(margin) && margin > 0) {
+          const expectedPnl = rr * margin;
+          const fee = Math.abs(expectedPnl - actualPnl);
+          totalFeePaid += fee;
+        }
+      }
+    });
+
+    const totalEquity = totalDeposit + totalPnl - totalWithdraw;
+    const persentaseWithdraw = totalDeposit > 0
+      ? ((totalWithdraw / totalDeposit) * 100).toFixed(2)
+      : "0.00";
+
+    // Update elemen
     const elTotalEquity = document.getElementById("totalEquity");
     const elTotalPerp = document.getElementById("total-perp");
     const elPersentaseWithdraw = document.getElementById("persentaseWithdraw");
     const elValueWithdraw = document.getElementById("valueWithdraw");
     const elValueDeposit = document.getElementById("valueDeposit");
+    const elValueFeePaid = document.getElementById("valueFeePaid"); // <-- TAMBAHAN
 
     if (elTotalEquity) elTotalEquity.textContent = formatCurrency(totalEquity);
-    if (elTotalPerp) elTotalPerp.textContent = formatCurrency(totalPerp);
+    if (elTotalPerp) elTotalPerp.textContent = formatCurrency(totalEquity); // asumsi sama
     if (elPersentaseWithdraw) elPersentaseWithdraw.textContent = `${persentaseWithdraw}%`;
     if (elValueWithdraw) elValueWithdraw.textContent = formatCurrency(totalWithdraw);
     if (elValueDeposit) elValueDeposit.textContent = formatCurrency(totalDeposit);
+    if (elValueFeePaid) elValueFeePaid.textContent = formatCurrency(-totalFeePaid); // tampilkan negatif
 
   } catch (error) {
     console.error("Gagal update equity stats:", error);
