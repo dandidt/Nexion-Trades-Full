@@ -303,6 +303,7 @@ async function switchToAccount(refreshToken) {
     try {
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbtrade');
+        localStorage.removeItem('dbnotes');
 
         const { data, error } = await supabaseClient.auth.refreshSession({
             refresh_token: refreshToken
@@ -354,6 +355,7 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
         await supabaseClient.auth.signOut();
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbtrade');
+        localStorage.removeItem('dbnotes');
 
         const isGithub = window.location.hostname.includes("github.io");
         const target = isGithub ? "/Nexion-Trades-Full" : "/";

@@ -25,11 +25,14 @@ function formatCurrencyCompact(n) {
 // ======================= Button Navbar ======================= //
 document.addEventListener("DOMContentLoaded", () => {
   const menus = document.querySelectorAll(".box-menu-in");
+
   const jurnalingSection = document.querySelector(".jurnaling");
   const statsSection = document.querySelector(".statistic");
+  const notesSection = document.querySelector(".notes");
   const settingSection = document.querySelector(".setting");
 
   if (statsSection) statsSection.style.display = "none";
+  if (notesSection) notesSection.style.display = "none";
   if (settingSection) settingSection.style.display = "none";
   jurnalingSection.style.display = "block";
 
@@ -37,7 +40,6 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!section) return;
 
     const animatedItems = section.querySelectorAll('.fade-up');
-    
     animatedItems.forEach(el => el.classList.remove('visible'));
 
     animatedItems.forEach((el, index) => {
@@ -51,9 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   menus.forEach((menu) => {
     menu.addEventListener("click", () => {
-      if (menu.classList.contains("active")) {
-        return;
-      }
+      if (menu.classList.contains("active")) return;
 
       menus.forEach((m) => m.classList.remove("active"));
       menu.classList.add("active");
@@ -62,6 +62,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       jurnalingSection.style.display = "none";
       if (statsSection) statsSection.style.display = "none";
+      if (notesSection) notesSection.style.display = "none";
       if (settingSection) settingSection.style.display = "none";
 
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -85,7 +86,13 @@ document.addEventListener("DOMContentLoaded", () => {
             }
           }, 300);
         }
-      } 
+      }
+      else if (menuName === "notes") {
+        if (notesSection) {
+          notesSection.style.display = "block";
+          animateSection(notesSection);
+        }
+      }
       else if (menuName === "setting") {
         if (settingSection) {
           settingSection.style.display = "block";
@@ -2599,12 +2606,350 @@ document.addEventListener('DOMContentLoaded', function () {
     calculate();
 });
 
+// ======================= Notes ======================= //
+function formatDate(timestamp) {
+    const d = new Date(timestamp);
+    return d.toLocaleString("id-ID", {
+        day: "numeric",
+        month: "short",
+        year: "numeric",
+        hour: "2-digit",
+        minute: "2-digit"
+    });
+}
+
+async function renderNotes(filter = "ALL") {
+    const container = document.querySelector(".wrapper-content-notes");
+    if (!container) return;
+
+    let db = await window.getDBNotes();
+
+    let filtered = db;
+    if (filter !== "ALL") {
+        filtered = db.filter(note =>
+            note.category && note.category.toLowerCase() === filter.toLowerCase()
+        );
+    }
+
+    filtered.sort((a, b) => b.timestamp - a.timestamp);
+
+    if (filtered.length === 0) {
+        container.innerHTML = `<p style="color:#999; text-align:center; padding:20px;">There are no notes yet.</p>`;
+        return;
+    }
+
+    let html = "";
+    filtered.forEach(note => {
+        html += `
+            <div class="content-notes">
+                <p class="title-content-notes">${note.title}</p>
+                <p class="date-content-notes">${formatDate(note.timestamp)}</p>
+                <p class="content-main-notes">
+                    <strong>Something happened: </strong>${note.something || "-"}
+                </p>
+                <div class="learning-content-notes">
+                    <div class="text-learning-notes">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-144 216-276v-240L48-600l432-216 432 216v312h-72v-276l-96 48v240L480-144Zm0-321 271-135-271-135-271 135 271 135Zm0 240 192-96v-159l-192 96-192-96v159l192 96Zm0-240Zm0 81Zm0 0Z"/></svg>
+                        <p><strong>Learning: </strong>${note.learning || "-"}</p>
+                    </div>
+                </div>
+                <div class="action-content-plan-notes">
+                    <div class="action-content-plan">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M407.74-240Q378-240 357-261.15 336-282.3 336-312v-67q-57-37.3-88.5-95.65Q216-533 216-600q0-110.31 76.78-187.16 76.78-76.84 187-76.84T667-787.16q77 76.85 77 187.16 0 66.82-31.5 125.41T624-379v67q0 29.7-21.18 50.85Q581.65-240 551.91-240H407.74Zm.26-72h144v-106l33-21q41-26 64-69.18 23-43.18 23-91.82 0-79.68-56.23-135.84-56.22-56.16-136-56.16Q400-792 344-735.84 288-679.68 288-600q0 48.64 23 91.82Q334-465 375-439l33 21v106Zm0 216q-20.4 0-34.2-13.8Q360-123.6 360-144v-24h240v24q0 20.4-13.8 34.2Q572.4-96 552-96H408Zm72-504Z"/></svg>
+                        <p><strong>Action Plan: </strong>${note.plan || "-"}</p>
+                    </div>
+                </div>
+                <div class="wrapper-position-right-notes">
+                    <div class="box-category-notes">
+                        <p class="text-category-notes">${note.category || "None"}</p>
+                    </div>
+                    <div class="box-delete-notes" data-id="${note.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                            <path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+}
+
+function getNextNoteId() {
+    const db = localStorage.getItem("dbnotes");
+    if (!db) return 1;
+
+    try {
+        const notes = JSON.parse(db);
+        if (!Array.isArray(notes) || notes.length === 0) return 1;
+        const maxId = Math.max(...notes.map(n => Number(n.id) || 0));
+        return maxId + 1;
+    } catch (e) {
+        console.warn("⚠️ Gagal baca dbnotes untuk ID", e);
+        return 1;
+    }
+}
+
+function showConfirmDeleteNotes(noteId) {
+    return new Promise((resolve) => {
+        const popup = document.getElementById("confirmDeleteNotes");
+        const messageEl = document.getElementById("confirmasionIdNotes");
+        const btnDelete = document.getElementById("btnDeleteNotes");
+        const btnCancel = document.getElementById("btnCancelNotes");
+
+        messageEl.textContent = `Are you sure you want to delete note #${noteId}?`;
+        popup.classList.remove("hidden");
+
+        btnDelete.replaceWith(btnDelete.cloneNode(true));
+        btnCancel.replaceWith(btnCancel.cloneNode(true));
+
+        const newBtnDelete = document.getElementById("btnDeleteNotes");
+        const newBtnCancel = document.getElementById("btnCancelNotes");
+
+        newBtnDelete.onclick = () => {
+            popup.classList.add("hidden");
+            resolve(true);
+        };
+
+        newBtnCancel.onclick = () => {
+            popup.classList.add("hidden");
+            resolve(false);
+        };
+
+        popup.onclick = (e) => {
+            if (e.target === popup) {
+                popup.classList.add("hidden");
+                resolve(false);
+            }
+        };
+    });
+}
+
+async function handleAddNote() {
+    const saveBtn = document.getElementById("notesSave");
+    if (!saveBtn) return;
+    saveBtn.classList.add("loading");
+
+    try {
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+
+        const title = document.getElementById("notesTitle")?.value.trim();
+        const something = document.getElementById("notesSomething")?.value.trim();
+        const learning = document.getElementById("notesLearning")?.value.trim();
+        const plan = document.getElementById("notesPlan")?.value.trim();
+        const dropdownSelected = document.querySelector('.custom-dropdown[data-dropdown="category"] .dropdown-selected span');
+        const category = dropdownSelected?.innerText.trim() || "Category";
+
+        const titleInput = document.getElementById("notesTitle");
+        const dropdownSelectedEl = document.querySelector('.custom-dropdown[data-dropdown="category"] .dropdown-selected');
+
+        titleInput.style.borderColor = "";
+        if (dropdownSelectedEl) dropdownSelectedEl.style.borderColor = "";
+
+        let isValid = true;
+
+        if (!titleInput.value.trim()) {
+            titleInput.style.borderColor = "rgb(250, 93, 117)";
+            isValid = false;
+        }
+
+        if (category === "Category") {
+            if (dropdownSelectedEl) dropdownSelectedEl.style.borderColor = "rgb(250, 93, 117)";
+            isValid = false;
+        }
+
+        if (!isValid) {
+            return;
+        }
+
+        const nextId = getNextNoteId();
+
+        const serverNote = {
+            id: nextId,
+            user_id: user.id,
+            timestamp: Date.now(),
+            title: title,
+            category: category === "Category" ? null : category,
+            something: something || null,
+            learning: learning || null,
+            plan: plan || null
+        };
+
+        const { data: insertedNote, error: insertErr } = await supabaseClient
+            .from("notes")
+            .insert(serverNote)
+            .select()
+            .single();
+
+        if (insertErr) throw insertErr;
+
+        const localNote = {
+            id: insertedNote.id,
+            timestamp: insertedNote.timestamp,
+            title: insertedNote.title,
+            category: insertedNote.category,
+            something: insertedNote.something || "",
+            learning: insertedNote.learning || "",
+            plan: insertedNote.plan || ""
+        };
+
+        let db = localStorage.getItem("dbnotes");
+        db = db ? JSON.parse(db) : [];
+        db.push(localNote);
+        localStorage.setItem("dbnotes", JSON.stringify(db));
+
+        refreshDBNotesCache();
+        renderNotes("ALL");
+        updateStatsNotes();
+
+        document.getElementById("notesTitle").value = "";
+        document.getElementById("notesSomething").value = "";
+        document.getElementById("notesLearning").value = "";
+        document.getElementById("notesPlan").value = "";
+        if (dropdownSelected) dropdownSelected.innerText = "Category";
+
+    } catch (err) {
+        console.error("❌ Gagal simpan catatan:", err.message);
+        alert("Gagal menyimpan. Coba lagi.");
+    } finally {
+        saveBtn.classList.remove("loading");
+    }
+}
+
+async function handleDeleteNote(noteId) {
+    const confirmed = await showConfirmDeleteNotes(noteId);
+    if (!confirmed) return;
+
+    const deleteBtn = document.getElementById("btnDeleteNotes");
+    if (deleteBtn) deleteBtn.classList.add("loading");
+
+    try {
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+
+        const { error: deleteErr } = await supabaseClient
+            .from("notes")
+            .delete()
+            .eq("id", noteId)
+            .eq("user_id", user.id);
+
+        if (deleteErr) throw deleteErr;
+
+        let db = localStorage.getItem("dbnotes");
+        if (db) {
+            db = JSON.parse(db).filter(note => note.id !== noteId);
+            localStorage.setItem("dbnotes", JSON.stringify(db));
+        }
+
+        refreshDBNotesCache();
+
+        const activeFilter = document.querySelector(".btn-filter-notes.active span")?.textContent.trim() || "ALL";
+        renderNotes(activeFilter);
+        updateStatsNotes();
+
+    } catch (err) {
+        console.error("❌ Gagal hapus:", err.message);
+        alert("Gagal menghapus catatan.");
+    } finally {
+        if (deleteBtn) deleteBtn.classList.remove("loading");
+    }
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const saveBtn = document.getElementById("notesSave");
+    const notesContainer = document.querySelector(".wrapper-content-notes");
+    const filterButtons = document.querySelectorAll(".btn-filter-notes");
+
+    if (saveBtn) saveBtn.addEventListener("click", handleAddNote);
+
+    const titleInput = document.getElementById("notesTitle");
+    if (titleInput) {
+        titleInput.addEventListener("input", () => {
+            if (titleInput.value.trim()) {
+                titleInput.style.borderColor = "";
+            }
+        });
+    }
+
+    const dropdownOptions = document.querySelectorAll('.custom-dropdown[data-dropdown="category"] .dropdown-option');
+    const dropdownContainer = document.querySelector('.custom-dropdown[data-dropdown="category"]');
+    const dropdownSelectedSpan = dropdownContainer?.querySelector('.dropdown-selected span');
+
+    dropdownOptions.forEach(option => {
+        option.addEventListener("click", () => {
+            if (dropdownContainer) {
+                dropdownContainer.style.borderColor = "";
+            }
+        });
+    });
+
+    const dropdownSelected = document.querySelector('.custom-dropdown[data-dropdown="category"] .dropdown-selected');
+    if (dropdownSelected) {
+        dropdownSelected.addEventListener("click", () => {
+            if (dropdownContainer) {
+                dropdownContainer.style.borderColor = "";
+            }
+        });
+    }
+
+    filterButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            filterButtons.forEach(b => b.classList.remove("active"));
+            btn.classList.add("active");
+            const filterText = btn.querySelector("span").textContent.trim();
+            renderNotes(filterText);
+        });
+    });
+
+    if (notesContainer) {
+        notesContainer.addEventListener("click", (e) => {
+            const deleteBtn = e.target.closest(".box-delete-notes");
+            if (deleteBtn) {
+                const id = Number(deleteBtn.getAttribute("data-id"));
+                if (!isNaN(id)) handleDeleteNote(id);
+            }
+        });
+    }
+
+    renderNotes("ALL");
+    updateStatsNotes();
+});
+
+function updateStatsNotes() {
+    let db = localStorage.getItem("dbnotes");
+    db = db ? JSON.parse(db) : [];
+
+    document.getElementById("statsTotalLearning").textContent = db.length;
+
+    const now = Date.now();
+    const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
+    const thisWeekCount = db.filter(note => note.timestamp >= sevenDaysAgo).length;
+    document.getElementById("statsWeekLearning").textContent = thisWeekCount;
+
+    const categoryCount = {};
+    db.forEach(note => {
+        if (note.category) {
+            categoryCount[note.category] = (categoryCount[note.category] || 0) + 1;
+        }
+    });
+
+    let mostCategory = "–";
+    if (Object.keys(categoryCount).length > 0) {
+        mostCategory = Object.keys(categoryCount).reduce((a, b) =>
+            categoryCount[a] > categoryCount[b] ? a : b
+        );
+    }
+
+    document.getElementById("statsMostCategories").textContent = mostCategory;
+}
+
 // ======================= Update UI Global ======================= //
 async function updateAllUI() {
   try {
     const data = await getDB();
 
-    // renderTradingTable(data);
     await loadTradingData()
     updateDashboardFromTrades(data);
     await updateEquityStats();
@@ -2617,6 +2962,9 @@ async function updateAllUI() {
     await updatePairsTable();
     await loadMonthlyData(); 
     await loadDailyPnLData();
+
+    renderNotes("ALL");
+    updateStatsNotes();
 
     window.dispatchEvent(new Event('recalculateTrading'));
 

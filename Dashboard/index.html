@@ -31,6 +31,10 @@
                     <span>Statistic</span>
                 </div>
                 <div class="box-menu-in">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M252-96q-45 0-76.5-31.5T144-204v-552q0-45 31.5-76.5T252-864h420v624H252q-15.3 0-25.65 10.29Q216-219.42 216-204.21t10.35 25.71Q236.7-168 252-168h492v-624h72v696H252Zm22-312h50l26-73h116.28L492-408h50L433.61-696H382L274-408Zm91-115 41.95-120H409l42 120h-86Z"/></svg>
+                    <span>Notes</span>
+                </div>
+                <div class="box-menu-in">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m403-96-22-114q-23-9-44.5-21T296-259l-110 37-77-133 87-76q-2-12-3-24t-1-25q0-13 1-25t3-24l-87-76 77-133 110 37q19-16 40.5-28t44.5-21l22-114h154l22 114q23 9 44.5 21t40.5 28l110-37 77 133-87 76q2 12 3 24t1 25q0 13-1 25t-3 24l87 76-77 133-110-37q-19 16-40.5 28T579-210L557-96H403Zm77-240q60 0 102-42t42-102q0-60-42-102t-102-42q-60 0-102 42t-42 102q0 60 42 102t102 42Z"/></svg>
                     <span>Setting</span>
                 </div>
@@ -897,6 +901,149 @@
                         <!-- JS -->
                         <div class="pairs-body"></div>
                     </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===== Note Section ===== -->
+        <section class="notes">
+            <h2 class="fade-up">Notes</h2>
+
+            <div class="wrapper-stats-notes fade-up">
+                <div class="subcontainer-stats-notes">
+                    <p class="stats-informasion" id="statsTotalLearning">2</p>
+                    <p class="name-stats-notes">Total Learning</p>
+                </div>
+                <div class="subcontainer-stats-notes">
+                    <p class="stats-informasion" id="statsWeekLearning">2</p>
+                    <p class="name-stats-notes">This week</p>
+                </div>
+                <div class="subcontainer-stats-notes">
+                    <p class="stats-informasion" id="statsMostCategories">Psychology</p>
+                    <p class="name-stats-notes">Most Categories</p>
+                </div>
+            </div>
+
+            <div class="wrapper-stats-notes fade-up">
+                <div class="left-notes-add">
+                    <div class="title-notes">Add Notes</div>
+
+                    <div class="wrapper-from-notes">
+                        <div class="form-group">
+                            <label>Notes Title </label>
+                            <div class="input-with-clear">
+                                <input type="text" id="notesTitle" placeholder="Notes Title">
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="#e3e3e3"><path d="M5.05 38.99L1.02 34.96 15.97 20.01 1.02 5.06 5.05 1.02 20 15.97 34.95 1.02 38.98 5.05 24.03 20 38.98 34.95 34.95 38.98 20 24.03 5.05 38.99Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Category</label>
+                            <div class="wrapper-input-notes">
+                                <div class="custom-dropdown" data-dropdown="category">
+                                    <div class="dropdown-selected">
+                                        <span class="placeholder">Category</span>
+                                        <div class="icon-container">
+                                            <!-- Close/X Icon -->
+                                            <svg class="close-icon" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                                            <!-- Arrow Icon -->
+                                            <svg class="dropdown-arrow" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-525 291-336l-51-51 240-240 240 240-51 51-189-189Z"/></svg>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-options">
+                                        <div class="dropdown-option" data-value="Psychology">Psychology</div>
+                                        <div class="dropdown-option" data-value="Strategi">Strategi</div>
+                                        <div class="dropdown-option" data-value="Other">Other</div>
+                                    </div>
+                                </div>
+                                <div class="btn btn-default btn-setting-input-notes">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m403-96-22-114q-23-9-44.5-21T296-259l-110 37-77-133 87-76q-2-12-3-24t-1-25q0-13 1-25t3-24l-87-76 77-133 110 37q19-16 40.5-28t44.5-21l22-114h154l22 114q23 9 44.5 21t40.5 28l110-37 77 133-87 76q2 12 3 24t1 25q0 13-1 25t-3 24l87 76-77 133-110-37q-19 16-40.5 28T579-210L557-96H403Zm59-72h36l19-99q38-7 71-26t57-48l96 32 18-30-76-67q6-17 9.5-35.5T696-480q0-20-3.5-38.5T683-554l76-67-18-30-96 32q-24-29-57-48t-71-26l-19-99h-36l-19 99q-38 7-71 26t-57 48l-96-32-18 30 76 67q-6 17-9.5 35.5T264-480q0 20 3.5 38.5T277-406l-76 67 18 30 96-32q24 29 57 48t71 26l19 99Zm18-168q60 0 102-42t42-102q0-60-42-102t-102-42q-60 0-102 42t-42 102q0 60 42 102t102 42Zm0-144Z"/></svg>
+                                </div>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Something happened</label>
+                            <div class="input-with-clear">
+                                <textarea class="input-notes" id="notesSomething" placeholder="Something happened..."></textarea>
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="#e3e3e3"><path d="M5.05 38.99L1.02 34.96 15.97 20.01 1.02 5.06 5.05 1.02 20 15.97 34.95 1.02 38.98 5.05 24.03 20 38.98 34.95 34.95 38.98 20 24.03 5.05 38.99Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Learning & Insight</label>
+                            <div class="input-with-clear">
+                                <textarea class="input-notes" id="notesLearning" placeholder="Learning & Insight..."></textarea>
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="#e3e3e3"><path d="M5.05 38.99L1.02 34.96 15.97 20.01 1.02 5.06 5.05 1.02 20 15.97 34.95 1.02 38.98 5.05 24.03 20 38.98 34.95 34.95 38.98 20 24.03 5.05 38.99Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+    
+                        <div class="form-group">
+                            <label>Action Plan untuk Improvement</label>
+                            <div class="input-with-clear">
+                                <textarea class="input-notes" id="notesPlan" placeholder="Action Plan untuk Improvement..."></textarea>
+                                <button type="button" class="clear-btn" aria-label="Clear">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="#e3e3e3"><path d="M5.05 38.99L1.02 34.96 15.97 20.01 1.02 5.06 5.05 1.02 20 15.97 34.95 1.02 38.98 5.05 24.03 20 38.98 34.95 34.95 38.98 20 24.03 5.05 38.99Z"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button id="notesSave" class="btn btn-green btn-notes">
+                        <span class="btn-text">Save</span>
+                        <span class="btn-loader"></span>
+                    </button>
+
+                </div>
+
+                <div class="right-notes">
+                    <div class="wrapper-notes-top">
+                        <div class="title-notes">Improvement Notes</div>
+                        <div class="column-filter-notes">
+                            <div class="btn-filter-notes active">
+                                <span>ALL</span>
+                            </div>
+                            <div class="btn-filter-notes">
+                                <span>Psychology</span>
+                            </div>
+                            <div class="btn-filter-notes">
+                                <span>Strategi</span>
+                            </div>
+                            <div class="btn-filter-notes">
+                                <span>Other</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wrapper-content-notes">
+                        
+                        <div class="content-notes">
+                            <p class="title-content-notes">Psikologi</p>
+                            <p class="date-content-notes">5 Des 2025 04:43</p>
+                            <p class="content-main-notes"><strong>Something happened: </strong>Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa nesciunt qui, error tempore recusandae non vel excepturi porro soluta laborum a quisquam officiis tenetur sed nostrum quae voluptatum delectus ipsam adipisci debitis facere. Repellat aliquam dolore libero, repudiandae nemo quam.</p>
+                            <div class="learning-content-notes">
+                                <p class="text-learning-notes"><strong>Learning: </strong>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quidem fugiat porro ullam autem alias distinctio quisquam consequuntur dolor incidunt quis.</p>
+                            </div>
+                            <div class="action-content-plan-notes">
+                                <p class="action-content-plan"><Strong>Action Plan: </Strong>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Ratione tempore deserunt et?</p>
+                            </div>
+                            <div class="wrapper-position-right-notes">
+                                <div class="box-category-notes">
+                                    <p class="text-category-notes">Psychology</p>
+                                </div>
+                                <div class="box-delete-notes">
+                                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/></svg>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    
                 </div>
             </div>
         </section>
@@ -2148,6 +2295,33 @@
                 </div>
             </div>
 
+        </div>
+
+        <!-- ===== Delete Data Notes ===== -->
+        <div id="confirmDeleteNotes" class="hidden">
+            <div class="confirm-popup-content">
+                <!-- Icon Warning -->
+                <div class="confirm-icon-wrapper">
+                    <div class="confirm-icon-circle">
+                        <svg class="confirm-icon-svg" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                        </svg>
+                    </div>
+                </div>
+                
+                <!-- Message -->
+                <h3 class="confirm-title">Confirm Delete</h3>
+                <p id="confirmasionIdNotes" class="confirm-message"></p>
+                
+                <!-- Buttons -->
+                <div class="confirm-buttons">
+                    <button id="btnCancelNotes" class="btn btn-default btn-delete">Cancel</button>
+                    <button id="btnDeleteNotes" class="btn btn-red btn-edit">
+                        <span class="btn-text">Confirm</span>
+                        <span class="btn-loader"></span>
+                    </button>
+                </div>
+            </div>
         </div>
         
         <!-- Script -->

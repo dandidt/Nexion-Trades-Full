@@ -46,6 +46,7 @@ async function handleLogout() {
 
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbtrade');
+        localStorage.removeItem('dbnotes');
 
         const savedRaw = localStorage.getItem('saved_accounts');
         let savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];

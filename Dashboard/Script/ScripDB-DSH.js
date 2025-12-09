@@ -169,3 +169,101 @@ document.addEventListener('DOMContentLoaded', () => {
 window.getDB = getDB;
 window.loadDB = loadDB;
 window.refreshDBCache = refreshDBCache;
+
+// ======================= Notes ======================= //
+const CACHE_KEY_NOTES = 'dbnotes';
+let dbNotesPromise = null;
+
+function saveNotesToCache(data) {
+    try {
+        localStorage.setItem(CACHE_KEY_NOTES, JSON.stringify(data));
+        console.log('📚 Notes saved to local cache');
+    } catch (error) {
+        console.warn('⚠️ Failed to save notes to cache:', error);
+    }
+}
+
+function getNotesFromCache() {
+    try {
+        const cached = localStorage.getItem(CACHE_KEY_NOTES);
+        if (cached) {
+            return JSON.parse(cached);
+        }
+    } catch (error) {
+        console.warn('⚠️ Failed to read notes from cache:', error);
+    }
+    return null;
+}
+
+async function loadDBNotes() {
+    try {
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+        if (authError || !user) {
+            // Optional: redirect or just return empty
+            return [];
+        }
+
+        const userId = user.id;
+
+        const { data: notes, error: notesErr } = await supabaseClient
+            .from('notes')
+            .select(`
+                id,
+                timestamp,
+                title,
+                category,
+                something,
+                learning,
+                plan,
+                user_id
+            `)
+            .eq('user_id', userId);
+
+        if (notesErr) throw notesErr;
+
+        // Proses data sesuai kebutuhan (misal, ubah timestamp jadi Date kalau perlu)
+        const processedNotes = notes.map(note => ({
+            id: note.id,
+            timestamp: note.timestamp, // udah bigint (ms), bisa langsung dipakai
+            title: note.title || '',
+            category: note.category || '',
+            something: note.something || '',
+            learning: note.learning || '',
+            plan: note.plan || ''
+        }));
+
+        saveNotesToCache(processedNotes);
+        return processedNotes;
+
+    } catch (err) {
+        console.error('❌ Error loading notes:', err);
+        const cachedData = getNotesFromCache();
+        if (cachedData) {
+            return cachedData;
+        }
+        return [];
+    }
+}
+
+async function getDBNotes() {
+    if (!dbNotesPromise) {
+        dbNotesPromise = loadDBNotes();
+    }
+    return await dbNotesPromise;
+}
+
+function refreshDBNotesCache() {
+    dbNotesPromise = loadDBNotes();
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+    dbNotesPromise = loadDBNotes().then(data => {
+        window.dbnotesData = data;
+        document.dispatchEvent(new CustomEvent('notesLoaded', { detail: data }));
+        return data;
+    });
+});
+
+window.getDBNotes = getDBNotes;
+window.loadDBNotes = loadDBNotes;
+window.refreshDBNotesCache = refreshDBNotesCache;
