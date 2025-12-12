@@ -1292,14 +1292,19 @@ async function updateStats() {
 
   tradeOnly.forEach(t => {
     const pnl = Number(t.Pnl) || 0;
-    const isLoss = ['loss', 'lose'].includes((t.Result || '').toString().toLowerCase());
+    const result = (t.Result || '').toString().toLowerCase().trim();
 
-    if (isLoss && pnl < 0) {
+    const isLossOrMissed = ['loss', 'lose', 'missed'].includes(result);
+    const isProfitOrBreakEven = ['profit', 'win', 'break even', 'breakeven'].includes(result);
+
+    if (isLossOrMissed) {
       if (currentDrop === 0) {
         balanceBeforeStreak = runningBalance;
       }
-      currentDrop += Math.abs(pnl);
-    } else {
+      if (['loss', 'lose'].includes(result) && pnl < 0) {
+        currentDrop += Math.abs(pnl);
+      }
+    } else if (isProfitOrBreakEven) {
       if (currentDrop > 0) {
         const dropPercent = balanceBeforeStreak > 0 
           ? (currentDrop / balanceBeforeStreak) * 100 
@@ -1916,17 +1921,35 @@ async function updateTradingStats() {
         const rawData = await getDB();
         if (!Array.isArray(rawData)) throw new Error('Expected JSON array');
 
-        const trades = rawData
-            .filter(item => typeof item.date === 'number' && !isNaN(item.date))
+        const executedTrades = rawData
+            .filter(item => 
+                typeof item.date === 'number' && 
+                !isNaN(item.date) &&
+                item.Pairs &&
+                (item.Result === 'Profit' || item.Result === 'Loss')
+            )
             .map(item => ({
                 date: new Date(item.date * 1000),
                 pnl: item.Pnl,
                 rr: item.RR,
-                result: item.Result
+                result: (item.Result || '').toString().trim()
             }))
             .sort((a, b) => a.date - b.date);
+            
+        const allTradesWithPnL = rawData
+            .filter(item => 
+                typeof item.date === 'number' && 
+                !isNaN(item.date) && 
+                typeof item.Pnl === 'number'
+            )
+            .map(item => ({
+                date: new Date(item.date * 1000),
+                pnl: item.Pnl,
+                rr: item.RR,
+                result: (item.Result || '').toString().trim()
+            }));
 
-        const validTrades = trades.filter(t => t.pnl !== null && t.pnl !== undefined);
+        const validTrades = allTradesWithPnL.filter(t => t.pnl !== null && t.pnl !== undefined);
 
         const profitTrades = validTrades.filter(t => t.pnl > 0);
         const lossTrades = validTrades.filter(t => t.pnl < 0);
@@ -1944,8 +1967,8 @@ async function updateTradingStats() {
             ? parseFloat((rrProfitTrades.reduce((sum, t) => sum + t.rr, 0) / rrProfitTrades.length).toFixed(2))
             : 0;
 
-        const maxProfitStreak = calculateMaxStreak(validTrades, 'Profit');
-        const maxLossStreak = calculateMaxStreak(validTrades, 'Loss');
+        const maxProfitStreak = calculateResultStreak(executedTrades, 'Profit');
+        const maxLossStreak = calculateResultStreak(executedTrades, 'Loss');
 
         document.getElementById('averageProfite').textContent = formatUSD(avgProfit);
         document.getElementById('averageLoss').textContent = '-' + formatUSD(avgLoss);
@@ -1963,15 +1986,16 @@ async function updateTradingStats() {
     }
 }
 
-function calculateMaxStreak(trades, targetType) {
+function calculateResultStreak(trades, targetType) {
     let maxStreak = 0;
     let currentStreak = 0;
 
     for (const trade of trades) {
         if (trade.result === targetType) {
             currentStreak++;
-            if (currentStreak > maxStreak) maxStreak = currentStreak;
-        } else if (trade.result === 'Loss' || trade.result === 'Profit') {
+            maxStreak = Math.max(maxStreak, currentStreak);
+        } else {
+            // Reset streak untuk semua trade yang bukan targetType (termasuk lawan jenis)
             currentStreak = 0;
         }
     }
