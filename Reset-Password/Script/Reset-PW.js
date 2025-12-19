@@ -1,4 +1,13 @@
+// =======================
+// Supabase setup
+// =======================
+const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
+const supabaseClient = supabase.createClient(supabaseUrl.trim(), supabaseKey.trim());
 
+// =======================
+// Canvas
+// =======================
 const canvas = document.getElementById('dotCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -80,34 +89,49 @@ function isValidEmail(email) {
     return emailRegex.test(email);
 }
 
-form.addEventListener('submit', function(e) {
+form.addEventListener('submit', async function(e) {
     e.preventDefault();
     
     const email = emailInput.value.trim();
     
-    // Reset states
     errorMessage.classList.remove('show');
     successMessage.classList.remove('show');
     emailInput.classList.remove('error');
-    
-    // Validate email format
+
     if (!isValidEmail(email)) {
-        // Format salah
         emailInput.classList.add('error');
+        errorMessage.textContent = 'Please enter a valid email address';
         errorMessage.classList.add('show');
         return;
     }
-    
-    // Format benar - tampilkan success message
-    resetBtn.style.display = 'none';
-    successMessage.classList.add('show');
-    
-    // Optional: Reset form setelah beberapa detik
-    setTimeout(() => {
-        form.reset();
-        resetBtn.style.display = 'block';
-        successMessage.classList.remove('show');
-    }, 5000);
+
+    startLoading();
+
+    try {
+        const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + '/New-Password'
+        });
+
+        if (error) throw error;
+
+        finishLoading();
+
+        resetBtn.style.display = 'none';
+        successMessage.classList.add('show');
+
+        setTimeout(() => {
+            form.reset();
+            resetBtn.style.display = 'block';
+            successMessage.classList.remove('show');
+        }, 5000);
+
+    } catch (err) {
+        finishLoading();
+
+        emailInput.classList.add('error');
+        errorMessage.textContent = err.message || 'Failed to send reset email. Please try again.';
+        errorMessage.classList.add('show');
+    }
 });
 
 // Remove error state saat user mulai mengetik
