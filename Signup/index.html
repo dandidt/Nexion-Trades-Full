@@ -181,16 +181,18 @@
     <!-- Success Modal -->
     <div id="signupSuccessModal">
         <div class="container-success">
-            <!-- Success Icon -->
             <div class="icon-success">
                 <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
             <h3 class="title-success">Signup Successful!</h3>
-            <p class="text-success">Your account has been created successfully.<br>Please log in to continue.</p>
+            <p class="text-success">
+                A verification email has been sent to:<br>
+                <strong id="signupEmailDisplay"></strong><br><br>
+                Please check your inbox and click the confirmation link to activate your account.
+            </p>
             <button id="loginRedirectBtn">Go to Login</button>
         </div>
     </div>
-
     <div class="page-loader"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>

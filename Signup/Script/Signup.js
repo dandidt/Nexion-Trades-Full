@@ -119,113 +119,6 @@ userNameDisplay.addEventListener('click', () => {
 });
 
 // =======================
-// Avatar Upload Preview
-// =======================
-document.querySelector('.avatar-upload')?.addEventListener('click', function () {
-    avatarInput.click();
-});
-
-avatarInput.addEventListener('change', function (e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    if (!file.type.match('image.*')) {
-        alert('Please upload a valid image (JPEG, PNG, WEBP, etc.)');
-        return;
-    }
-    if (file.size > 2 * 1024 * 1024) {
-        alert('File size exceeds 2MB limit.');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function (event) {
-        const dataUrl = event.target.result;
-        avatarPlaceholder.innerHTML = `<img src="${dataUrl}" alt="Avatar Preview" style="width:100%; height:100%; object-fit:cover; border-radius:12px;">`;
-
-        try {
-            localStorage.setItem('avatar', dataUrl);
-        } catch (err) {
-            console.warn('Failed to save avatar to localStorage', err);
-            if (err.name === 'QuotaExceededError') {
-                localStorage.removeItem('avatar');
-            }
-        }
-    };
-    reader.readAsDataURL(file);
-});
-
-// =======================
-// Image Compression
-// =======================
-async function compressImage(file, maxSizeKB = 50) {
-    const imageBitmap = await createImageBitmap(file);
-    let quality = 0.7;
-    let canvas = document.createElement('canvas');
-    let ctx = canvas.getContext('2d');
-
-    canvas.width = imageBitmap.width;
-    canvas.height = imageBitmap.height;
-    ctx.drawImage(imageBitmap, 0, 0);
-
-    let blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
-
-    while (blob.size > maxSizeKB * 1024 && quality > 0.1) {
-        quality -= 0.1;
-        blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
-    }
-
-    while (blob.size > maxSizeKB * 1024) {
-        canvas.width *= 0.9;
-        canvas.height *= 0.9;
-        ctx = canvas.getContext('2d');
-        ctx.drawImage(imageBitmap, 0, 0, canvas.width, canvas.height);
-        blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', quality));
-    }
-
-    return new File([blob], file.name.replace(/\.[^/.]+$/, '.jpg'), { type: 'image/jpeg' });
-}
-
-async function saveAccountToLocalStorage() {
-    try {
-        const { data: { session }, error } = await supabaseClient.auth.getSession();
-        if (error || !session) {
-            console.warn('No active session to save');
-            return;
-        }
-
-        // Ambil avatar base64 dari localStorage (yang sudah disimpan saat login)
-        const avatarBase64 = localStorage.getItem('avatar') || null;
-
-        const accountData = {
-            user_id: session.user.id,
-            email: session.user.email,
-            refresh_token: session.refresh_token,
-            avatar: avatarBase64 // 🔹 tambahkan avatar di sini
-        };
-
-        // Ambil akun yang sudah tersimpan
-        let savedAccounts = [];
-        const stored = localStorage.getItem(STORAGE_KEY);
-        if (stored) {
-            savedAccounts = JSON.parse(stored);
-        }
-
-        // Cek duplikat berdasarkan user_id
-        const existingIndex = savedAccounts.findIndex(acc => acc.user_id === accountData.user_id);
-        if (existingIndex !== -1) {
-            savedAccounts[existingIndex] = accountData; // perbarui (termasuk avatar baru)
-        } else {
-            savedAccounts.push(accountData); // tambah baru
-        }
-
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(savedAccounts));
-        console.log('✅ Akun + avatar berhasil disimpan ke local cache:', accountData.email);
-    } catch (err) {
-        console.error('❌ Gagal menyimpan akun ke local cache:', err);
-    }
-}
-
-// =======================
 // Form Submission
 // =======================
 document.getElementById('signupForm')?.addEventListener('submit', async function (e) {
@@ -237,52 +130,42 @@ document.getElementById('signupForm')?.addEventListener('submit', async function
     const repeatPassword = repeatPasswordInput.value;
     const accessCode = accessInput.value.trim();
 
-    // --- CLIENT-SIDE VALIDATION (SEBELUM SERVER) ---
+    // --- CLIENT-SIDE VALIDATION ---
     let hasError = false;
 
-    // Access code required
     if (!accessCode) {
         accessInput.style.borderColor = '#ff5555';
         document.getElementById('accessAlert').textContent = 'Access code is required';
         hasError = true;
     }
 
-    // Username validation
     if (!validateFullname(username)) {
         fullnameInput.style.borderColor = '#ff5555';
         document.getElementById('usernameAlert').textContent = 'Username must be 3–20 letters/numbers';
         hasError = true;
     }
 
-    // Email validation
     if (!validateEmail(email)) {
         emailInput.style.borderColor = '#ff5555';
         document.getElementById('emailAlert').textContent = 'Invalid email format';
         hasError = true;
     }
 
-    // Password validation
     if (!validatePassword(password)) {
         passwordInput.style.borderColor = '#ff5555';
-        // Optional: add error message if you have a password alert element
         hasError = true;
     }
 
-    // Repeat password validation
     if (!validateRepeatPassword()) {
         repeatPasswordInput.style.borderColor = '#ff5555';
-        // Optional: add message like "Passwords do not match"
         hasError = true;
     }
 
-    // Jika ada error validasi client-side, HENTIKAN di sini
     if (hasError) return;
 
-    // --- SERVER-SIDE LOGIC ---
     startLoading();
 
     try {
-        // Validasi access code
         const accessResponse = await fetch(
             `https://script.google.com/macros/s/AKfycbzB-oRL8sjNXO0P0dcinbAdt5DxGWIp4llHcIQNF6bQ9lVvdUFak4whdiKIxGYNMhbf/exec?code=${encodeURIComponent(accessCode)}`
         );
@@ -295,65 +178,21 @@ document.getElementById('signupForm')?.addEventListener('submit', async function
             return;
         }
 
-        // Periksa username unik
-        const { data: existingUsers, error: checkError } = await supabaseClient
-            .from('profiles')
-            .select('username')
-            .eq('username', username)
-            .limit(1);
-
-        if (checkError) throw new Error('Failed to check username availability');
-        if (existingUsers.length > 0) throw new Error('USERNAME_TAKEN');
-
-        // Daftar user
         const { data: authData, error: authError } = await supabaseClient.auth.signUp({
             email,
             password,
-            options: { data: { username } }
+            options: {
+                data: { username }
+            }
         });
 
         if (authError) throw authError;
         if (!authData?.user) throw new Error('User creation failed');
 
-        await new Promise(r => setTimeout(r, 500));
-
-        // Upload avatar (opsional)
-        let avatarUrl = null;
-        if (avatarInput.files.length > 0) {
-            const compressedFile = await compressImage(avatarInput.files[0], 100);
-            const filePath = `public/${authData.user.id}/${Date.now()}.jpg`;
-            const { error: uploadError } = await supabaseClient.storage
-                .from('avatars')
-                .upload(filePath, compressedFile, { upsert: true });
-            if (uploadError) throw uploadError;
-            avatarUrl = filePath;
-
-            // Simpan ke localStorage
-            const reader = new FileReader();
-            const base64 = await new Promise((resolve, reject) => {
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(compressedFile);
-            });
-            localStorage.setItem('avatar', base64);
-            localStorage.removeItem('dbtrade'); // optional cleanup
-        }
-
-        // Simpan profil
-        const { error: profileError } = await supabaseClient
-            .from('profiles')
-            .insert({ id: authData.user.id, username, avatar_url: avatarUrl });
-
-        if (profileError) {
-            if (profileError.message?.includes('unique')) throw new Error('USERNAME_TAKEN');
-            throw profileError;
-        }
-
-        await saveAccountToLocalStorage();
-
-        // Sukses
         finishLoading();
+        document.getElementById('signupEmailDisplay').textContent = email;
         document.getElementById('signupSuccessModal').style.display = 'flex';
+
         document.getElementById('loginRedirectBtn').onclick = () => {
             const isGithub = window.location.hostname.includes('github.io');
             const target = isGithub ? '/Nexion-Trades-Full/index.html' : '/index.html';
@@ -364,14 +203,14 @@ document.getElementById('signupForm')?.addEventListener('submit', async function
         finishLoading();
         console.error('Signup error:', err);
 
-        if (err.message === 'USERNAME_TAKEN') {
-            fullnameInput.style.borderColor = '#ff5555';
-            document.getElementById('usernameAlert').textContent = 'Username is already in use';
-        } else if (err.message?.toLowerCase().includes('already registered')) {
+        if (err.message?.toLowerCase().includes('already registered')) {
             emailInput.style.borderColor = '#ff5555';
-            document.getElementById('emailAlert').textContent = 'Email has been registered';
+            document.getElementById('emailAlert').textContent = 'Email is already registered';
+        } else if (err.message?.includes('username')) {
+            fullnameInput.style.borderColor = '#ff5555';
+            document.getElementById('usernameAlert').textContent = 'Invalid username';
         } else {
-            alert('Signup failed: ' + (err.message || 'Unknown error'));
+            alert('Signup failed: ' + (err.message || 'Please try again'));
         }
     }
 });
