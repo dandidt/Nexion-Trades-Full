@@ -180,7 +180,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function closeAccountPopup() {
         popupAccount.classList.remove("show");
-        forceCloseLogoutPopup(); // Gunakan fungsi terpusat
+        forceCloseLogoutPopup();
 
         if (!isAnyOtherPopupOpen()) {
             if (popupOverlay) popupOverlay.classList.remove("show");
@@ -612,7 +612,6 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Edit Dropdown
     ['timeframe', 'entry'].forEach(name => {
     rebuildDropdown(name);
     });
@@ -774,7 +773,6 @@ function handleOptionClick(e) {
         return;
     }
 
-    // ✅ INI YANG KURANG:
     selected.classList.add('has-value');
 
     selectedSpan.textContent = opt.textContent;
@@ -1587,7 +1585,6 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
             const leverage = parseFloat(calc.leverage) || 1;
             const riskFactor = parseFloat(setting.riskFactor) || 1;
 
-            // === Hitung total balance ===
             const totalPNL = dbtrade.reduce((sum, item) => sum + (parseFloat(item.Pnl ?? item.pnl ?? 0) || 0), 0);
             const totalDeposit = dbtrade.reduce((sum, item) => item.action?.toLowerCase() === "deposit" ? sum + (parseFloat(item.value ?? 0) || 0) : sum, 0);
             const finalBalance = totalPNL + totalDeposit;
@@ -1608,7 +1605,6 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
                 pnlFinal = -(margin + feeValue);
             }
 
-            // === Update ke input ===
             document.getElementById("edit-margin").value = margin.toFixed(2);
             document.getElementById("edit-pnl").value = pnlFinal.toFixed(2);
             document.getElementById("edit-rr").value = rrUsed.toFixed(2);
@@ -1645,7 +1641,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const popupSop = document.querySelector(".popup-sop");
     const btnSopTrading = document.getElementById("sopTrading");
 
-    // Simpan referensi global
     globalPopupOverlay = popupOverlay;
     globalPopupSop = popupSop;
 
@@ -1780,19 +1775,16 @@ function updateUI() {
     const { wins, losses, entries, drawdown } = tradingDataSop;
     const { maxWin, maxLoss, maxEntry, maxDD } = sopRules;
     
-    // Update display rules
     document.getElementById('maxWinDisplay').textContent = `${maxWin}x`;
     document.getElementById('maxLossDisplay').textContent = `${maxLoss}x`;
     document.getElementById('maxEntryDisplay').textContent = `${maxEntry}x`;
     document.getElementById('maxDDDisplay').textContent = `${maxDD}%`;
     
-    // Update counts
     document.getElementById('winCount').textContent = `${wins}/${maxWin}`;
     document.getElementById('lossCount').textContent = `${losses}/${maxLoss}`;
     document.getElementById('entryCount').textContent = `${entries}/${maxEntry}`;
     document.getElementById('ddCount').textContent = `${drawdown}%`;
     
-    // Update progress bars
     const winBar = document.getElementById('winBar');
     const lossBar = document.getElementById('lossBar');
     const entryBar = document.getElementById('entryBar');
@@ -1803,7 +1795,6 @@ function updateUI() {
     entryBar.style.width = `${(entries/maxEntry)*100}%`;
     ddBar.style.width = `${(drawdown/maxDD)*100}%`;
     
-    // Set colors
     if (wins >= maxWin) winBar.className = 'progress-fill-sop danger';
     else if (wins >= maxWin - 1) winBar.className = 'progress-fill-sop warning';
     else winBar.className = 'progress-fill-sop';
@@ -1820,7 +1811,6 @@ function updateUI() {
     else if (drawdown >= maxDD * 0.7) ddBar.className = 'progress-fill-sop warning';
     else ddBar.className = 'progress-fill-sop';
     
-    // Update info cards
     const statusEntry = document.getElementById('statusEntry');
     const statusTrading = document.getElementById('statusTrading');
     const statusWin = document.getElementById('statusWin');
@@ -1829,7 +1819,6 @@ function updateUI() {
     const canTrade = wins < maxWin && losses < maxLoss && entries < maxEntry && drawdown < maxDD;
     const canEntry = entries < maxEntry && canTrade;
     
-    // Entry status
     if (!canEntry) {
         statusEntry.className = 'info-card danger';
         statusEntry.querySelector('.info-value').textContent = 'BLOCKED';
@@ -1844,7 +1833,6 @@ function updateUI() {
         statusEntry.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480.28-96Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Zm-.28-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-72q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm0-72q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Zm-.21-96Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Z"/></svg>';
     }
     
-    // Trading status
     if (!canTrade) {
         statusTrading.className = 'info-card danger';
         statusTrading.querySelector('.info-value').textContent = 'STOPPED';
@@ -1859,7 +1847,6 @@ function updateUI() {
         statusTrading.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M444-144v-80q-51-11-87.5-46T305-357l74-30q8 36 40.5 64.5T487-294q39 0 64-20t25-52q0-30-22.5-50T474-456q-78-28-114-61.5T324-604q0-50 32.5-86t87.5-47v-79h72v79q72 12 96.5 55t25.5 45l-70 29q-8-26-32-43t-53-17q-35 0-58 18t-23 44q0 26 25 44.5t93 41.5q70 23 102 60t32 94q0 57-37 96t-101 49v77h-72Z"/></svg>';
     }
     
-    // Win status
     const winsLeft = maxWin - wins;
     if (winsLeft <= 0) {
         statusWin.className = 'info-card danger';
@@ -1872,7 +1859,6 @@ function updateUI() {
         statusWin.querySelector('.info-value').textContent = `${winsLeft} LEFT`;
     }
     
-    // Loss status
     const lossesLeft = maxLoss - losses;
     if (lossesLeft <= 0) {
         statusLoss.className = 'info-card danger';
@@ -1897,7 +1883,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let currentRule = null;
 
-    // ✅ Perubahan: tutup edit → buka SOP lagi
     function closePopupEdit() {
         popupEdit?.classList.remove("show");
         popupOverlay?.classList.remove("show");
@@ -1905,7 +1890,6 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = "";
         currentRule = null;
 
-        // 🔁 Buka kembali popup SOP setelah selesai edit
         setTimeout(() => {
             openPopupSop();
         }, 100);
@@ -1951,12 +1935,12 @@ document.addEventListener("DOMContentLoaded", () => {
         sopRules[currentRule] = parseInt(raw);
         saveSOP(sopRules);
         updateUI();
-        closePopupEdit(); // ✅ Ini akan trigger openPopupSop()
+        closePopupEdit();
     });
 
     popupOverlay?.addEventListener("click", (e) => {
         if (popupEdit?.classList.contains("show")) {
-            closePopupEdit(); // ✅ Ini juga akan trigger openPopupSop()
+            closePopupEdit();
         }
     });
 });
@@ -2185,7 +2169,6 @@ async function SaveEditProfile() {
 
             localStorage.setItem('avatar', currentPreviewSrc);
 
-            // Multi Account Update Avatar
             updateAvatarInSavedAccounts(user_id, currentPreviewSrc);
 
             if (oldAvatar) {
@@ -2297,7 +2280,6 @@ function resetEditProfileForm() {
     previewFoto.src = savedAvatar || htmlDefaultImage;
 }
 
-// Perbarui avatar di saved_accounts untuk user_id tertentu
 function updateAvatarInSavedAccounts(user_id, newAvatarBase64) {
     const savedRaw = localStorage.getItem('saved_accounts');
     if (!savedRaw) return;
@@ -2812,7 +2794,6 @@ function updateDataShare() {
     }
 }
 
-// LOAD IMAGES
 // ------ CACHE UTILS ------
 function getTemplateCache() {
     try {
@@ -2841,7 +2822,6 @@ function setTemplateCache(imagesObj) {
 async function preloadAllTemplates() {
     const cached = getTemplateCache();
     if (cached) {
-        // console.log("✅ Template diambil dari cache (versi:", TEMPLATE_SHARE_VERSION, ")");
         return cached;
     }
 
@@ -3063,7 +3043,6 @@ function drawCanvasShare() {
         drawTextWithLetterSpacingShare(ctxShare, text, x, y, style.letterSpacing, style);
     });
 
-    // Gambar timestamp secara manual
     const timestampText = TEXT_CONTENT_SHARE.timestamp;
     const [timestampX, timestampY] = TEXT_POSITIONS_SHARE.timestamp;
     drawTextWithLetterSpacingShare(
@@ -3076,7 +3055,6 @@ function drawCanvasShare() {
     );
 }
 
-// UTILITAS
 async function copyImageShare() {
     try {
         const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
@@ -3093,7 +3071,6 @@ function downloadImageShare() {
     link.click();
 }
 
-// RANGE
 document.querySelectorAll('.range-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         selectedRangeShare = btn.dataset.range;
@@ -3102,7 +3079,6 @@ document.querySelectorAll('.range-btn').forEach(btn => {
     });
 });
 
-// INIT
 canvasShare.width = 800;
 canvasShare.height = 600;
 ctxShare.fillStyle = '#f0f0f0';
@@ -3211,7 +3187,6 @@ async function calculateMonthlyStats(targetYear, targetMonth) {
         const rawData = await getDB();
         if (!Array.isArray(rawData)) return null;
 
-        // Filter data untuk bulan yang dipilih
         const monthlyTrades = rawData.filter(item => {
             if (!item.date) return false;
             const tradeDate = new Date(item.date * 1000);
@@ -3219,7 +3194,6 @@ async function calculateMonthlyStats(targetYear, targetMonth) {
                    tradeDate.getMonth() === targetMonth;
         });
 
-        // 1. Average Trade Stats
         const validTrades = monthlyTrades.filter(t => 
             t.Pnl !== null && t.Pnl !== undefined && t.Result !== 'Missed'
         );
@@ -3240,7 +3214,6 @@ async function calculateMonthlyStats(targetYear, targetMonth) {
             ? parseFloat((rrProfitTrades.reduce((sum, t) => sum + t.RR, 0) / rrProfitTrades.length).toFixed(2))
             : 0;
 
-        // 2. Trade Statistics
         let profit = 0, loss = 0, missed = 0, breakEven = 0;
 
         monthlyTrades.forEach(item => {
@@ -3258,12 +3231,10 @@ async function calculateMonthlyStats(targetYear, targetMonth) {
             ? ((profit / totalTradeExecuted) * 100).toFixed(2)
             : "0.00";
 
-        // 3. Streaks
         const sortedValidTrades = [...validTrades].sort((a, b) => a.date - b.date);
         const maxProfitStreak = calculateMaxStreak(sortedValidTrades, 'Profit');
         const maxLossStreak = calculateMaxStreak(sortedValidTrades, 'Loss');
 
-        // 4. Daily streak untuk bulan ini
         const daySet = new Set();
         monthlyTrades.forEach(item => {
             const day = new Date(item.date * 1000).setHours(0, 0, 0, 0);
@@ -3292,14 +3263,12 @@ async function calculateMonthlyStats(targetYear, targetMonth) {
         const dailyStreak = sortedDays.length > 0 ? currentStreak : 0;
 
         return {
-            // Average Trade
             avgProfit,
             avgLoss,
             avgRR,
             maxProfitStreak,
             maxLossStreak,
             
-            // Trade Statistics
             winrate,
             totalTrade,
             profit,
@@ -3308,7 +3277,6 @@ async function calculateMonthlyStats(targetYear, targetMonth) {
             breakEven,
             totalTradeExecuted,
             
-            // Daily Stats
             totalDailyTrade,
             dailyStreak,
             bestStreak
@@ -3339,21 +3307,16 @@ function calculateMaxStreak(trades, targetType) {
 async function updateMonthlyPopupData(monthData) {
     if (!monthData) return;
     
-    // 1. Update balanceValueMonthly (total kumulatif sampai bulan ini)
     const cumulativeBalance = await calculateCumulativeBalanceUpToMonth(monthData.year, monthData.month);
     const balanceElement = document.getElementById("balanceValueMonthly");
     if (balanceElement) {
         balanceElement.textContent = formatCurrencyCompact(cumulativeBalance);
     }
     
-    // 2. Update pnlgainMonthly (profit loss bulan ini + persentase)
     const pnlElement = document.getElementById("pnlgainMonthly");
-    // --- ganti bagian yang menghitung profitLoss + returnRate di updateMonthlyPopupData ---
     if (pnlElement) {
         const profitLoss = monthData.profitLoss;
 
-        // Hitung starting balance = cumulative balance sampai bulan sebelumnya
-        // bulan sebelumnya:
         let prevYear = monthData.year;
         let prevMonth = monthData.month - 1;
         if (prevMonth < 0) {
@@ -3363,44 +3326,40 @@ async function updateMonthlyPopupData(monthData) {
 
         const startingBalance = await calculateCumulativeBalanceUpToMonth(prevYear, prevMonth);
 
-        // Hitung returnRate berdasarkan startingBalance yang benar
         let returnRate = null;
         if (startingBalance === 0 || startingBalance === null || isNaN(startingBalance)) {
-            // Tidak bisa dibagi — tampilkan N/A
             returnRate = null;
         } else {
             returnRate = (profitLoss / startingBalance) * 100;
         }
 
-        // Format untuk profitLoss
         const profitLossFormatted = formatCurrencyCompact(profitLoss);
 
-        // Format untuk returnRate
         let returnRateFormatted = "N/A";
         if (returnRate !== null && !isNaN(returnRate)) {
             const signRR = returnRate >= 0 ? "+" : "";
-            returnRateFormatted = `${signRR}${formatPercent(returnRate)}`; // tetap gunakan formatPercent
+            returnRateFormatted = `${signRR}${formatPercent(returnRate)}`;
         }
 
-        // Tampilkan: +$1,000.00 (+10.50%)
         const sign = profitLoss >= 0 ? "+" : "";
         pnlElement.textContent = `${sign}${profitLossFormatted} (${returnRateFormatted})`;
 
-        // Tambahkan class untuk styling warna
-        pnlElement.className = `pnl-value-monthly ${profitLoss >= 0 ? 'positive' : 'negative'}`;
+        pnlElement.className = 'pnl-value-monthly';
+
+        if (profitLoss >= 0) {
+            pnlElement.style.color = 'var(--green)';
+        } else {
+            pnlElement.style.color = 'var(--red)';
+        }
     }
 
-
-    // 3. Hitung dan update semua statistik bulanan
     const monthlyStats = await calculateMonthlyStats(monthData.year, monthData.month);
     
     if (monthlyStats) {
-        // Update Average Trade Stats
         document.getElementById('averageProfitMonthly').textContent = formatUSD(monthlyStats.avgProfit);
         document.getElementById('averageLossMonthly').textContent = formatUSD(monthlyStats.avgLoss);
         document.getElementById('averageRRMonthly').textContent = monthlyStats.avgRR.toFixed(2);
         
-        // Update Trade Statistics
         document.getElementById('winrateMonthly').textContent = `${monthlyStats.winrate}%`;
         document.getElementById('alltredeMonthly').textContent = monthlyStats.totalTrade;
         document.getElementById('tradeprofitMonthly').textContent = monthlyStats.profit;
@@ -3409,11 +3368,6 @@ async function updateMonthlyPopupData(monthData) {
         document.getElementById('tradebreakevenMonthly').textContent = monthlyStats.breakEven;
         document.getElementById('profitstreakMonthly').textContent = monthlyStats.maxProfitStreak;
         document.getElementById('lossstreakMonthly').textContent = monthlyStats.maxLossStreak;
-        
-        // Update Daily Stats (opsional - jika ada elemen HTML-nya)
-        // document.getElementById('totalDailyTradeMonthly').textContent = monthlyStats.totalDailyTrade;
-        // document.getElementById('dailyStreakMonthly').textContent = monthlyStats.dailyStreak;
-        // document.getElementById('bestStreakMonthly').textContent = monthlyStats.bestStreak;
     }
 }
 
@@ -3429,22 +3383,19 @@ document.addEventListener("DOMContentLoaded", () => {
         overlay.addEventListener("click", closeMonthlyPopup);
     }
 
-    // Event delegation pada grid bulanan
     const grid = document.getElementById("monthsGrid");
     if (!grid) return;
 
-    grid.addEventListener("click", async (e) => {  // tambahkan async di sini
+    grid.addEventListener("click", async (e) => {
         const card = e.target.closest(".month-card");
         if (!card) return;
 
-        // Ambil teks dari .month-name, contoh: "Nov 2025"
         const monthNameText = card.querySelector(".month-name")?.textContent?.trim();
         if (!monthNameText) return;
 
-        // Parsing: "Nov 2025" → bulan = 10 (Nov = index 10), tahun = 2025
         const parts = monthNameText.split(" ");
-        const monthStr = parts[0]; // "Nov"
-        const year = parseInt(parts[1], 10); // 2025
+        const monthStr = parts[0];
+        const year = parseInt(parts[1], 10);
 
         const monthIndex = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(monthStr);
         if (monthIndex === -1 || isNaN(year)) {
@@ -3452,7 +3403,6 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Cari data di monthlyData (global)
         const matchedEntry = monthlyData.find(
             m => m.month === monthIndex && m.year === year
         );
@@ -3462,23 +3412,19 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Simpan sementara
         selectedMonthlyEntry = matchedEntry;
 
-        // Nama bulan lengkap dalam bahasa Inggris
         const fullMonthNames = [
             'January', 'February', 'March', 'April', 'May', 'June',
             'July', 'August', 'September', 'October', 'November', 'December'
         ];
 
-        // Update judul popup dengan nama bulan lengkap
         const titleEl = popupMonthly?.querySelector("h3");
         if (titleEl) {
             const fullMonthName = fullMonthNames[monthIndex] || monthStr;
             titleEl.textContent = `Monthly Report ${fullMonthName}`;
         }
 
-        // Update data di popup dengan data yang dipilih
         await updateMonthlyPopupData(matchedEntry);
 
         document.body.classList.add("popup-open");
