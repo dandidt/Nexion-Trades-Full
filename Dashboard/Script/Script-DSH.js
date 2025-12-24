@@ -105,28 +105,44 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // ======================= Back to Top Button ======================= //
 document.addEventListener("DOMContentLoaded", () => {
-  const backToTopBtn = document.querySelector(".box-up");
+  const btnUp = document.querySelector(".box-up");
+  const btnDown = document.querySelector(".box-down");
 
-  if (!backToTopBtn) return;
+  if (!btnUp || !btnDown) return;
 
-  backToTopBtn.style.opacity = "0";
-  backToTopBtn.style.transition = "opacity 0.3s ease";
+  const hide = (btn) => {
+    btn.style.opacity = "0";
+    btn.style.pointerEvents = "none";
+  };
+
+  const show = (btn) => {
+    btn.style.opacity = "1";
+    btn.style.pointerEvents = "auto";
+  };
+
+  [btnUp, btnDown].forEach(btn => {
+    btn.style.transition = "opacity 0.3s ease";
+    hide(btn);
+  });
+
+  show(btnDown);
 
   window.addEventListener("scroll", () => {
     if (window.scrollY > 200) {
-      backToTopBtn.style.opacity = "1";
-      backToTopBtn.style.pointerEvents = "auto";
+      hide(btnDown);
+      show(btnUp);
     } else {
-      backToTopBtn.style.opacity = "0";
-      backToTopBtn.style.pointerEvents = "none";
+      hide(btnUp);
+      show(btnDown);
     }
   });
 
-  backToTopBtn.addEventListener("click", () => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+  btnUp.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+
+  btnDown.addEventListener("click", () => {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" });
   });
 });
 

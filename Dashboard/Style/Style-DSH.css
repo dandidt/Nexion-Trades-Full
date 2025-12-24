@@ -1114,7 +1114,8 @@ th.sortable {
 }
 
 /* ------ Button Up Instan ------ */
-.box-up {
+.box-down,
+.box-up {    
     position: fixed;
     bottom: 30px;
     right: 40px;
@@ -1129,19 +1130,23 @@ th.sortable {
     cursor: pointer;
 }
 
+.box-down:hover,
 .box-up:hover {
     background: var(--color-baground-green);
     border: 1px solid var(--green);
 }
 
+.box-down:active,
 .box-up:active {
     transform: scale(0.95);
 }
 
+.box-down svg,
 .box-up svg {
     fill: var(--gray);
 }
 
+.box-down:hover svg,
 .box-up:hover svg {
     fill: var(--green);
 }
