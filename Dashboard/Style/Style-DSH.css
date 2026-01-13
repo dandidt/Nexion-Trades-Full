@@ -331,14 +331,13 @@ input[type="number"]::-webkit-outer-spin-button {
     font-weight: var(--wg-700);
 }
 
-.subtitle-navbar {
+/* .subtitle-navbar {
     font-size: var(--sz-12);
     color: var(--gray);
-    /* font-style: italic; */
     display: block;
     margin-top: 7px;
     text-align: center;
-}
+} */
 
 .icon-title-navbar {
     height: 25px;

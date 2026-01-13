@@ -903,23 +903,18 @@ function updatePaginationUI() {
   const totalTrades = globalTrades.length;
   const totalPages = Math.max(1, Math.ceil(totalTrades / rowsPerPage));
 
-  // Update total trade
   document.getElementById('tradeTotal').textContent = `${totalTrades} Trade${totalTrades !== 1 ? 's' : ''}`;
 
-  // Update "Of X"
   document.getElementById('pageOf').textContent = `Of ${totalPages}`;
 
-  // Batasi currentPage agar tidak melebihi total
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
 
-  // Update dropdown halaman
   const pageMenu = document.getElementById('pageDropdown');
   const pageItems = Array.from({ length: totalPages }, (_, i) => (i + 1).toString());
   const pageActive = document.querySelector('#pageSelector .number-page-active');
   pageActive.textContent = currentPage;
 
-  // Re-init dropdown halaman (hapus event lama, buat baru)
   pageMenu.innerHTML = '';
   pageItems.forEach(num => {
     const div = document.createElement('div');
@@ -933,29 +928,24 @@ function updatePaginationUI() {
     pageMenu.appendChild(div);
   });
 
-  // Update tampilan kotak angka halaman (maks 3)
   updatePageNumberBoxes(totalPages);
 }
 
 function updatePageNumberBoxes(totalPages) {
   const container = document.querySelector('.wrapper-page-pagination');
 
-  // Bersihkan semua anak (tapi simpan dulu reference tombol kiri/kanan)
   const leftFirst = document.querySelector('.left-frist-page');
   const leftOne = document.querySelector('.left-one-page');
   const rightOne = document.querySelector('.right-one-page');
   const rightFirst = document.querySelector('.right-frist-page');
 
-  // Kosongkan container
   container.innerHTML = '';
 
-  // Helper buat nomor
   const addPage = (num, active = false) => {
     const div = createPageBox(num, active);
     container.appendChild(div);
   };
 
-  // Helper titik
   const addDots = () => {
     const div = document.createElement('div');
     div.className = 'box-more';
@@ -966,7 +956,6 @@ function updatePageNumberBoxes(totalPages) {
     container.appendChild(div);
   };
 
-  // CASE 1
   if (totalPages <= 5) {
     for (let i = 1; i <= totalPages; i++) {
       addPage(i, currentPage === i);
@@ -976,7 +965,6 @@ function updatePageNumberBoxes(totalPages) {
 
   const last = totalPages;
 
-  // CASE 2 — awal
   if (currentPage <= 3) {
     addPage(1, currentPage === 1);
     addPage(2, currentPage === 2);
@@ -988,7 +976,6 @@ function updatePageNumberBoxes(totalPages) {
     return;
   }
 
-  // CASE 4 — akhir
   if (currentPage >= last - 2) {
     addPage(1, currentPage === 1);
 
@@ -1000,7 +987,6 @@ function updatePageNumberBoxes(totalPages) {
     return;
   }
 
-  // CASE 3 — tengah
   addPage(1, false);
 
   addDots();
@@ -1028,7 +1014,6 @@ function goToPage(page) {
 
   currentPage = page;
   
-  // Reset sort saat ganti halaman (karena sort hanya berlaku di halaman saat ini)
   currentSort = { key: null, direction: null };
   
   renderPaginatedTable();
@@ -1098,7 +1083,6 @@ rowsTrigger.addEventListener('click', (e) => {
     rowsActive.textContent = newRows;
     rowsMenu.classList.remove('active');
     
-    // Update rowsPerPage dan reset ke halaman 1
     rowsPerPage = newRows;
     currentPage = 1;
     renderPaginatedTable();
