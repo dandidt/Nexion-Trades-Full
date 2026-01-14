@@ -1965,7 +1965,7 @@ canvas {
     flex-direction: column;
     justify-content: space-between;
     gap: 15px;
-    height: 515px;
+    height: 550px;
     width: 470px;
     padding: 20px;
     border-radius: 15px;
@@ -2121,7 +2121,7 @@ canvas {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 515px;
+    height: 550px;
     flex: 1;
     padding: 20px;
     border-radius: 15px;
@@ -2413,7 +2413,7 @@ canvas {
 .pnl-value {
     font-size: 12px;
     font-weight: 500;
-    margin-top: 4px;
+    margin-top: 3px;
     text-align: center;
     white-space: nowrap;
     overflow: hidden;
@@ -2430,6 +2430,12 @@ canvas {
 
 .empty .pnl-value {
     color: var(--gray-primary);
+}
+
+.trade-count {
+    margin-top: 3px;
+    font-size: var(--sz-10);
+    color: var(--gray);
 }
 
 /* Tooltip */
@@ -4997,6 +5003,21 @@ input[type="number"]::placeholder {
     font-size: var(--sz-14);
     color: var(--green);
 }
+
+/* ------ Popup Pairs ------ */
+.popup-pairs {
+    flex-direction: column;
+    min-height: 380px;
+    min-width: 700px;
+    padding: 20px;
+}
+
+.balance-value-pairs {
+    font-size: var(--sz-24);
+    font-weight: var(--wg-700);
+    color: var(--green);
+}
+
 
 /* ------ Block Non Dekstop ------ */
 #deviceBlocker {

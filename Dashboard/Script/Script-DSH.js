@@ -1564,16 +1564,23 @@ async function loadDailyPnLData() {
         }
 
         const dailyTotals = {};
+        const dailyCounts = {};
 
         for (const trade of rawData) {
-            if (trade.Result === "Missed" || !('Pnl' in trade) || trade.Pnl === 0) continue;
+            if (trade.Result === "Missed") continue;
             const date = new Date(Number(trade.date) * 1000);
             const dateKey = getDateKey(date);
+
             dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + (Number(trade.Pnl) || 0);
+            
+            dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + 1;
         }
 
         const result = {};
-        for (const [dateKey, totalPnl] of Object.entries(dailyTotals)) {
+        for (const dateKey in dailyTotals) {
+            const totalPnl = dailyTotals[dateKey];
+            const tradeCount = dailyCounts[dateKey];
+
             const rounded = Math.round(totalPnl * 100) / 100;
             const isPositive = rounded >= 0;
             const abs = Math.abs(rounded);
@@ -1584,7 +1591,7 @@ async function loadDailyPnLData() {
             display = (isPositive ? '+$' : '-$') + display;
             const raw = (isPositive ? '+' : '') + rounded.toFixed(2);
 
-            result[dateKey] = { display, raw };
+            result[dateKey] = { display, raw, tradeCount };
         }
 
         DataPnLDaily = result;
@@ -1674,8 +1681,30 @@ function createDayCell(date) {
     dayNumber.textContent = String(dayNum).padStart(2,'0');
     dayCell.appendChild(dayNumber);
 
+    const tradeCountEl = document.createElement('div');
+    tradeCountEl.className = 'trade-count';
+
     const pnlValue = document.createElement('div');
     pnlValue.className = 'pnl-value';
+
+    if (cellDate > today) {
+        tradeCountEl.textContent = '';
+        pnlValue.textContent = '';
+    } else {
+        const data = DataPnLDaily[dateKey];
+        if (data) {
+            tradeCountEl.textContent = `${data.tradeCount} Trades`;
+            pnlValue.textContent = `PnL: ${data.display}`;
+            dayCell.classList.add(data.raw.startsWith('+') ? 'positive' : 'negative');
+        } else {
+            tradeCountEl.textContent = '';
+            pnlValue.textContent = '';
+            dayCell.classList.add('empty');
+        }
+    }
+
+    dayCell.appendChild(tradeCountEl);
+    dayCell.appendChild(pnlValue);
 
     if (cellDate > today) {
         pnlValue.textContent = '';

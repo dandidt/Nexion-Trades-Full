@@ -640,7 +640,7 @@
                                             </svg>
                                         </div>
                                         <div class="select-options" id="monthOptions">
-                                            <!-- Options akan di-generate oleh JavaScript -->
+                                            <!-- Generate JavaScript -->
                                         </div>
                                     </div>
                                     
@@ -653,7 +653,7 @@
                                             </svg>
                                         </div>
                                         <div class="select-options" id="yearOptions">
-                                            <!-- Options akan di-generate oleh JavaScript -->
+                                            <!-- OGenerate JavaScript -->
                                         </div>
                                     </div>
                                 </div>
@@ -2296,6 +2296,83 @@
                         <div class="subcolumn-stats">
                             <span class="text-title">Loss Streak</span>
                             <span class="value-stats gray-secondary" id="lossstreakMonthly">4</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- ===== Pairs ===== -->
+        <div class="popup-container popup-pairs">
+            <div class="popup-header">
+                <h3>Pairs Report</h3>
+                <div class="btn btn-default btn-close" id="closePairs">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
+                </div>
+            </div>
+
+            <div class="maincontainer-stats">
+                <div class="leftcontainer">
+                    <div class="subcontainer-trading-summary">
+                        <div class="column-title-popup">                            
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M480-338q-25 0-42-17.5T421-398q0-25 17-42.5t42-17.5q26 0 43.5 17.5T541-398q0 25-17.5 42.5T480-338ZM309-675h344l82-165H226l83 165Zm23 555h297q88 0 150-62t62-150q-1-38-13.5-72.5T791-468L669-615H292L169-468q-23 29-36 63.5T120-332q0 88 62 150t150 62Z"/></svg>
+                            <p class="title-rightcontainer">Pairs PnL Report</p>
+                        </div>
+                        <div class="subcolumn-stats-one">
+                            <span class="balance-value-pairs" id="pnlPairsAll">+$3,532.20</span>
+                        </div>
+                    </div>
+                    <div class="subcontainer-average-stats">
+                        <div class="column-title-popup">
+                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-280h80v-200h-80v200Zm320 0h80v-400h-80v400Zm-160 0h80v-120h-80v120Zm0-200h80v-80h-80v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
+                            <p class="title-rightcontainer">Average Pairs</p>
+                        </div>
+                        <div class="subcontainer-stats">
+                            <div class="subcolumn-stats">
+                                <span class="text-title">Average Profit</span>
+                                <span class="value-stats green" id="averageProfitPairs">$345.23</span>
+                            </div>
+                            <div class="subcolumn-stats">
+                                <span class="text-title">Average Loss</span>
+                                <span class="value-stats red" id="averageLossPairs">$345.23</span>
+                            </div>
+                            <div class="subcolumn-stats">
+                                <span class="text-title">Average RR</span>
+                                <span class="value-stats gray-secondary" id="averageRRPairs">4.54</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="rightcontainer">
+                    <div class="column-title-popup">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M80-120v-80h800v80H80Zm40-120v-280h120v280H120Zm200 0v-480h120v480H320Zm200 0v-360h120v360H520Zm200 0v-600h120v600H720Z"/></svg>
+                        <p class="title-rightcontainer">Statistik Pairs</p>
+                    </div>
+                    <div class="subcontainer-stats">
+                        <div class="subcolumn-stats">
+                            <span class="text-title">Winrate</span>
+                            <span class="value-stats wr-green" id="winratePairs">64.43%</span>
+                        </div>
+                        <div class="subcolumn-stats">
+                            <span class="text-title">All Trade</span>
+                            <span class="value-stats gray-secondary" id="alltradePairs">345</span>
+                        </div>
+                        <div class="subcolumn-stats">
+                            <span class="text-title">Trade Profite</span>
+                            <span class="value-stats gray-secondary" id="tradeprofitPairs">345</span>
+                        </div>
+                        <div class="subcolumn-stats">
+                            <span class="text-title">Trade Loss</span>
+                            <span class="value-stats gray-secondary" id="tradelossPairs">345</span>
+                        </div>
+                        <div class="subcolumn-stats">
+                            <span class="text-title">Trade Missed</span>
+                            <span class="value-stats gray-secondary" id="trademissedPairs">345</span>
+                        </div>
+                        <div class="subcolumn-stats">
+                            <span class="text-title">Trade Break Even</span>
+                            <span class="value-stats gray-secondary" id="tradebreakevenPairs">345</span>
                         </div>
                     </div>
                 </div>

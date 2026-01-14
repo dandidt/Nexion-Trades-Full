@@ -3434,6 +3434,177 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// ======================= COIN DETAIL POPUP ======================= //
+let selectedPairEntry = null;
+
+function closePairsPopup() {
+    const popup = document.querySelector(".popup-pairs");
+    const overlay = document.querySelector(".popup-overlay");
+    if (!popup || !overlay) return;
+
+    popup.classList.remove("show");
+    overlay.classList.remove("show");
+    document.body.classList.remove("popup-open");
+    document.body.style.overflow = "";
+    selectedPairEntry = null;
+}
+
+async function calculatePairStats(symbol) {
+    try {
+        const rawData = await getDB();
+        if (!Array.isArray(rawData)) {
+            console.warn("Raw data tidak valid untuk pair:", symbol);
+            return null;
+        }
+
+        const pairTrades = rawData.filter(trade => {
+            if (!trade.Pairs) return false;
+            const base = extractBaseSymbol(trade.Pairs);
+            return base === symbol;
+        });
+
+        if (pairTrades.length === 0) {
+            console.warn("Tidak ada trade ditemukan untuk pair:", symbol);
+            return null;
+        }
+
+        const profitTrades = pairTrades.filter(t => t.Result === "Profit");
+        const lossTrades = pairTrades.filter(t => t.Result === "Loss");
+        const missedTrades = pairTrades.filter(t => t.Result === "Missed");
+        const breakEvenTrades = pairTrades.filter(t => t.Result === "Break Even");
+
+        // Total PnL
+        const totalPnL = pairTrades.reduce((sum, t) => {
+            return sum + (parseFloat(t.Pnl) || 0);
+        }, 0);
+
+        // Average Profit & Loss
+        const avgProfit = profitTrades.length
+            ? parseFloat((profitTrades.reduce((sum, t) => sum + (t.Pnl || 0), 0) / profitTrades.length).toFixed(2))
+            : 0;
+
+        const avgLoss = lossTrades.length
+            ? parseFloat((Math.abs(lossTrades.reduce((sum, t) => sum + (t.Pnl || 0), 0)) / lossTrades.length).toFixed(2))
+            : 0;
+
+        // Average RR
+        const rrProfitTrades = profitTrades.filter(t => typeof t.RR === 'number' && !isNaN(t.RR));
+        const avgRR = rrProfitTrades.length
+            ? parseFloat((rrProfitTrades.reduce((sum, t) => sum + t.RR, 0) / rrProfitTrades.length).toFixed(2))
+            : 0;
+
+        // Winrate
+        const totalExecuted = profitTrades.length + lossTrades.length;
+        const winrate = totalExecuted > 0
+            ? ((profitTrades.length / totalExecuted) * 100).toFixed(2)
+            : "0.00";
+
+        return {
+            totalPnL,
+            avgProfit,
+            avgLoss,
+            avgRR,
+            winrate,
+            allTrade: pairTrades.length,
+            profit: profitTrades.length,
+            loss: lossTrades.length,
+            missed: missedTrades.length,
+            breakEven: breakEvenTrades.length
+        };
+
+    } catch (error) {
+        console.error("Error menghitung statistik pair:", symbol, error);
+        return null;
+    }
+}
+
+async function updatePairsPopupData(symbol) {
+    const stats = await calculatePairStats(symbol);
+    
+    if (!stats) {
+        document.getElementById("pnlPairsAll").textContent = "$0.00";
+        document.getElementById("averageProfitPairs").textContent = "$0.00";
+        document.getElementById("averageLossPairs").textContent = "$0.00";
+        document.getElementById("averageRRPairs").textContent = "0.00";
+        document.getElementById("winratePairs").textContent = "0.00%";
+        document.getElementById("alltradePairs").textContent = "0";
+        document.getElementById("tradeprofitPairs").textContent = "0";
+        document.getElementById("tradelossPairs").textContent = "0";
+        document.getElementById("trademissedPairs").textContent = "0";
+        document.getElementById("tradebreakevenPairs").textContent = "0";
+        return;
+    }
+
+    // Format & isi PnL
+    const pnlEl = document.getElementById("pnlPairsAll");
+    if (stats.totalPnL >= 0) {
+        pnlEl.textContent = `+${formatUSD(stats.totalPnL)}`;
+        pnlEl.style.color = 'var(--green)';
+    } else {
+        pnlEl.textContent = `-${formatUSD(Math.abs(stats.totalPnL))}`;
+        pnlEl.style.color = 'var(--red)';
+    }
+    pnlEl.style.color = stats.totalPnL >= 0 ? 'var(--green)' : 'var(--red)';
+
+    // Average
+    document.getElementById("averageProfitPairs").textContent = formatUSD(stats.avgProfit);
+    document.getElementById("averageLossPairs").textContent = formatUSD(stats.avgLoss);
+    document.getElementById("averageRRPairs").textContent = stats.avgRR.toFixed(2);
+
+    // Statistik
+    document.getElementById("winratePairs").textContent = `${stats.winrate}%`;
+    document.getElementById("alltradePairs").textContent = stats.allTrade;
+    document.getElementById("tradeprofitPairs").textContent = stats.profit;
+    document.getElementById("tradelossPairs").textContent = stats.loss;
+    document.getElementById("trademissedPairs").textContent = stats.missed;
+    document.getElementById("tradebreakevenPairs").textContent = stats.breakEven;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    const pairsBody = document.querySelector(".pairs-body");
+    const closeBtn = document.getElementById("closePairs");
+    const overlay = document.querySelector(".popup-overlay");
+
+    if (closeBtn) {
+        closeBtn.addEventListener("click", closePairsPopup);
+    }
+    if (overlay) {
+        overlay.addEventListener("click", closePairsPopup);
+    }
+
+    if (!pairsBody) return;
+
+    pairsBody.addEventListener("click", async (e) => {
+        const row = e.target.closest(".pairs-row");
+        if (!row) return;
+
+        const pairItem = row.querySelector(".pair-item");
+        if (!pairItem) return;
+
+        let pairName = pairItem.textContent.trim();
+        pairName = pairName.replace(/[^A-Z0-9]/g, '');
+
+        if (!pairName) {
+            console.warn("Pair name tidak valid:", pairItem.textContent);
+            return;
+        }
+
+        selectedPairEntry = { symbol: pairName };
+
+        const titleEl = document.querySelector(".popup-pairs h3");
+        if (titleEl) {
+            titleEl.textContent = `Pairs Report: ${pairName}`;
+        }
+
+        await updatePairsPopupData(pairName);
+
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        overlay?.classList.add("show");
+        document.querySelector(".popup-pairs")?.classList.add("show");
+    });
+});
+
 // ======================= Block 1000px ======================= //
 function checkDeviceWidth() {
     const minWidth = 999;
