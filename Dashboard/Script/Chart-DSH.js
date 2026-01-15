@@ -727,7 +727,58 @@ canvasBalance.addEventListener('mousemove', (e) => {
     dateLabel.style.display = "block";
 
     if (!balanceLastPoint || balanceLastPoint !== closestPoint) {
-        tooltipBalance.querySelector('.tooltip-stats').textContent = formatBalanceCurrency(closestPoint.balance);
+        document.getElementById('balanceTooltip').textContent = formatBalanceCurrency(closestPoint.balance);
+
+        const hoverDate = closestPoint.date;
+
+        let visibleStart;
+        if (currentFilterRange === 'all') {
+            visibleStart = balanceFullData[0]?.date || new Date(0);
+        } else if (balanceTimeWindow) {
+            visibleStart = balanceTimeWindow.start;
+        } else {
+            visibleStart = balanceFullData[0]?.date || new Date(0);
+        }
+
+        const relevantData = balanceFullData.filter(d => 
+            d.date >= visibleStart && d.date <= hoverDate
+        ).sort((a, b) => a.date - b.date);
+
+        let peakSoFar = 0;
+        if (relevantData.length > 0) {
+            peakSoFar = Math.max(...relevantData.map(d => d.balance));
+        } else {
+            peakSoFar = closestPoint.balance;
+        }
+
+        const currentBalance = closestPoint.balance;
+        const drawdownValue = currentBalance - peakSoFar;
+        let drawdownPercent = 0;
+
+        if (peakSoFar > 0) {
+            drawdownPercent = (drawdownValue / peakSoFar) * 100;
+        } else {
+            drawdownPercent = 0;
+        }
+
+        let drawdownText = '$0';
+        let isNegative = false;
+
+        if (drawdownValue < 0) {
+            drawdownText = `-${formatBalanceCurrency(Math.abs(drawdownValue))} (${Math.abs(drawdownPercent).toFixed(2)}%)`;
+            isNegative = true;
+        } else {
+            drawdownText = '$0';
+        }
+
+        const drawdownEl = document.getElementById('drawdownBalanceTooltip');
+        drawdownEl.textContent = drawdownText;
+
+        if (isNegative) {
+            drawdownEl.style.color = 'var(--red)';
+        } else {
+            drawdownEl.style.color = 'var(--white)'; 
+        }
 
         const date = closestPoint.date;
         const d = date.getDate().toString().padStart(2, '0');

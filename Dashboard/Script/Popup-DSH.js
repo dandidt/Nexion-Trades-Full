@@ -3493,30 +3493,51 @@ async function calculatePairStats(symbol) {
             ? parseFloat((rrProfitTrades.reduce((sum, t) => sum + t.RR, 0) / rrProfitTrades.length).toFixed(2))
             : 0;
 
-        // Winrate
-        const totalExecuted = profitTrades.length + lossTrades.length;
-        const winrate = totalExecuted > 0
-            ? ((profitTrades.length / totalExecuted) * 100).toFixed(2)
-            : "0.00";
+        // Hitung berdasarkan Method
+        const scalping = pairTrades.filter(t => t.Method === "Scalping").length;
+        const intraday = pairTrades.filter(t => t.Method === "Intraday").length;
+        const swing = pairTrades.filter(t => t.Method === "Swing").length;
+
+        // Hitung berdasarkan Position (Buy/Sell)
+        const buy = pairTrades.filter(t => t.Pos === "B").length;
+        const sell = pairTrades.filter(t => t.Pos === "S").length;
+
+        // Hitung berdasarkan Behavior
+        const continuation = pairTrades.filter(t => t.Behavior === "Continuation").length;
+        const reversal = pairTrades.filter(t => t.Behavior === "Reversal").length;
 
         return {
             totalPnL,
             avgProfit,
             avgLoss,
             avgRR,
-            winrate,
             allTrade: pairTrades.length,
             profit: profitTrades.length,
             loss: lossTrades.length,
             missed: missedTrades.length,
-            breakEven: breakEvenTrades.length
+            breakEven: breakEvenTrades.length,
+            scalping,
+            intraday,
+            swing,
+            buy,
+            sell,
+            continuation,
+            reversal
         };
-
     } catch (error) {
         console.error("Error menghitung statistik pair:", symbol, error);
         return null;
     }
 }
+
+function setStatValue(id, value) {
+    const el = document.getElementById(id);
+    if (!el) return;
+
+    el.textContent = value;
+    el.style.color = value === 0 ? 'var(--bg-70)' : '';
+}
+
 
 async function updatePairsPopupData(symbol) {
     const stats = await calculatePairStats(symbol);
@@ -3526,7 +3547,6 @@ async function updatePairsPopupData(symbol) {
         document.getElementById("averageProfitPairs").textContent = "$0.00";
         document.getElementById("averageLossPairs").textContent = "$0.00";
         document.getElementById("averageRRPairs").textContent = "0.00";
-        document.getElementById("winratePairs").textContent = "0.00%";
         document.getElementById("alltradePairs").textContent = "0";
         document.getElementById("tradeprofitPairs").textContent = "0";
         document.getElementById("tradelossPairs").textContent = "0";
@@ -3552,12 +3572,39 @@ async function updatePairsPopupData(symbol) {
     document.getElementById("averageRRPairs").textContent = stats.avgRR.toFixed(2);
 
     // Statistik
-    document.getElementById("winratePairs").textContent = `${stats.winrate}%`;
-    document.getElementById("alltradePairs").textContent = stats.allTrade;
-    document.getElementById("tradeprofitPairs").textContent = stats.profit;
-    document.getElementById("tradelossPairs").textContent = stats.loss;
-    document.getElementById("trademissedPairs").textContent = stats.missed;
-    document.getElementById("tradebreakevenPairs").textContent = stats.breakEven;
+    setStatValue("alltradePairs", stats.allTrade);
+    setStatValue("tradeprofitPairs", stats.profit);
+    setStatValue("tradelossPairs", stats.loss);
+    setStatValue("trademissedPairs", stats.missed);
+    setStatValue("tradebreakevenPairs", stats.breakEven);
+    setStatValue("scalpingPairs", stats.scalping);
+    setStatValue("intradayPairs", stats.intraday);
+    setStatValue("swingPairs", stats.swing);
+
+
+    // === Update Buy/Sell Progress Bar ===
+    const buySellTotal = stats.buy + stats.sell;
+    const buyPercent = buySellTotal > 0 ? (stats.buy / buySellTotal) * 100 : 0;
+    const bsFill1 = document.querySelectorAll(".subcolumn-stats .bs-fill")[0];
+    if (bsFill1) {
+        bsFill1.style.width = `${buyPercent}%`;
+    }
+
+    // === Update Continuation/Reversal Progress Bar ===
+    const contRevTotal = stats.continuation + stats.reversal;
+    const contPercent = contRevTotal > 0 ? (stats.continuation / contRevTotal) * 100 : 0;
+    const bsFill2 = document.querySelectorAll(".subcolumn-stats .bs-fill")[1];
+    if (bsFill2) {
+        bsFill2.style.width = `${contPercent}%`;
+    }
+
+    // Position
+    document.getElementById("buyPairs").textContent = `Buy ${stats.buy}`;
+    document.getElementById("sellPairs").textContent = `Sell ${stats.sell}`;
+
+    // Behavior
+    document.getElementById("continuationPairs").textContent = `Continuasion ${stats.continuation}`;
+    document.getElementById("reversalPairs").textContent = `Reversal ${stats.reversal}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -3593,7 +3640,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const titleEl = document.querySelector(".popup-pairs h3");
         if (titleEl) {
-            titleEl.textContent = `Pairs Report: ${pairName}`;
+            titleEl.textContent = `${pairName} Pairs Performance`;
         }
 
         await updatePairsPopupData(pairName);

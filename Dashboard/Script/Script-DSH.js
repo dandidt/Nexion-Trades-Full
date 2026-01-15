@@ -2317,16 +2317,29 @@ async function updatePairsTable() {
     const trades = grouped[symbol];
     const asset = window.assetData.find(a => a.symbol === symbol);
 
-    const all = trades.length;
     const profit = trades.filter(t => t.Result === "Profit").length;
     const loss = trades.filter(t => t.Result === "Loss").length;
-    const long = trades.filter(t => t.Pos === "B").length;
-    const short = trades.filter(t => t.Pos === "S").length;
-    const reversal = trades.filter(t => t.Behavior === "Reversal").length;
-    const continuation = trades.filter(t => t.Behavior === "Continuation").length;
-    const scalping = trades.filter(t => t.Method === "Scalping").length;
-    const intraday = trades.filter(t => t.Method === "Intraday").length;
-    const swing = trades.filter(t => t.Method === "Swing").length;
+    const totalExecuted = profit + loss;
+
+    const winRate = totalExecuted > 0 ? (profit / totalExecuted) * 100 : 0;
+    const winRateRounded = winRate.toFixed(2);
+
+    let winRateColor;
+    if (winRate >= 75) {
+      winRateColor = 'var(--green)';
+    } else if (winRate >= 50) {
+      winRateColor = 'var(--yellow)';
+    } else {
+      winRateColor = 'var(--red)';
+    }
+
+    const totalPnL = trades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
+
+    const pnlDisplay = totalPnL >= 0 
+      ? `+${formatUSD(totalPnL)}` 
+      : `-${formatUSD(Math.abs(totalPnL))}`;
+      
+    const pnlColor = totalPnL >= 0 ? 'var(--green)' : 'var(--red)';
 
     const row = document.createElement('div');
     row.className = 'pairs-row';
@@ -2338,16 +2351,30 @@ async function updatePairsTable() {
         <img class="icon-tabel" src="${icon}" loading="lazy">
         ${symbol}
       </div>
-      <div class="${all === 0 ? 'null' : ''}">${all}</div>
-      <div class="${profit === 0 ? 'null' : ''}">${profit}</div>
-      <div class="${loss === 0 ? 'null' : ''}">${loss}</div>
-      <div class="${long === 0 ? 'null' : ''}">${long}</div>
-      <div class="${short === 0 ? 'null' : ''}">${short}</div>
-      <div class="${reversal === 0 ? 'null' : ''}">${reversal}</div>
-      <div class="${continuation === 0 ? 'null' : ''}">${continuation}</div>
-      <div class="${scalping === 0 ? 'null' : ''}">${scalping}</div>
-      <div class="${intraday === 0 ? 'null' : ''}">${intraday}</div>
-      <div class="${swing === 0 ? 'null' : ''}">${swing}</div>
+      <div>
+        <div class="column-win-loss">
+          <!-- Progress bar container -->
+          <div class="win-loss-progress">
+            <div class="win-loss-fill" style="width: ${winRate}%;"></div>
+          </div>
+          <div class="row-win-loss">
+            <div class="row-wl">
+              <div class="label-win-box"></div>
+              <div class="win-badge">Win ${profit}</div>
+            </div>
+            <div class="row-wl">
+              <div class="label-loss-box"></div>
+              <div class="loss-badge">Loss ${loss}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div style="color: ${winRateColor};">
+        ${winRateRounded}%
+      </div>
+      <div style="color: ${pnlColor};">
+        ${pnlDisplay}
+      </div>
     `;
 
     body.appendChild(row);
@@ -2478,7 +2505,6 @@ document.addEventListener('DOMContentLoaded', function () {
         return csvRows.join('\n');
     }
 
-    // === Event: Download JSON ===
     if (downloadJSONBtn) {
         downloadJSONBtn.addEventListener('click', () => {
             try {
