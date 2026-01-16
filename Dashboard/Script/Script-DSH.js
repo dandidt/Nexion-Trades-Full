@@ -1,14 +1,26 @@
 // ======================= Format ======================= //
 function formatUSD(value) {
-    return `$${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`;
+    if (value === 0) return "$0";
+    return `$${value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}`;
 }
 
 function formatPercentI(value) {
-    return `${value.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2})}%`;
+    if (value === 0) return "0%";
+    return `${value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    })}%`;
 }
 
 function formatPercent(value) {
-    return value.toLocaleString('id-ID', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + "%";
+    if (value === 0) return "0%";
+    return value.toLocaleString('id-ID', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }) + "%";
 }
 
 function formatCurrencyCompact(n) {
@@ -1458,7 +1470,7 @@ function renderMonthsGrid() {
     grid.innerHTML = '';
 
     if (monthlyData.length === 0) {
-        grid.innerHTML = '<div class="no-data">No trading data in 2025</div>';
+        grid.innerHTML = '<div class="no-data">Data not available</div>';
         return;
     }
 
@@ -1567,12 +1579,18 @@ async function loadDailyPnLData() {
         const dailyCounts = {};
 
         for (const trade of rawData) {
-            if (trade.Result === "Missed") continue;
+            if (trade.action === "Deposit" || trade.action === "Withdraw") {
+                continue;
+            }
+
+            if (!trade.Result || trade.Result === "Missed") {
+                continue;
+            }
+
             const date = new Date(Number(trade.date) * 1000);
             const dateKey = getDateKey(date);
 
             dailyTotals[dateKey] = (dailyTotals[dateKey] || 0) + (Number(trade.Pnl) || 0);
-            
             dailyCounts[dateKey] = (dailyCounts[dateKey] || 0) + 1;
         }
 
@@ -1715,7 +1733,7 @@ function createDayCell(date) {
             dayCell.classList.add(data.raw.startsWith('+') ? 'positive' : 'negative');
         } else {
             dayCell.classList.add('empty');
-            pnlValue.textContent = 'No Trade';
+            pnlValue.textContent = 'No Trades';
         }
     }
     dayCell.appendChild(pnlValue);
@@ -2381,7 +2399,7 @@ async function updatePairsTable() {
   });
 
   if (sortedSymbols.length === 0) {
-    body.innerHTML = '<div class="no-data-pairs">There is no pairs data yet.</div>';
+    body.innerHTML = '<div class="no-data-pairs">Data not available</div>';
   }
 }
 
@@ -2713,7 +2731,7 @@ async function renderNotes(filter = "ALL") {
     filtered.sort((a, b) => b.timestamp - a.timestamp);
 
     if (filtered.length === 0) {
-        container.innerHTML = `<p style="color:#999; text-align:center; padding:20px;">There are no notes yet.</p>`;
+        container.innerHTML = `<p style="color:#999; text-align:center; padding:20px;">Data not available</p>`;
         return;
     }
 

@@ -47,9 +47,6 @@
 
         <!-- ===== Jurnaling Section ===== -->
         <section class="jurnaling">
-            <h1 class="title-jurnaling fade-up">Jurnal Trading</h1>
-            <p class="subtitle-jurnaling fade-up">All Trading Journal Notes</p>
-
             <!-- Front Dashboard -->
             <div class="wrapper-stats fade-up">
                 <div class="box-stats box-stats-red">
@@ -81,7 +78,7 @@
                     <div class="subtitle-front ps">
                         <p class="sub-profite" id="valueBestPerformer">$0</p>
                         <p>PnL</p>
-                        <p>|</p>
+                        <p class="sket">|</p>
                         <p class="sub-profite" id="persentaseBestPerformer">0%</p>
                         <p>ROI</p>
                     </div>
@@ -119,7 +116,7 @@
                     <div class="mid-content">
                         <p class="text-mid-content" id="profitability">0%</p>
                     </div>
-                    <p class="subtitle-front" id="totalProfitabilty">0 of 0 Profite Trade</p>
+                    <p class="subtitle-front" id="totalProfitabilty">0 of 0 Profit Trade</p>
                     <p class="footer-font" id="avgPnlPerday">Avg Daily PnL: $0</p>
                 </div>
             </div>
@@ -308,7 +305,7 @@
                     <!-- Stats -->
                     <div class="bx-statistic-in">
                         <div class="bx-in-ll border-btn">
-                            <p class="min-title">Porofite</p>
+                            <p class="min-title">Gain</p>
                             <p class="total-profite" id="totalProfite">~</p>
                             <div class="bx-in-sta">
                                 <div class="bx-prgs">
@@ -416,7 +413,7 @@
                     <div class="header-rr-pnl">
                         <div class="legend-item">
                             <div class="legend-dot pnl"></div>
-                            <span>Profite & Lose</span>
+                            <span>Profit & Loss</span>
                         </div>
                         <div class="legend-item">
                             <div class="legend-dot rr"></div>
@@ -436,7 +433,7 @@
                             <div class="tooltip-date" id="tooltipDate"></div>
                             <div class="tooltip-item">
                                 <div class="tooltip-dot" style="background: #34D399;"></div>
-                                <span class="tooltip-label tooltip-green">Profite & Lose:</span>
+                                <span class="tooltip-label tooltip-green">Profit & Loss:</span>
                                 <span class="tooltip-value" id="tooltipPnL"></span>
                             </div>
                             <div class="tooltip-item">
@@ -489,7 +486,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-calendar-days-icon lucide-calendar-days"><path d="M8 2v4"/><path d="M16 2v4"/><rect width="18" height="18" x="3" y="4" rx="2"/><path d="M3 10h18"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
                                 </div> 
                                 <div class="left">
-                                    <p class="tl-stats">Total Daily Trade</p>
+                                    <p class="tl-stats">Total Daily Trades</p>
                                     <p class="winrate" id="totalDailyTrade">~</p>
                                 </div>
                             </div>
@@ -516,7 +513,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m328.59-159.87-58.66-58.65 99.5-99.5H87.87v-83h281.56l-99.5-99.5 58.66-58.65 199.89 199.65-199.89 199.65Zm302.82-240.96L431.52-600.48l199.89-199.65 58.66 58.65-99.5 99.5h281.56v83H590.57l99.5 99.5-58.66 58.65Z"/></svg>
                                 </div> 
                                 <div class="left">
-                                    <p class="tl-stats">ALL Total Trade</p>
+                                    <p class="tl-stats">ALL Total Trades</p>
                                     <div class="value-tl-stats" id="totalTrade">~</div>
                                 </div>
                             </div>
@@ -525,7 +522,7 @@
                                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M287.76-159.87 87.87-359.52l199.89-199.65 58.65 58.65-99.5 99.5h281.57v83H246.91l99.5 99.5-58.65 58.65Zm384.48-240.96-58.65-58.65 99.5-99.5H431.52v-83h281.57l-99.5-99.5 58.65-58.65 199.89 199.65-199.89 199.65Z"/></svg>
                                 </div> 
                                 <div class="left">
-                                    <p class="tl-stats">Total Trade</p>
+                                    <p class="tl-stats">Total Trades</p>
                                     <div class="value-tl-stats-red" id="totalTradeExecuted">~</div>
                                 </div>
                             </div>
@@ -534,8 +531,8 @@
                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote-arrow-up-icon lucide-banknote-arrow-up"><path d="M12 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5"/><path d="M18 12h.01"/><path d="M19 22v-6"/><path d="m22 19-3-3-3 3"/><path d="M6 12h.01"/><circle cx="12" cy="12" r="2"/></svg>
                                 </div> 
                                 <div class="left">
-                                    <p class="tl-stats">Profite Trade</p>
-                                    <p class="data-stats-wr green" id="totalProfiteTrade">Profite: ~</p>
+                                    <p class="tl-stats">Profit Trades</p>
+                                    <p class="data-stats-wr green" id="totalProfiteTrade">Profit: ~</p>
                                 </div>
                             </div>
                             <div class="bx-statsrrpnl">
@@ -543,7 +540,7 @@
                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote-arrow-down-icon lucide-banknote-arrow-down"><path d="M12 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5"/><path d="m16 19 3 3 3-3"/><path d="M18 12h.01"/><path d="M19 16v6"/><path d="M6 12h.01"/><circle cx="12" cy="12" r="2"/></svg>
                                 </div> 
                                 <div class="left">
-                                    <p class="tl-stats">Loss Trade</p>
+                                    <p class="tl-stats">Loss Trades</p>
                                     <p class="data-stats-wr red" id="totalLossTrade">Loss: ~</p>
                                 </div>
                             </div>
@@ -552,7 +549,7 @@
                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote-icon lucide-banknote"><rect width="20" height="12" x="2" y="6" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>
                                 </div> 
                                 <div class="left">
-                                    <p class="tl-stats">Missed Trade</p>
+                                    <p class="tl-stats">Missed Trades</p>
                                     <p class="data-stats-wr" id="totalMissedTrade">Missed: ~</p>
                                 </div>
                             </div>
@@ -561,7 +558,7 @@
                                      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-banknote-x-icon lucide-banknote-x"><path d="M13 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5"/><path d="m17 17 5 5"/><path d="M18 12h.01"/><path d="m22 17-5 5"/><path d="M6 12h.01"/><circle cx="12" cy="12" r="2"/></svg>
                                 </div> 
                                 <div class="left">
-                                    <p class="tl-stats">Break Even Trade</p>
+                                    <p class="tl-stats">Break Even Trades</p>
                                     <p class="data-stats-wr" id="totalBETrade">Break Even: ~</p>
                                 </div>
                             </div>
@@ -633,7 +630,7 @@
                 <div class="calendar-wrapper">
                     <div class="calendar-header">
                         <button class="btn nav-btn" id="prevBtn">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 980 960" width="20px" fill="#e3e3e3"><path d="M432-240 192-480l240-240 51 51-189 189 189 189-51 51Zm285 0L477-480l240-240 51 51-189 189 189 189-51 51Z"/></svg>
+                             <svg class="svg-monthly-btn" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20"><path d="M2.5 10L9 3.5V7h8v6H9v3.5L2.5 10z"/></svg>
                         </button>
                         <div class="month-year-selector">
                             <div class="current-month" id="currentMonth"></div>
@@ -672,7 +669,7 @@
                             </div>
                         </div>
                         <button class="btn nav-btn" id="nextBtn">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 860 960" width="20px" fill="#e3e3e3"><path d="M381-480 192-669l51-51 240 240-240 240-51-51 189-189Zm285 0L477-669l51-51 240 240-240 240-51-51 189-189Z"/></svg>
+                             <svg class="svg-monthly-btn" xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 20 20"><path d="M11 16.5V13H3V7h8V3.5l6.5 6.5l-6.5 6.5z"/></svg>
                         </button>
                     </div>
 
@@ -690,29 +687,60 @@
                 </div>
             </div>
 
-            <!-- Persentase Pairs & Other Statistics -->
+            <!-- Winrate & Other Statistics -->
             <div class="container-statistic fade-up">
 
-                <!-- Chart Pairs -->
-                <div class="container-chart-pairs">
-                    <div class="container-in-pairs">
-                        <p class="title-pairs-chart">Persentase Pairs</p>
-                        <div class="chart-container-pairs">
-                            <svg width="267" height="267" viewBox="0 0 267 267">
-                                <defs></defs>
-                                <!-- JS -->
-                                <circle cx="133.5" cy="133.5" r="100" fill="none" stroke="rgba(40,40,40,0.5)" stroke-width="40" />
-                            </svg>
-
-                            <div class="chart-center">
-                                <div class="total-value-pairs">~</div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="wrapper-paris-identifier">
-                        <div class="box-identifier-pairs">
-                            <!-- JS -->
-                        </div>
+                <!-- WR Chart -->
+                <div class="container-chart-wr">
+                    <p class="title-pairs-wr">Winrate</p>
+                    <div class="wrapper-chartwr">
+                        <!-- SVG -->
+                        <svg id="wrChartSVG" viewBox="0 0 200 200">
+                            <defs>
+                                <linearGradient id="winGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#00fff2;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#4dd4ac;stop-opacity:1" />
+                                </linearGradient>
+                                
+                                <linearGradient id="loseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#e22222;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ff0000;stop-opacity:1" />
+                                </linearGradient>
+                                
+                                <linearGradient id="missedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#cfcfcf;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+                                </linearGradient>
+                                
+                                <linearGradient id="breakEvenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                                    <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
+                                    <stop offset="100%" style="stop-color:#ffaa00;stop-opacity:1" />
+                                </linearGradient>
+                            </defs>
+                            
+                            <!-- Ring dengan radius 100, stroke-width 35 -->
+                            <circle id="winSegment" cx="100" cy="100" r="82.5" 
+                                    fill="none" stroke="url(#winGradient)" stroke-width="35"
+                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
+                            </circle>
+                            
+                            <circle id="loseSegment" cx="100" cy="100" r="82.5" 
+                                    fill="none" stroke="url(#loseGradient)" stroke-width="35"
+                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
+                            </circle>
+                            
+                            <circle id="missedSegment" cx="100" cy="100" r="82.5" 
+                                    fill="none" stroke="url(#missedGradient)" stroke-width="35"
+                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
+                            </circle>
+                            <circle id="breakEvenSegment" cx="100" cy="100" r="82.5" 
+                                    fill="none" stroke="url(#breakEvenGradient)" stroke-width="35"
+                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
+                            </circle>
+                        </svg>
+                        
+                        <!-- Canvas -->
+                        <canvas id="donutChart"></canvas>
                     </div>
                 </div>
 
@@ -748,7 +776,7 @@
 
                     <hr class="hr-h">
 
-                    <span class="title-trading-style">Trading Style</span>
+                    <span class="title-trading-style">Trade Type Breakdown</span>
                     
                     <div class="stats-row-style-trading">
                         <div class="stat-row">
@@ -767,18 +795,18 @@
 
                     <hr class="hr-h">
 
-                    <div class="title-trading-style">Mental Calibration</div>
+                    <div class="title-trading-style">Mental Breakdown</div>
                     <div class="mental-grid">
                         <div class="mental-box">
-                            <div class="mental-label">Doubt</div>
+                            <div class="mental-label">Doubtful</div>
                             <div class="mental-value color-red" id="doubt">~</div>
                         </div>
                         <div class="mental-box">
-                            <div class="mental-label">Reckl</div>
+                            <div class="mental-label">Reckless</div>
                             <div class="mental-value color-yellow" id="reckl">~</div>
                         </div>
                         <div class="mental-box">
-                            <div class="mental-label">Confid</div>
+                            <div class="mental-label">Confident</div>
                             <div class="mental-value" id="confid">~</div>
                         </div>
                     </div>
@@ -839,58 +867,28 @@
 
             </div>
 
-            <!-- WR & List Pairs -->
+            <!-- Pairs Allocation & List Pairs -->
             <div class="container-statistic fade-up">
-                <!-- WR Chart -->
-                <div class="container-chart-wr">
-                    <p class="title-pairs-wr">Winrate</p>
-                    <div class="wrapper-chartwr">
-                        <!-- SVG -->
-                        <svg id="wrChartSVG" viewBox="0 0 200 200">
-                            <defs>
-                                <linearGradient id="winGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#00fff2;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#4dd4ac;stop-opacity:1" />
-                                </linearGradient>
-                                
-                                <linearGradient id="loseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#e22222;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#ff0000;stop-opacity:1" />
-                                </linearGradient>
-                                
-                                <linearGradient id="missedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#cfcfcf;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
-                                </linearGradient>
-                                <linearGradient id="breakEvenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#ffaa00;stop-opacity:1" />
-                                </linearGradient>
-                            </defs>
-                            
-                            <!-- Ring dengan radius 100, stroke-width 35 -->
-                            <circle id="winSegment" cx="100" cy="100" r="82.5" 
-                                    fill="none" stroke="url(#winGradient)" stroke-width="35"
-                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
-                            </circle>
-                            
-                            <circle id="loseSegment" cx="100" cy="100" r="82.5" 
-                                    fill="none" stroke="url(#loseGradient)" stroke-width="35"
-                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
-                            </circle>
-                            
-                            <circle id="missedSegment" cx="100" cy="100" r="82.5" 
-                                    fill="none" stroke="url(#missedGradient)" stroke-width="35"
-                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
-                            </circle>
-                            <circle id="breakEvenSegment" cx="100" cy="100" r="82.5" 
-                                    fill="none" stroke="url(#breakEvenGradient)" stroke-width="35"
-                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
-                            </circle>
-                        </svg>
-                        
-                        <!-- Canvas -->
-                        <canvas id="donutChart"></canvas>
+                <!-- Pairs Allocation -->
+                <div class="container-chart-pairs">
+                    <div class="container-in-pairs">
+                        <p class="title-pairs-chart">Pairs Allocation</p>
+                        <div class="chart-container-pairs">
+                            <svg width="267" height="267" viewBox="0 0 267 267">
+                                <defs></defs>
+                                <!-- JS -->
+                                <circle cx="133.5" cy="133.5" r="100" fill="none" stroke="rgba(40,40,40,0.5)" stroke-width="40" />
+                            </svg>
+
+                            <div class="chart-center">
+                                <div class="total-value-pairs">~</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="wrapper-paris-identifier">
+                        <div class="box-identifier-pairs">
+                            <!-- JS -->
+                        </div>
                     </div>
                 </div>
 
@@ -914,8 +912,6 @@
 
         <!-- ===== Note Section ===== -->
         <section class="notes">
-            <h2 class="fade-up">Notes</h2>
-
             <div class="wrapper-stats-notes fade-up">
                 <div class="subcontainer-stats-notes">
                     <p class="stats-informasion" id="statsTotalLearning">2</p>
@@ -1057,7 +1053,6 @@
 
         <!-- ===== Setting Section ===== -->
         <section class="setting">
-            <h2 class="fade-up">Settings</h2>
             <!-- Profile -->
             <div class="container-profile fade-up">
                 <div class="raw-profile-setting">
@@ -1896,7 +1891,7 @@
         <!-- ===== Share ===== -->
         <div class="popup-container popup-share">
             <div class="popup-header">
-                <h3>Share Profite</h3>
+                <h3>Share Profit</h3>
                 <div class="btn btn-default btn-close" id="closeShare">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
                 </div>
@@ -2275,7 +2270,7 @@
                             <span class="value-stats gray-secondary" id="alltredeMonthly">345</span>
                         </div>
                         <div class="subcolumn-stats">
-                            <span class="text-title">Trade Profite</span>
+                            <span class="text-title">Trade Profit</span>
                             <span class="value-stats gray-secondary" id="tradeprofitMonthly">345</span>
                         </div>
                         <div class="subcolumn-stats">

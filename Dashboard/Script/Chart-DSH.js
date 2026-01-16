@@ -1,4 +1,6 @@
 function FormatUSD(value) {
+    if (value === 0) return "0";
+
     let formatted = '';
     let suffix = '';
 
@@ -1538,6 +1540,10 @@ let centerY = 0;
 let dataWrChart = [];
 let total = 0;
 
+function getBg35Color() {
+    return getComputedStyle(document.documentElement).getPropertyValue('--bg-35').trim() || '#333333';
+}
+
 function resizeWrChart() {
     const parent = canvasWrChart.parentElement;
     if (!parent) return { centerX: 0, centerY: 0 };
@@ -1573,7 +1579,7 @@ function updateSVGRing() {
     const winPct = (dataWrChart[0].value / total) * 100;
     const losePct = (dataWrChart[1].value / total) * 100;
     const missedPct = (dataWrChart[2].value / total) * 100;
-    const bePct = (dataWrChart[3].value / total) * 100; // Break Even
+    const bePct = (dataWrChart[3].value / total) * 100;
 
     const winLen = (winPct / 100) * circumferenceSVG;
     const loseLen = (losePct / 100) * circumferenceSVG;
@@ -1663,9 +1669,42 @@ function drawCenterText() {
 }
 
 function renderWrChart() {
+    const bg35 = getBg35Color();
     ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
 
-    if (total === 0) return;
+    if (total === 0) {
+        const fullCirc = circumferenceSVG;
+        ['winSegment', 'loseSegment', 'missedSegment', 'breakEvenSegment'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+                el.setAttribute('stroke', bg35);
+                el.style.filter = 'none';
+                el.style.strokeDasharray = `${fullCirc} ${fullCirc}`;
+                el.style.strokeDashoffset = '0';
+            }
+        });
+
+        ctxWrChart.fillStyle = 'rgb(245, 245, 245)';
+        ctxWrChart.font = 'bold 24px Inter';
+        ctxWrChart.textAlign = 'center';
+        ctxWrChart.fillText('0', centerX, centerY + 10);
+
+        return;
+    }
+
+    const winSeg = document.getElementById('winSegment');
+    const loseSeg = document.getElementById('loseSegment');
+    const missedSeg = document.getElementById('missedSegment');
+    const beSeg = document.getElementById('breakEvenSegment');
+
+    if (winSeg) winSeg.setAttribute('stroke', 'url(#winGradient)');
+    if (loseSeg) loseSeg.setAttribute('stroke', 'url(#loseGradient)');
+    if (missedSeg) missedSeg.setAttribute('stroke', 'url(#missedGradient)');
+    if (beSeg) beSeg.setAttribute('stroke', 'url(#breakEvenGradient)');
+
+    [winSeg, loseSeg, missedSeg, beSeg].forEach(el => {
+        if (el) el.style.filter = 'drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15))';
+    });
 
     updateSVGRing();
 

@@ -380,19 +380,6 @@ input[type="number"]::-webkit-outer-spin-button {
 }
 
 /* ------ Stats Jurnal ------ */
-.title-jurnaling {
-  font-size: var(--sz-30);
-  font-weight: var(--wg-500);
-  margin-bottom: 5px;
-}
-
-.subtitle-jurnaling {
-  font-size: var(--sz-14);
-  font-weight: var(--wg-400);
-  color: var(--gray);
-  margin-bottom: 25px;
-}
-
 .wrapper-stats {
   display: flex;
   align-items: center;
@@ -565,6 +552,10 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .sub-lose {
   color: var(--red);
+}
+
+.sket {
+  color: var(--gray);
 }
 
 /* ------ Container Tabel ------ */
@@ -2054,7 +2045,7 @@ canvas {
 }
 
 .title-monly {
-  font-size: var(--sz-18);
+  font-size: var(--sz-16);
   color: var(--white);
   font-weight: var(--wg-500);
 }
@@ -2126,6 +2117,9 @@ canvas {
   align-items: center;
   justify-content: center;
   text-align: center;
+
+  font-size: var(--sz-14);
+  color: var(--gray);
 }
 
 .chart-container-performance {
@@ -2221,13 +2215,21 @@ canvas {
   width: 30px;
   height: 30px;
   color: var(--bg-27);
-  background: rgba(16, 185, 129, 0.5);
-  border: 1px solid var(--green-secondary);
+  background: var(--bg-35);
+  border: 1px solid var(--bg-60);
 }
 
 .nav-btn:hover {
-  background: rgba(16, 185, 129, 0.8);
-  border-color: var(--green-primary);
+  background: var(--bg-45);
+  border: 1px solid var(--bg-70);
+}
+
+.svg-monthly-btn {
+  fill: var(--gray);
+}
+
+.nav-btn:hover .svg-monthly-btn {
+  fill: var(--gray-secondary);
 }
 
 .month-year-selector {
@@ -2645,7 +2647,7 @@ canvas {
   position: absolute;
   top: 0;
   left: 0;
-  font-size: var(--sz-18);
+  font-size: var(--sz-16);
   color: var(--white);
   font-weight: var(--wg-500);
 }
@@ -2762,7 +2764,7 @@ circle.segment {
   justify-content: space-between;
   height: 420px;
   width: auto;
-  min-width: 370px;
+  min-width: 400px;
   border-radius: 15px;
   padding: 20px;
   background: var(--bg-20);
@@ -2770,10 +2772,9 @@ circle.segment {
 }
 
 .card-title {
-  font-size: var(--sz-18);
-  font-weight: var(--wg-500);
+  font-size: var(--sz-16);
   color: var(--white);
-  letter-spacing: 0.5px;
+  font-weight: var(--wg-500);
   margin-bottom: 10px;
 }
 
@@ -2807,8 +2808,8 @@ circle.segment {
 
 .progress-bar {
   width: 100%;
-  height: 8px;
-  background: rgba(255, 255, 255, 0.05);
+  height: 6px;
+  background: var(--bg-45);
   border-radius: 4px;
   overflow: hidden;
 }
@@ -2920,6 +2921,7 @@ circle.segment {
 
 .performance-title {
   font-size: var(--sz-16);
+  color: var(--white);
   font-weight: var(--wg-500);
   display: flex;
   align-items: center;
@@ -2984,7 +2986,7 @@ circle.segment {
   text-align: start;
   justify-content: space-between;
   height: 420px;
-  width: 420px;
+  width: 450px;
   border-radius: 15px;
   padding: 20px;
   background: var(--bg-20);
@@ -2992,7 +2994,7 @@ circle.segment {
 }
 
 .title-pairs-wr {
-  font-size: var(--sz-18);
+  font-size: var(--sz-16);
   color: var(--white);
   font-weight: var(--wg-500);
   width: 100%;
@@ -3039,7 +3041,8 @@ circle.segment {
 }
 
 .container-stats-pairs h2 {
-  font-size: var(--sz-18);
+  font-size: var(--sz-16);
+  color: var(--white);
   font-weight: var(--wg-500);
   margin-bottom: 10px;
 }
@@ -3137,6 +3140,8 @@ circle.segment {
   justify-content: center;
   align-items: center;
   height: 300px;
+
+  font-size: var(--sz-14);
   color: var(--gray);
 }
 
@@ -3154,7 +3159,7 @@ circle.segment {
   display: block;
   height: 5px;
   width: 100%;
-  background: var(--red-secondary);
+  background: var(--red-primary);
   border-radius: 5px;
 }
 
@@ -3206,11 +3211,6 @@ circle.segment {
   margin: 90px 40px 40px;
 }
 
-.notes h2 {
-  font-size: var(--sz-30);
-  font-weight: var(--wg-500);
-}
-
 .wrapper-stats-notes {
   position: relative;
   display: flex;
@@ -3245,7 +3245,7 @@ circle.segment {
 }
 
 .title-notes {
-  font-size: var(--sz-18);
+  font-size: var(--sz-16);
   color: var(--white);
   font-weight: var(--wg-500);
 }
@@ -3458,12 +3458,6 @@ circle.segment {
   display: flex;
   flex-direction: column;
   margin: 90px 40px 40px;
-}
-
-.setting h2 {
-  font-size: var(--sz-30);
-  font-weight: var(--wg-500);
-  margin-bottom: 15px;
 }
 
 /* ------- Pofile ------- */
