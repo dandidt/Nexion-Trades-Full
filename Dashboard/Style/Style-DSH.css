@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400..800&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&family=Sansation:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 
 :root {
   --bg-15: rgba(15, 15, 15, 1);
@@ -1365,6 +1366,12 @@ th.sortable {
   padding: 10px 20px;
 }
 
+.btn-fee-info {
+  display: flex;
+  gap: 6px;
+  padding: 10px 15px;
+}
+
 /* ------ Statistic & Chart Balance ------ */
 .chart-balance {
   display: flex;
@@ -1647,13 +1654,6 @@ th.sortable {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
-}
-
-.bx-wr-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
 }
 
 #toggleCircles {
@@ -5283,6 +5283,133 @@ input[type="number"]::placeholder {
   font-size: var(--sz-12);
 }
 
+/* ------ Popup Fee Analysis ------ */
+.popup-fee-analysis {
+  padding: 20px;
+}
+
+.container-fee-analysis {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  height: 330px;
+  margin-top: 15px;
+}
+
+/* ===== Chart Fee Analysis ===== */
+.container-chart-fee {
+  display: flex;
+  flex-direction: column;
+  width: 700px;
+  min-height: 350px;
+  margin-top: 14px;
+}
+
+/* Chart */
+.container-chart-fee .chart-wrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  flex: 1;
+}
+
+/* Tooltip */
+.tooltip-fee {
+  position: absolute;
+  min-width: 200px;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(99, 99, 99, 0.2);
+  backdrop-filter: blur(4px);
+  color: var(--white);
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 13px;
+  pointer-events: none;
+  display: none;
+  z-index: 10;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease-out, opacity 0.1s ease-out;
+}
+
+.tooltip-fee.active {
+  display: block;
+}
+
+.tooltip-date-fee {
+  font-size: 12px;
+  color: var(--gray);
+}
+
+.row-tooltip-fee {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.title-fee-tooltip {
+  font-size: var(--sz-12);
+  font-weight: var(--wg-600);
+  color: var(--white);
+}
+
+/* Date label */
+.date-label-fee {
+  position: absolute;
+  background: rgba(0, 0, 0, 0.75);
+  border: 1px solid rgba(99, 99, 99, 0.2);
+  backdrop-filter: blur(4px);
+  padding: 5px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  pointer-events: none;
+  display: none;
+  z-index: 10;
+  font-weight: var(--wg-600);
+}
+
+.date-label-fee.active {
+  display: block;
+}
+
+/* Circle point */
+.circle-fee {
+  display: none;
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  pointer-events: none;
+  background: rgb(239, 68, 68);
+}
+
+.circle-fee::after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.6);
+  transform: translate(-50%, -50%);
+  animation: pulse-circlefee 2s infinite;
+}
+
+@keyframes pulse-circlefee {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3.5);
+    opacity: 0;
+  }
+}
 
 /* ------ Block Non Dekstop ------ */
 #deviceBlocker {

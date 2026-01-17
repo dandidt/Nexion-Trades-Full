@@ -3652,6 +3652,503 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// ======================= FEE ANALYSIS POPUP ======================= //
+document.addEventListener("DOMContentLoaded", () => {
+    const popupFeeAnalysis = document.querySelector(".popup-fee-analysis");
+    const popupOverlay = document.querySelector(".popup-overlay");
+    const btnFeeInfo = document.getElementById("btnFeeInfo");
+    const closeFeeAnalysis = document.getElementById("closeFeeAnalysis");
+
+    if (!popupFeeAnalysis || !btnFeeInfo || !closeFeeAnalysis || !popupOverlay) return;
+
+    function triggerFeeChartResize() {
+        setTimeout(() => {
+            if (typeof resizeFeeCanvas === 'function') {
+                resizeFeeCanvas();
+            }
+        }, 50);
+    }
+
+    function openFeeAnalysis() {
+        document.querySelectorAll(".popup-container.show").forEach(p => p.classList.remove("show"));
+        document.querySelectorAll(".popup-overlay.show").forEach(o => o.classList.remove("show"));
+        document.body.classList.remove("popup-open");
+        document.body.style.overflow = "";
+
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        popupOverlay.classList.add("show");
+        popupFeeAnalysis.classList.add("show");
+
+        triggerFeeChartResize();
+    }
+
+    function closeFeeAnalysisPopup() {
+        popupFeeAnalysis.classList.remove("show");
+        popupOverlay.classList.remove("show");
+        document.body.classList.remove("popup-open");
+        document.body.style.overflow = "";
+    }
+
+    btnFeeInfo.addEventListener("click", openFeeAnalysis);
+    closeFeeAnalysis.addEventListener("click", closeFeeAnalysisPopup);
+    popupOverlay.addEventListener("click", (e) => {
+        if (popupFeeAnalysis.classList.contains("show")) {
+            closeFeeAnalysisPopup();
+        }
+    });
+
+    popupFeeAnalysis.addEventListener('transitionend', () => {
+        if (popupFeeAnalysis.classList.contains('show')) {
+            resizeFeeCanvas?.();
+        }
+    });
+});
+
+const canvasFee = document.getElementById('chartCanvasFee');
+const ctxFee = canvasFee.getContext('2d');
+const tooltipFee = document.getElementById('tooltip-fee');
+const dateLabelFee = document.getElementById('dateLabelFee');
+
+let feeFullData = [];
+let feePoints = [];
+let feeChartArea = {};
+let feeLastPoint = null;
+
+function formatFeeCurrency(value) {
+    return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+
+function formatFeeTime24(date) {
+    return date.toLocaleTimeString('en-US', {
+        hour12: false,
+        hour: '2-digit',
+        minute: '2-digit'
+    });
+}
+
+function formatFeeDateShort(date) {
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+async function loadFeeData() {
+    try {
+        const rawData = await getDB();
+        if (!Array.isArray(rawData) || rawData.length === 0) {
+            feeFullData = [];
+            drawFeeChart();
+            return;
+        }
+
+        const sorted = rawData
+            .filter(t => t.date)
+            .sort((a, b) => Number(a.date) - Number(b.date));
+
+        let cumulativeFee = 0;
+        const processed = [];
+
+        for (const entry of sorted) {
+            const timestampMs = Number(entry.date) * 1000;
+            const tradeDate = new Date(timestampMs);
+            
+            let feeIni = 0;
+
+            if (entry.hasOwnProperty("Pnl")) {
+                const rr = parseFloat(entry.RR);
+                const margin = parseFloat(entry.Margin);
+                const actualPnl = parseFloat(entry.Pnl);
+
+                if (!isNaN(rr) && !isNaN(margin) && margin > 0 && !isNaN(actualPnl)) {
+                    const expectedPnl = rr * margin;
+                    if (actualPnl < expectedPnl) {
+                        feeIni = expectedPnl - actualPnl;
+                    }
+                }
+            }
+
+            cumulativeFee += feeIni;
+            
+            processed.push({
+                date: tradeDate,
+                fee: parseFloat(cumulativeFee.toFixed(2))
+            });
+        }
+
+        const firstValidDate = sorted[0]?.date;
+        const firstDate = new Date((Number(firstValidDate) || Math.floor(Date.now() / 1000)) * 1000);
+        const zeroPointDate = new Date(firstDate.getTime() - 2000);
+
+        feeFullData = [
+            { date: zeroPointDate, fee: 0 },
+            ...processed
+        ];
+
+        const finalFee = feeFullData[feeFullData.length - 1]?.fee || 0;
+        const elValueFilterFee = document.getElementById('valueFilterFee');
+        if (elValueFilterFee) {
+            elValueFilterFee.textContent = formatFeeCurrency(finalFee); 
+        }
+
+        drawFeeChart();
+
+    } catch (error) {
+        console.error('Error loading fee data:', error);
+        feeFullData = [];
+        drawFeeChart();
+    }
+}
+
+function resizeFeeCanvas() {
+    const wrapper = canvasFee.parentElement;
+    canvasFee.width = wrapper.clientWidth;
+    canvasFee.height = wrapper.clientHeight;
+    drawFeeChart();
+}
+
+function createDiagonalStripePattern(color = 'rgba(163, 163, 163, 0.7)', gap = 12, thickness = 0.5) {
+    const tile = document.createElement('canvas');
+    const size = gap;
+    tile.width = size;
+    tile.height = size;
+
+    const ctx = tile.getContext('2d');
+    ctx.clearRect(0, 0, size, size);
+
+    ctx.imageSmoothingEnabled = false;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = thickness;
+    ctx.lineCap = 'round';
+
+    // Garis utama diagonal
+    ctx.beginPath();
+    ctx.moveTo(0, size);
+    ctx.lineTo(size, 0);
+    ctx.stroke();
+
+    // Penutup ujung kiri atas
+    ctx.beginPath();
+    ctx.moveTo(-1, 1);
+    ctx.lineTo(1, -1);
+    ctx.stroke();
+
+    // Penutup ujung kanan bawah
+    ctx.beginPath();
+    ctx.moveTo(size - 1, size + 1);
+    ctx.lineTo(size + 1, size - 1);
+    ctx.stroke();
+
+    return ctx.createPattern(tile, 'repeat');
+}
+
+function drawFeeChart() {
+    ctxFee.clearRect(0, 0, canvasFee.width, canvasFee.height);
+
+    if (feeFullData.length === 0) {
+        ctxFee.save();
+        ctxFee.font = '700 34px Sansation';
+        ctxFee.fillStyle = 'rgba(255, 255, 255, 0.3)';
+        ctxFee.textAlign = 'center';
+        ctxFee.textBaseline = 'middle';
+        ctxFee.fillText('NEXION TRADE', canvasFee.width / 2, canvasFee.height / 2);
+        ctxFee.restore();
+        return;
+    }
+
+    // Hitung rentang nilai Y
+    const allFees = feeFullData.map(d => d.fee);
+    const minFee = Math.min(...allFees) * 0.9;
+    const maxFee = Math.max(...allFees) * 1.1;
+    const rangeFee = maxFee - minFee || 1;
+
+    // Padding kiri dinamis
+    ctxFee.font = '12px Inter';
+    const sampleTexts = [
+        formatFeeCurrency(minFee),
+        formatFeeCurrency(maxFee),
+        formatFeeCurrency((minFee + maxFee) / 2)
+    ];
+    const widestText = sampleTexts.reduce((a, b) =>
+        ctxFee.measureText(a).width > ctxFee.measureText(b).width ? a : b
+    );
+    const dynamicLeftPadding = ctxFee.measureText(widestText).width + 20;
+
+    const padding = { top: 10, right: 20, bottom: 35, left: dynamicLeftPadding };
+    feeChartArea = {
+        left: padding.left,
+        right: canvasFee.width - padding.right,
+        top: padding.top,
+        bottom: canvasFee.height - padding.bottom,
+        width: canvasFee.width - padding.left - padding.right,
+        height: canvasFee.height - padding.top - padding.bottom
+    };
+
+    // Label sumbu Y
+    ctxFee.fillStyle = 'rgb(163, 163, 163)';
+    ctxFee.textAlign = 'right';
+    const ySteps = 5;
+    for (let i = 0; i <= ySteps; i++) {
+        const value = minFee + (rangeFee * (i / ySteps));
+        const y = feeChartArea.bottom - (feeChartArea.height * i / ySteps);
+        ctxFee.fillText(formatFeeCurrency(value), feeChartArea.left - 10, y + 4);
+    }
+
+    // Sumbu X: 8 label
+    const sortedData = [...feeFullData].sort((a, b) => a.date - b.date);
+    const axisStart = new Date(sortedData[0].date);
+    const axisEnd = new Date(sortedData[sortedData.length - 1].date);
+    const numLabels = 8;
+    const totalDuration = axisEnd.getTime() - axisStart.getTime();
+    const fullDates = totalDuration === 0
+        ? [new Date(axisStart)]
+        : Array.from({ length: numLabels }, (_, i) => {
+              const ratio = i / (numLabels - 1);
+              return new Date(axisStart.getTime() + totalDuration * ratio);
+          });
+
+    ctxFee.font = '600 30px TASA Explorer';
+    ctxFee.fillStyle = 'rgba(255, 255, 255, 0.3)';
+    ctxFee.textAlign = 'center';
+    ctxFee.textBaseline = 'middle';
+    ctxFee.fillText('Fee Analysis', canvasFee.width / 2, canvasFee.height / 2.5);
+
+    // Bangun titik chart
+    let lastFee = feeFullData[0]?.fee || 0;
+    feePoints = fullDates.map(d => {
+        const match = sortedData
+            .filter(t => t.date.getTime() <= d.getTime())
+            .pop();
+
+        if (match) lastFee = match.fee;
+
+        const normalizedY = (lastFee - minFee) / rangeFee;
+        const y = feeChartArea.bottom - (feeChartArea.height * normalizedY);
+        const tRatio = totalDuration !== 0 ? (d.getTime() - axisStart.getTime()) / totalDuration : 0;
+        const x = feeChartArea.left + tRatio * feeChartArea.width;
+
+        return {
+            x,
+            y,
+            date: d,
+            fee: lastFee,
+            isData: !!match
+        };
+    });
+
+    const lineColor = 'rgb(239, 68, 68)';
+
+    // Update circle akhir
+    const circlefee = document.getElementById('circlefee');
+    if (circlefee) {
+        circlefee.style.display = 'block';
+        circlefee.style.background = lineColor;
+        circlefee.style.setProperty('--circlefee-color', lineColor);
+        circlefee.style.setProperty('--circlefee-after-color', 'rgba(239, 68, 68, 0.6)');
+    }
+
+    // Gradient fill
+    ctxFee.beginPath();
+    ctxFee.moveTo(feePoints[0].x, feeChartArea.bottom);
+    ctxFee.lineTo(feePoints[0].x, feePoints[0].y);
+
+    for (let i = 0; i < feePoints.length - 1; i++) {
+        const p0 = feePoints[i - 1] || feePoints[i];
+        const p1 = feePoints[i];
+        const p2 = feePoints[i + 1];
+        const p3 = feePoints[i + 2] || p2;
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        ctxFee.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+    }
+
+    ctxFee.lineTo(feePoints[feePoints.length - 1].x, feeChartArea.bottom);
+    ctxFee.closePath();
+
+    ctxFee.fillStyle = 'rgba(239, 68, 68, 0.1)';
+    ctxFee.fill();
+
+    const stripePattern = createDiagonalStripePattern('rgba(255, 203, 203, 0.5)', 12, 0.5);
+    ctxFee.fillStyle = stripePattern;
+    ctxFee.fill();
+
+    // Garis utama
+    ctxFee.strokeStyle = lineColor;
+    ctxFee.lineWidth = 2;
+    ctxFee.lineJoin = 'round';
+    ctxFee.lineCap = 'round';
+    ctxFee.shadowBlur = 0;
+
+    ctxFee.beginPath();
+    ctxFee.moveTo(feePoints[0].x, feePoints[0].y);
+    for (let i = 0; i < feePoints.length - 1; i++) {
+        const p0 = feePoints[i - 1] || feePoints[i];
+        const p1 = feePoints[i];
+        const p2 = feePoints[i + 1];
+        const p3 = feePoints[i + 2] || p2;
+        const cp1x = p1.x + (p2.x - p0.x) / 6;
+        const cp1y = p1.y + (p2.y - p0.y) / 6;
+        const cp2x = p2.x - (p3.x - p1.x) / 6;
+        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        ctxFee.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+    }
+    ctxFee.stroke();
+
+    // Label sumbu X
+    ctxFee.fillStyle = 'rgb(163, 163, 163)';
+    ctxFee.font = '11px Inter';
+    ctxFee.textAlign = 'center';
+
+    feePoints.forEach((point, i) => {
+        let label;
+        if (i === 0 || i === feePoints.length - 1) {
+            label = formatFeeDateShort(point.date);
+        } else {
+            const prev = feePoints[i - 1].date;
+            if (prev.toDateString() !== point.date.toDateString()) {
+                label = formatFeeDateShort(point.date);
+            } else {
+                label = formatFeeTime24(point.date);
+            }
+        }
+        ctxFee.fillText(label, point.x, feeChartArea.bottom + 20);
+    });
+
+    // Posisi circle akhir
+    const last = feePoints[feePoints.length - 1];
+    if (last && circlefee) {
+        circlefee.style.left = `${last.x}px`;
+        circlefee.style.top = `${last.y}px`;
+    }
+}
+
+canvasFee.addEventListener('mousemove', (e) => {
+    if (feeFullData.length === 0) {
+        canvasFee.style.cursor = 'default';
+        return;
+    }
+
+    const rect = canvasFee.getBoundingClientRect();
+    const mouseX = e.clientX - rect.left;
+    const mouseY = e.clientY - rect.top;
+
+    const inChart = (
+        mouseX >= feeChartArea.left &&
+        mouseX <= feeChartArea.right &&
+        mouseY >= feeChartArea.top &&
+        mouseY <= feeChartArea.bottom
+    );
+
+    if (!inChart) {
+        canvasFee.style.cursor = 'default';
+        tooltipFee.style.display = 'none';
+        dateLabelFee.style.display = 'none';
+        drawFeeChart();
+        feeLastPoint = null;
+        return;
+    }
+
+    canvasFee.style.cursor = 'crosshair';
+
+    // Cari titik terdekat
+    let closestPoint = null;
+    let minDist = Infinity;
+    feePoints.forEach(p => {
+        const dist = Math.abs(p.x - mouseX);
+        if (dist < minDist) {
+            minDist = dist;
+            closestPoint = p;
+        }
+    });
+
+    if (!closestPoint) return;
+
+    drawFeeChart();
+
+    // Garis vertikal dashed
+    ctxFee.lineWidth = 1;
+    ctxFee.setLineDash([5, 5]);
+    ctxFee.beginPath();
+    ctxFee.moveTo(closestPoint.x, feeChartArea.top);
+    ctxFee.lineTo(closestPoint.x, feeChartArea.bottom);
+    ctxFee.stroke();
+    ctxFee.setLineDash([]);
+
+    // Titik highlight
+    ctxFee.fillStyle = '#fff';
+    ctxFee.beginPath();
+    ctxFee.arc(closestPoint.x, closestPoint.y, 2, 0, Math.PI * 2);
+    ctxFee.fill();
+
+    // Tooltip
+    tooltipFee.style.display = 'block';
+    dateLabelFee.style.display = 'block';
+
+    document.getElementById('feeTooltip').textContent = formatFeeCurrency(closestPoint.fee);
+
+    // Format tanggal tooltip
+    const date = closestPoint.date;
+    const d = date.getDate().toString().padStart(2, '0');
+    const m = (date.getMonth() + 1).toString().padStart(2, '0');
+    const y = date.getFullYear();
+    let h = date.getHours();
+    const min = date.getMinutes().toString().padStart(2, '0');
+    const ampm = h >= 12 ? 'PM' : 'AM';
+    h = h % 12 || 12;
+    const hh = h.toString().padStart(2, '0');
+    tooltipFee.querySelector('.tooltip-date-fee').textContent = `${d}/${m}/${y} ${hh}:${min} ${ampm}`;
+
+    // Label di bawah chart
+    const monthDay = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const time = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    dateLabelFee.textContent = `${monthDay} ${time}`;
+
+    feeLastPoint = closestPoint;
+
+    // Posisi tooltip
+    const tooltipX = mouseX + 20;
+    const tooltipY = mouseY - 80;
+    const tooltipWidth = tooltipFee.offsetWidth;
+    const tooltipHeight = tooltipFee.offsetHeight;
+
+    let finalX = tooltipX;
+    let finalY = tooltipY;
+
+    if (tooltipX + tooltipWidth > feeChartArea.right) {
+        finalX = mouseX - tooltipWidth - 20;
+    }
+    if (tooltipY < feeChartArea.top) {
+        finalY = mouseY + 30;
+    }
+
+    tooltipFee.style.left = finalX + 'px';
+    tooltipFee.style.top = finalY + 'px';
+
+    // Posisi label bawah
+    const labelWidth = dateLabelFee.offsetWidth || 60;
+    const labelTop = feeChartArea.bottom + 10;
+    const wrapperRect = canvasFee.parentElement.getBoundingClientRect();
+    const offsetLeft = rect.left - wrapperRect.left;
+    let labelLeft = offsetLeft + closestPoint.x - (labelWidth / 2);
+    labelLeft = Math.max(4, Math.min(wrapperRect.width - labelWidth - 4, labelLeft));
+    dateLabelFee.style.left = `${labelLeft}px`;
+    dateLabelFee.style.top = `${labelTop}px`;
+});
+
+canvasFee.addEventListener('mouseleave', () => {
+    canvasFee.style.cursor = 'default';
+    tooltipFee.style.display = 'none';
+    dateLabelFee.style.display = 'none';
+    feeLastPoint = null;
+    drawFeeChart();
+});
+
+// Init
+window.addEventListener('load', () => {
+    loadFeeData();
+    window.addEventListener('resize', resizeFeeCanvas);
+});
+
 // ======================= Block 1000px ======================= //
 function checkDeviceWidth() {
     const minWidth = 999;

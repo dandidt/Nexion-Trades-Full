@@ -290,6 +290,10 @@
                     <button class="btn btn-default btn-sop-secondary" id="sopTrading">
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-96q-79 0-149-30t-122.5-82.5Q156-261 126-331T96-480q0-112 59.5-205T315-827q1 19 5.5 37t9.5 36q-73 45-117.5 117T168-480q0 130 91 221t221 91q130 0 221-91t91-221q0-85-44-157.5T630-754q5-18 9-36t6-37q101 48 160 141.5T864-480q0 79-30 149t-82.5 122.5Q699-156 629.5-126T480-96Zm0-144q-100 0-170-70t-70-170q0-61 29-114.5t80-87.5q6 19 11 37.5t11 36.5q-26 26-42.5 58.5T312-480q0 70 49 119t119 49q70 0 119-49t49-119q0-37-17-69.5T588-608q5-18 11-36.5t12-36.5q51 34 80 87t29 114q0 100-70 170t-170 70Zm-38-384q-19-60-38.5-118.5T384-864q0-40 28-68t68-28q40 0 68 28t28 68q0 63-19 121.5T518-624h-76Zm38 228q-35 0-59.5-24.5T396-480q0-35 24.5-59.5T480-564q35 0 59.5 24.5T564-480q0 35-24.5 59.5T480-396Z"/></svg>
                     </button>
+                    <button class="btn btn-default btn-fee-info" id="btnFeeInfo">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-98q-79.38 0-149.19-30T208.5-210.5Q156-263 126-333.16q-30-70.15-30-148.96Q96-633 196.53-741.31 297.07-849.62 444-864v96q-107 14-179.5 94.98T192-481.66Q192-362 276-278t204 84q71 0 130-31t99-83l84 48q-53 74-134.5 118T480-98Zm-36-216v-132H312v-72h132v-132h72v132h132v72H516v132h-72Zm385-8-84-48q11-26 17-54.5t6-57.5q0-110.24-72.5-191.12Q623-754 516-768v-96q146.93 14.4 247.47 122.85Q864-632.69 864-482q0 42.95-9 82.98Q846-359 829-322Z"/></svg>
+                        <span>Fee</span>
+                    </button>
                     <button class="btn btn-default btn-share" id="btnShare">
                         <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M648-96q-50 0-85-35t-35-85q0-9 4-29L295-390q-16 14-36.05 22-20.04 8-42.95 8-50 0-85-35t-35-85q0-50 35-85t85-35q23 0 43 8t36 22l237-145q-2-7-3-13.81-1-6.81-1-15.19 0-50 35-85t85-35q50 0 85 35t35 85q0 50-35 85t-85 35q-23 0-43-8t-36-22L332-509q2 7 3 13.81 1 6.81 1 15.19 0 8.38-1 15.19-1 6.81-3 13.81l237 145q16-14 36.05-22 20.04-8 42.95-8 50 0 85 35t35 85q0 50-35 85t-85 35Zm0-72q20.4 0 34.2-13.8Q696-195.6 696-216q0-20.4-13.8-34.2Q668.4-264 648-264q-20.4 0-34.2 13.8Q600-236.4 600-216q0 20.4 13.8 34.2Q627.6-168 648-168ZM216-432q20.4 0 34.2-13.8Q264-459.6 264-480q0-20.4-13.8-34.2Q236.4-528 216-528q-20.4 0-34.2 13.8Q168-500.4 168-480q0 20.4 13.8 34.2Q195.6-432 216-432Zm432-264q20.4 0 34.2-13.8Q696-723.6 696-744q0-20.4-13.8-34.2Q668.4-792 648-792q-20.4 0-34.2 13.8Q600-764.4 600-744q0 20.4 13.8 34.2Q627.6-696 648-696Zm0 480ZM216-480Zm432-264Z"/></svg>
                         <span>Share</span>
@@ -369,12 +373,7 @@
                                 <button class="btn-radio filter-btn" data-range="1m">1M</button>
                                 <button class="btn-radio filter-btn" data-range="all">ALL</button>
                             </div>
-                            <div class="bx-wr-btn">
-                                <div class="btn-radio-wrapper">
-                                    <button class="btn-radio active">Account Value</button>
-                                </div>
-                                <button id="toggleCircles">Show Trade</button>
-                            </div>
+                            <button id="toggleCircles">Show Trade</button>
                         </div>
                         <div class="stats-balance-wrapper">
                             <div class="stats-balance-time">
@@ -1113,7 +1112,7 @@
         <!-- ===== Add ===== -->
         <div class="popup-container popup-add">
             <div class="popup-header">
-                <h3>Add Journal</h3>
+                <h4>Add Journal</h4>
                 <div class="wrapper-add">
                     <div class="btn-radio-wrapper">
                         <button class="btn-radio btn-radio-add active">Trade</button>
@@ -1445,7 +1444,7 @@
         <!-- ===== Edit Add ===== -->
         <div class="popup-container popup-edit-trade">
             <div class="popup-header">
-                <h3>Edit Trade</h3>
+                <h4>Edit Trade</h4>
                 <div class="box-auto" id="btnAuto">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M279-288h74.96l39.45-110H567l39.31 110H681L518-720h-77L279-288Zm136-173 63.06-179H482l63 179H415Zm65.28 365Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30ZM480-480Zm.23 312Q610-168 701-259.23t91-221Q792-610 700.77-701t-221-91Q350-792 259-700.77t-91 221Q168-350 259.23-259t221 91Z"/></svg>
                 </div>
@@ -1733,7 +1732,7 @@
 
         <!-- ===== Edit Transfer ===== -->
         <div class="popup-container popup-edit-transfer">
-            <h3>Edit Transfer</h3>
+            <h4>Edit Transfer</h4>
 
             <div class="popup-body">
                 <div class="form-grid">
@@ -1820,7 +1819,7 @@
         <!-- ===== Caculate ===== -->
         <div class="popup-container popup-caculate">
             <div class="wrapper-title-caculate">
-                <h3>Trading Calculator</h3>
+                <h4>Trading Calculator</h4>
                 <p class="informasion-risk"></p>
             </div>
             
@@ -1891,7 +1890,7 @@
         <!-- ===== Share ===== -->
         <div class="popup-container popup-share">
             <div class="popup-header">
-                <h3>Share Profit</h3>
+                <h4>Share Profit</h4>
                 <div class="btn btn-default btn-close" id="closeShare">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
                 </div>
@@ -1932,7 +1931,7 @@
         <!-- ===== Trading Rules ===== -->
         <div class="popup-container popup-sop">
             <div class="popup-header">
-                <h3>Trading Rules</h3>
+                <h4>Trading Rules</h4>
                 <div class="btn btn-default btn-close" id="closeSop">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
                 </div>
@@ -2071,7 +2070,7 @@
             <div class="wrapper-edit-profile">
                 <!-- Panel Kiri: Form Input -->
                 <div class="left-panel">
-                    <h3>Edit Profile</h3>
+                    <h4>Edit Profile</h4>
                     
                     <div class="form-group-profile">
                         <div class="row-main">
@@ -2166,7 +2165,7 @@
 
         <!-- ===== Swap Account ===== -->
         <div class="popup-container popup-account">
-            <h3>Manage Accounts</h3>
+            <h4>Manage Accounts</h4>
             <p class="subtitle-account">Switch accounts, sign in, sign out, go wild.</p>
             <div class="wrapper-account">
                 <!-- <div class="column-account">
@@ -2216,7 +2215,7 @@
         <!-- ===== Monthly ===== -->
         <div class="popup-container popup-monthly">
             <div class="popup-header">
-                <h3>Mhonthly Report</h3>
+                <h4>Mhonthly Report</h4>
                 <div class="btn btn-default btn-close" id="closeMonthly">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
                 </div>
@@ -2302,7 +2301,7 @@
         <!-- ===== Pairs ===== -->
         <div class="popup-container popup-pairs">
             <div class="popup-header">
-                <h3>Pairs Report</h3>
+                <h4>Pairs Report</h4>
                 <div class="btn btn-default btn-close" id="closePairs">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/></svg>
                 </div>
@@ -2449,6 +2448,38 @@
                         <span class="btn-text">Confirm</span>
                         <span class="btn-loader"></span>
                     </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== Fee Analysis ===== -->
+        <div class="popup-container popup-fee-analysis">
+            <div class="popup-header">
+                <h4>Fee Analysis</h4>
+                <div class="btn btn-default btn-close" id="closeFeeAnalysis">
+                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                        <path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <!-- Chart Fee Analysis -->
+            <div class="container-chart-fee">
+                <div class="chart-wrapper">
+                    <canvas id="chartCanvasFee"></canvas>
+
+                    <div class="tooltip-fee" id="tooltip-fee">
+                        <div class="tooltip-date-fee">01/01/2000 00:00</div>
+                        <div class="line-horizontal-tooltip"></div>
+                        <div class="wrap-tooltip-stats">
+                            <div class="row-tooltip-fee">
+                                <p class="title-fee-tooltip">Total Fees</p>
+                                <div class="tooltip-stats" id="feeTooltip">$0</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="date-label-fee" id="dateLabelFee"></div>
+                    <div class="circle-fee" id="circlefee"></div>
                 </div>
             </div>
         </div>

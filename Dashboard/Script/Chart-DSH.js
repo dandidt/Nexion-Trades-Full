@@ -299,11 +299,11 @@ function drawBalanceChart(animProgress = 1) {
 
     if (balanceCurrentData.length === 0) {
         ctxBalance.save();
-        ctxBalance.font = '700 55px TASA Explorer';
+        ctxBalance.font = '700 40px Sansation';
         ctxBalance.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctxBalance.textAlign = 'center';
         ctxBalance.textBaseline = 'middle';
-        ctxBalance.fillText('Nexion Trades', canvasBalance.width / 2, canvasBalance.height / 2.5);
+        ctxBalance.fillText('NEXION TRADE', canvasBalance.width / 2, canvasBalance.height / 2.5);
         ctxBalance.restore();
         return;
     }
@@ -959,10 +959,10 @@ function drawChart() {
 
     if (!Array.isArray(data) || data.length === 0) {
         ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.font = '700 55px TASA Explorer';
+        ctx.font = '700 40px Sansation';
         ctx.textAlign = 'center';
         ctx.textBaseline = 'middle';
-        ctx.fillText('Nexion Trades', width / 2, height / 2);
+        ctx.fillText('NEXION TRADE', width / 2, height / 2);
         return;
     }
 
