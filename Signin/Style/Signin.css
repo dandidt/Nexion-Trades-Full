@@ -173,14 +173,14 @@ body {
     height: 4px;
     background: #333;
     border-radius: 2px;
-    margin: 0 auto 32px;
+    margin: 0 auto 20px;
 }
 
 h1 {
-    font-size: 30px;
+    font-size: 26px;
     font-weight: 600;
     text-align: center;
-    margin-bottom: 32px;
+    margin-bottom: 20px;
 }
 
 .row-main {
@@ -305,7 +305,7 @@ input:-webkit-autofill {
 
 .sign-in-btn {
     width: 100%;
-    padding: 14px;
+    padding: 11px;
     background: #0b9779;
     border: 1px solid #0bbb95;
     color: #fff;
