@@ -1823,4 +1823,7 @@ window.addEventListener('tradeDataUpdated', async () => {
     
     // Update Chart Winrate
     await loadWrChartData();
+
+    // Update Chart Fee Analysis
+    await loadFeeData();
 });

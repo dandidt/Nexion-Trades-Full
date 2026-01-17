@@ -968,6 +968,19 @@ th.sortable {
   text-decoration: underline;
 }
 
+.tooltip-img-placeholder {
+  width: 160px;
+  height: 90px;
+  border-radius: 4px;
+  border: 1px solid #444;
+  background: #333;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+  font-size: 12px;
+}
+
 /* ------ Pagination ------ */
 .container-pagination {
   display: flex;
@@ -5163,6 +5176,10 @@ input[type="number"]::placeholder {
   color: var(--gray);
 }
 
+.text-title svg {
+  opacity: 0.5;
+}
+
 .value-stats {
   font-size: var(--sz-14);
 }
@@ -5225,7 +5242,7 @@ input[type="number"]::placeholder {
 }
 
 .balance-value-pairs {
-  font-size: var(--sz-24);
+  font-size: var(--sz-30);
   font-weight: var(--wg-700);
   color: var(--green);
 }
@@ -5254,7 +5271,7 @@ input[type="number"]::placeholder {
 }
 
 .bs-fill {
-  height: 100%;
+  height: 5px;
   width: 0%;
   border-radius: 5px;
   background: var(--green);

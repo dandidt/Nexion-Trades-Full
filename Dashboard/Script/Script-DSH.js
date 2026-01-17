@@ -770,31 +770,53 @@ class TooltipManager {
       const biasLink = this.currentTarget.dataset.biasLink || bias;
       const lastLink = this.currentTarget.dataset.lastLink || last;
 
-      content = `
-        <div class="tooltip-imgs-grid" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 8px;">
-          ${bias ? `
-            <div style="text-align: center;">
-              <a href="${biasLink}" target="_blank" style="display: inline-block;">
-                <img src="${bias}" alt="Preview 1" style="width: 160px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;">
-              </a>
-              <div style="margin-top: 6px; font-size: 12px;">
-                <a href="${biasLink}" target="_blank" class="tooltip-link">Image Before</a>
+    content = `
+      <div class="tooltip-imgs-grid" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 8px;">
+        ${bias ? `
+          <div style="text-align: center;">
+            <a href="${biasLink}" target="_blank" style="display: inline-block;">
+              <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
+                ${bias.startsWith('http') ? `<img src="${bias}" alt="Preview 1" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
               </div>
+            </a>
+            <div style="margin-top: 6px; font-size: 12px;">
+              <a href="${biasLink}" target="_blank" class="tooltip-link">Image Before</a>
             </div>
-          ` : ''}
-          
-          ${last ? `
-            <div style="text-align: center;">
-              <a href="${lastLink}" target="_blank" style="display: inline-block;">
-                <img src="${last}" alt="Preview 2" style="width: 160px; height: 90px; object-fit: cover; border-radius: 4px; border: 1px solid #eee;">
-              </a>
-              <div style="margin-top: 6px; font-size: 12px;">
-                <a href="${lastLink}" target="_blank" class="tooltip-link">Image After</a>
+          </div>
+        ` : `
+          <div style="text-align: center;">
+            <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #444; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
+              No image
+            </div>
+            <div style="margin-top: 6px; font-size: 12px; color: #555;">
+              Image Before
+            </div>
+          </div>
+        `}
+        
+        ${last ? `
+          <div style="text-align: center;">
+            <a href="${lastLink}" target="_blank" style="display: inline-block;">
+              <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
+                ${last.startsWith('http') ? `<img src="${last}" alt="Preview 2" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
               </div>
+            </a>
+            <div style="margin-top: 6px; font-size: 12px;">
+              <a href="${lastLink}" target="_blank" class="tooltip-link">Image After</a>
             </div>
-          ` : ''}
-        </div>
-      `;
+          </div>
+        ` : `
+          <div style="text-align: center;">
+            <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #444; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
+              No image
+            </div>
+            <div style="margin-top: 6px; font-size: 12px; color: #555;">
+              Image After
+            </div>
+          </div>
+        `}
+      </div>
+    `;
     }
 
     this.tooltipContent.innerHTML = `<div class="tooltip-title">${title}</div>${content}`;

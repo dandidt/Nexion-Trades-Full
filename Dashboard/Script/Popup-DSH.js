@@ -3883,9 +3883,10 @@ function drawFeeChart() {
     };
 
     // Label sumbu Y
+    ctxFee.textBaseline = 'alphabetic'; 
     ctxFee.fillStyle = 'rgb(163, 163, 163)';
     ctxFee.textAlign = 'right';
-    const ySteps = 5;
+    const ySteps = 7;
     for (let i = 0; i <= ySteps; i++) {
         const value = minFee + (rangeFee * (i / ySteps));
         const y = feeChartArea.bottom - (feeChartArea.height * i / ySteps);
@@ -3910,6 +3911,7 @@ function drawFeeChart() {
     ctxFee.textAlign = 'center';
     ctxFee.textBaseline = 'middle';
     ctxFee.fillText('Fee Analysis', canvasFee.width / 2, canvasFee.height / 2.5);
+    ctxFee.restore();
 
     // Bangun titik chart
     let lastFee = feeFullData[0]?.fee || 0;
