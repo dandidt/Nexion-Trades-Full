@@ -8,31 +8,31 @@ if (typeof supabase === 'undefined') {
 
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const CACHE_KEY = 'dbtrade';
+const CACHE_KEY = 'dbperpetual';
 let dbPromise = null;
 
-function saveToCache(data) {
+function saveToPerpetualCache(data) {
     try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        console.log('💾 Data is saved to local');
+        console.log('💾 Data Perpetual Saved Local');
     } catch (error) {
-        console.warn('⚠️ Failed to save data:', error);
+        console.warn('⚠️ Failed save data Perpetual:', error);
     }
 }
 
-function getFromCache() {
+function getPerpetualFromCache() {
     try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
             return JSON.parse(cached);
         }
     } catch (error) {
-        console.warn('⚠️ Failed to read cache:', error);
+        console.warn('⚠️ Failed to read cache Perpetual:', error);
     }
     return null;
 }
 
-async function loadDB() {
+async function loadDBPerpetual() {
     try {
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         if (authError || !user) {
@@ -42,7 +42,6 @@ async function loadDB() {
 
         const userId = user.id;
 
-        // Query trades hanya milik user ini
         const { data: trades, error: tradesErr } = await supabaseClient
             .from('trades')
             .select(`
@@ -69,7 +68,6 @@ async function loadDB() {
 
         if (tradesErr) throw tradesErr;
 
-        // Query transactions hanya milik user ini
         const { data: transactions, error: txErr } = await supabaseClient
             .from('transactions')
             .select(`
@@ -133,12 +131,12 @@ async function loadDB() {
 
         const finalData = processedData;
 
-        saveToCache(finalData);
+        saveToPerpetualCache(finalData);
 
         return finalData;
 
     } catch (err) {
-        const cachedData = getFromCache();
+        const cachedData = getPerpetualFromCache();
         if (cachedData) {
             return cachedData;
         }
@@ -147,28 +145,179 @@ async function loadDB() {
     }
 }
 
-async function getDB() {
+async function getDBPerpetual() {
     if (!dbPromise) {
-        dbPromise = loadDB();
+        dbPromise = loadDBPerpetual();
     }
     return await dbPromise;
 }
 
-function refreshDBCache() {
-    dbPromise = loadDB();
+function refreshDBPerpetualCache() {
+    dbPromise = loadDBPerpetual();
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    dbPromise = loadDB().then(data => {
-        window.dbtradeData = data;
+    dbPromise = loadDBPerpetual().then(data => {
+        window.dbperpetualData = data;
         document.dispatchEvent(new CustomEvent('dbLoaded', { detail: data }));
         return data;
     });
 });
 
-window.getDB = getDB;
-window.loadDB = loadDB;
-window.refreshDBCache = refreshDBCache;
+window.getDBPerpetual = getDBPerpetual;
+window.loadDBPerpetual = loadDBPerpetual;
+window.refreshDBPerpetualCache = refreshDBPerpetualCache;
+
+// ======================= Spot Trading ======================= //
+const CACHE_KEY_SPOT = 'dbspot';
+let dbSpotPromise = null;
+
+function saveSpotToCache(data) {
+    try {
+        localStorage.setItem(CACHE_KEY_SPOT, JSON.stringify(data));
+        console.log('💾 Spot data saved to local');
+    } catch (error) {
+        console.warn('⚠️ Failed to save spot data:', error);
+    }
+}
+
+function getSpotFromCache() {
+    try {
+        const cached = localStorage.getItem(CACHE_KEY_SPOT);
+        if (cached) {
+            return JSON.parse(cached);
+        }
+    } catch (error) {
+        console.warn('⚠️ Failed to read spot cache:', error);
+    }
+    return null;
+}
+
+async function loadDBSpot() {
+    try {
+        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
+        if (authError || !user) {
+            return [];
+        }
+
+        const userId = user.id;
+
+        const { data: spots, error: spotErr } = await supabaseClient
+            .from('spot')
+            .select(`
+                id,
+                date,
+                pairs,
+                method,
+                timeframe,
+                rr,
+                causes,
+                psychology,
+                class,
+                bias,
+                last,
+                margin,
+                result,
+                pnl,
+                inserted_at
+            `)
+            .eq('user_id', userId);
+
+        if (spotErr) throw spotErr;
+
+        const { data: transactions, error: txErr } = await supabaseClient
+            .from('spot_transactions')
+            .select(`
+                id,
+                date,
+                action,
+                value,
+                inserted_at
+            `)
+            .eq('user_id', userId);
+
+        if (txErr) throw txErr;
+
+        const allRawData = [
+            ...spots.map(s => ({ ...s, type: 'spot' })),
+            ...transactions.map(tx => ({ ...tx, type: 'transaction' }))
+        ];
+
+        const sortedAllData = allRawData.sort((a, b) => a.date - b.date);
+
+        let tradeCounter = 1;
+
+        const processedData = sortedAllData.map(item => {
+            const baseData = {
+                id: item.id,
+                tradeNumber: tradeCounter++,
+                date: item.date
+            };
+
+            if (item.type === 'spot') {
+                return {
+                    ...baseData,
+                    Pairs: item.pairs || '',
+                    Method: item.method || '',
+                    Confluance: {
+                        TimeFrame: item.timeframe || ''
+                    },
+                    RR: item.rr || 0,
+                    Causes: item.causes || '',
+                    Psychology: item.psychology || '',
+                    Class: item.class || '',
+                    Files: {
+                        Bias: item.bias || '',
+                        Last: item.last || ''
+                    },
+                    Margin: item.margin || 0,
+                    Result: item.result || '',
+                    Pnl: item.pnl || 0
+                };
+            } else {
+                return {
+                    ...baseData,
+                    action: item.action || '',
+                    value: item.value || 0
+                };
+            }
+        });
+
+        saveSpotToCache(processedData);
+        return processedData;
+
+    } catch (err) {
+        console.error('❌ Error loading spot DB:', err);
+        const cachedData = getSpotFromCache();
+        if (cachedData) {
+            return cachedData;
+        }
+        return [];
+    }
+}
+
+async function getDBSpot() {
+    if (!dbSpotPromise) {
+        dbSpotPromise = loadDBSpot();
+    }
+    return await dbSpotPromise;
+}
+
+function refreshDBSpotCache() {
+    dbSpotPromise = loadDBSpot();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    dbSpotPromise = loadDBSpot().then(data => {
+        window.dbspotData = data;
+        document.dispatchEvent(new CustomEvent('spotLoaded', { detail: data }));
+        return data;
+    });
+});
+
+window.getDBSpot = getDBSpot;
+window.loadDBSpot = loadDBSpot;
+window.refreshDBSpotCache = refreshDBSpotCache;
 
 // ======================= Notes ======================= //
 const CACHE_KEY_NOTES = 'dbnotes';
@@ -199,7 +348,6 @@ async function loadDBNotes() {
     try {
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         if (authError || !user) {
-            // Optional: redirect or just return empty
             return [];
         }
 
@@ -221,10 +369,9 @@ async function loadDBNotes() {
 
         if (notesErr) throw notesErr;
 
-        // Proses data sesuai kebutuhan (misal, ubah timestamp jadi Date kalau perlu)
         const processedNotes = notes.map(note => ({
             id: note.id,
-            timestamp: note.timestamp, // udah bigint (ms), bisa langsung dipakai
+            timestamp: note.timestamp,
             title: note.title || '',
             category: note.category || '',
             something: note.something || '',

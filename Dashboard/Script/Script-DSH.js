@@ -239,11 +239,11 @@ function updateDashboardFromTrades(data = []) {
 
     let originalData = [];
     try {
-      const raw = localStorage.getItem("dbtrade");
+      const raw = localStorage.getItem("dbperpetual");
       if (raw) originalData = JSON.parse(raw);
       if (!Array.isArray(originalData)) originalData = [];
     } catch (err) {
-      console.warn("⚠️ Gagal parse dbtrade:", err);
+      console.warn("⚠️ Gagal parse dbperpetual:", err);
       originalData = [];
     }
 
@@ -267,7 +267,7 @@ function updateDashboardFromTrades(data = []) {
         }, 0);
       }
     } catch (err) {
-      console.warn("⚠️ Gagal hitung totalDeposit dari dbtrade:", err);
+      console.warn("⚠️ Gagal hitung totalDeposit dari dbperpetual:", err);
     }
 
     let bestIndexInOriginal = -1;
@@ -381,7 +381,7 @@ function updateDashboardFromTrades(data = []) {
 
 // ======================= Trading Jurnal ======================= //
 async function loadTradingData() {
-  const data = await getDB();
+  const data = await getDBPerpetual();
 
   globalTrades = data;
   originalTrades = [...data];
@@ -583,23 +583,19 @@ function initSorting() {
 
       const nextDirection = nextSortState(key);
       if (!nextDirection) {
-        // Kembalikan ke data asli halaman ini (tanpa sort)
         currentSort = { key: null, direction: null };
-        renderPaginatedTable(); // render ulang dari globalTrades
+        renderPaginatedTable();
       } else {
         currentSort = { key, direction: nextDirection };
 
-        // Ambil data halaman ini SAAT INI
         const startIndex = (currentPage - 1) * rowsPerPage;
         const endIndex = startIndex + rowsPerPage;
         let pageData = globalTrades.slice(startIndex, endIndex);
 
-        // Sort hanya data halaman ini
         pageData = [...pageData].sort((a, b) =>
           sortTrades(a, b, currentSort.key, currentSort.direction)
         );
 
-        // Render langsung data yang sudah disort
         renderTradingTable(pageData);
       }
 
@@ -607,7 +603,6 @@ function initSorting() {
     });
   });
 
-  // Reset ikon
   document.querySelectorAll("th.sortable .sort-icon").forEach(span => {
     const th = span.closest("th.sortable");
     const key = th ? th.dataset.key : null;
@@ -1136,7 +1131,7 @@ document.querySelector('.right-frist-page').addEventListener('click', () => {
 // =================== Dashboard Header =================== //
 async function updateEquityStats() {
   try {
-    const tradingData = await getDB();
+    const tradingData = await getDBPerpetual();
 
     if (!Array.isArray(tradingData)) {
       console.warn("Data trading tidak valid");
@@ -1228,7 +1223,7 @@ window.updateEquityStats = updateEquityStats;
 
 // ======================= Container 1 Statistic ======================= //
 async function updateStats() {
-  const trades = await getDB();
+  const trades = await getDBPerpetual();
 
   if (!Array.isArray(trades)) {
     console.warn("Data trading tidak valid");
@@ -1393,7 +1388,7 @@ let monthlyData = [];
 
 async function loadMonthlyData() {
     try {
-        const rawData = await getDB();
+        const rawData = await getDBPerpetual();
         if (!Array.isArray(rawData) || rawData.length === 0) {
             monthlyData = [];
             renderMonthsGrid();
@@ -1590,7 +1585,7 @@ function getDateKey(date) {
 
 async function loadDailyPnLData() {
     try {
-        const rawData = await getDB();
+        const rawData = await getDBPerpetual();
         if (!Array.isArray(rawData) || rawData.length === 0) {
             DataPnLDaily = {};
             renderCalendar();
@@ -1987,7 +1982,7 @@ updateLine();
 // ------ Detailed Statistics ------ //
 async function updateTradingStats() {
     try {
-        const rawData = await getDB();
+        const rawData = await getDBPerpetual();
         if (!Array.isArray(rawData)) throw new Error('Expected JSON array');
 
         const executedTrades = rawData
@@ -2076,7 +2071,7 @@ updateTradingStats();
 
 async function updateTradeStats() {
   try {
-    const data = await getDB();
+    const data = await getDBPerpetual();
     if (!Array.isArray(data)) {
       console.error('Data harus berupa array');
       return;
@@ -2152,7 +2147,7 @@ window.updateTradeStats = updateTradeStats;
 // ======================= Global Sumary  & Single Bhhavior ======================= //
 async function loadTradeStats() {
   try {
-    const data = await getDB();
+    const data = await getDBPerpetual();
 
     // Pos (Long / Short)
     let countLong = 0, countShort = 0;
@@ -2222,7 +2217,7 @@ document.addEventListener("DOMContentLoaded", loadTradeStats);
 
 async function loadBehaviorStats() {
   try {
-    const data = await getDB();
+    const data = await getDBPerpetual();
 
     // Reversal
     const reversalTrades = data.filter(t => t.Behavior === "Reversal");
@@ -2275,7 +2270,7 @@ async function loadBehaviorStats() {
 
 async function loadPsychologyStats() {
   try {
-    const data = await getDB();
+    const data = await getDBPerpetual();
 
     let totalConf = 0, totalDoubt = 0, totalReck = 0;
     data.forEach(item => {
@@ -2326,7 +2321,7 @@ function extractBaseSymbol(pairStr) {
 
 async function updatePairsTable() {
   await loadAssetDataIfNeeded();
-  const rawData = await getDB();
+  const rawData = await getDBPerpetual();
 
   if (!Array.isArray(rawData)) {
     console.warn("Data trading tidak valid.");
@@ -2493,7 +2488,7 @@ document.addEventListener("DOMContentLoaded", () => {
 document.addEventListener('DOMContentLoaded', function () {
     const downloadCSVBtn = document.getElementById('downloadCSV');
     const downloadJSONBtn = document.getElementById('downloadJSON');
-    const localStorageKey = 'dbtrade';
+    const localStorageKey = 'dbperpetual';
 
     function downloadFile(content, filename, type = 'text/plain') {
         const blob = new Blob([content], { type });
@@ -2642,7 +2637,7 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     async function calculate() {
-        await getDB();
+        await getDBPerpetual();
 
         const leverage = parseFloat(leverageInput?.value);
         const stopLoss = parseFloat(stopLossInput?.value);
@@ -2650,10 +2645,10 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isNaN(leverage) || isNaN(stopLoss) || leverage <= 0 || stopLoss <= 0) return;
 
         const setting = getLocalData("setting") || { fee: 0, risk: 0 };
-        const dbtrade = getLocalData("dbtrade") || [];
+        const dbPerpetual = getLocalData("dbperpetual") || [];
 
-        const totalPnl = dbtrade.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
-        const deposit = dbtrade.reduce((sum, trade) => {
+        const totalPnl = dbPerpetual.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
+        const deposit = dbPerpetual.reduce((sum, trade) => {
             if (trade.action && trade.action.toLowerCase() === "deposit") {
                 return sum + (parseFloat(trade.value) || 0);
             }
@@ -3067,7 +3062,7 @@ function updateStatsNotes() {
 // ======================= Update UI Global ======================= //
 async function updateAllUI() {
   try {
-    const data = await getDB();
+    const data = await getDBPerpetual();
 
     await loadTradingData()
     updateDashboardFromTrades(data);

@@ -338,14 +338,6 @@ input[type="number"]::-webkit-outer-spin-button {
   font-weight: var(--wg-700);
 }
 
-/* .subtitle-navbar {
-    font-size: var(--sz-12);
-    color: var(--gray);
-    display: block;
-    margin-top: 7px;
-    text-align: center;
-} */
-
 .icon-title-navbar {
   height: 25px;
   width: 25px;
@@ -595,7 +587,7 @@ input[type="number"]::-webkit-outer-spin-button {
   background-color: var(--color-baground-green);
 }
 
-/* Tabel */
+/* -- Tabel Main --*/
 .tabel-box {
   background: var(--bg-20);
   border: 1px solid var(--bg-38);
@@ -610,6 +602,7 @@ input[type="number"]::-webkit-outer-spin-button {
   table-layout: fixed;
 }
 
+/* Style tabel */
 .no-tabel,
 .causes-tabel,
 .files-tabel,
@@ -693,6 +686,8 @@ th.sortable {
   width: 100%;
   vertical-align: middle;
 }
+
+/* Style Data Tabel */
 
 /* No, Date */
 .no,

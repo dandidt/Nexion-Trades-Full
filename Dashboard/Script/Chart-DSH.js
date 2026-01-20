@@ -62,7 +62,7 @@ function formatBalanceTime24(date) {
 
 async function loadTradeHistory() {
     try {
-        const tradeData = await getDB();
+        const tradeData = await getDBPerpetual();
         if (!Array.isArray(tradeData) || tradeData.length === 0) {
             console.warn('Data trading kosong');
             balanceFullData = [];
@@ -886,7 +886,7 @@ function resizeCanvas() {
 
 async function loadData() {
     try {
-        const rawData = await getDB();
+        const rawData = await getDBPerpetual();
         if (!Array.isArray(rawData)) throw new Error('Expected JSON array');
         const trades = rawData
             .filter(item => typeof item.date === 'number' && !isNaN(item.date))
@@ -1478,7 +1478,7 @@ async function loadPairData() {
     }
 
     try {
-        const rawData = await getDB();
+        const rawData = await getDBPerpetual();
         if (!Array.isArray(rawData)) throw new Error("Data tidak valid");
 
         const pairCount = {};
@@ -1720,7 +1720,7 @@ function renderWrChart() {
 
 async function loadWrChartData() {
     try {
-        const data = await getDB();
+        const data = await getDBPerpetual();
 
         const counts = { Profite: 0, Loss: 0, Missed: 0, BreakEven: 0 };
         data.forEach(item => {

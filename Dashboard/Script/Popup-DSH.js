@@ -302,7 +302,7 @@ async function switchToAccount(refreshToken) {
 
     try {
         localStorage.removeItem('avatar');
-        localStorage.removeItem('dbtrade');
+        localStorage.removeItem('dbperpetual');
         localStorage.removeItem('dbnotes');
 
         const { data, error } = await supabaseClient.auth.refreshSession({
@@ -354,7 +354,7 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
     if (isActiveAccount) {
         await supabaseClient.auth.signOut();
         localStorage.removeItem('avatar');
-        localStorage.removeItem('dbtrade');
+        localStorage.removeItem('dbperpetual');
         localStorage.removeItem('dbnotes');
 
         const isGithub = window.location.hostname.includes("github.io");
@@ -487,8 +487,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const tradeNumber = parseInt(row.querySelector(".no")?.textContent);
         if (!tradeNumber) return;
 
-        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        const tradeData = dbTrade.find(t => t.tradeNumber === tradeNumber);
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+        const tradeData = dbPerpetual.find(t => t.tradeNumber === tradeNumber);
         if (!tradeData) return;
 
         if (tradeData.action === "Deposit" || tradeData.action === "Withdraw") {
@@ -884,15 +884,15 @@ function getDropdownValue(dropdownName) {
 
 // ------ Number Trade Add ------ //
 function getNextLocalIds() {
-    const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+    const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
 
-    const lastId = dbTrade.length > 0
-        ? Math.max(...dbTrade.map(t => t.id || 0))
+    const lastId = dbPerpetual.length > 0
+        ? Math.max(...dbPerpetual.map(t => t.id || 0))
         : 0;
     const newId = lastId + 1;
 
-    const lastTradeNumber = dbTrade.length > 0
-        ? dbTrade[dbTrade.length - 1].tradeNumber
+    const lastTradeNumber = dbPerpetual.length > 0
+        ? dbPerpetual[dbPerpetual.length - 1].tradeNumber
         : 0;
     const nextTradeNumber = lastTradeNumber + 1;
 
@@ -938,7 +938,7 @@ async function handleAddTrade() {
         const user_id = user.id;
 
         // --- Load local ---
-        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
 
         const { newId, nextTradeNumber } = getNextLocalIds();
 
@@ -1012,11 +1012,11 @@ async function handleAddTrade() {
             Pnl: serverData.pnl
         };
 
-        dbTrade.push(localData);
-        localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+        dbPerpetual.push(localData);
+        localStorage.setItem("dbperpetual", JSON.stringify(dbPerpetual));
 
         // Update UI & Data
-        refreshDBCache();
+        refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
 
         restartSOP();
@@ -1046,14 +1046,14 @@ async function handleAddTransfer() {
         const user_id = user.id;
 
         // --- ID lokal ---
-        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        const lastId = dbTrade.length > 0
-            ? Math.max(...dbTrade.map(t => t.id || 0))
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+        const lastId = dbPerpetual.length > 0
+            ? Math.max(...dbPerpetual.map(t => t.id || 0))
             : 0;
         const newId = lastId + 1;
 
-        const lastTradeNumber = dbTrade.length > 0
-            ? dbTrade[dbTrade.length - 1].tradeNumber
+        const lastTradeNumber = dbPerpetual.length > 0
+            ? dbPerpetual[dbPerpetual.length - 1].tradeNumber
             : 0;
         const nextTradeNumber = lastTradeNumber + 1;
 
@@ -1099,11 +1099,11 @@ async function handleAddTransfer() {
             value: finalValue
         };
 
-        dbTrade.push(localData);
-        localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+        dbPerpetual.push(localData);
+        localStorage.setItem("dbperpetual", JSON.stringify(dbPerpetual));
 
         // --- Refresh ---
-        refreshDBCache();
+        refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
@@ -1172,8 +1172,8 @@ async function handleSaveEditTrade() {
                 ?.getAttribute("data-value") || "";
 
         // --- Id lokal ---
-        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        const item = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+        const item = dbPerpetual.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!item) throw new Error("Trade tidak ditemukan di cache lokal!");
         
         const recordId = item.id;
@@ -1238,14 +1238,14 @@ async function handleSaveEditTrade() {
             Pnl: serverUpdate.pnl
         };
 
-        const idx = dbTrade.findIndex(t => t.id === recordId);
+        const idx = dbPerpetual.findIndex(t => t.id === recordId);
         if (idx !== -1) {
-            dbTrade[idx] = updatedLocal;
-            localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+            dbPerpetual[idx] = updatedLocal;
+            localStorage.setItem("dbperpetual", JSON.stringify(dbPerpetual));
         }
         
         // --- Refresh ---
-        refreshDBCache();
+        refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
@@ -1284,8 +1284,8 @@ async function handleSaveEditTransfer() {
             document.querySelector(`.popup-edit-transfer .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
                 ?.getAttribute("data-value") || "";
 
-        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        const item = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+        const item = dbPerpetual.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!item) throw new Error("Transfer tidak ditemukan di cache lokal!");
         
         const recordId = item.id;
@@ -1326,14 +1326,14 @@ async function handleSaveEditTransfer() {
             value: value
         };
 
-        const idx = dbTrade.findIndex(t => t.id === recordId);
+        const idx = dbPerpetual.findIndex(t => t.id === recordId);
         if (idx !== -1) {
-            dbTrade[idx] = updatedLocal;
-            localStorage.setItem("dbtrade", JSON.stringify(dbTrade));
+            dbPerpetual[idx] = updatedLocal;
+            localStorage.setItem("dbperpetual", JSON.stringify(dbPerpetual));
         }
 
         // --- Refresh ---
-        refreshDBCache();
+        refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
@@ -1472,8 +1472,8 @@ async function handleDeleteTrade() {
         const user_id = user.id;
 
         // --- ID Local ---
-        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        const itemToDelete = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+        const itemToDelete = dbPerpetual.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!itemToDelete) throw new Error("Trade tidak ditemukan di cache lokal!");
 
         const recordId = itemToDelete.id;
@@ -1488,11 +1488,11 @@ async function handleDeleteTrade() {
         if (deleteErr) throw deleteErr;
 
         // --- Local ---
-        const newDb = dbTrade.filter(t => t.id !== recordId);
-        localStorage.setItem("dbtrade", JSON.stringify(newDb));
+        const newDb = dbPerpetual.filter(t => t.id !== recordId);
+        localStorage.setItem("dbperpetual", JSON.stringify(newDb));
 
         // --- Refresh UI ---
-        refreshDBCache();
+        refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
         handleCancelEdit();
@@ -1530,8 +1530,8 @@ async function handleDeleteTransfer() {
         const user_id = user.id;
 
         // --- load Local ---
-        const dbTrade = JSON.parse(localStorage.getItem("dbtrade")) || [];
-        const itemToDelete = dbTrade.find(t => t.tradeNumber === currentEditingTradeNo);
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+        const itemToDelete = dbPerpetual.find(t => t.tradeNumber === currentEditingTradeNo);
         if (!itemToDelete) throw new Error("Transfer tidak ditemukan di cache lokal!");
 
         const recordId = itemToDelete.id;
@@ -1546,11 +1546,11 @@ async function handleDeleteTransfer() {
         if (deleteErr) throw deleteErr;
 
         // --- Local ---
-        const newDb = dbTrade.filter(t => t.id !== recordId);
-        localStorage.setItem("dbtrade", JSON.stringify(newDb));
+        const newDb = dbPerpetual.filter(t => t.id !== recordId);
+        localStorage.setItem("dbperpetual", JSON.stringify(newDb));
 
         // --- Refresh UI ---
-        refreshDBCache();
+        refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
         handleCancelEdit();
@@ -1572,7 +1572,7 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
                 return;
             }
 
-            const dbtrade = JSON.parse(localStorage.getItem("dbtrade") || "[]");
+            const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual") || "[]");
             const setting = JSON.parse(localStorage.getItem("setting") || "{}");
             const calc = JSON.parse(localStorage.getItem("calculate") || "{}");
 
@@ -1585,8 +1585,8 @@ document.getElementById("btnAuto")?.addEventListener("click", () => {
             const leverage = parseFloat(calc.leverage) || 1;
             const riskFactor = parseFloat(setting.riskFactor) || 1;
 
-            const totalPNL = dbtrade.reduce((sum, item) => sum + (parseFloat(item.Pnl ?? item.pnl ?? 0) || 0), 0);
-            const totalDeposit = dbtrade.reduce((sum, item) => item.action?.toLowerCase() === "deposit" ? sum + (parseFloat(item.value ?? 0) || 0) : sum, 0);
+            const totalPNL = dbPerpetual.reduce((sum, item) => sum + (parseFloat(item.Pnl ?? item.pnl ?? 0) || 0), 0);
+            const totalDeposit = dbPerpetual.reduce((sum, item) => item.action?.toLowerCase() === "deposit" ? sum + (parseFloat(item.value ?? 0) || 0) : sum, 0);
             const finalBalance = totalPNL + totalDeposit;
             const margin = finalBalance * (risk / 100) * riskFactor;
             const positionSize = margin * leverage;
@@ -1695,7 +1695,7 @@ function getTodayTrades(db) {
 }
 
 function getTodaySOPData() {
-    const raw = localStorage.getItem('dbtrade');
+    const raw = localStorage.getItem('dbperpetual');
     if (!raw) return { wins: 0, losses: 0, entries: 0, drawdown: 0 };
 
     const db = JSON.parse(raw);
@@ -2713,7 +2713,7 @@ function calculateBalanceAtTime(trades, targetTime) {
 
 // UPDATE DATA DARI LOCAL STORAGE
 function updateDataShare() {
-    const trades = JSON.parse(localStorage.getItem('dbtrade') || '[]');
+    const trades = JSON.parse(localStorage.getItem('dbperpetual') || '[]');
     const allDates = trades.map(t => {
         let d;
         if (typeof t.date === 'string') {
@@ -3140,14 +3140,14 @@ function closeMonthlyPopup() {
 }
 
 async function getInitialDeposit() {
-    const rawData = await getDB();
+    const rawData = await getDBPerpetual();
     const sorted = [...rawData].sort((a, b) => a.date - b.date);
     const firstDeposit = sorted.find(item => item.action === "Deposit");
     return firstDeposit ? firstDeposit.value : 0;
 }
 
 async function calculateCumulativeBalanceUpToMonth(targetYear, targetMonth) {
-    const rawData = await getDB();
+    const rawData = await getDBPerpetual();
     if (!Array.isArray(rawData)) return 0;
 
     const sorted = [...rawData].sort((a, b) => a.date - b.date);
@@ -3184,7 +3184,7 @@ async function calculateCumulativeBalanceUpToMonth(targetYear, targetMonth) {
 
 async function calculateMonthlyStats(targetYear, targetMonth) {
     try {
-        const rawData = await getDB();
+        const rawData = await getDBPerpetual();
         if (!Array.isArray(rawData)) return null;
 
         const monthlyTrades = rawData.filter(item => {
@@ -3451,7 +3451,7 @@ function closePairsPopup() {
 
 async function calculatePairStats(symbol) {
     try {
-        const rawData = await getDB();
+        const rawData = await getDBPerpetual();
         if (!Array.isArray(rawData)) {
             console.warn("Raw data tidak valid untuk pair:", symbol);
             return null;
@@ -3733,7 +3733,7 @@ function formatFeeDateShort(date) {
 
 async function loadFeeData() {
     try {
-        const rawData = await getDB();
+        const rawData = await getDBPerpetual();
         if (!Array.isArray(rawData) || rawData.length === 0) {
             feeFullData = [];
             drawFeeChart();
