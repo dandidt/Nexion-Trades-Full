@@ -4180,3 +4180,98 @@ function checkDeviceWidth() {
 
 window.addEventListener("load", checkDeviceWidth);
 window.addEventListener("resize", checkDeviceWidth);
+
+(function() {
+    const maintenanceOverlay = document.createElement('div');
+    maintenanceOverlay.id = 'maintenance-mode';
+    
+    Object.assign(maintenanceOverlay.style, {
+        position: 'fixed',
+        top: '0',
+        left: '0',
+        width: '100%',
+        height: '100%',
+        backgroundColor: 'rgba(15, 15, 15, 1)',
+        color: 'rgb(245, 245, 245)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: '999999',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        textAlign: 'center',
+        padding: '20px'
+    });
+
+    maintenanceOverlay.innerHTML = `
+        <div style="max-width: 600px; border: 1px solid rgba(35, 35, 35, 1); padding: 50px 40px; border-radius: 16px; background: rgba(20, 20, 20, 1); box-shadow: 0 20px 60px rgba(0,0,0,0.6);">
+            <!-- Icon/Logo -->
+            <div style="font-size: 45px; margin-bottom: 16px; animation: pulse 2s ease-in-out infinite;">
+                ⚡
+            </div>
+            
+            <!-- Heading -->
+            <h1 style="margin: 0 0 12px 0; font-size: 24px; font-weight: 700; color: rgb(52, 211, 153); letter-spacing: -0.5px;">
+                Big Update!
+            </h1>
+            
+            <!-- Subtitle -->
+            <p style="font-size: 14px; color: rgb(163, 163, 163); margin: 0 0 24px 0; font-weight: 400;">
+                Kami sedang menerapkan pembaruan besar untuk pengalaman yang lebih baik
+            </p>
+            
+            <!-- Feature List -->
+            <div style="text-align: left; margin-bottom: 24px; background: rgba(27, 27, 27, 1); padding: 24px; border-radius: 12px; border: 1px solid rgba(35, 35, 35, 1);">
+                
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 6px; height: 6px; background: rgb(52, 211, 153); border-radius: 50%; margin-right: 12px;"></div>
+                    <span style="font-size: 15px; color: rgb(245, 245, 245); font-weight: 500;">Fitur Spot Trading Terbaru</span>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 6px; height: 6px; background: rgb(52, 211, 153); border-radius: 50%; margin-right: 12px;"></div>
+                    <span style="font-size: 15px; color: rgb(245, 245, 245); font-weight: 500;">Peningkatan Performa Sistem</span>
+                </div>
+                
+                <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 6px; height: 6px; background: rgb(52, 211, 153); border-radius: 50%; margin-right: 12px;"></div>
+                    <span style="font-size: 15px; color: rgb(245, 245, 245); font-weight: 500;">UI/UX yang Lebih Responsif</span>
+                </div>
+                
+                <div style="display: flex; align-items: center;">
+                    <div style="width: 6px; height: 6px; background: rgb(52, 211, 153); border-radius: 50%; margin-right: 12px;"></div>
+                    <span style="font-size: 15px; color: rgb(245, 245, 245); font-weight: 500;">Fitur Keamanan Tambahan</span>
+                </div>
+            </div>
+            
+            <!-- Status Badge -->
+            <div style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.2); border-radius: 24px; font-size: 14px; font-weight: 500; color: rgb(52, 211, 153);">
+                <div style="width: 8px; height: 8px; background: rgb(52, 211, 153); border-radius: 50%; animation: blink 1.5s ease-in-out infinite;"></div>
+                <span>Estimasi Selesai: Segera</span>
+            </div>
+            
+            <!-- Footer Note -->
+            <p style="font-size: 13px; color: rgb(115, 115, 115); margin: 24px 0 0 0; font-weight: 400;">
+                Terima kasih atas kesabaran Anda
+            </p>
+        </div>
+        
+        <style>
+            @keyframes pulse {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.05); opacity: 0.8; }
+            }
+            
+            @keyframes blink {
+                0%, 100% { opacity: 1; }
+                50% { opacity: 0.3; }
+            }
+        </style>
+    `;
+
+    // 4. Masukkan ke dalam Body
+    document.body.appendChild(maintenanceOverlay);
+
+    // 5. Opsional: Hentikan eksekusi script lain (jika memungkinkan)
+    window.stop(); // Menghentikan loading resource lain
+})();
