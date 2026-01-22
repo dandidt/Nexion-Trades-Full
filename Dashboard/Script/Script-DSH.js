@@ -158,11 +158,15 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ======================= Front Dashboard ======================= //
-function updateDashboardFromTrades(data = []) {
-  if (!Array.isArray(data) || data.length === 0) return;
+// --------------------------------------------------------------- //
 
-  const tradeData = data.filter(isTradeItem);
+// ======================= Front Dashboard ======================= //
+function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
+  // Gabungkan data untuk statistik umum (kecuali behavior)
+  const combinedData = [...dataPerpetual, ...dataSpot].filter(isTradeItem);
+
+  // Validasi data gabungan
+  if (!Array.isArray(combinedData) || combinedData.length === 0) return;
 
   const parsePnl = (v) => {
     const n = Number(v);
@@ -181,6 +185,7 @@ function updateDashboardFromTrades(data = []) {
     return `${pad(dt.getDate())}-${pad(dt.getMonth()+1)}-${dt.getFullYear()}`;
   };
 
+  // --- Ambil elemen DOM ---
   const elStatsNavReversal = document.getElementById('statsNavReversal');
   const elStatsNavContinuation = document.getElementById('statsNavContinuation');
 
@@ -199,9 +204,10 @@ function updateDashboardFromTrades(data = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
-  // --- Behavior Stats ---
+  // --- Behavior Stats (HANYA dari dataPerpetual) ---
   let reversalCount = 0, continuCount = 0;
-  tradeData.forEach(t => {
+  const perpetualTrades = (Array.isArray(dataPerpetual) ? dataPerpetual : []).filter(isTradeItem);
+  perpetualTrades.forEach(t => {
     const b = (t.Behavior || t.behavior || '').toString().toLowerCase();
     if (b.includes('reversal')) reversalCount++;
     else if (b.includes('continuation') || b.includes('continuasion')) continuCount++;
@@ -217,10 +223,10 @@ function updateDashboardFromTrades(data = []) {
     if (elStatsNavContinuation) elStatsNavContinuation.textContent = '0% Continuation';
   }
 
-  // --- Best Performer ---
+  // --- Best Performer (dari combinedData) ---
   let bestTrade = null;
   let bestPnl = -Infinity;
-  for (const trade of tradeData) {
+  for (const trade of combinedData) {
     const pnl = parsePnl(trade.Pnl);
     if (pnl > bestPnl) {
       bestPnl = pnl;
@@ -237,14 +243,25 @@ function updateDashboardFromTrades(data = []) {
       elValueBestPerformer.textContent = bestPnl < 0 ? `-${formattedBest}` : formattedBest;
     }
 
-    let originalData = [];
+    // --- Cari modal awal: gabung saldoAwal + deposit dari KEDUA database ---
+    let originalPerpetual = [];
+    let originalSpot = [];
     try {
-      const raw = localStorage.getItem("dbperpetual");
-      if (raw) originalData = JSON.parse(raw);
-      if (!Array.isArray(originalData)) originalData = [];
+      const rawPerp = localStorage.getItem("dbperpetual");
+      if (rawPerp) originalPerpetual = JSON.parse(rawPerp);
+      if (!Array.isArray(originalPerpetual)) originalPerpetual = [];
     } catch (err) {
       console.warn("⚠️ Gagal parse dbperpetual:", err);
-      originalData = [];
+      originalPerpetual = [];
+    }
+
+    try {
+      const rawSpot = localStorage.getItem("dbspot");
+      if (rawSpot) originalSpot = JSON.parse(rawSpot);
+      if (!Array.isArray(originalSpot)) originalSpot = [];
+    } catch (err) {
+      console.warn("⚠️ Gagal parse dbspot:", err);
+      originalSpot = [];
     }
 
     let saldoAwal = 0;
@@ -255,10 +272,11 @@ function updateDashboardFromTrades(data = []) {
       console.warn("⚠️ Gagal ambil saldoAwal:", err);
     }
 
+    // Hitung total deposit dari kedua DB
     let totalDeposit = 0;
-    try {
-      if (Array.isArray(originalData)) {
-        totalDeposit = originalData.reduce((sum, item) => {
+    [originalPerpetual, originalSpot].forEach(db => {
+      if (Array.isArray(db)) {
+        totalDeposit += db.reduce((sum, item) => {
           if (item.action && item.action.toLowerCase() === "deposit") {
             const val = Number(item.value) || 0;
             return sum + val;
@@ -266,32 +284,54 @@ function updateDashboardFromTrades(data = []) {
           return sum;
         }, 0);
       }
-    } catch (err) {
-      console.warn("⚠️ Gagal hitung totalDeposit dari dbperpetual:", err);
-    }
+    });
 
+    // Cari posisi bestTrade di salah satu DB asli (untuk akurasi urutan)
     let bestIndexInOriginal = -1;
+    let sourceDb = null;
     const bestDateMs = new Date(bestTrade.date * 1000).getTime();
-    for (let i = 0; i < originalData.length; i++) {
-      const t = originalData[i];
+
+    // Cek di perpetual dulu
+    for (let i = 0; i < originalPerpetual.length; i++) {
+      const t = originalPerpetual[i];
       const tDateMs = new Date(t.date * 1000).getTime();
       const tPair = normalizePair(t.Pairs || t.pairs);
       const tPnl = parsePnl(t.Pnl);
-
       if (
         tDateMs === bestDateMs &&
         tPair === normPair &&
         Math.abs(tPnl - bestPnl) < 0.001
       ) {
         bestIndexInOriginal = i;
+        sourceDb = originalPerpetual;
         break;
       }
     }
 
+    // Kalau belum ketemu, cek di spot
+    if (bestIndexInOriginal === -1) {
+      for (let i = 0; i < originalSpot.length; i++) {
+        const t = originalSpot[i];
+        const tDateMs = new Date(t.date * 1000).getTime();
+        const tPair = normalizePair(t.Pairs || t.pairs);
+        const tPnl = parsePnl(t.Pnl);
+        if (
+          tDateMs === bestDateMs &&
+          tPair === normPair &&
+          Math.abs(tPnl - bestPnl) < 0.001
+        ) {
+          bestIndexInOriginal = i;
+          sourceDb = originalSpot;
+          break;
+        }
+      }
+    }
+
+    // Hitung total PnL sebelum best trade
     let totalPnlBeforeBest = 0;
-    if (bestIndexInOriginal >= 0) {
+    if (bestIndexInOriginal >= 0 && sourceDb) {
       for (let i = 0; i < bestIndexInOriginal; i++) {
-        totalPnlBeforeBest += parsePnl(originalData[i].Pnl);
+        totalPnlBeforeBest += parsePnl(sourceDb[i].Pnl);
       }
     }
 
@@ -311,10 +351,10 @@ function updateDashboardFromTrades(data = []) {
     if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '0%';
   }
 
-  // --- Pair Stats ---
+  // --- Pair Stats (dari combinedData) ---
   const countMap = {};
   const pnlMap = {};
-  tradeData.forEach(t => {
+  combinedData.forEach(t => {
     const pairRaw = t.Pairs || t.pairs || '';
     const p = normalizePair(pairRaw);
     if (!p) return;
@@ -344,9 +384,9 @@ function updateDashboardFromTrades(data = []) {
   if (elMostpairs) elMostpairs.textContent = topByCount || '-';
   if (elTotalMostTraded) elTotalMostTraded.textContent = topCount ? `${topCount} Trades` : '0 Trades';
 
-  // --- Profitability ---
+  // --- Profitability (dari combinedData) ---
   let win = 0, lose = 0;
-  tradeData.forEach(t => {
+  combinedData.forEach(t => {
     const r = (t.Result || t.result || '').toString().toLowerCase();
     if (r === 'win' || r === 'profit') win++;
     else if (r === 'lose' || r === 'loss') lose++;
@@ -361,9 +401,9 @@ function updateDashboardFromTrades(data = []) {
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `0 of 0 Profite Trade`;
   }
 
-  // --- Avg Daily PnL ---
+  // --- Avg Daily PnL (hanya profit, dari combinedData) ---
   const dailyWins = {};
-  tradeData.forEach(t => {
+  combinedData.forEach(t => {
     const pnl = parsePnl(t.Pnl);
     if (pnl <= 0) return;
     const d = new Date(t.date * 1000);
@@ -387,9 +427,30 @@ let originalPerpetualTrades = [];
 let originalSpotTrades = [];  
 let currentActiveTab = 'perpetual';
 
+// ------ Init All Data on Page Load ------ //
+async function initializeAllData() {
+  // Load perpetual
+  const perpData = await getDBPerpetual();
+  perpetualTrades = perpData;
+  originalPerpetualTrades = [...perpData];
+
+  // Load spot
+  const spotData = await getDBSpot();
+  spotTrades = spotData;
+  originalSpotTrades = [...spotData];
+
+  currentActiveTab = 'perpetual';
+  renderPerpetualPaginated();
+  updatePaginationUI();
+
+  updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
+}
+
+document.addEventListener('DOMContentLoaded', () => { initializeAllData(); });
+
 // ------ Swaap Jurnal ------ //
 document.querySelectorAll('.filter-jurnal-btn').forEach((btn) => {
-    btn.addEventListener('click', async function() {
+    btn.addEventListener('click', function() {
         document.querySelectorAll('.filter-jurnal-btn').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
 
@@ -397,7 +458,6 @@ document.querySelectorAll('.filter-jurnal-btn').forEach((btn) => {
         const spotTable = document.getElementById('tabel-spot');
         
         currentPage = 1;
-
         currentSort = { key: null, direction: null };
         updateSortIcons();
 
@@ -405,14 +465,14 @@ document.querySelectorAll('.filter-jurnal-btn').forEach((btn) => {
             currentActiveTab = 'perpetual';
             perpTable.style.display = "table";
             spotTable.style.display = "none";
-            if (perpetualTrades.length === 0) await loadPerpetualData();
-            else updatePaginationUI(); 
+            renderPerpetualPaginated();
+            updatePaginationUI();
         } else {
             currentActiveTab = 'spot';
             perpTable.style.display = "none";
             spotTable.style.display = "table";
-            if (spotTrades.length === 0) await loadSpotData();
-            else updatePaginationUI();
+            renderSpotPaginated();
+            updatePaginationUI();
         }
     });
 });
@@ -576,10 +636,7 @@ function renderPerpetualTable(data) {
     window.tooltipManager = new TooltipManager();
   }, 100);
 
-  const activeOriginal = currentActiveTab === 'perpetual' 
-    ? originalPerpetualTrades 
-    : originalSpotTrades;
-  updateDashboardFromTrades(activeOriginal);
+  updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
 
   if (isEditMode) {
     document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
@@ -608,111 +665,114 @@ function renderSpotTable(data) {
 
     data.forEach(item => {
 
-        // Transaction
-        if (item.action) {
-            const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
-            const isDeposit = item.action === "Deposit";
-            const value = Number(item.value) || 0;
-
-            const row = document.createElement("tr");
-            row.classList.add(isDeposit ? "deposit" : "withdraw");
-
-            row.innerHTML = `
-                <td><p class="no">${item.tradeNumber || "-"}</p></td>
-                <td><p class="date">${date}</p></td>
-                <td><p></p></td>
-                <td><p></p></td>
-                <td><p></p></td>
-                <td><p></p></td>
-                <td><p></p></td>
-                <td><p></p></td>
-                <td><p></p></td>
-                <td><p></p></td>
-                <td><p></p></td>
-                <td><p class="${isDeposit ? "result-win" : "result-lose"}">
-                    ${item.action}
-                </p></td>
-                <td><p class="${isDeposit ? "pnl-win" : "pnl-loss"}">
-                    ${isDeposit ? "+" : "-"}${formatUSD(Math.abs(value))}
-                </p></td>
-            `;
-
-            tbody.appendChild(row);
-            return;
-        }
-
-        // Trades
+    // Transaction
+    if (item.action) {
         const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
-
-        const rr = Number(item.RR) || 0;
-        const pnl = Number(item.Pnl) || 0;
-        const margin = Number(item.Margin) || 0;
-
-        const rrClass = rr > 0 ? "rr-win" : rr < 0 ? "rr-lose" : "rr-null";
-        const pnlClass = pnl > 0 ? "pnl-win" : pnl < 0 ? "pnl-loss" : "pnl-null";
-        const resultClass =
-            item.Result?.toLowerCase() === "win" || item.Result?.toLowerCase() === "profit"
-                ? "result-win"
-                : "result-lose";
+        const isDeposit = item.action === "Deposit";
+        const value = Number(item.value) || 0;
 
         const row = document.createElement("tr");
+        row.classList.add(isDeposit ? "deposit" : "withdraw");
+
         row.innerHTML = `
             <td><p class="no">${item.tradeNumber || "-"}</p></td>
             <td><p class="date">${date}</p></td>
-            <td><p class="pairs">${item.Pairs || "-"}</p></td>
-            <td><p class="method">${item.Method || "-"}</p></td>
-            <td><p class="confluance">
-                ${(item.Confluance?.Entry || "-")} - ${(item.Confluance?.TimeFrame || "-")}
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p class="${isDeposit ? "result-win" : "result-lose"}">
+                ${item.action}
             </p></td>
-            <td><p class="${rrClass}">${rr || "-"}</p></td>
-
-            <td>
-                <div class="box-causes" id="box-causes">
-                  <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
-                    <path d="M240-384h480v-72H240v72Zm0-132h480v-72H240v72Zm0-132h480v-72H240v72ZM864-96 720-240H168q-29.7 0-50.85-21.15Q96-282.3 96-312v-480q0-29.7 21.15-50.85Q138.3-864 168-864h624q29.7 0 50.85 21.15Q864-821.7 864-792v696ZM168-312h582l42 42v-522H168v480Zm0 0v-480 480Z"/>
-                  </svg>
-                </div>
-            </td>
-
-            <td><p class="${(item.Psychology || "confident").toLowerCase()}">
-                ${item.Psychology || "-"}
-            </p></td>
-
-            <td><p class="class">${item.Class || "-"}</p></td>
-
-            <td>
-                <div class="box-causes" id="box-files"
-                     data-before="${item.Files?.Before || "#"}"
-                     data-after="${item.Files?.After || "#"}">
-                    <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
-                      <path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/>
-                    </svg>
-                </div>
-            </td>
-
-            <td><p class="margin">${formatUSD(margin)}</p></td>
-            <td><p class="${resultClass}">${item.Result || "-"}</p></td>
-            <td><p class="${pnlClass}">
-                ${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}
+            <td><p class="${isDeposit ? "pnl-win" : "pnl-loss"}">
+                ${isDeposit ? "+" : "-"}${formatUSD(Math.abs(value))}
             </p></td>
         `;
 
-        row.querySelector("#box-causes").dataset.content = item.Causes || "No causes";
-
         tbody.appendChild(row);
-          
-        setTimeout(() => {
-          if (window.tooltipManager) window.tooltipManager.destroy();
-          window.tooltipManager = new TooltipManager();
-        }, 100);
+        return;
+    }
 
-        if (isEditMode) {
-          document.querySelectorAll("#tabel-spot tbody tr").forEach(row => {
-            row.style.cursor = "pointer";
-            row.classList.add("editable");
-          });
-        }
+    // Trades
+    const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
+
+    const rr = Number(item.RR) || 0;
+    const pnl = Number(item.Pnl) || 0;
+    const margin = Number(item.Margin) || 0;
+
+    const rrClass = rr > 0 ? "rr-win" : rr < 0 ? "rr-lose" : "rr-null";
+    const pnlClass = pnl > 0 ? "pnl-win" : pnl < 0 ? "pnl-loss" : "pnl-null";
+    const resultClass =
+        item.Result?.toLowerCase() === "win" || item.Result?.toLowerCase() === "profit"
+            ? "result-win"
+            : "result-lose";
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td><p class="no">${item.tradeNumber || "-"}</p></td>
+        <td><p class="date">${date}</p></td>
+        <td><p class="pairs">${item.Pairs || "-"}</p></td>
+        <td><p class="method">${item.Method || "-"}</p></td>
+        <td><p class="confluance">
+            ${(item.Confluance?.Entry || "-")} - ${(item.Confluance?.TimeFrame || "-")}
+        </p></td>
+        <td><p class="${rrClass}">${rr || "-"}</p></td>
+
+        <td>
+            <div class="box-causes" id="box-causes">
+              <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                <path d="M240-384h480v-72H240v72Zm0-132h480v-72H240v72Zm0-132h480v-72H240v72ZM864-96 720-240H168q-29.7 0-50.85-21.15Q96-282.3 96-312v-480q0-29.7 21.15-50.85Q138.3-864 168-864h624q29.7 0 50.85 21.15Q864-821.7 864-792v696ZM168-312h582l42 42v-522H168v480Zm0 0v-480 480Z"/>
+              </svg>
+            </div>
+        </td>
+
+        <td><p class="${(item.Psychology || "confident").toLowerCase()}">
+            ${item.Psychology || "-"}
+        </p></td>
+
+        <td><p class="class">${item.Class || "-"}</p></td>
+
+        <td>
+            <div class="box-causes" id="box-files"
+                  data-before="${item.Files?.Before || "#"}"
+                  data-after="${item.Files?.After || "#"}">
+                <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                  <path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/>
+                </svg>
+            </div>
+        </td>
+
+        <td><p class="margin">${formatUSD(margin)}</p></td>
+        <td><p class="${resultClass}">${item.Result || "-"}</p></td>
+        <td><p class="${pnlClass}">
+            ${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}
+        </p></td>
+    `;
+
+    row.querySelector("#box-causes").dataset.content = item.Causes || "No causes";
+
+    tbody.appendChild(row);
+      
+  });
+
+  setTimeout(() => {
+    if (window.tooltipManager) window.tooltipManager.destroy();
+    window.tooltipManager = new TooltipManager();
+  }, 100);
+
+  updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
+
+  if (isEditMode) {
+    document.querySelectorAll("#tabel-spot tbody tr").forEach(row => {
+      row.style.cursor = "pointer";
+      row.classList.add("editable");
     });
+  }
 }
 
 // ------ Short Fiilter ------ //
@@ -1306,6 +1366,8 @@ document.addEventListener("DOMContentLoaded", () => {
   loadPerpetualData();
   initGlobalSorting();
 });
+
+// --------------------------------------------------------------- //
 
 // =================== Dashboard Header =================== //
 async function updateEquityStats() {
@@ -3262,10 +3324,7 @@ async function updateAllUI() {
     updatePaginationUI();
 
     // ✅ Update dashboard & stats — pastikan pakai data aktif
-    const activeOriginal = currentActiveTab === 'perpetual' 
-      ? originalPerpetualTrades 
-      : originalSpotTrades;
-    updateDashboardFromTrades(activeOriginal);
+    updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
 
     // ✅ Stats lain (pastikan tidak bergantung pada originalTrades global)
     await updateEquityStats();

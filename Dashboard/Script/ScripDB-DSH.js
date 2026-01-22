@@ -9,7 +9,7 @@ if (typeof supabase === 'undefined') {
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CACHE_KEY = 'dbperpetual';
-let dbPromise = null;
+let dbPerpetualPromise = null;
 
 function saveToPerpetualCache(data) {
     try {
@@ -152,20 +152,20 @@ async function loadDBPerpetual(ignoreCache = false) {
 }
 
 async function getDBPerpetual() {
-    if (!dbPromise) {
-        dbPromise = loadDBPerpetual();
+    if (!dbPerpetualPromise) {
+        dbPerpetualPromise = loadDBPerpetual();
     }
-    return await dbPromise;
+    return await dbPerpetualPromise;
 }
 
 function refreshDBPerpetualCache() {
-    console.log('🔄 Force refreshing data from server...');
-    dbPromise = loadDBPerpetual(true);
-    return dbPromise;
+    console.log('Perpetual Force refreshing server...');
+    dbPerpetualPromise = loadDBPerpetual(true);
+    return dbPerpetualPromise;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    dbPromise = loadDBPerpetual().then(data => {
+    dbPerpetualPromise = loadDBPerpetual().then(data => {
         window.dbperpetualData = data;
         document.dispatchEvent(new CustomEvent('dbLoaded', { detail: data }));
         return data;
@@ -319,7 +319,7 @@ async function getDBSpot() {
 }
 
 function refreshDBSpotCache() {
-    console.log('🔄 Force refreshing data from server...');
+    console.log('Spot Force refreshing server...');
     dbSpotPromise = loadDBSpot(true);
     return dbSpotPromise;
 }
@@ -422,7 +422,7 @@ async function getDBNotes() {
 }
 
 function refreshDBNotesCache() {
-    console.log('🔄 Force refreshing data from server...');
+    console.log('Notes Force refreshing server...');
     dbNotesPromise = loadDBNotes(true);
     return dbNotesPromise;
 }

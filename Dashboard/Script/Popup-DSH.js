@@ -637,7 +637,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// ======================= Show UI Remove Inptu ======================= //
+// ======================= Serch Data ======================= //
 function refreshClearButtons() {
     document.querySelectorAll('.input-with-clear').forEach(container => {
         const input = container.querySelector('input, textarea');
@@ -647,7 +647,6 @@ function refreshClearButtons() {
     });
 }
 
-// ======================= Serch Data ======================= //
 // ------ Perpetual ------ //
 function fillEditFormTrade(trade) {
     document.getElementById("PerpetualEditDate").value = unixToWIBDatetimeLocal(trade.date);
@@ -686,19 +685,19 @@ function fillEditFormTransfer(trade) {
 
 // ------ Spot ------ //
 function fillEditFormSpot(trade) {
-    document.getElementById("EditSpotDate").value = unixToWIBDatetimeLocal(trade.date);
-    document.getElementById("EditSpotPairs").value = trade.Pairs || "";
-    document.getElementById("EditSpotRr").value = trade.RR || "";
-    document.getElementById("EditSpotMargin").value = trade.Margin || "";
-    document.getElementById("EditSpotPnl").value = trade.Pnl || "";
-    document.getElementById("EditSpotCauses").value = trade.Causes || "";
-    document.getElementById("EditSpotBefore-url").value = trade.Files?.Before || "";
-    document.getElementById("EditSpotAfter-url").value = trade.Files?.After || "";
+    document.getElementById("SpotEditDate").value = unixToWIBDatetimeLocal(trade.date);
+    document.getElementById("SpotEditPairs").value = trade.Pairs || "";
+    document.getElementById("SpotEditRr").value = trade.RR || "";
+    document.getElementById("SpotEditMargin").value = trade.Margin || "";
+    document.getElementById("SpotEditPnl").value = trade.Pnl || "";
+    document.getElementById("SpotEditCauses").value = trade.Causes || "";
+    document.getElementById("SpotEditBefore-url").value = trade.Files?.Before || "";
+    document.getElementById("SpotEditAfter-url").value = trade.Files?.After || "";
 
-    setDropdownValue("EditSpotMethod", trade.Method);
-    setDropdownValue("EditSpotPsychology", trade.Psychology);
-    setDropdownValue("EditSpotClass", trade.Class);
-    setDropdownValue("EditSpotResult", trade.Result);
+    setDropdownValue("SpotEditMethod", trade.Method);
+    setDropdownValue("SpotEditPsychology", trade.Psychology);
+    setDropdownValue("SpotEditClass", trade.Class);
+    setDropdownValue("SpotEditResult", trade.Result);
     setDropdownValue("SpotEditTimeframe", trade.Confluance?.TimeFrame || "");
     setDropdownValue("SpotEditEntry", trade.Confluance?.Entry || "");
 
@@ -760,7 +759,7 @@ function getCustomOptions(dropdownName) {
         const defaults = {
             PerpetualTimeframe: ["1M", "5M", "15M", "1H", "2H", "4H", "1D"],
             PerpetualEntry: ["OB", "FVG"],
-            SpotTimeframe: ["1M", "5M", "15M", "1H", "4H", "1D"],
+            SpotTimeframe: ["1M", "5M", "15M", "1H", "2H", "4H", "1D"],
             SpotEntry: ["OB", "FVG"]
         };
         return defaults[actualName] || [];
@@ -930,7 +929,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initializeAllDropdowns();
 });
 
-// ------ HELPER FUNCTIONS ------ //
+// ------ get Dropdown Value ------ //
 function getDropdownValue(dropdownName) {
     const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
     if (!dropdown) {
@@ -943,6 +942,31 @@ function getDropdownValue(dropdownName) {
     } else {
         return null;
     }
+}
+
+// ------ Reset Form After Update ------ //
+function resetForm(containerSelector) {
+  document.querySelectorAll(`${containerSelector} input, ${containerSelector} textarea`)
+    .forEach(el => {
+      if (el.type === 'datetime-local') {
+        el.value = new Date().toISOString().slice(0, 16);
+      } else {
+        el.value = '';
+      }
+    });
+
+  document.querySelectorAll(`${containerSelector} .custom-dropdown`).forEach(dd => {
+    const span = dd.querySelector('.dropdown-selected span');
+    if (span) {
+      const placeholder = span.getAttribute('data-placeholder') || 'Select';
+      span.textContent = placeholder;
+      span.classList.add('placeholder');
+      dd.classList.remove('has-value');
+    }
+    dd.querySelectorAll('.dropdown-option.selected').forEach(opt => opt.classList.remove('selected'));
+    const name = dd.getAttribute('data-dropdown');
+    if (name && window.dropdownData) delete window.dropdownData[name];
+  });
 }
 
 // ------ Get Number Trade Perpetual ------ //
@@ -964,15 +988,15 @@ function getNextLocalIdsPerpetual() {
 
 // ------ Get Number Trade Spot ------ //
 function getNextLocalIdsSpot() {
-    const dbPerpetual = JSON.parse(localStorage.getItem("dbspot")) || [];
+    const dbSpot = JSON.parse(localStorage.getItem("dbspot")) || [];
 
-    const lastId = dbPerpetual.length > 0
-        ? Math.max(...dbPerpetual.map(t => t.id || 0))
+    const lastId = dbSpot.length > 0
+        ? Math.max(...dbSpot.map(t => t.id || 0))
         : 0;
     const newId = lastId + 1;
 
-    const lastTradeNumber = dbPerpetual.length > 0
-        ? dbPerpetual[dbPerpetual.length - 1].tradeNumber
+    const lastTradeNumber = dbSpot.length > 0
+        ? dbSpot[dbSpot.length - 1].tradeNumber
         : 0;
     const nextTradeNumber = lastTradeNumber + 1;
 
@@ -1098,7 +1122,7 @@ async function AddPerpetual() {
         dbPerpetual.push(localData);
         localStorage.setItem("dbperpetual", JSON.stringify(dbPerpetual));
 
-        // Update UI & Data
+        // --- Refresh ---
         refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
 
@@ -1106,11 +1130,10 @@ async function AddPerpetual() {
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
 
-        document.querySelectorAll("#addDataPerpetual input, #addDataPerpetual textarea")
-            .forEach(i => i.value = "");
+        resetForm("#addDataPerpetual");
 
     } catch (err) {
-        console.error("❌ Error:", err);
+        alert("Error Add:\n" + err);
     }
     finally {
         btn.classList.remove("loading");
@@ -1188,20 +1211,15 @@ async function AddPerpetualTransactions() {
         // --- Refresh ---
         refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
+
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
 
-        document.getElementById("PerpetualDateTransaction").value = "";
-        document.getElementById("PerpetualValueTransaction").value = "";
-        document.querySelectorAll("#addDataPerpetualTransactions .custom-dropdown .dropdown-selected span")
-            .forEach(el => {
-                el.textContent = "Select option";
-                el.classList.add("placeholder");
-            });
+        resetForm("#addDataPerpetualTransactions");
 
     } catch (err) {
-        console.error("❌ Gagal menambahkan transfer:", err);
+        alert("Error Add:\n" + err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -1330,22 +1348,14 @@ async function SaveEditPerpetual() {
         // --- Refresh ---
         refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
+
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
-        CancleEditPerpetual();
 
-        document.getElementById("PerpetualDateTransaction").value = "";
-        document.getElementById("PerpetualValueTransaction").value = "";
-        document.querySelectorAll("#addDataPerpetualTransactions .custom-dropdown .dropdown-selected span")
-            .forEach(el => {
-                el.textContent = "Select option";
-                el.classList.add("placeholder");
-            });
-
+        CancelEditPerpetual();
     } catch (err) {
-        console.error("❌ Error update trade:", err);
-        alert("Gagal memperbarui trade:\n" + err.message);
+        alert("Error Edit:\n" + err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -1418,29 +1428,21 @@ async function SaveEditPerpetualTransaction() {
         // --- Refresh ---
         refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
+
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
-        CancleEditPerpetual();
 
-        document.getElementById("PerpetualDateTransaction").value = "";
-        document.getElementById("PerpetualValueTransaction").value = "";
-        document.querySelectorAll("#addDataPerpetualTransactions .custom-dropdown .dropdown-selected span")
-            .forEach(el => {
-                el.textContent = "Select option";
-                el.classList.add("placeholder");
-            });
-
+        CancelEditPerpetual();
     } catch (err) {
-        console.error("❌ Error update transfer:", err);
-        alert("Gagal memperbarui transfer:\n" + err.message);
+        alert("Error Edit:\n" + err);
     } finally {
         btn.classList.remove("loading");
     }
 }
 
-//  Cancle  //
-function CancleEditPerpetual() {
+//  Cancel  //
+function CancelEditPerpetual() {
     try {
         currentEditingTradeNo = null;
 
@@ -1474,7 +1476,7 @@ function CancleEditPerpetual() {
 
         console.log("[UI] Edit popup closed & state reset");
     } catch (err) {
-        console.error("CancleEditPerpetual error:", err);
+        console.error("CancelEditPerpetual error:", err);
     }
 }
 
@@ -1525,7 +1527,7 @@ async function DeletePerpetual() {
         refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
-        CancleEditPerpetual();
+        CancelEditPerpetual();
 
     } catch (err) {
         console.error("❌ Gagal menghapus trade:", err);
@@ -1583,7 +1585,7 @@ async function DeletePerpetualTransaction() {
         refreshDBPerpetualCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
-        CancleEditPerpetual();
+        CancelEditPerpetual();
 
     } catch (err) {
         console.error("❌ Gagal menghapus transfer:", err);
@@ -1709,31 +1711,16 @@ async function AddSpot() {
         }
 
         refreshDBSpotCache?.();
-        if (typeof updateAllUI === "function") {
-        await updateAllUI();
-        }
+        if (typeof updateAllUI === "function") await updateAllUI();
 
         restartSOP?.();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups?.();
 
-        // --- Clear form ---
-        document.querySelectorAll("#addDataSpot input, #addDataSpot textarea")
-            .forEach(el => {
-                if (el.type !== "datetime-local") el.value = "";
-                else el.value = "";
-            });
-        document.querySelectorAll("#addDataSpot .custom-dropdown .dropdown-selected span")
-            .forEach(span => {
-                span.textContent = span.closest(".custom-dropdown").dataset.dropdown.includes("Timeframe") ||
-                                   span.closest(".custom-dropdown").dataset.dropdown.includes("Entry")
-                    ? "Select"
-                    : span.closest(".custom-dropdown").dataset.dropdown.replace("Spot", "");
-                span.classList.add("placeholder");
-            });
+        resetForm("#addDataSpot");
 
     } catch (err) {
-        console.error("❌ Error saat menambahkan Spot Trade:", err);
+        alert("Error Add:\n" + err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -1803,30 +1790,20 @@ async function AddSpotTransactions() {
         localStorage.setItem("dbspot", JSON.stringify(dbSpot));
 
         // --- Refresh UI ---
-       if (typeof spotTrades !== 'undefined') {
+        if (typeof spotTrades !== 'undefined') {
             spotTrades = dbSpot; 
         }
 
         refreshDBSpotCache?.();
-        
-        if (typeof updateAllUI === "function") {
-        await updateAllUI();
-        }
+        if (typeof updateAllUI === "function") await updateAllUI();
         
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups?.();
 
-        // --- Clear form ---
-        document.getElementById("SpotTransactionDate").value = "";
-        document.getElementById("SpotTransactionValue").value = "";
-        const placeholderSpan = document.querySelector('[data-dropdown="SpotTransactionAction"] .dropdown-selected span');
-        if (placeholderSpan) {
-            placeholderSpan.textContent = "Transaction";
-            placeholderSpan.classList.add("placeholder");
-        }
+        resetForm("#addDataSpotTransactions");
 
     } catch (err) {
-        console.error("❌ Gagal menambahkan Spot Transaction:", err);
+        alert("Error Add:\n" + err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -1880,7 +1857,7 @@ async function SaveEditSpot() {
         const recordId = item.id;
 
         // --- Validasi Wajib ---
-        const dateInputValue = getVal("EditSpotDate");
+        const dateInputValue = getVal("SpotEditDate");
         if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
         const correctedDate = new Date(dateInputValue);
 
@@ -1888,19 +1865,19 @@ async function SaveEditSpot() {
         const serverUpdate = {
             user_id: user_id,
             date: Math.floor(correctedDate.getTime() / 1000),
-            pairs: getVal("EditSpotPairs"),
-            method: getDropdown("EditSpotRr"),
-            entry: getDropdown("EditSpotEntry"),
-            timeframe: getDropdown("EditSpotEditTimeframe"),
-            rr: parseFloat(getVal("EditSpotRr")) || 0,
-            causes: getVal("EditSpotCauses"),
-            psychology: getDropdown("EditSpotPsychology"),
-            class: getDropdown("EditSpotClass"),
-            before: getVal("EditSpotBefore-url"),
-            after: getVal("EditSpotAfter-url"),
-            margin: parseFloat(getVal("EditSpotMargin")) || 0,
-            result: getDropdown("EditSpotResult"),
-            pnl: parseFloat(getVal("EditSpotPnl")) || 0
+            pairs: getVal("SpotEditPairs"),
+            method: getDropdown("SpotEditMethod"),
+            entry: getDropdown("SpotEditEntry"),
+            timeframe: getDropdown("SpotEditTimeframe"),
+            rr: parseFloat(getVal("SpotEditRr")) || 0,
+            causes: getVal("SpotEditCauses"),
+            psychology: getDropdown("SpotEditPsychology"),
+            class: getDropdown("SpotEditClass"),
+            before: getVal("SpotEditBefore-url"),
+            after: getVal("SpotEditAfter-url"),
+            margin: parseFloat(getVal("SpotEditMargin")) || 0,
+            result: getDropdown("SpotEditResult"),
+            pnl: parseFloat(getVal("SpotEditPnl")) || 0
         };
 
         // --- Update ke Supabase ---
@@ -1944,14 +1921,15 @@ async function SaveEditSpot() {
         // --- Refresh UI ---
         refreshDBSpotCache();
         if (typeof updateAllUI === "function") await updateAllUI();
+
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
-        CancleEditSpot();
+
+        CancelEditSpot();
 
     } catch (err) {
-        console.error("❌ Error update spot trade:", err);
-        alert("Gagal memperbarui trade Spot:\n" + err.message);
+        alert("Error Edit:\n" + err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -2014,21 +1992,22 @@ async function SaveEditSpotTransaction() {
 
         refreshDBSpotCache();
         if (typeof updateAllUI === "function") await updateAllUI();
+        
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
-        CancleEditSpot();
+
+        CancelEditSpot();
 
     } catch (err) {
-        console.error("❌ Error update spot transaction:", err);
-        alert("Gagal memperbarui transfer Spot:\n" + err.message);
+        alert("Error Edit:\n" + err);
     } finally {
         btn.classList.remove("loading");
     }
 }
 
-//  Cancle  //
-function CancleEditSpot() {
+//  Cancel  //
+function CancelEditSpot() {
     currentEditingTradeNo = null;
 
     const popupEdit = document.querySelector(".popup-spot-edit");
@@ -2097,7 +2076,7 @@ async function DeleteSpot() {
         refreshDBSpotCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
-        CancleEditSpot();
+        CancelEditSpot();
 
     } catch (err) {
         console.error("❌ Gagal menghapus Spot trade:", err);
@@ -2148,7 +2127,7 @@ async function DeleteSpotTransaction() {
         refreshDBSpotCache();
         if (typeof updateAllUI === "function") await updateAllUI();
         restartSOP();
-        CancleEditSpot();
+        CancelEditSpot();
 
     } catch (err) {
         console.error("❌ Gagal menghapus Spot transfer:", err);
@@ -2632,7 +2611,7 @@ function restartSOP() {
 
     updateUI();
 
-    console.log('🔄 SOP UI Restarted:', tradingDataSop);
+    console.log('SOP UI Restarted:', tradingDataSop);
 }
 
 // ======================= Edit Profile ======================= //
