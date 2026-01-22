@@ -167,9 +167,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function isAnyOtherPopupOpen() {
         const otherPopups = [
-            ".popup-add",
-            ".popup-edit-trade",
-            ".popup-edit-transfer",
+            ".popup-perpetual-add",
+            ".popup-perpetual-edit",
+            ".popup-perpetual-transactions-edit",
             ".popup-caculate"
         ];
         return otherPopups.some(selector => {
@@ -375,9 +375,10 @@ document.querySelector('.btn-add-account')?.addEventListener('click', () => {
 
 // ======================= POPUP & DROPDOWN SETUP ======================= //
 function closeAllPopups() {
-    document.querySelector(".popup-add")?.classList.remove("show");
-    document.querySelector(".popup-edit")?.classList.remove("show");
-    document.querySelector(".popup-caculate")?.classList.remove("show");
+    document.querySelector(".popup-perpetual-add")?.classList.remove("show");
+    document.querySelector(".popup-perpetual-edit")?.classList.remove("show");
+    document.querySelector(".popup-spot-add")?.classList.remove("show");
+    document.querySelector(".popup-spot-edit")?.classList.remove("show");
     document.querySelector(".popup-overlay")?.classList.remove("show");
     document.body.classList.remove("popup-open");
     document.body.style.overflow = "";
@@ -385,24 +386,26 @@ function closeAllPopups() {
 
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
-    const popupAdd = document.querySelector(".popup-add");
-    const popupEditTrade = document.querySelector(".popup-edit-trade");
-    const popupEditTransfer = document.querySelector(".popup-edit-transfer");
-    const popupCaculate = document.querySelector(".popup-caculate");
+    const popupAddPerpetual = document.querySelector(".popup-perpetual-add");
+    const popupEditPerpetual = document.querySelector(".popup-perpetual-edit");
+    const popupEditPerpetualTransactions = document.querySelector(".popup-perpetual-transactions-edit");
+    const popupAddSpot = document.querySelector(".popup-spot-add");
+    const popupEditSpot = document.querySelector(".popup-spot-edit");
+    const popupEditSpotTransaction = document.querySelector(".popup-spot-transactions-edit");
 
-    const btnAdd = document.getElementById("btnAdd");
     const btnEdit = document.getElementById("btnEdit");
-    const btnCaculate = document.getElementById("btnCaculate");
-    const tableBody = document.querySelector(".tabel-trade tbody");
 
     function hasAnyPopupOpen() {
         return (
-            popupAdd?.classList.contains("show") ||
-            popupEditTrade?.classList.contains("show") ||
-            popupEditTransfer?.classList.contains("show") ||
-            popupCaculate?.classList.contains("show")
+            popupAddPerpetual?.classList.contains("show") ||
+            popupEditPerpetual?.classList.contains("show") ||
+            popupEditPerpetualTransactions?.classList.contains("show") ||
+            popupAddSpot?.classList.contains("show") ||
+            popupEditSpot?.classList.contains("show") ||
+            popupEditSpotTransaction?.classList.contains("show")
         );
     }
+
 
     function closePopup(popup) {
         popup?.classList.remove("show");
@@ -414,59 +417,58 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function closeAllPopups() {
-        [popupAdd, popupEditTrade, popupEditTransfer, popupCaculate].forEach(p => p?.classList.remove("show"));
+        [
+            popupAddPerpetual,
+            popupEditPerpetual,
+            popupEditPerpetualTransactions,
+            popupAddSpot,
+            popupEditSpot,
+            popupEditSpotTransaction
+        ].forEach(p => p?.classList.remove("show"));
+
         popupOverlay?.classList.remove("show");
         document.body.classList.remove("popup-open");
         document.body.style.overflow = "";
     }
 
-    // ------ Trade ------ //
-    btnAdd?.addEventListener("click", () => {
+    // ------ ADD BUTTON (DINAMIS BERDASARKAN TAB AKTIF) ------
+    document.getElementById("btnAdd")?.addEventListener("click", () => {
         closeAllPopups();
         document.body.classList.add("popup-open");
         document.body.style.overflow = "hidden";
-        popupOverlay?.classList.add("show");
-        popupAdd?.classList.add("show");
+        const overlay = document.querySelector(".popup-overlay");
+        overlay?.classList.add("show");
 
-        const dateInput = document.getElementById("dateTransfer");
-        if (dateInput) {
+        const getCurrentDateTime = () => {
             const now = new Date();
             const y = now.getFullYear();
             const m = String(now.getMonth() + 1).padStart(2, "0");
             const d = String(now.getDate()).padStart(2, "0");
             const h = String(now.getHours()).padStart(2, "0");
             const min = String(now.getMinutes()).padStart(2, "0");
-            dateInput.value = `${y}-${m}-${d}T${h}:${min}`;
+            return `${y}-${m}-${d}T${h}:${min}`;
+        };
+
+        const currentDateTime = getCurrentDateTime();
+
+        if (currentActiveTab === "spot") {
+            document.querySelector(".popup-spot-add")?.classList.add("show");
+            
+            const spotDate = document.getElementById("SpotDate");
+            const spotTransDate = document.getElementById("SpotTransactionDate");
+            
+            if (spotDate) spotDate.value = currentDateTime;
+            if (spotTransDate) spotTransDate.value = currentDateTime;
+
+        } else {
+            document.querySelector(".popup-perpetual-add")?.classList.add("show");
+            
+            const perpDate = document.getElementById("PerpetualDate");
+            const perpTransDate = document.getElementById("PerpetualDateTransaction");
+            
+            if (perpDate) perpDate.value = currentDateTime;
+            if (perpTransDate) perpTransDate.value = currentDateTime;
         }
-    });
-
-    // ------ Transfer ------ //
-    btnAdd?.addEventListener("click", () => {
-        closeAllPopups();
-        document.body.classList.add("popup-open");
-        document.body.style.overflow = "hidden";
-        popupOverlay?.classList.add("show");
-        popupAdd?.classList.add("show");
-
-        const dateInput = document.getElementById("dateTrade");
-        if (dateInput) {
-            const now = new Date();
-            const y = now.getFullYear();
-            const m = String(now.getMonth() + 1).padStart(2, "0");
-            const d = String(now.getDate()).padStart(2, "0");
-            const h = String(now.getHours()).padStart(2, "0");
-            const min = String(now.getMinutes()).padStart(2, "0");
-            dateInput.value = `${y}-${m}-${d}T${h}:${min}`;
-        }
-    });
-
-    // ------ Calculate ------ //
-    btnCaculate?.addEventListener("click", () => {
-        closeAllPopups();
-        document.body.classList.add("popup-open");
-        document.body.style.overflow = "hidden";
-        popupOverlay?.classList.add("show");
-        popupCaculate?.classList.add("show");
     });
 
     // ------ Edit Mode ------ //
@@ -478,34 +480,52 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         btnEdit.classList.toggle("active", isEditMode);
     });
+    
+    // ------ EDIT MODE (SPOT & PERPETUAL) ------
+    document.querySelectorAll(".tabel-trade tbody").forEach(tableBody => {
+        tableBody.addEventListener("click", async (e) => {
+            if (!isEditMode) return;
+            const row = e.target.closest("tr");
+            if (!row) return;
 
-    tableBody?.addEventListener("click", async (e) => {
-        if (!isEditMode) return;
-        const row = e.target.closest("tr");
-        if (!row) return;
+            const isSpotTable = row.closest("#tabel-spot") !== null;
+            const tradeNumber = parseInt(row.querySelector(".no")?.textContent);
+            if (!tradeNumber) return;
 
-        const tradeNumber = parseInt(row.querySelector(".no")?.textContent);
-        if (!tradeNumber) return;
+            const db = isSpotTable
+                ? JSON.parse(localStorage.getItem("dbspot")) || []
+                : JSON.parse(localStorage.getItem("dbperpetual")) || [];
 
-        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
-        const tradeData = dbPerpetual.find(t => t.tradeNumber === tradeNumber);
-        if (!tradeData) return;
+            const tradeData = db.find(t => t.tradeNumber === tradeNumber);
 
-        if (tradeData.action === "Deposit" || tradeData.action === "Withdraw") {
-            openEditTransferPopup(tradeData);
-        } else {
-            openEditTradePopup(tradeData);
-        }
+            if (!tradeData) return;
+
+            if (tradeData.action === "Deposit" || tradeData.action === "Withdraw") {
+                if (isSpotTable) {
+                    openEditSpotTransactionPopup(tradeData);
+                } else {
+                    openEditPerpetualTransactionPopup(tradeData);
+                }
+            } else {
+                if (isSpotTable) {
+                    openEditSpotPopup(tradeData);
+                } else {
+                    openEditPerpetualPopup(tradeData);
+                }
+            }
+        });
     });
 
     // ------ Overlay ------ //
     popupOverlay?.addEventListener("click", closeAllPopups);
 
     // ------ Cancel ------ //
-    document.getElementById("closeAdd")?.addEventListener("click", () => closePopup(popupAdd));
-    document.getElementById("closeEditTrade")?.addEventListener("click", () => closePopup(popupEditTrade));
-    document.getElementById("closeEditTransfer")?.addEventListener("click", () => closePopup(popupEditTransfer));
-    document.getElementById("closeCaculate")?.addEventListener("click", () => closePopup(popupCaculate));
+    document.getElementById("closeAddPerpetual")?.addEventListener("click", () => closePopup(popupAddPerpetual));
+    document.getElementById("closeEditPerpetual")?.addEventListener("click", () => closePopup(popupEditPerpetual));
+    document.getElementById("closeEditPerpetualTransaction")?.addEventListener("click", () => closePopup(popupEditPerpetualTransactions));
+    document.getElementById("closeAddSpot")?.addEventListener("click", () => closePopup(popupAddSpot));
+    document.getElementById("closeEditSpot")?.addEventListener("click", () => closePopup(popupEditSpot));
+    document.getElementById("closeEditSpotTransaction")?.addEventListener("click", () => closePopup(popupEditSpotTransaction));
 
     // ------ Custom Dropdowns ------ //
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
@@ -628,25 +648,26 @@ function refreshClearButtons() {
 }
 
 // ======================= Serch Data ======================= //
+// ------ Perpetual ------ //
 function fillEditFormTrade(trade) {
-    document.getElementById("edit-date-trade").value = unixToWIBDatetimeLocal(trade.date);
-    document.getElementById("edit-pairs").value = trade.Pairs || "";
-    document.getElementById("edit-rr").value = trade.RR || "";
-    document.getElementById("edit-margin").value = trade.Margin || "";
-    document.getElementById("edit-pnl").value = trade.Pnl || "";
-    document.getElementById("edit-causes").value = trade.Causes || "";
-    document.getElementById("edit-bias-url").value = trade.Files?.Bias || "";
-    document.getElementById("edit-execution-url").value = trade.Files?.Last || "";
+    document.getElementById("PerpetualEditDate").value = unixToWIBDatetimeLocal(trade.date);
+    document.getElementById("PerpetualEditPairs").value = trade.Pairs || "";
+    document.getElementById("PerpetualEditRr").value = trade.RR || "";
+    document.getElementById("PerpetualEditMargin").value = trade.Margin || "";
+    document.getElementById("PerpetualEditPnl").value = trade.Pnl || "";
+    document.getElementById("PerpetualEditCauses").value = trade.Causes || "";
+    document.getElementById("PerpetualEditBefore-url").value = trade.Files?.Before || "";
+    document.getElementById("PerpetualEditAfter-url").value = trade.Files?.After || "";
 
-    setDropdownValue("edit-method", trade.Method);
-    setDropdownValue("edit-behavior", trade.Behavior);
-    setDropdownValue("edit-psychology", trade.Psychology);
-    setDropdownValue("edit-class", trade.Class);
+    setDropdownValue("PerpetualEditMethod", trade.Method);
+    setDropdownValue("PerpetualEditBehavior", trade.Behavior);
+    setDropdownValue("PerpetualEditPsychology", trade.Psychology);
+    setDropdownValue("PerpetualEditClass", trade.Class);
     const posVal = trade.Pos === "B" ? "Long" : trade.Pos === "S" ? "Short" : "";
-    setDropdownValue("edit-position", posVal);
-    setDropdownValue("edit-result", trade.Result);
-    setDropdownValue("edit-timeframe", trade.Confluance?.TimeFrame || "");
-    setDropdownValue("edit-entry", trade.Confluance?.Entry || "");
+    setDropdownValue("PerpetualEditPosition", posVal);
+    setDropdownValue("PerpetualEditResult", trade.Result);
+    setDropdownValue("PerpetualEditTimeframe", trade.Confluance?.TimeFrame || "");
+    setDropdownValue("PerpetualEditEntry", trade.Confluance?.Entry || "");
 
     currentEditingTradeNo = trade.tradeNumber;
 
@@ -654,12 +675,42 @@ function fillEditFormTrade(trade) {
 }
 
 function fillEditFormTransfer(trade) {
-    document.getElementById("edit-date-financial").value = unixToWIBDatetimeLocal(trade.date);
-    setDropdownValue("edit-action", trade.action);
-    document.getElementById("edit-value").value = Math.abs(trade.value) || "";
+    document.getElementById("PerpetualTransactionEditDate").value = unixToWIBDatetimeLocal(trade.date);
+    setDropdownValue("PerpetualTransactionEditAction", trade.action);
+    document.getElementById("PerpetualTransactionEditValue").value = Math.abs(trade.value) || "";
 
     currentEditingTradeNo = trade.tradeNumber;
 
+    refreshClearButtons();
+}
+
+// ------ Spot ------ //
+function fillEditFormSpot(trade) {
+    document.getElementById("EditSpotDate").value = unixToWIBDatetimeLocal(trade.date);
+    document.getElementById("EditSpotPairs").value = trade.Pairs || "";
+    document.getElementById("EditSpotRr").value = trade.RR || "";
+    document.getElementById("EditSpotMargin").value = trade.Margin || "";
+    document.getElementById("EditSpotPnl").value = trade.Pnl || "";
+    document.getElementById("EditSpotCauses").value = trade.Causes || "";
+    document.getElementById("EditSpotBefore-url").value = trade.Files?.Before || "";
+    document.getElementById("EditSpotAfter-url").value = trade.Files?.After || "";
+
+    setDropdownValue("EditSpotMethod", trade.Method);
+    setDropdownValue("EditSpotPsychology", trade.Psychology);
+    setDropdownValue("EditSpotClass", trade.Class);
+    setDropdownValue("EditSpotResult", trade.Result);
+    setDropdownValue("SpotEditTimeframe", trade.Confluance?.TimeFrame || "");
+    setDropdownValue("SpotEditEntry", trade.Confluance?.Entry || "");
+
+    currentEditingTradeNo = trade.tradeNumber;
+    refreshClearButtons();
+}
+
+function fillEditFormSpotTransfer(trade) {
+    document.getElementById("EditSpotTransactionDate").value = unixToWIBDatetimeLocal(trade.date);
+    setDropdownValue("EditSpotTransactionAction", trade.action);
+    document.getElementById("EditSpotTransactionValue").value = Math.abs(trade.value) || "";
+    currentEditingTradeNo = trade.tradeNumber;
     refreshClearButtons();
 }
 
@@ -696,16 +747,21 @@ function setDropdownValue(dropdownName, value) {
 // ------ EDIT DROPDOWN ------ //
 function getCustomOptions(dropdownName) {
     const alias = {
-        'edit-timeframe': 'timeframe',
-        'edit-entry': 'entry'
+        PerpetualEditTimeframe: 'PerpetualTimeframe',
+        PerpetualEditEntry: 'PerpetualEntry',
+        SpotEditTimeframe: 'SpotTimeframe',
+        SpotEditEntry: 'SpotEntry'
     };
+
     const actualName = alias[dropdownName] || dropdownName;
 
     const saved = JSON.parse(localStorage.getItem("customDropdownOptions")) || {};
     if (!saved[actualName]) {
         const defaults = {
-            timeframe: ["1M", "5M", "15M", "1H", "2H", "4H", "1D"],
-            entry: ["OB", "FVG"]
+            PerpetualTimeframe: ["1M", "5M", "15M", "1H", "2H", "4H", "1D"],
+            PerpetualEntry: ["OB", "FVG"],
+            SpotTimeframe: ["1M", "5M", "15M", "1H", "4H", "1D"],
+            SpotEntry: ["OB", "FVG"]
         };
         return defaults[actualName] || [];
     }
@@ -737,7 +793,7 @@ function rebuildDropdown(dropdownName) {
         optionsContainer.appendChild(el);
     });
 
-    if (['timeframe', 'entry'].includes(dropdownName)) {
+    if (['PerpetualTimeframe','PerpetualEntry','SpotTimeframe','SpotEntry'].includes(dropdownName)) {
         const editEl = document.createElement('div');
         editEl.className = 'dropdown-option edit-trigger';
         editEl.dataset.value = '__edit__';
@@ -818,12 +874,11 @@ function openEditModal(dropdownName) {
         
         rebuildDropdown(dropdownName);
         
-        if (dropdownName === 'timeframe') {
-            rebuildDropdown('edit-timeframe');
-        } else if (dropdownName === 'entry') {
-            rebuildDropdown('edit-entry');
-        }
-        
+        if (dropdownName === 'PerpetualTimeframe') rebuildDropdown('PerpetualEditTimeframe');
+        if (dropdownName === 'PerpetualEntry') rebuildDropdown('PerpetualEditEntry');
+        if (dropdownName === 'SpotTimeframe') rebuildDropdown('SpotEditTimeframe');
+        if (dropdownName === 'SpotEntry') rebuildDropdown('SpotEditEntry');
+
         modal.style.display = 'none';
     };
 
@@ -858,13 +913,21 @@ function openEditModal(dropdownName) {
     modal.style.display = 'block';
 }
 
-function initializeEditDropdowns() {
-    rebuildDropdown('edit-timeframe');
-    rebuildDropdown('edit-entry');
+function initializeAllDropdowns() {
+    rebuildDropdown('PerpetualTimeframe');
+    rebuildDropdown('PerpetualEntry');
+    rebuildDropdown('PerpetualEditTimeframe');
+    rebuildDropdown('PerpetualEditEntry');
+
+    rebuildDropdown('SpotTimeframe');
+    rebuildDropdown('SpotEntry');
+    rebuildDropdown('SpotEditTimeframe');
+    rebuildDropdown('SpotEditEntry');
+
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    initializeEditDropdowns();
+    initializeAllDropdowns();
 });
 
 // ------ HELPER FUNCTIONS ------ //
@@ -882,8 +945,8 @@ function getDropdownValue(dropdownName) {
     }
 }
 
-// ------ Number Trade Add ------ //
-function getNextLocalIds() {
+// ------ Get Number Trade Perpetual ------ //
+function getNextLocalIdsPerpetual() {
     const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
 
     const lastId = dbPerpetual.length > 0
@@ -899,17 +962,36 @@ function getNextLocalIds() {
     return { newId, nextTradeNumber };
 }
 
-// ======================= POPUP ADD ======================= //
-//  BTN RADIO ADD  //
-document.querySelectorAll('.btn-radio-add').forEach((btn, index) => {
+// ------ Get Number Trade Spot ------ //
+function getNextLocalIdsSpot() {
+    const dbPerpetual = JSON.parse(localStorage.getItem("dbspot")) || [];
+
+    const lastId = dbPerpetual.length > 0
+        ? Math.max(...dbPerpetual.map(t => t.id || 0))
+        : 0;
+    const newId = lastId + 1;
+
+    const lastTradeNumber = dbPerpetual.length > 0
+        ? dbPerpetual[dbPerpetual.length - 1].tradeNumber
+        : 0;
+    const nextTradeNumber = lastTradeNumber + 1;
+
+    return { newId, nextTradeNumber };
+}
+
+// ======================= POPUP JURNAL ======================= //
+
+// ------ Perpetual ------ //
+//  Swap Trades = Transaction  //
+document.querySelectorAll('.btn-swap-perpetual').forEach((btn, index) => {
     btn.addEventListener('click', () => {
-        document.querySelectorAll('.btn-radio-add').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.btn-swap-perpetual').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const formTrade = document.getElementById('addDataTrade');
-        const formDW = document.getElementById('addDataTransfer');
-        const btnTrade = document.getElementById('addTrade');
-        const btnDW = document.getElementById('addTransfer');
+        const formTrade = document.getElementById('addDataPerpetual');
+        const formDW = document.getElementById('addDataPerpetualTransactions');
+        const btnTrade = document.getElementById('AddPerpetual');
+        const btnDW = document.getElementById('AddPerpetualTransaction');
 
         if (index === 0) {
             formTrade.style.display = 'block';
@@ -925,9 +1007,10 @@ document.querySelectorAll('.btn-radio-add').forEach((btn, index) => {
     });
 });
 
-//  ADD TRADE  //
-async function handleAddTrade() {
-    const btn = document.getElementById("addTrade");
+// ------ Add ------ //
+//  Add Trades  //
+async function AddPerpetual() {
+    const btn = document.getElementById("AddPerpetual");
     btn.classList.add("loading");
 
     try {
@@ -940,47 +1023,47 @@ async function handleAddTrade() {
         // --- Load local ---
         const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
 
-        const { newId, nextTradeNumber } = getNextLocalIds();
+        const { newId, nextTradeNumber } = getNextLocalIdsPerpetual();
 
         // --- Date ---
-        const dateInputValue = document.getElementById("dateTrade").value;
+        const dateInputValue = document.getElementById("PerpetualDate").value;
         const correctedDate = new Date(dateInputValue);
 
         // --- Dropdown values ---
-        const methodValue = getDropdownValue("method");
-        const behaviorValue = getDropdownValue("behavior");
-        const psychologyValue = getDropdownValue("psychology");
-        const classValue = getDropdownValue("class");
-        const positionValue = getDropdownValue("position");
-        const entryValue = getDropdownValue("entry");
-        const timeframeValue = getDropdownValue("timeframe");
+        const methodValue = getDropdownValue("PerpetualMethod");
+        const behaviorValue = getDropdownValue("PerpetualBehavior");
+        const psychologyValue = getDropdownValue("PerpetualPsychology");
+        const classValue = getDropdownValue("PerpetualClass");
+        const positionValue = getDropdownValue("PerpetualPosition");
+        const entryValue = getDropdownValue("PerpetualEntry");
+        const timeframeValue = getDropdownValue("PerpetualTimeframe");
 
         // --- Server --- 
         const serverData = {
             id: newId,
             user_id: user_id,
             date: Math.floor(correctedDate.getTime() / 1000),
-            pairs: document.getElementById("pairs").value.trim(),
+            pairs: document.getElementById("PerpetualPairs").value.trim(),
             method: methodValue,
             entry: entryValue || "",
             timeframe: timeframeValue || "",
-            rr: parseFloat(document.getElementById("rr").value) || 0,
+            rr: parseFloat(document.getElementById("PerpetualRr").value) || 0,
             behavior: behaviorValue,
-            causes: document.getElementById("causes").value.trim(),
+            causes: document.getElementById("PerpetualCauses").value.trim(),
             psychology: psychologyValue,
             class: classValue,
-            bias: document.getElementById("bias-url").value.trim(),
-            last: document.getElementById("execution-url").value.trim(),
+            before: document.getElementById("PerpetualBefore-url").value.trim(),
+            after: document.getElementById("PerpetualAfter-url").value.trim(),
             pos:
                 positionValue === "Long" ? "B" :
                 positionValue === "Short" ? "S" : "",
-            margin: parseFloat(document.getElementById("margin").value) || 0,
-            result: getDropdownValue("result") || "",
-            pnl: parseFloat(document.getElementById("pnl").value) || 0
+            margin: parseFloat(document.getElementById("PerpetualMargin").value) || 0,
+            result: getDropdownValue("PerpetualResult") || "",
+            pnl: parseFloat(document.getElementById("PerpetualPnl").value) || 0
         };
 
         const { data: insertData, error: insertErr } = await supabaseClient
-            .from("trades")
+            .from("perpetual")
             .insert(serverData)
             .select();
 
@@ -1003,8 +1086,8 @@ async function handleAddTrade() {
             Psychology: serverData.psychology,
             Class: serverData.class,
             Files: {
-                Bias: serverData.bias,
-                Last: serverData.last
+                Before: serverData.before,
+                After: serverData.after
             },
             Pos: serverData.pos,
             Margin: serverData.margin,
@@ -1023,7 +1106,7 @@ async function handleAddTrade() {
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
 
-        document.querySelectorAll("#addDataTrade input, #addDataTrade textarea")
+        document.querySelectorAll("#addDataPerpetual input, #addDataPerpetual textarea")
             .forEach(i => i.value = "");
 
     } catch (err) {
@@ -1034,9 +1117,9 @@ async function handleAddTrade() {
     }
 }
 
-//  ADD TRANSFER  //
-async function handleAddTransfer() {
-    const btn = document.getElementById("addTransfer");
+//  Add Transaction  //
+async function AddPerpetualTransactions() {
+    const btn = document.getElementById("AddPerpetualTransaction");
     btn.classList.add("loading");
 
     try {
@@ -1058,13 +1141,13 @@ async function handleAddTransfer() {
         const nextTradeNumber = lastTradeNumber + 1;
 
         // --- Date ---
-        const dateInputValue = document.getElementById("dateTransfer").value;
+        const dateInputValue = document.getElementById("PerpetualDateTransaction").value;
         const correctedDate = new Date(dateInputValue);
 
         // --- Action & Value ---
-        const selectedActionEl = document.querySelector('[data-dropdown="transfer"] .dropdown-selected span');
+        const selectedActionEl = document.querySelector('[data-dropdown="PerpetualActionTransaction"] .dropdown-selected span');
         const selectedAction = selectedActionEl?.innerText.trim();
-        const valueInput = parseFloat(document.getElementById("valueTransfer").value);
+        const valueInput = parseFloat(document.getElementById("PerpetualValueTransaction").value);
 
         if (!selectedAction || !["Deposit", "Withdraw"].includes(selectedAction)) {
             return;
@@ -1085,7 +1168,7 @@ async function handleAddTransfer() {
         };
 
         const { error: insertErr } = await supabaseClient
-            .from("transactions")
+            .from("perpetual_transactions")
             .insert([serverData]);
 
         if (insertErr) throw insertErr;
@@ -1109,9 +1192,9 @@ async function handleAddTransfer() {
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
 
-        document.getElementById("dateTransfer").value = "";
-        document.getElementById("valueTransfer").value = "";
-        document.querySelectorAll("#addDataTransfer .custom-dropdown .dropdown-selected span")
+        document.getElementById("PerpetualDateTransaction").value = "";
+        document.getElementById("PerpetualValueTransaction").value = "";
+        document.querySelectorAll("#addDataPerpetualTransactions .custom-dropdown .dropdown-selected span")
             .forEach(el => {
                 el.textContent = "Select option";
                 el.classList.add("placeholder");
@@ -1124,12 +1207,12 @@ async function handleAddTransfer() {
     }
 }
 
-// ======================= POPUP EDIT ======================= //
-//  POPUP TRADE  //
-function openEditTradePopup(trade) {
+// ------ Edit ------ //
+//  Trade  //
+function openEditPerpetualPopup(trade) {
     closeAllPopups();
 
-    const popup = document.querySelector(".popup-edit-trade");
+    const popup = document.querySelector(".popup-perpetual-edit");
     const overlay = document.querySelector(".popup-overlay");
 
     overlay.classList.add("show");
@@ -1140,11 +1223,11 @@ function openEditTradePopup(trade) {
     setTimeout(() => fillEditFormTrade(trade), 50);
 }
 
-//  POPUP TRANSFER  //
-function openEditTransferPopup(trade) {
+// Transaction  //
+function openEditPerpetualTransactionPopup(trade) {
     closeAllPopups();
 
-    const popup = document.querySelector(".popup-edit-transfer");
+    const popup = document.querySelector(".popup-perpetual-transactions-edit");
     const overlay = document.querySelector(".popup-overlay");
 
     overlay.classList.add("show");
@@ -1155,9 +1238,9 @@ function openEditTransferPopup(trade) {
     setTimeout(() => fillEditFormTransfer(trade), 50);
 }
 
-//  EDIT TRADE  //
-async function handleSaveEditTrade() {
-    const btn = document.getElementById("updateTrade");
+//  Edit Trade  //
+async function SaveEditPerpetual() {
+    const btn = document.getElementById("updatePerpetual");
     btn.classList.add("loading");
 
     try {
@@ -1168,7 +1251,7 @@ async function handleSaveEditTrade() {
 
         const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
         const getDropdown = (name) =>
-            document.querySelector(`.popup-edit-trade .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
+            document.querySelector(`.popup-perpetual-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
                 ?.getAttribute("data-value") || "";
 
         // --- Id lokal ---
@@ -1179,7 +1262,7 @@ async function handleSaveEditTrade() {
         const recordId = item.id;
 
         // --- Date ---
-        const dateInputValue = getVal("edit-date-trade");
+        const dateInputValue = getVal("PerpetualEditDate");
         if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
         const correctedDate = new Date(dateInputValue);
 
@@ -1187,26 +1270,26 @@ async function handleSaveEditTrade() {
         const serverUpdate = {
             user_id: user_id,
             date: Math.floor(correctedDate.getTime() / 1000),
-            pairs: getVal("edit-pairs"),
-            method: getDropdown("edit-method"),
-            entry: getDropdown("edit-entry"),
-            timeframe: getDropdown("edit-timeframe"),
-            rr: parseFloat(getVal("edit-rr")) || 0,
-            behavior: getDropdown("edit-behavior"),
-            causes: getVal("edit-causes"),
-            psychology: getDropdown("edit-psychology"),
-            class: getDropdown("edit-class"),
-            bias: getVal("edit-bias-url"),
-            last: getVal("edit-execution-url"),
-            pos: getDropdown("edit-position") === "Long" ? "B" :
-                getDropdown("edit-position") === "Short" ? "S" : "",
-            margin: parseFloat(getVal("edit-margin")) || 0,
-            result: getDropdown("edit-result"),
-            pnl: parseFloat(getVal("edit-pnl")) || 0
+            pairs: getVal("PerpetualEditPairs"),
+            method: getDropdown("PerpetualEditMethod"),
+            entry: getDropdown("PerpetualEditEntry"),
+            timeframe: getDropdown("PerpetualEditTimeframe"),
+            rr: parseFloat(getVal("PerpetualEditRr")) || 0,
+            behavior: getDropdown("PerpetualEditBehavior"),
+            causes: getVal("PerpetualEditCauses"),
+            psychology: getDropdown("PerpetualEditPsychology"),
+            class: getDropdown("PerpetualEditClass"),
+            before: getVal("PerpetualEditBefore-url"),
+            after: getVal("PerpetualEditAfter-url"),
+            pos: getDropdown("PerpetualEditPosition") === "Long" ? "B" :
+                getDropdown("PerpetualEditPosition") === "Short" ? "S" : "",
+            margin: parseFloat(getVal("PerpetualEditMargin")) || 0,
+            result: getDropdown("PerpetualEditResult"),
+            pnl: parseFloat(getVal("PerpetualEditPnl")) || 0
         };
 
         const { error: updateErr } = await supabaseClient
-            .from("trades")
+            .from("perpetual")
             .update(serverUpdate)
             .eq("id", recordId)
             .eq("user_id", user_id);
@@ -1229,8 +1312,8 @@ async function handleSaveEditTrade() {
             Psychology: serverUpdate.psychology,
             Class: serverUpdate.class,
             Files: {
-                Bias: serverUpdate.bias,
-                Last: serverUpdate.last
+                Before: serverUpdate.before,
+                After: serverUpdate.after
             },
             Pos: serverUpdate.pos,
             Margin: serverUpdate.margin,
@@ -1250,11 +1333,11 @@ async function handleSaveEditTrade() {
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
-        handleCancelEdit();
+        CancleEditPerpetual();
 
-        document.getElementById("dateTransfer").value = "";
-        document.getElementById("valueTransfer").value = "";
-        document.querySelectorAll("#addDataTransfer .custom-dropdown .dropdown-selected span")
+        document.getElementById("PerpetualDateTransaction").value = "";
+        document.getElementById("PerpetualValueTransaction").value = "";
+        document.querySelectorAll("#addDataPerpetualTransactions .custom-dropdown .dropdown-selected span")
             .forEach(el => {
                 el.textContent = "Select option";
                 el.classList.add("placeholder");
@@ -1268,9 +1351,9 @@ async function handleSaveEditTrade() {
     }
 }
 
-//  EDIT TRANSFER  //
-async function handleSaveEditTransfer() {
-    const btn = document.getElementById("updateTransfer");
+//  Edit Transaction  //
+async function SaveEditPerpetualTransaction() {
+    const btn = document.getElementById("updatePerpetualTransaction");
     btn.classList.add("loading");
 
     try {
@@ -1281,7 +1364,7 @@ async function handleSaveEditTransfer() {
 
         const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
         const getDropdown = (name) =>
-            document.querySelector(`.popup-edit-transfer .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
+            document.querySelector(`.popup-perpetual-transactions-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
                 ?.getAttribute("data-value") || "";
 
         const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
@@ -1290,15 +1373,15 @@ async function handleSaveEditTransfer() {
         
         const recordId = item.id;
 
-        const dateInputValue = getVal("edit-date-financial");
+        const dateInputValue = getVal("PerpetualTransactionEditDate");
         if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
         const correctedDate = new Date(dateInputValue);
 
-        const action = getDropdownValue("edit-action");
+        const action = getDropdownValue("PerpetualTransactionEditAction");
         if (!action || !["Deposit", "Withdraw"].includes(action)) {
             throw new Error("Pilih action yang valid (Deposit/Withdraw)!");
         }
-        let value = parseFloat(getVal("edit-value"));
+        let value = parseFloat(getVal("PerpetualTransactionEditValue"));
         if (isNaN(value) || value === 0) throw new Error("Nilai harus valid dan tidak nol!");
         value = action === "Withdraw" ? -Math.abs(value) : Math.abs(value);
 
@@ -1311,7 +1394,7 @@ async function handleSaveEditTransfer() {
         };
 
         const { error: updateErr } = await supabaseClient
-            .from("transactions")
+            .from("perpetual_transactions")
             .update(serverUpdate)
             .eq("id", recordId)
             .eq("user_id", user_id);
@@ -1338,11 +1421,11 @@ async function handleSaveEditTransfer() {
         restartSOP();
         window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
         closeAllPopups();
-        handleCancelEdit();
+        CancleEditPerpetual();
 
-        document.getElementById("dateTransfer").value = "";
-        document.getElementById("valueTransfer").value = "";
-        document.querySelectorAll("#addDataTransfer .custom-dropdown .dropdown-selected span")
+        document.getElementById("PerpetualDateTransaction").value = "";
+        document.getElementById("PerpetualValueTransaction").value = "";
+        document.querySelectorAll("#addDataPerpetualTransactions .custom-dropdown .dropdown-selected span")
             .forEach(el => {
                 el.textContent = "Select option";
                 el.classList.add("placeholder");
@@ -1356,16 +1439,16 @@ async function handleSaveEditTransfer() {
     }
 }
 
-//  CANCLE EDIT  //
-function handleCancelEdit() {
+//  Cancle  //
+function CancleEditPerpetual() {
     try {
         currentEditingTradeNo = null;
 
-        const popupEditTrade = document.querySelector(".popup-edit-trade");
-        const popupEditTransfer = document.querySelector(".popup-edit-transfer");
+        const popupEditPerpetual = document.querySelector(".popup-perpetual-edit");
+        const popupEditPerpetualTransactions = document.querySelector(".popup-perpetual-transactions-edit");
         const overlay = document.querySelector(".popup-overlay");
 
-        [popupEditTrade, popupEditTransfer].forEach(p => p?.classList.remove("show"));
+        [popupEditPerpetual, popupEditPerpetualTransactions].forEach(p => p?.classList.remove("show"));
         overlay?.classList.remove("show");
 
         document.body.classList.remove("popup-open");
@@ -1373,7 +1456,7 @@ function handleCancelEdit() {
 
         document.querySelectorAll(".btn-main.loading, .btn-delete.loading").forEach(b => b.classList.remove("loading"));
 
-        [popupEditTrade, popupEditTransfer].forEach(popup => {
+        [popupEditPerpetual, popupEditPerpetualTransactions].forEach(popup => {
             if (!popup) return;
             popup.querySelectorAll('.custom-dropdown').forEach(dd => {
                 const span = dd.querySelector('.dropdown-selected span');
@@ -1391,12 +1474,692 @@ function handleCancelEdit() {
 
         console.log("[UI] Edit popup closed & state reset");
     } catch (err) {
-        console.error("handleCancelEdit error:", err);
+        console.error("CancleEditPerpetual error:", err);
     }
 }
 
-// POPUP CONFIRMASI DELETE //
-function showConfirmPopup(message) {
+//  Delete Trade  //
+async function DeletePerpetual() {
+    const btn = document.getElementById("deletePerpetual");
+    btn.classList.add("loading");
+
+    if (!currentEditingTradeNo) {
+        alert("⚠️ Tidak ada trade yang dipilih untuk dihapus!");
+        btn.classList.remove("loading");
+        return;
+    }
+
+    const confirmDelete = await ConfirmDeletePerpetual(`Delete Trade #${currentEditingTradeNo}?`);
+    if (!confirmDelete) {
+        btn.classList.remove("loading");
+        return;
+    }
+
+    try {
+        // --- User Session ---
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+        const user_id = user.id;
+
+        // --- ID Local ---
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+        const itemToDelete = dbPerpetual.find(t => t.tradeNumber === currentEditingTradeNo);
+        if (!itemToDelete) throw new Error("Trade tidak ditemukan di cache lokal!");
+
+        const recordId = itemToDelete.id;
+
+        // --- Server ---
+        const { error: deleteErr } = await supabaseClient
+            .from("perpetual")
+            .delete()
+            .eq("id", recordId)
+            .eq("user_id", user_id);
+
+        if (deleteErr) throw deleteErr;
+
+        // --- Local ---
+        const newDb = dbPerpetual.filter(t => t.id !== recordId);
+        localStorage.setItem("dbperpetual", JSON.stringify(newDb));
+
+        // --- Refresh UI ---
+        refreshDBPerpetualCache();
+        if (typeof updateAllUI === "function") await updateAllUI();
+        restartSOP();
+        CancleEditPerpetual();
+
+    } catch (err) {
+        console.error("❌ Gagal menghapus trade:", err);
+        alert("Gagal menghapus trade:\n" + err.message);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+//  Delete Transaction  //
+async function DeletePerpetualTransaction() {
+
+    const btn = document.getElementById("deletePerpetualTransaction");
+    btn.classList.add("loading");
+
+    if (!currentEditingTradeNo) {
+        alert("⚠️ Tidak ada transfer yang dipilih untuk dihapus!");
+        btn.classList.remove("loading");
+        return;
+    }
+
+    const confirmDelete = await ConfirmDeletePerpetual(`Delete Transfer #${currentEditingTradeNo}?`);
+    if (!confirmDelete) {
+        btn.classList.remove("loading");
+        return;
+    }
+
+    try {
+        // --- User Session ---
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+        const user_id = user.id;
+
+        // --- load Local ---
+        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+        const itemToDelete = dbPerpetual.find(t => t.tradeNumber === currentEditingTradeNo);
+        if (!itemToDelete) throw new Error("Transfer tidak ditemukan di cache lokal!");
+
+        const recordId = itemToDelete.id;
+
+        // --- Server ---
+        const { error: deleteErr } = await supabaseClient
+            .from("perpetual_transactions")
+            .delete()
+            .eq("id", recordId)
+            .eq("user_id", user_id);
+
+        if (deleteErr) throw deleteErr;
+
+        // --- Local ---
+        const newDb = dbPerpetual.filter(t => t.id !== recordId);
+        localStorage.setItem("dbperpetual", JSON.stringify(newDb));
+
+        // --- Refresh UI ---
+        refreshDBPerpetualCache();
+        if (typeof updateAllUI === "function") await updateAllUI();
+        restartSOP();
+        CancleEditPerpetual();
+
+    } catch (err) {
+        console.error("❌ Gagal menghapus transfer:", err);
+        alert("Gagal menghapus transfer:\n" + err.message);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+// ------ Spot ------ //
+//  Swap Trades = Transaction  //
+document.querySelectorAll('.btn-swap-spot').forEach((btn, index) => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.btn-swap-spot')
+            .forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const formTrade = document.getElementById('addDataSpot');
+        const formDW = document.getElementById('addDataSpotTransactions');
+        const btnTrade = document.getElementById('AddSpot');
+        const btnDW = document.getElementById('AddSpotTransaction');
+
+        if (index === 0) {
+            formTrade.style.display = 'block';
+            formDW.style.display = 'none';
+            btnTrade.classList.add('active');
+            btnDW.classList.remove('active');
+        } else {
+            formTrade.style.display = 'none';
+            formDW.style.display = 'block';
+            btnTrade.classList.remove('active');
+            btnDW.classList.add('active');
+        }
+    });
+});
+
+// ------ Add ------ //
+//  Add Trade  //
+async function AddSpot() {
+    const btn = document.getElementById("AddSpot");
+    btn.classList.add("loading");
+
+    try {
+        // --- User Session ---
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+        const user_id = user.id;
+
+        // --- Load local DB ---
+        const dbSpot = JSON.parse(localStorage.getItem("dbspot")) || [];
+
+        const { newId, nextTradeNumber } = getNextLocalIdsSpot();
+
+        // --- Date ---
+        const dateInputValue = document.getElementById("SpotDate").value;
+        const correctedDate = new Date(dateInputValue);
+
+        // --- Dropdown values ---
+        const methodValue = getDropdownValue("SpotMethod");
+        const psychologyValue = getDropdownValue("SpotPsychology");
+        const classValue = getDropdownValue("SpotClass");
+        const resultValue = getDropdownValue("SpotResult");
+        const timeframeValue = getDropdownValue("SpotTimeframe");
+        const entryValue = getDropdownValue("SpotEntry");
+
+        // --- Server Data ---
+        const serverData = {
+            id: newId,
+            user_id: user_id,
+            date: Math.floor(correctedDate.getTime() / 1000),
+            pairs: document.getElementById("SpotPairs").value.trim(),
+            method: methodValue,
+            entry: entryValue || "",
+            timeframe: timeframeValue || "",
+            rr: parseFloat(document.getElementById("SpotRr").value) || 0,
+            causes: document.getElementById("SpotCauses").value.trim(),
+            psychology: psychologyValue,
+            class: classValue,
+            before: document.getElementById("SpotBefore-url").value.trim(),
+            after: document.getElementById("SpotAfter-url").value.trim(),
+            margin: parseFloat(document.getElementById("SpotMargin").value) || 0,
+            result: resultValue || "",
+            pnl: parseFloat(document.getElementById("SpotPnl").value) || 0
+        };
+
+        const { data: insertData, error: insertErr } = await supabaseClient
+            .from("spot")
+            .insert(serverData)
+            .select();
+
+        if (insertErr) throw insertErr;
+
+        // --- Local Data ---
+        const localData = {
+            id: newId,
+            tradeNumber: nextTradeNumber,
+            date: Math.floor(correctedDate.getTime() / 1000),
+            Pairs: serverData.pairs,
+            Method: serverData.method,
+            Confluance: {
+                Entry: serverData.entry,
+                TimeFrame: serverData.timeframe
+            },
+            RR: serverData.rr,
+            Causes: serverData.causes,
+            Psychology: serverData.psychology,
+            Class: serverData.class,
+            Files: {
+                Before: serverData.before,
+                After: serverData.after
+            },
+            Margin: serverData.margin,
+            Result: serverData.result,
+            Pnl: serverData.pnl
+        };
+
+        dbSpot.push(localData);
+        localStorage.setItem("dbspot", JSON.stringify(dbSpot));
+
+        // --- Refresh UI ---
+        if (typeof spotTrades !== 'undefined') {
+            spotTrades = dbSpot;
+        }
+
+        refreshDBSpotCache?.();
+        if (typeof updateAllUI === "function") {
+        await updateAllUI();
+        }
+
+        restartSOP?.();
+        window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
+        closeAllPopups?.();
+
+        // --- Clear form ---
+        document.querySelectorAll("#addDataSpot input, #addDataSpot textarea")
+            .forEach(el => {
+                if (el.type !== "datetime-local") el.value = "";
+                else el.value = "";
+            });
+        document.querySelectorAll("#addDataSpot .custom-dropdown .dropdown-selected span")
+            .forEach(span => {
+                span.textContent = span.closest(".custom-dropdown").dataset.dropdown.includes("Timeframe") ||
+                                   span.closest(".custom-dropdown").dataset.dropdown.includes("Entry")
+                    ? "Select"
+                    : span.closest(".custom-dropdown").dataset.dropdown.replace("Spot", "");
+                span.classList.add("placeholder");
+            });
+
+    } catch (err) {
+        console.error("❌ Error saat menambahkan Spot Trade:", err);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+//  Add Transaction  //
+async function AddSpotTransactions() {
+    const btn = document.getElementById("AddSpotTransaction");
+    btn.classList.add("loading");
+
+    try {
+        // --- User Session ---
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+        const user_id = user.id;
+
+        // --- Load local DB ---
+        const dbSpot = JSON.parse(localStorage.getItem("dbspot")) || [];
+
+        const { newId, nextTradeNumber } = getNextLocalIdsSpot();
+
+        // --- Date ---
+        const dateInputValue = document.getElementById("SpotTransactionDate").value;
+        const correctedDate = new Date(dateInputValue);
+
+        // --- Action & Value ---
+        const selectedActionEl = document.querySelector('[data-dropdown="SpotTransactionAction"] .dropdown-selected span');
+        const selectedAction = selectedActionEl?.innerText.trim();
+        const valueInput = parseFloat(document.getElementById("SpotTransactionValue").value);
+
+        if (!selectedAction || !["Deposit", "Withdraw"].includes(selectedAction)) {
+            alert("Pilih tipe transaksi yang valid.");
+            return;
+        }
+        if (isNaN(valueInput) || valueInput <= 0) {
+            alert("Nilai transaksi harus lebih dari 0.");
+            return;
+        }
+
+        const finalValue = selectedAction === "Withdraw" ? -Math.abs(valueInput) : Math.abs(valueInput);
+
+        // --- Server Data ---
+        const serverData = {
+            id: newId,
+            user_id: user_id,
+            date: Math.floor(correctedDate.getTime() / 1000),
+            action: selectedAction,
+            value: finalValue
+        };
+
+        const { error: insertErr } = await supabaseClient
+            .from("spot_transactions")
+            .insert([serverData]);
+
+        if (insertErr) throw insertErr;
+
+        // --- Local Data ---
+        const localData = {
+            id: newId,
+            tradeNumber: nextTradeNumber,
+            date: Math.floor(correctedDate.getTime() / 1000),
+            action: selectedAction,
+            value: finalValue
+        };
+
+        dbSpot.push(localData);
+        localStorage.setItem("dbspot", JSON.stringify(dbSpot));
+
+        // --- Refresh UI ---
+       if (typeof spotTrades !== 'undefined') {
+            spotTrades = dbSpot; 
+        }
+
+        refreshDBSpotCache?.();
+        
+        if (typeof updateAllUI === "function") {
+        await updateAllUI();
+        }
+        
+        window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
+        closeAllPopups?.();
+
+        // --- Clear form ---
+        document.getElementById("SpotTransactionDate").value = "";
+        document.getElementById("SpotTransactionValue").value = "";
+        const placeholderSpan = document.querySelector('[data-dropdown="SpotTransactionAction"] .dropdown-selected span');
+        if (placeholderSpan) {
+            placeholderSpan.textContent = "Transaction";
+            placeholderSpan.classList.add("placeholder");
+        }
+
+    } catch (err) {
+        console.error("❌ Gagal menambahkan Spot Transaction:", err);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+// ------ Edit ------ //
+//  Trade  //
+function openEditSpotPopup(trade) {
+    closeAllPopups();
+    const popup = document.querySelector(".popup-spot-edit");
+    const overlay = document.querySelector(".popup-overlay");
+    overlay.classList.add("show");
+    popup.classList.add("show");
+    document.body.classList.add("popup-open");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => fillEditFormSpot(trade), 50);
+}
+
+//  Transaction  //
+function openEditSpotTransactionPopup(trade) {
+    closeAllPopups();
+    const popup = document.querySelector(".popup-spot-transactions-edit");
+    const overlay = document.querySelector(".popup-overlay");
+    overlay.classList.add("show");
+    popup.classList.add("show");
+    document.body.classList.add("popup-open");
+    document.body.style.overflow = "hidden";
+    setTimeout(() => fillEditFormSpotTransfer(trade), 50);
+}
+
+//  Edit Trade  //
+async function SaveEditSpot() {
+    const btn = document.getElementById("updateSpot");
+    btn.classList.add("loading");
+
+    try {
+        // --- User Session ---
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+        const user_id = user.id;
+
+        const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
+        const getDropdown = (name) =>
+            document.querySelector(`.popup-spot-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
+                ?.getAttribute("data-value") || "";
+
+        // --- Local DB ---
+        const dbSpot = JSON.parse(localStorage.getItem("dbspot")) || [];
+        const item = dbSpot.find(t => t.tradeNumber === currentEditingTradeNo);
+        if (!item) throw new Error("Trade tidak ditemukan di cache lokal!");
+        const recordId = item.id;
+
+        // --- Validasi Wajib ---
+        const dateInputValue = getVal("EditSpotDate");
+        if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
+        const correctedDate = new Date(dateInputValue);
+
+        // --- Data untuk Server ---
+        const serverUpdate = {
+            user_id: user_id,
+            date: Math.floor(correctedDate.getTime() / 1000),
+            pairs: getVal("EditSpotPairs"),
+            method: getDropdown("EditSpotRr"),
+            entry: getDropdown("EditSpotEntry"),
+            timeframe: getDropdown("EditSpotEditTimeframe"),
+            rr: parseFloat(getVal("EditSpotRr")) || 0,
+            causes: getVal("EditSpotCauses"),
+            psychology: getDropdown("EditSpotPsychology"),
+            class: getDropdown("EditSpotClass"),
+            before: getVal("EditSpotBefore-url"),
+            after: getVal("EditSpotAfter-url"),
+            margin: parseFloat(getVal("EditSpotMargin")) || 0,
+            result: getDropdown("EditSpotResult"),
+            pnl: parseFloat(getVal("EditSpotPnl")) || 0
+        };
+
+        // --- Update ke Supabase ---
+        const { error: updateErr } = await supabaseClient
+            .from("spot")
+            .update(serverUpdate)
+            .eq("id", recordId)
+            .eq("user_id", user_id);
+
+        if (updateErr) throw updateErr;
+
+        // --- Update Local Cache ---
+        const updatedLocal = {
+            ...item,
+            date: Math.floor(correctedDate.getTime() / 1000),
+            Pairs: serverUpdate.pairs,
+            Method: serverUpdate.method,
+            Confluance: {
+                Entry: serverUpdate.entry,
+                TimeFrame: serverUpdate.timeframe
+            },
+            RR: serverUpdate.rr,
+            Causes: serverUpdate.causes,
+            Psychology: serverUpdate.psychology,
+            Class: serverUpdate.class,
+            Files: {
+                Before: serverUpdate.before,
+                After: serverUpdate.after
+            },
+            Margin: serverUpdate.margin,
+            Result: serverUpdate.result,
+            Pnl: serverUpdate.pnl
+        };
+
+        const idx = dbSpot.findIndex(t => t.id === recordId);
+        if (idx !== -1) {
+            dbSpot[idx] = updatedLocal;
+            localStorage.setItem("dbspot", JSON.stringify(dbSpot));
+        }
+
+        // --- Refresh UI ---
+        refreshDBSpotCache();
+        if (typeof updateAllUI === "function") await updateAllUI();
+        restartSOP();
+        window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
+        closeAllPopups();
+        CancleEditSpot();
+
+    } catch (err) {
+        console.error("❌ Error update spot trade:", err);
+        alert("Gagal memperbarui trade Spot:\n" + err.message);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+//  Edit Transaction  //
+async function SaveEditSpotTransaction() {
+    const btn = document.getElementById("updateSpotTransaction");
+    btn.classList.add("loading");
+
+    try {
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+        const user_id = user.id;
+
+        const getVal = (id) => document.getElementById(id)?.value?.trim() || "";
+        const getDropdown = (name) =>
+            document.querySelector(`.popup-spot-transactions-edit .custom-dropdown[data-dropdown="${name}"] .dropdown-option.selected`)
+                ?.getAttribute("data-value") || "";
+
+        const dbSpot = JSON.parse(localStorage.getItem("dbspot")) || [];
+        const item = dbSpot.find(t => t.tradeNumber === currentEditingTradeNo);
+        if (!item) throw new Error("Transfer tidak ditemukan di cache lokal!");
+        const recordId = item.id;
+
+        const dateInputValue = getVal("EditSpotTransactionDate");
+        if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
+        const correctedDate = new Date(dateInputValue);
+
+        const action = getDropdown("EditSpotTransactionAction");
+        if (!action || !["Deposit", "Withdraw"].includes(action)) {
+            throw new Error("Pilih action yang valid (Deposit/Withdraw)!");
+        }
+
+        let value = parseFloat(getVal("EditSpotTransactionValue"));
+        if (isNaN(value) || value === 0) throw new Error("Nilai harus valid dan tidak nol!");
+        value = action === "Withdraw" ? -Math.abs(value) : Math.abs(value);
+
+        const serverUpdate = {
+            user_id: user_id,
+            date: Math.floor(correctedDate.getTime() / 1000),
+            action: action,
+            value: value
+        };
+
+        const { error: updateErr } = await supabaseClient
+            .from("spot_transactions")
+            .update(serverUpdate)
+            .eq("id", recordId)
+            .eq("user_id", user_id);
+
+        if (updateErr) throw updateErr;
+
+        const updatedLocal = { ...item, date: serverUpdate.date, action: action, value: value };
+        const idx = dbSpot.findIndex(t => t.id === recordId);
+        if (idx !== -1) {
+            dbSpot[idx] = updatedLocal;
+            localStorage.setItem("dbspot", JSON.stringify(dbSpot));
+        }
+
+        refreshDBSpotCache();
+        if (typeof updateAllUI === "function") await updateAllUI();
+        restartSOP();
+        window.dispatchEvent(new CustomEvent("tradeDataUpdated"));
+        closeAllPopups();
+        CancleEditSpot();
+
+    } catch (err) {
+        console.error("❌ Error update spot transaction:", err);
+        alert("Gagal memperbarui transfer Spot:\n" + err.message);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+//  Cancle  //
+function CancleEditSpot() {
+    currentEditingTradeNo = null;
+
+    const popupEdit = document.querySelector(".popup-spot-edit");
+    const popupTrans = document.querySelector(".popup-spot-transactions-edit");
+    const overlay = document.querySelector(".popup-overlay");
+
+    [popupEdit, popupTrans].forEach(p => p?.classList.remove("show"));
+    overlay?.classList.remove("show");
+
+    document.body.classList.remove("popup-open");
+    document.body.style.overflow = "";
+
+    // Reset form fields & dropdown
+    [popupEdit, popupTrans].forEach(popup => {
+        if (!popup) return;
+        popup.querySelectorAll('.custom-dropdown').forEach(dd => {
+            const span = dd.querySelector('.dropdown-selected span');
+            if (span) {
+                span.textContent = span.getAttribute('data-placeholder') || 'Select option';
+                span.classList.add('placeholder');
+            }
+            dd.querySelectorAll('.dropdown-option').forEach(o => o.classList.remove('selected'));
+        });
+        popup.querySelectorAll('input, textarea').forEach(inp => inp.value = "");
+    });
+}
+
+//  Delete Trade  //
+async function DeleteSpot() {
+    const btn = document.getElementById("deleteSpot");
+    btn.classList.add("loading");
+
+    if (!currentEditingTradeNo) {
+        alert("⚠️ Tidak ada trade yang dipilih untuk dihapus!");
+        btn.classList.remove("loading");
+        return;
+    }
+
+    const confirmDelete = await ConfirmDeletePerpetual(`Delete Spot Trade #${currentEditingTradeNo}?`);
+    if (!confirmDelete) {
+        btn.classList.remove("loading");
+        return;
+    }
+
+    try {
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+        const user_id = user.id;
+
+        const dbSpot = JSON.parse(localStorage.getItem("dbspot")) || [];
+        const itemToDelete = dbSpot.find(t => t.tradeNumber === currentEditingTradeNo);
+        if (!itemToDelete) throw new Error("Trade tidak ditemukan di cache lokal!");
+        const recordId = itemToDelete.id;
+
+        const { error: deleteErr } = await supabaseClient
+            .from("spot")
+            .delete()
+            .eq("id", recordId)
+            .eq("user_id", user_id);
+
+        if (deleteErr) throw deleteErr;
+
+        const newDb = dbSpot.filter(t => t.id !== recordId);
+        localStorage.setItem("dbspot", JSON.stringify(newDb));
+
+        refreshDBSpotCache();
+        if (typeof updateAllUI === "function") await updateAllUI();
+        restartSOP();
+        CancleEditSpot();
+
+    } catch (err) {
+        console.error("❌ Gagal menghapus Spot trade:", err);
+        alert("Gagal menghapus trade Spot:\n" + err.message);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+//  Delete Transaction  //
+async function DeleteSpotTransaction() {
+    const btn = document.getElementById("deleteSpotTransaction");
+    btn.classList.add("loading");
+
+    if (!currentEditingTradeNo) {
+        alert("⚠️ Tidak ada transfer yang dipilih untuk dihapus!");
+        btn.classList.remove("loading");
+        return;
+    }
+
+    const confirmDelete = await ConfirmDeletePerpetual(`Delete Spot Transfer #${currentEditingTradeNo}?`);
+    if (!confirmDelete) {
+        btn.classList.remove("loading");
+        return;
+    }
+
+    try {
+        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+        if (authErr || !user) throw new Error("User tidak login!");
+        const user_id = user.id;
+
+        const dbSpot = JSON.parse(localStorage.getItem("dbspot")) || [];
+        const itemToDelete = dbSpot.find(t => t.tradeNumber === currentEditingTradeNo);
+        if (!itemToDelete) throw new Error("Transfer tidak ditemukan di cache lokal!");
+        const recordId = itemToDelete.id;
+
+        const { error: deleteErr } = await supabaseClient
+            .from("spot_transactions")
+            .delete()
+            .eq("id", recordId)
+            .eq("user_id", user_id);
+
+        if (deleteErr) throw deleteErr;
+
+        const newDb = dbSpot.filter(t => t.id !== recordId);
+        localStorage.setItem("dbspot", JSON.stringify(newDb));
+
+        refreshDBSpotCache();
+        if (typeof updateAllUI === "function") await updateAllUI();
+        restartSOP();
+        CancleEditSpot();
+
+    } catch (err) {
+        console.error("❌ Gagal menghapus Spot transfer:", err);
+        alert("Gagal menghapus transfer Spot:\n" + err.message);
+    } finally {
+        btn.classList.remove("loading");
+    }
+}
+
+// Confirmasi Delete Perpetual & Spot //
+function ConfirmDeletePerpetual(message) {
     return new Promise((resolve) => {
         const popup = document.getElementById("confirmPopup");
         const msg = document.getElementById("confirmMessage");
@@ -1448,122 +2211,35 @@ function showConfirmPopup(message) {
     });
 }
 
-//  DELETE TRADE  //
-async function handleDeleteTrade() {
-    const btn = document.getElementById("deleteTrade");
-    btn.classList.add("loading");
+// ======================= CALCULATE POPUP ======================= //
+document.addEventListener("DOMContentLoaded", () => {
+    const popupCaculate = document.querySelector(".popup-caculate");
+    const popupOverlay = document.querySelector(".popup-overlay");
+    const btnCaculate = document.getElementById("btnCaculate");
+    const closeBtn = document.getElementById("closeCaculate");
 
-    if (!currentEditingTradeNo) {
-        alert("⚠️ Tidak ada trade yang dipilih untuk dihapus!");
-        btn.classList.remove("loading");
-        return;
+    function openCaculate() {
+        closeAllPopups();
+        document.body.classList.add("popup-open");
+        document.body.style.overflow = "hidden";
+        popupOverlay?.classList.add("show");
+        popupCaculate?.classList.add("show");
     }
 
-    const confirmDelete = await showConfirmPopup(`Delete Trade #${currentEditingTradeNo}?`);
-    if (!confirmDelete) {
-        btn.classList.remove("loading");
-        return;
+    function closeCaculate() {
+        popupCaculate?.classList.remove("show");
+        popupOverlay?.classList.remove("show");
+        document.body.classList.remove("popup-open");
+        document.body.style.overflow = "";
     }
 
-    try {
-        // --- User Session ---
-        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
-        if (authErr || !user) throw new Error("User tidak login!");
-        const user_id = user.id;
+    btnCaculate?.addEventListener("click", openCaculate);
+    closeBtn?.addEventListener("click", closeCaculate);
+    popupOverlay?.addEventListener("click", closeCaculate);
+});
 
-        // --- ID Local ---
-        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
-        const itemToDelete = dbPerpetual.find(t => t.tradeNumber === currentEditingTradeNo);
-        if (!itemToDelete) throw new Error("Trade tidak ditemukan di cache lokal!");
-
-        const recordId = itemToDelete.id;
-
-        // --- Server ---
-        const { error: deleteErr } = await supabaseClient
-            .from("trades")
-            .delete()
-            .eq("id", recordId)
-            .eq("user_id", user_id);
-
-        if (deleteErr) throw deleteErr;
-
-        // --- Local ---
-        const newDb = dbPerpetual.filter(t => t.id !== recordId);
-        localStorage.setItem("dbperpetual", JSON.stringify(newDb));
-
-        // --- Refresh UI ---
-        refreshDBPerpetualCache();
-        if (typeof updateAllUI === "function") await updateAllUI();
-        restartSOP();
-        handleCancelEdit();
-
-    } catch (err) {
-        console.error("❌ Gagal menghapus trade:", err);
-        alert("Gagal menghapus trade:\n" + err.message);
-    } finally {
-        btn.classList.remove("loading");
-    }
-}
-
-//  DELETE TRANSFER  //
-async function handleDeleteTransfer() {
-
-    const btn = document.getElementById("deleteTransfer");
-    btn.classList.add("loading");
-
-    if (!currentEditingTradeNo) {
-        alert("⚠️ Tidak ada transfer yang dipilih untuk dihapus!");
-        btn.classList.remove("loading");
-        return;
-    }
-
-    const confirmDelete = await showConfirmPopup(`Delete Transfer #${currentEditingTradeNo}?`);
-    if (!confirmDelete) {
-        btn.classList.remove("loading");
-        return;
-    }
-
-    try {
-        // --- User Session ---
-        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
-        if (authErr || !user) throw new Error("User tidak login!");
-        const user_id = user.id;
-
-        // --- load Local ---
-        const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual")) || [];
-        const itemToDelete = dbPerpetual.find(t => t.tradeNumber === currentEditingTradeNo);
-        if (!itemToDelete) throw new Error("Transfer tidak ditemukan di cache lokal!");
-
-        const recordId = itemToDelete.id;
-
-        // --- Server ---
-        const { error: deleteErr } = await supabaseClient
-            .from("transactions")
-            .delete()
-            .eq("id", recordId)
-            .eq("user_id", user_id);
-
-        if (deleteErr) throw deleteErr;
-
-        // --- Local ---
-        const newDb = dbPerpetual.filter(t => t.id !== recordId);
-        localStorage.setItem("dbperpetual", JSON.stringify(newDb));
-
-        // --- Refresh UI ---
-        refreshDBPerpetualCache();
-        if (typeof updateAllUI === "function") await updateAllUI();
-        restartSOP();
-        handleCancelEdit();
-
-    } catch (err) {
-        console.error("❌ Gagal menghapus transfer:", err);
-        alert("Gagal menghapus transfer:\n" + err.message);
-    } finally {
-        btn.classList.remove("loading");
-    }
-}
-// ======================= AUTO CALC  ======================= //
-document.getElementById("btnAuto")?.addEventListener("click", () => {
+// ======================= Automation PnL  ======================= //
+document.getElementById("AutomationPnL")?.addEventListener("click", () => {
     try {
             window.dropdownData = window.dropdownData || {};
             const resultValue = window.dropdownData["edit-result"];

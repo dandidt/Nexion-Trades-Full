@@ -602,6 +602,10 @@ input[type="number"]::-webkit-outer-spin-button {
   table-layout: fixed;
 }
 
+#tabel-spot {
+    display: none;
+}
+
 /* Style tabel */
 .no-tabel,
 .causes-tabel,
@@ -3968,8 +3972,8 @@ body.popup-open .popup-container {
   align-items: center;
 }
 
-/* ------ Popup Add ------ */
-.popup-add {
+/* ------ Popup Perpetual Add ------ */
+.popup-perpetual-add {
   padding: 20px;
   width: 60%;
 }
@@ -4137,6 +4141,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 
 input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
+}
+
+/* ------ Popup Spot Add ------ */
+.popup-spot-add,
+.popup-spot-edit,
+.popup-spot-transactions-edit {
+  padding: 20px;
+  width: 60%;
 }
 
 /* Custom Dropdown Styles */
@@ -4348,9 +4360,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   display: inline-flex;
 }
 
-/* ------ Popup Edit ------ */
-.popup-edit-trade,
-.popup-edit-transfer {
+/* ------ Popup Perpetual Edit ------ */
+.popup-perpetual-edit,
+.popup-perpetual-transactions-edit {
   padding: 20px;
   width: 60%;
 }
@@ -4380,7 +4392,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   transform: scale(0.95);
 }
 
-#btnAuto.active {
+#AutomationPnL.active {
   scale: 0.95;
   transition: 0.2s;
   filter: brightness(1.2);

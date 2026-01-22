@@ -380,18 +380,64 @@ function updateDashboardFromTrades(data = []) {
 }
 
 // ======================= Trading Jurnal ======================= //
-async function loadTradingData() {
+// ------ Global Deklarasi ------ //
+let perpetualTrades = [];
+let spotTrades = [];
+let originalPerpetualTrades = [];
+let originalSpotTrades = [];  
+let currentActiveTab = 'perpetual';
+
+// ------ Swaap Jurnal ------ //
+document.querySelectorAll('.filter-jurnal-btn').forEach((btn) => {
+    btn.addEventListener('click', async function() {
+        document.querySelectorAll('.filter-jurnal-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const perpTable = document.getElementById('tabel-perpetual');
+        const spotTable = document.getElementById('tabel-spot');
+        
+        currentPage = 1;
+
+        currentSort = { key: null, direction: null };
+        updateSortIcons();
+
+        if (this.innerText.includes("Perpetual")) {
+            currentActiveTab = 'perpetual';
+            perpTable.style.display = "table";
+            spotTable.style.display = "none";
+            if (perpetualTrades.length === 0) await loadPerpetualData();
+            else updatePaginationUI(); 
+        } else {
+            currentActiveTab = 'spot';
+            perpTable.style.display = "none";
+            spotTable.style.display = "table";
+            if (spotTrades.length === 0) await loadSpotData();
+            else updatePaginationUI();
+        }
+    });
+});
+
+// ------ Helper ------ //
+// Load Data Perpetual
+async function loadPerpetualData() {
   const data = await getDBPerpetual();
-
-  globalTrades = data;
-  originalTrades = [...data];
-
-  rowsPerPage = parseInt(document.querySelector('#rowsSelector .number-page-active').textContent) || 50;
-
+  perpetualTrades = data;
+  originalPerpetualTrades = [...data];
+  currentActiveTab = 'perpetual';
+  
+  renderPerpetualPaginated();
   updatePaginationUI();
+}
 
-  renderPaginatedTable();
-  initSorting();
+// Load Data Spot
+async function loadSpotData() {
+  const data = await getDBSpot();
+  spotTrades = data;
+  originalSpotTrades = [...data];
+  currentActiveTab = 'spot';
+  
+  renderSpotPaginated();
+  updatePaginationUI();
 }
 
 function isTradeItem(item) {
@@ -402,18 +448,19 @@ function isActionItem(item) {
   return item && item.hasOwnProperty('action') && (item.action === 'Deposit' || item.action === 'Withdraw');
 }
 
-// ------ RENDER TRADING TABLE ------ //
-function renderPaginatedTable() {
+// ------ Perpetual Tabel ------ //
+function renderPerpetualPaginated() {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const pageData = globalTrades.slice(startIndex, endIndex);
-  renderTradingTable(pageData);
+  const pageData = perpetualTrades.slice(startIndex, endIndex);
+  renderPerpetualTable(pageData);
 }
 
-function renderTradingTable(data) {
+function renderPerpetualTable(data) {
   const tbody = document.querySelector(".tabel-trade tbody");
   tbody.innerHTML = "";
 
+  // Transaction
   data.forEach((item, index) => {
     if (isActionItem(item)) {
       const date = new Date(item.date * 1000);
@@ -445,7 +492,7 @@ function renderTradingTable(data) {
       return;
     }
 
-    // === HANDLE TRADE BIASA ===
+    // Trades
     if (!isTradeItem(item)) return;
 
     const trade = item;
@@ -469,7 +516,6 @@ function renderTradingTable(data) {
     const margin = Number(trade.Margin) || 0;
     const pnl = Number(trade.Pnl) || 0;
 
-    // ====== CLASS DYNAMIC RULES ======
     let rrClass = "rr-null";
     if (rr > 0) rrClass = "rr-win";
     else if (rr < 0) rrClass = "rr-lose";
@@ -486,7 +532,6 @@ function renderTradingTable(data) {
     if (pnl > 0) pnlClass = "pnl-win";
     else if (pnl < 0) pnlClass = "pnl-loss";
 
-    // ====== ROW TEMPLATE ======
     const row = document.createElement("tr");
     row.innerHTML = `
       <td><p class="no">${trade.tradeNumber || '-'}</p></td>
@@ -506,7 +551,7 @@ function renderTradingTable(data) {
       <td><p class="${psyClass}">${trade.Psychology || '-'}</p></td>
       <td><p class="class">${trade.Class || '-'}</p></td>
       <td>
-        <div class="box-causes" id="box-files" data-bias="${trade.Files?.Bias || '#'}" data-last="${trade.Files?.Last || '#'}">
+        <div class="box-causes" id="box-files" data-before="${trade.Files?.Before || '#'}" data-after="${trade.Files?.After || '#'}">
           <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
             <path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/>
           </svg>
@@ -520,8 +565,8 @@ function renderTradingTable(data) {
 
     row.querySelector("#box-causes").dataset.content = trade.Causes || "No causes";
     const boxFiles = row.querySelector("#box-files");
-    boxFiles.dataset.bias = trade.Files?.Bias || "#";
-    boxFiles.dataset.last = trade.Files?.Last || "#";
+    boxFiles.dataset.before = trade.Files?.Before || "#";
+    boxFiles.dataset.after = trade.Files?.After || "#";
 
     tbody.appendChild(row);
   });
@@ -531,7 +576,10 @@ function renderTradingTable(data) {
     window.tooltipManager = new TooltipManager();
   }, 100);
 
-  updateDashboardFromTrades(originalTrades);
+  const activeOriginal = currentActiveTab === 'perpetual' 
+    ? originalPerpetualTrades 
+    : originalSpotTrades;
+  updateDashboardFromTrades(activeOriginal);
 
   if (isEditMode) {
     document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
@@ -543,18 +591,140 @@ function renderTradingTable(data) {
   }
 }
 
+// ------ Spot Tabel ------ //
+function renderSpotPaginated() {
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const pageData = spotTrades.slice(startIndex, endIndex);
+  
+  renderSpotTable(pageData);
+}
+
+function renderSpotTable(data) {
+    const tbody = document.querySelector("#tabel-spot tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    data.forEach(item => {
+
+        // Transaction
+        if (item.action) {
+            const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
+            const isDeposit = item.action === "Deposit";
+            const value = Number(item.value) || 0;
+
+            const row = document.createElement("tr");
+            row.classList.add(isDeposit ? "deposit" : "withdraw");
+
+            row.innerHTML = `
+                <td><p class="no">${item.tradeNumber || "-"}</p></td>
+                <td><p class="date">${date}</p></td>
+                <td><p></p></td>
+                <td><p></p></td>
+                <td><p></p></td>
+                <td><p></p></td>
+                <td><p></p></td>
+                <td><p></p></td>
+                <td><p></p></td>
+                <td><p></p></td>
+                <td><p></p></td>
+                <td><p class="${isDeposit ? "result-win" : "result-lose"}">
+                    ${item.action}
+                </p></td>
+                <td><p class="${isDeposit ? "pnl-win" : "pnl-loss"}">
+                    ${isDeposit ? "+" : "-"}${formatUSD(Math.abs(value))}
+                </p></td>
+            `;
+
+            tbody.appendChild(row);
+            return;
+        }
+
+        // Trades
+        const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
+
+        const rr = Number(item.RR) || 0;
+        const pnl = Number(item.Pnl) || 0;
+        const margin = Number(item.Margin) || 0;
+
+        const rrClass = rr > 0 ? "rr-win" : rr < 0 ? "rr-lose" : "rr-null";
+        const pnlClass = pnl > 0 ? "pnl-win" : pnl < 0 ? "pnl-loss" : "pnl-null";
+        const resultClass =
+            item.Result?.toLowerCase() === "win" || item.Result?.toLowerCase() === "profit"
+                ? "result-win"
+                : "result-lose";
+
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td><p class="no">${item.tradeNumber || "-"}</p></td>
+            <td><p class="date">${date}</p></td>
+            <td><p class="pairs">${item.Pairs || "-"}</p></td>
+            <td><p class="method">${item.Method || "-"}</p></td>
+            <td><p class="confluance">
+                ${(item.Confluance?.Entry || "-")} - ${(item.Confluance?.TimeFrame || "-")}
+            </p></td>
+            <td><p class="${rrClass}">${rr || "-"}</p></td>
+
+            <td>
+                <div class="box-causes" id="box-causes">
+                  <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                    <path d="M240-384h480v-72H240v72Zm0-132h480v-72H240v72Zm0-132h480v-72H240v72ZM864-96 720-240H168q-29.7 0-50.85-21.15Q96-282.3 96-312v-480q0-29.7 21.15-50.85Q138.3-864 168-864h624q29.7 0 50.85 21.15Q864-821.7 864-792v696ZM168-312h582l42 42v-522H168v480Zm0 0v-480 480Z"/>
+                  </svg>
+                </div>
+            </td>
+
+            <td><p class="${(item.Psychology || "confident").toLowerCase()}">
+                ${item.Psychology || "-"}
+            </p></td>
+
+            <td><p class="class">${item.Class || "-"}</p></td>
+
+            <td>
+                <div class="box-causes" id="box-files"
+                     data-before="${item.Files?.Before || "#"}"
+                     data-after="${item.Files?.After || "#"}">
+                    <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                      <path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/>
+                    </svg>
+                </div>
+            </td>
+
+            <td><p class="margin">${formatUSD(margin)}</p></td>
+            <td><p class="${resultClass}">${item.Result || "-"}</p></td>
+            <td><p class="${pnlClass}">
+                ${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}
+            </p></td>
+        `;
+
+        row.querySelector("#box-causes").dataset.content = item.Causes || "No causes";
+
+        tbody.appendChild(row);
+          
+        setTimeout(() => {
+          if (window.tooltipManager) window.tooltipManager.destroy();
+          window.tooltipManager = new TooltipManager();
+        }, 100);
+
+        if (isEditMode) {
+          document.querySelectorAll("#tabel-spot tbody tr").forEach(row => {
+            row.style.cursor = "pointer";
+            row.classList.add("editable");
+          });
+        }
+    });
+}
+
 // ------ Short Fiilter ------ //
-let globalTrades = [];
-let originalTrades = [];
 let currentSort = { key: null, direction: null };
 
 function getValue(item, key) {
   if (!item) return "";
   switch (key) {
     case "date":
-      return item.date;
+      return item.date || 0;
     case "pairs":
-      return item.Pairs ?? item.pairs ?? "";
+      return item.Pairs || item.pairs || "";
     case "pnl":
       return item.Pnl ?? item.pnl ?? item.PnL ?? 0;
     default:
@@ -563,51 +733,56 @@ function getValue(item, key) {
 }
 
 function nextSortState(key) {
-  if (key === "date") {
-    if (currentSort.key !== key || currentSort.direction === null) return "desc";
-    return null;
-  }
-
-  if (currentSort.key !== key) return "asc";
-  if (currentSort.direction === "asc") return "desc";
-  if (currentSort.direction === "desc") return null;
-  return "asc";
+  if (currentSort.key !== key) return "desc"; 
+  if (currentSort.direction === "desc") return "asc";
+  if (currentSort.direction === "asc") return null;
+  return "desc";
 }
 
-function initSorting() {
+// ------ Global Short Filter ------ //
+function initGlobalSorting() {
   const headers = document.querySelectorAll("th.sortable");
 
   headers.forEach(th => {
-    th.addEventListener("click", () => {
-      const key = th.dataset.key;
+    const newTh = th.cloneNode(true);
+    th.parentNode.replaceChild(newTh, th);
 
+    newTh.addEventListener("click", () => {
+      const key = newTh.dataset.key;
       const nextDirection = nextSortState(key);
-      if (!nextDirection) {
-        currentSort = { key: null, direction: null };
-        renderPaginatedTable();
-      } else {
-        currentSort = { key, direction: nextDirection };
 
-        const startIndex = (currentPage - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
-        let pageData = globalTrades.slice(startIndex, endIndex);
-
-        pageData = [...pageData].sort((a, b) =>
-          sortTrades(a, b, currentSort.key, currentSort.direction)
-        );
-
-        renderTradingTable(pageData);
-      }
-
+      currentSort = nextDirection ? { key, direction: nextDirection } : { key: null, direction: null };
+      
+      executeSorting();
       updateSortIcons();
     });
   });
 
   document.querySelectorAll("th.sortable .sort-icon").forEach(span => {
-    const th = span.closest("th.sortable");
-    const key = th ? th.dataset.key : null;
-    span.innerHTML = getSortIcon(key, null);
+    span.innerHTML = getSortIcon(null, null);
   });
+}
+
+function executeSorting() {
+  let activeData;
+  
+  if (currentSort.key && currentSort.direction) {
+    activeData = (currentActiveTab === 'perpetual') ? [...perpetualTrades] : [...spotTrades];
+    activeData.sort((a, b) => sortTrades(a, b, currentSort.key, currentSort.direction));
+  } else {
+    activeData = (currentActiveTab === 'perpetual') ? [...perpetualTrades] : [...spotTrades];
+    activeData.sort((a, b) => (a.tradeNumber || 0) - (b.tradeNumber || 0));
+  }
+
+  if (currentActiveTab === 'perpetual') {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    renderPerpetualTable(activeData.slice(startIndex, startIndex + rowsPerPage));
+  } else {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    renderSpotTable(activeData.slice(startIndex, startIndex + rowsPerPage));
+  }
+
+  updatePaginationUI();
 }
 
 function sortTrades(a, b, key, direction) {
@@ -703,9 +878,9 @@ function getSortIcon(columnKey = null, direction = null) {
   `;
 }
 
-document.addEventListener("DOMContentLoaded", loadTradingData);
+document.addEventListener("DOMContentLoaded", loadPerpetualData);
 
-// ------ Trading Jurnal Tooltip ------ //
+// ------ Tooltip ------ //
 class TooltipManager {
   constructor() {
     this.tooltip = document.getElementById('tooltip-box');
@@ -760,22 +935,22 @@ class TooltipManager {
       content = `<div class="tooltip-text">${this.currentTarget.dataset.content || "No causes"}</div>`;
     } else if (this.currentTarget.id === "box-files") {
       title = "Files";
-      const bias = this.currentTarget.dataset.bias || "";
-      const last = this.currentTarget.dataset.last || "";
-      const biasLink = this.currentTarget.dataset.biasLink || bias;
-      const lastLink = this.currentTarget.dataset.lastLink || last;
+      const before = this.currentTarget.dataset.before || "";
+      const after = this.currentTarget.dataset.after || "";
+      const beforeLink = this.currentTarget.dataset.beforeLink || before;
+      const afterLink = this.currentTarget.dataset.afterLink || after;
 
     content = `
       <div class="tooltip-imgs-grid" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 8px;">
-        ${bias ? `
+        ${before ? `
           <div style="text-align: center;">
-            <a href="${biasLink}" target="_blank" style="display: inline-block;">
+            <a href="${beforeLink}" target="_blank" style="display: inline-block;">
               <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-                ${bias.startsWith('http') ? `<img src="${bias}" alt="Preview 1" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
+                ${before.startsWith('http') ? `<img src="${before}" alt="Preview 1" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
               </div>
             </a>
             <div style="margin-top: 6px; font-size: 12px;">
-              <a href="${biasLink}" target="_blank" class="tooltip-link">Image Before</a>
+              <a href="${beforeLink}" target="_blank" class="tooltip-link">Image Before</a>
             </div>
           </div>
         ` : `
@@ -789,15 +964,15 @@ class TooltipManager {
           </div>
         `}
         
-        ${last ? `
+        ${after ? `
           <div style="text-align: center;">
-            <a href="${lastLink}" target="_blank" style="display: inline-block;">
+            <a href="${afterLink}" target="_blank" style="display: inline-block;">
               <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-                ${last.startsWith('http') ? `<img src="${last}" alt="Preview 2" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
+                ${after.startsWith('http') ? `<img src="${after}" alt="Preview 2" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
               </div>
             </a>
             <div style="margin-top: 6px; font-size: 12px;">
-              <a href="${lastLink}" target="_blank" class="tooltip-link">Image After</a>
+              <a href="${afterLink}" target="_blank" class="tooltip-link">Image After</a>
             </div>
           </div>
         ` : `
@@ -929,7 +1104,9 @@ let currentPage = 1;
 let rowsPerPage = 50;
 
 function updatePaginationUI() {
-  const totalTrades = globalTrades.length;
+  const activeData = (currentActiveTab === 'perpetual') ? perpetualTrades : spotTrades;
+  
+  const totalTrades = activeData.length;
   const totalPages = Math.max(1, Math.ceil(totalTrades / rowsPerPage));
 
   document.getElementById('tradeTotal').textContent = `${totalTrades} Trade${totalTrades !== 1 ? 's' : ''}`;
@@ -939,23 +1116,8 @@ function updatePaginationUI() {
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
 
-  const pageMenu = document.getElementById('pageDropdown');
-  const pageItems = Array.from({ length: totalPages }, (_, i) => (i + 1).toString());
   const pageActive = document.querySelector('#pageSelector .number-page-active');
-  pageActive.textContent = currentPage;
-
-  pageMenu.innerHTML = '';
-  pageItems.forEach(num => {
-    const div = document.createElement('div');
-    div.className = 'dropdown-item';
-    div.textContent = num;
-    div.addEventListener('click', (e) => {
-      e.stopPropagation();
-      goToPage(parseInt(num));
-      pageMenu.classList.remove('active');
-    });
-    pageMenu.appendChild(div);
-  });
+  if (pageActive) pageActive.textContent = currentPage;
 
   updatePageNumberBoxes(totalPages);
 }
@@ -1038,14 +1200,21 @@ function createPageBox(pageNum, isActive) {
 }
 
 function goToPage(page) {
-  const totalPages = Math.ceil(globalTrades.length / rowsPerPage);
+  const activeData = (currentActiveTab === 'perpetual') ? perpetualTrades : spotTrades;
+  const totalPages = Math.ceil(activeData.length / rowsPerPage);
+  
   if (page < 1 || page > totalPages || page === currentPage) return;
 
   currentPage = page;
   
   currentSort = { key: null, direction: null };
   
-  renderPaginatedTable();
+  if (currentActiveTab === 'perpetual') {
+      renderPerpetualPaginated();
+  } else {
+      renderSpotPaginated();
+  }
+  
   updatePaginationUI();
 }
 
@@ -1114,7 +1283,12 @@ rowsTrigger.addEventListener('click', (e) => {
     
     rowsPerPage = newRows;
     currentPage = 1;
-    renderPaginatedTable();
+    
+    if (currentActiveTab === 'perpetual') {
+        renderPerpetualPaginated();
+    } else {
+        renderSpotPaginated();
+    }
     updatePaginationUI();
   });
   rowsMenu.appendChild(div);
@@ -1124,8 +1298,13 @@ document.querySelector('.left-frist-page').addEventListener('click', () => goToP
 document.querySelector('.left-one-page').addEventListener('click', () => goToPage(currentPage - 1));
 document.querySelector('.right-one-page').addEventListener('click', () => goToPage(currentPage + 1));
 document.querySelector('.right-frist-page').addEventListener('click', () => {
-  const totalPages = Math.ceil(globalTrades.length / rowsPerPage);
+  const totalPages = Math.ceil(perpetualTrades.length / rowsPerPage);
   goToPage(totalPages);
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadPerpetualData();
+  initGlobalSorting();
 });
 
 // =================== Dashboard Header =================== //
@@ -3062,10 +3241,33 @@ function updateStatsNotes() {
 // ======================= Update UI Global ======================= //
 async function updateAllUI() {
   try {
-    const data = await getDBPerpetual();
+    // ✅ Reload kedua dataset
+    const [perpData, spotData] = await Promise.all([
+      getDBPerpetual(),
+      getDBSpot()
+    ]);
 
-    await loadTradingData()
-    updateDashboardFromTrades(data);
+    perpetualTrades = perpData;
+    spotTrades = spotData;
+    originalPerpetualTrades = [...perpData];
+    originalSpotTrades = [...spotData];
+
+    // ✅ Render sesuai tab aktif
+    if (currentActiveTab === 'perpetual') {
+      renderPerpetualPaginated();
+    } else {
+      renderSpotPaginated();
+    }
+
+    updatePaginationUI();
+
+    // ✅ Update dashboard & stats — pastikan pakai data aktif
+    const activeOriginal = currentActiveTab === 'perpetual' 
+      ? originalPerpetualTrades 
+      : originalSpotTrades;
+    updateDashboardFromTrades(activeOriginal);
+
+    // ✅ Stats lain (pastikan tidak bergantung pada originalTrades global)
     await updateEquityStats();
     await updateTradeStats();
     await updateStats();     
@@ -3082,7 +3284,7 @@ async function updateAllUI() {
 
     window.dispatchEvent(new Event('recalculateTrading'));
 
-    console.log("✅ All UI updated successfully.");
+    console.log("All UI updated successfully.");
   } catch (error) {
     console.error("❌ Failed to update UI:", error);
   }

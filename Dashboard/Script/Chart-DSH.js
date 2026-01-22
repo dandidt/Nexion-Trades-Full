@@ -1802,7 +1802,7 @@ window.addEventListener('resize', () => {
 });
 
 window.addEventListener('tradeDataUpdated', async () => {
-    console.log('🔄 RENDER CHART SELESAI');
+    console.log('RENDER CHART SELESAI');
     // Balance Chart
     await loadTradeHistory();
     
