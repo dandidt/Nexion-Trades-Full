@@ -303,6 +303,7 @@ async function switchToAccount(refreshToken) {
     try {
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbperpetual');
+        localStorage.removeItem('dbspot');
         localStorage.removeItem('dbnotes');
 
         const { data, error } = await supabaseClient.auth.refreshSession({
@@ -355,6 +356,7 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
         await supabaseClient.auth.signOut();
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbperpetual');
+        localStorage.removeItem('dbspot');
         localStorage.removeItem('dbnotes');
 
         const isGithub = window.location.hostname.includes("github.io");
