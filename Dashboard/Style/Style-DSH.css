@@ -602,6 +602,10 @@ input[type="number"]::-webkit-outer-spin-button {
   table-layout: fixed;
 }
 
+#tabel-spot {
+    display: none;
+}
+
 /* Style tabel */
 .no-tabel,
 .causes-tabel,
@@ -1323,14 +1327,27 @@ th.sortable {
   color: var(--red);
 }
 
-.bx-in-st {
+.row-header-out {
   display: flex;
-  gap: 6px;
   align-items: center;
+  gap: 12px;
 }
 
-.circle-hj {
+.row-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.circle-green {
   background-color: var(--green);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+}
+
+.circle-blue {
+  background-color: rgb(47, 239, 250);
   width: 7px;
   height: 7px;
   border-radius: 50%;
@@ -1625,8 +1642,8 @@ th.sortable {
 .circle-balance {
   display: none;
   position: absolute;
-  width: 12px;
-  height: 12px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
@@ -1639,8 +1656,8 @@ th.sortable {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 12px;
-  height: 12px;
+  width: 10px;
+  height: 10px;
   border-radius: 50%;
   background: var(--circlebalance-after-color, rgba(13, 185, 129, 0.6));
   transform: translate(-50%, -50%);
@@ -1662,6 +1679,13 @@ th.sortable {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;
+}
+
+.column-value {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
 }
 
 #toggleCircles {
@@ -3968,8 +3992,8 @@ body.popup-open .popup-container {
   align-items: center;
 }
 
-/* ------ Popup Add ------ */
-.popup-add {
+/* ------ Popup Perpetual Add ------ */
+.popup-perpetual-add {
   padding: 20px;
   width: 60%;
 }
@@ -4137,6 +4161,14 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator {
 
 input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   opacity: 1;
+}
+
+/* ------ Popup Spot Add ------ */
+.popup-spot-add,
+.popup-spot-edit,
+.popup-spot-transactions-edit {
+  padding: 20px;
+  width: 60%;
 }
 
 /* Custom Dropdown Styles */
@@ -4348,9 +4380,9 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   display: inline-flex;
 }
 
-/* ------ Popup Edit ------ */
-.popup-edit-trade,
-.popup-edit-transfer {
+/* ------ Popup Perpetual Edit ------ */
+.popup-perpetual-edit,
+.popup-perpetual-transactions-edit {
   padding: 20px;
   width: 60%;
 }
@@ -4380,7 +4412,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
   transform: scale(0.95);
 }
 
-#btnAuto.active {
+#AutomationPnL.active {
   scale: 0.95;
   transition: 0.2s;
   filter: brightness(1.2);

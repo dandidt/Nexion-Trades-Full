@@ -9,14 +9,14 @@ if (typeof supabase === 'undefined') {
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 const CACHE_KEY = 'dbperpetual';
-let dbPromise = null;
+let dbPerpetualPromise = null;
 
 function saveToPerpetualCache(data) {
     try {
         localStorage.setItem(CACHE_KEY, JSON.stringify(data));
-        console.log('💾 Data Perpetual Saved Local');
+        console.log('Perpetual Saved Local...');
     } catch (error) {
-        console.warn('⚠️ Failed save data Perpetual:', error);
+        console.warn('Failed save Perpetual:', error);
     }
 }
 
@@ -27,13 +27,19 @@ function getPerpetualFromCache() {
             return JSON.parse(cached);
         }
     } catch (error) {
-        console.warn('⚠️ Failed to read cache Perpetual:', error);
+        console.warn('Failed load cache Perpetual:', error);
     }
     return null;
 }
 
-async function loadDBPerpetual() {
+async function loadDBPerpetual(ignoreCache = false) {
+    if (!ignoreCache) {
+        const cachedData = getPerpetualFromCache();
+        if (cachedData) return cachedData;
+    }
+
     try {
+        console.log('Perpetual Fetching from Server...');
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         if (authError || !user) {
             window.location.href = '../index.html';
@@ -42,8 +48,8 @@ async function loadDBPerpetual() {
 
         const userId = user.id;
 
-        const { data: trades, error: tradesErr } = await supabaseClient
-            .from('trades')
+        const { data: perpetual, error: perpetualErr } = await supabaseClient
+            .from('perpetual')
             .select(`
                 id,
                 date,
@@ -56,8 +62,8 @@ async function loadDBPerpetual() {
                 causes,
                 psychology,
                 class,
-                bias,
-                last,
+                before,
+                after,
                 pos,
                 margin,
                 result,
@@ -66,10 +72,10 @@ async function loadDBPerpetual() {
             `)
             .eq('user_id', userId);
 
-        if (tradesErr) throw tradesErr;
+        if (perpetualErr) throw perpetualErr;
 
-        const { data: transactions, error: txErr } = await supabaseClient
-            .from('transactions')
+        const { data: perpetual_transactions, error: perpetual_transactionsErr } = await supabaseClient
+            .from('perpetual_transactions')
             .select(`
                 id,
                 date,
@@ -79,11 +85,11 @@ async function loadDBPerpetual() {
             `)
             .eq('user_id', userId);
 
-        if (txErr) throw txErr;
+        if (perpetual_transactionsErr) throw perpetual_transactionsErr;
 
         const allRawData = [
-            ...trades.map(t => ({ ...t, type: 'trade' })),
-            ...transactions.map(tx => ({ ...tx, type: 'transaction' }))
+            ...perpetual.map(t => ({ ...t, type: 'perpetual' })),
+            ...perpetual_transactions.map(tx => ({ ...tx, type: 'perpetual_transactions' }))
         ];
 
         const sortedAllData = allRawData.sort((a, b) => new Date(a.date) - new Date(b.date));
@@ -97,7 +103,7 @@ async function loadDBPerpetual() {
                 date: new Date(item.date).getTime()
             };
 
-            if (item.type === 'trade') {
+            if (item.type === 'perpetual') {
                 return {
                     ...baseData,
                     Pairs: item.pairs || '',
@@ -112,8 +118,8 @@ async function loadDBPerpetual() {
                     Psychology: item.psychology || '',
                     Class: item.class || '',
                     Files: {
-                        Bias: item.bias || '',
-                        Last: item.last || ''
+                        Before: item.before || '',
+                        After: item.after || ''
                     },
                     Pos: item.pos || '',
                     Margin: item.margin || 0,
@@ -146,18 +152,20 @@ async function loadDBPerpetual() {
 }
 
 async function getDBPerpetual() {
-    if (!dbPromise) {
-        dbPromise = loadDBPerpetual();
+    if (!dbPerpetualPromise) {
+        dbPerpetualPromise = loadDBPerpetual();
     }
-    return await dbPromise;
+    return await dbPerpetualPromise;
 }
 
 function refreshDBPerpetualCache() {
-    dbPromise = loadDBPerpetual();
+    console.log('Perpetual Force refreshing server...');
+    dbPerpetualPromise = loadDBPerpetual(true);
+    return dbPerpetualPromise;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-    dbPromise = loadDBPerpetual().then(data => {
+    dbPerpetualPromise = loadDBPerpetual().then(data => {
         window.dbperpetualData = data;
         document.dispatchEvent(new CustomEvent('dbLoaded', { detail: data }));
         return data;
@@ -175,9 +183,9 @@ let dbSpotPromise = null;
 function saveSpotToCache(data) {
     try {
         localStorage.setItem(CACHE_KEY_SPOT, JSON.stringify(data));
-        console.log('💾 Spot data saved to local');
+        console.log('Spot saved local...');
     } catch (error) {
-        console.warn('⚠️ Failed to save spot data:', error);
+        console.warn('Failed save spot:', error);
     }
 }
 
@@ -188,12 +196,17 @@ function getSpotFromCache() {
             return JSON.parse(cached);
         }
     } catch (error) {
-        console.warn('⚠️ Failed to read spot cache:', error);
+        console.warn('Failed load spot:', error);
     }
     return null;
 }
 
-async function loadDBSpot() {
+async function loadDBSpot(ignoreCache = false) {
+    if (!ignoreCache) {
+        const cachedData = getSpotFromCache();
+        if (cachedData) return cachedData;
+    }
+
     try {
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         if (authError || !user) {
@@ -209,13 +222,14 @@ async function loadDBSpot() {
                 date,
                 pairs,
                 method,
+                entry,
                 timeframe,
                 rr,
                 causes,
                 psychology,
                 class,
-                bias,
-                last,
+                before,
+                after,
                 margin,
                 result,
                 pnl,
@@ -260,6 +274,7 @@ async function loadDBSpot() {
                     Pairs: item.pairs || '',
                     Method: item.method || '',
                     Confluance: {
+                        Entry: item.entry || '',
                         TimeFrame: item.timeframe || ''
                     },
                     RR: item.rr || 0,
@@ -267,8 +282,8 @@ async function loadDBSpot() {
                     Psychology: item.psychology || '',
                     Class: item.class || '',
                     Files: {
-                        Bias: item.bias || '',
-                        Last: item.last || ''
+                        Before: item.before || '',
+                        After: item.after || ''
                     },
                     Margin: item.margin || 0,
                     Result: item.result || '',
@@ -287,7 +302,7 @@ async function loadDBSpot() {
         return processedData;
 
     } catch (err) {
-        console.error('❌ Error loading spot DB:', err);
+        console.error('Error loading spot:', err);
         const cachedData = getSpotFromCache();
         if (cachedData) {
             return cachedData;
@@ -304,7 +319,9 @@ async function getDBSpot() {
 }
 
 function refreshDBSpotCache() {
-    dbSpotPromise = loadDBSpot();
+    console.log('Spot Force refreshing server...');
+    dbSpotPromise = loadDBSpot(true);
+    return dbSpotPromise;
 }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -326,9 +343,9 @@ let dbNotesPromise = null;
 function saveNotesToCache(data) {
     try {
         localStorage.setItem(CACHE_KEY_NOTES, JSON.stringify(data));
-        console.log('📚 Notes saved to local cache');
+        console.log('Notes saved local...');
     } catch (error) {
-        console.warn('⚠️ Failed to save notes to cache:', error);
+        console.warn('Failed save notes:', error);
     }
 }
 
@@ -339,12 +356,17 @@ function getNotesFromCache() {
             return JSON.parse(cached);
         }
     } catch (error) {
-        console.warn('⚠️ Failed to read notes from cache:', error);
+        console.warn('Failed load notes cache:', error);
     }
     return null;
 }
 
-async function loadDBNotes() {
+async function loadDBNotes(ignoreCache = false) {
+    if (!ignoreCache) {
+        const cachedData = getNotesFromCache();
+        if (cachedData) return cachedData;
+    }
+
     try {
         const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
         if (authError || !user) {
@@ -383,7 +405,7 @@ async function loadDBNotes() {
         return processedNotes;
 
     } catch (err) {
-        console.error('❌ Error loading notes:', err);
+        console.error('Error loading notes:', err);
         const cachedData = getNotesFromCache();
         if (cachedData) {
             return cachedData;
@@ -400,7 +422,9 @@ async function getDBNotes() {
 }
 
 function refreshDBNotesCache() {
-    dbNotesPromise = loadDBNotes();
+    console.log('Notes Force refreshing server...');
+    dbNotesPromise = loadDBNotes(true);
+    return dbNotesPromise;
 }
 
 document.addEventListener('DOMContentLoaded', async () => {

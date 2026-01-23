@@ -158,11 +158,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ======================= Front Dashboard ======================= //
-function updateDashboardFromTrades(data = []) {
-  if (!Array.isArray(data) || data.length === 0) return;
+// --------------------------------------------------------------- //
 
-  const tradeData = data.filter(isTradeItem);
+// ======================= Front Dashboard ======================= //
+function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
+  const combinedData = [...dataPerpetual, ...dataSpot].filter(isTradeItem);
+
+  if (!Array.isArray(combinedData) || combinedData.length === 0) return;
 
   const parsePnl = (v) => {
     const n = Number(v);
@@ -171,7 +173,10 @@ function updateDashboardFromTrades(data = []) {
 
   const normalizePair = (p) => {
     if (!p) return '';
-    return String(p).replace(/\.?USDT\.P$/i, '').trim();
+    return String(p)
+      .replace(/\.?USDT\.P$/i, '')
+      .replace(/[-_./]?USDT$/i, '')
+      .trim();
   };
 
   const pad = (n) => (n < 10 ? '0' + n : n);
@@ -181,6 +186,7 @@ function updateDashboardFromTrades(data = []) {
     return `${pad(dt.getDate())}-${pad(dt.getMonth()+1)}-${dt.getFullYear()}`;
   };
 
+  // --- Ambil elemen DOM ---
   const elStatsNavReversal = document.getElementById('statsNavReversal');
   const elStatsNavContinuation = document.getElementById('statsNavContinuation');
 
@@ -199,9 +205,10 @@ function updateDashboardFromTrades(data = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
-  // --- Behavior Stats ---
+  // --- Behavior Stats (HANYA dari dataPerpetual) ---
   let reversalCount = 0, continuCount = 0;
-  tradeData.forEach(t => {
+  const perpetualTrades = (Array.isArray(dataPerpetual) ? dataPerpetual : []).filter(isTradeItem);
+  perpetualTrades.forEach(t => {
     const b = (t.Behavior || t.behavior || '').toString().toLowerCase();
     if (b.includes('reversal')) reversalCount++;
     else if (b.includes('continuation') || b.includes('continuasion')) continuCount++;
@@ -217,10 +224,10 @@ function updateDashboardFromTrades(data = []) {
     if (elStatsNavContinuation) elStatsNavContinuation.textContent = '0% Continuation';
   }
 
-  // --- Best Performer ---
+  // --- Best Performer (dari combinedData) ---
   let bestTrade = null;
   let bestPnl = -Infinity;
-  for (const trade of tradeData) {
+  for (const trade of combinedData) {
     const pnl = parsePnl(trade.Pnl);
     if (pnl > bestPnl) {
       bestPnl = pnl;
@@ -237,14 +244,25 @@ function updateDashboardFromTrades(data = []) {
       elValueBestPerformer.textContent = bestPnl < 0 ? `-${formattedBest}` : formattedBest;
     }
 
-    let originalData = [];
+    // --- Cari modal awal: gabung saldoAwal + deposit dari KEDUA database ---
+    let originalPerpetual = [];
+    let originalSpot = [];
     try {
-      const raw = localStorage.getItem("dbperpetual");
-      if (raw) originalData = JSON.parse(raw);
-      if (!Array.isArray(originalData)) originalData = [];
+      const rawPerp = localStorage.getItem("dbperpetual");
+      if (rawPerp) originalPerpetual = JSON.parse(rawPerp);
+      if (!Array.isArray(originalPerpetual)) originalPerpetual = [];
     } catch (err) {
       console.warn("⚠️ Gagal parse dbperpetual:", err);
-      originalData = [];
+      originalPerpetual = [];
+    }
+
+    try {
+      const rawSpot = localStorage.getItem("dbspot");
+      if (rawSpot) originalSpot = JSON.parse(rawSpot);
+      if (!Array.isArray(originalSpot)) originalSpot = [];
+    } catch (err) {
+      console.warn("⚠️ Gagal parse dbspot:", err);
+      originalSpot = [];
     }
 
     let saldoAwal = 0;
@@ -255,10 +273,11 @@ function updateDashboardFromTrades(data = []) {
       console.warn("⚠️ Gagal ambil saldoAwal:", err);
     }
 
+    // Hitung total deposit dari kedua DB
     let totalDeposit = 0;
-    try {
-      if (Array.isArray(originalData)) {
-        totalDeposit = originalData.reduce((sum, item) => {
+    [originalPerpetual, originalSpot].forEach(db => {
+      if (Array.isArray(db)) {
+        totalDeposit += db.reduce((sum, item) => {
           if (item.action && item.action.toLowerCase() === "deposit") {
             const val = Number(item.value) || 0;
             return sum + val;
@@ -266,32 +285,54 @@ function updateDashboardFromTrades(data = []) {
           return sum;
         }, 0);
       }
-    } catch (err) {
-      console.warn("⚠️ Gagal hitung totalDeposit dari dbperpetual:", err);
-    }
+    });
 
+    // Cari posisi bestTrade di salah satu DB asli (untuk akurasi urutan)
     let bestIndexInOriginal = -1;
+    let sourceDb = null;
     const bestDateMs = new Date(bestTrade.date * 1000).getTime();
-    for (let i = 0; i < originalData.length; i++) {
-      const t = originalData[i];
+
+    // Cek di perpetual dulu
+    for (let i = 0; i < originalPerpetual.length; i++) {
+      const t = originalPerpetual[i];
       const tDateMs = new Date(t.date * 1000).getTime();
       const tPair = normalizePair(t.Pairs || t.pairs);
       const tPnl = parsePnl(t.Pnl);
-
       if (
         tDateMs === bestDateMs &&
         tPair === normPair &&
         Math.abs(tPnl - bestPnl) < 0.001
       ) {
         bestIndexInOriginal = i;
+        sourceDb = originalPerpetual;
         break;
       }
     }
 
+    // Kalau belum ketemu, cek di spot
+    if (bestIndexInOriginal === -1) {
+      for (let i = 0; i < originalSpot.length; i++) {
+        const t = originalSpot[i];
+        const tDateMs = new Date(t.date * 1000).getTime();
+        const tPair = normalizePair(t.Pairs || t.pairs);
+        const tPnl = parsePnl(t.Pnl);
+        if (
+          tDateMs === bestDateMs &&
+          tPair === normPair &&
+          Math.abs(tPnl - bestPnl) < 0.001
+        ) {
+          bestIndexInOriginal = i;
+          sourceDb = originalSpot;
+          break;
+        }
+      }
+    }
+
+    // Hitung total PnL sebelum best trade
     let totalPnlBeforeBest = 0;
-    if (bestIndexInOriginal >= 0) {
+    if (bestIndexInOriginal >= 0 && sourceDb) {
       for (let i = 0; i < bestIndexInOriginal; i++) {
-        totalPnlBeforeBest += parsePnl(originalData[i].Pnl);
+        totalPnlBeforeBest += parsePnl(sourceDb[i].Pnl);
       }
     }
 
@@ -311,10 +352,10 @@ function updateDashboardFromTrades(data = []) {
     if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '0%';
   }
 
-  // --- Pair Stats ---
+  // --- Pair Stats (dari combinedData) ---
   const countMap = {};
   const pnlMap = {};
-  tradeData.forEach(t => {
+  combinedData.forEach(t => {
     const pairRaw = t.Pairs || t.pairs || '';
     const p = normalizePair(pairRaw);
     if (!p) return;
@@ -344,9 +385,9 @@ function updateDashboardFromTrades(data = []) {
   if (elMostpairs) elMostpairs.textContent = topByCount || '-';
   if (elTotalMostTraded) elTotalMostTraded.textContent = topCount ? `${topCount} Trades` : '0 Trades';
 
-  // --- Profitability ---
+  // --- Profitability (dari combinedData) ---
   let win = 0, lose = 0;
-  tradeData.forEach(t => {
+  combinedData.forEach(t => {
     const r = (t.Result || t.result || '').toString().toLowerCase();
     if (r === 'win' || r === 'profit') win++;
     else if (r === 'lose' || r === 'loss') lose++;
@@ -361,9 +402,9 @@ function updateDashboardFromTrades(data = []) {
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `0 of 0 Profite Trade`;
   }
 
-  // --- Avg Daily PnL ---
+  // --- Avg Daily PnL (hanya profit, dari combinedData) ---
   const dailyWins = {};
-  tradeData.forEach(t => {
+  combinedData.forEach(t => {
     const pnl = parsePnl(t.Pnl);
     if (pnl <= 0) return;
     const d = new Date(t.date * 1000);
@@ -380,18 +421,84 @@ function updateDashboardFromTrades(data = []) {
 }
 
 // ======================= Trading Jurnal ======================= //
-async function loadTradingData() {
-  const data = await getDBPerpetual();
+// ------ Global Deklarasi ------ //
+let perpetualTrades = [];
+let spotTrades = [];
+let originalPerpetualTrades = [];
+let originalSpotTrades = [];  
+let currentActiveTab = 'perpetual';
 
-  globalTrades = data;
-  originalTrades = [...data];
+// ------ Init All Data on Page Load ------ //
+async function initializeAllData() {
+  // Load perpetual
+  const perpData = await getDBPerpetual();
+  perpetualTrades = perpData;
+  originalPerpetualTrades = [...perpData];
 
-  rowsPerPage = parseInt(document.querySelector('#rowsSelector .number-page-active').textContent) || 50;
+  // Load spot
+  const spotData = await getDBSpot();
+  spotTrades = spotData;
+  originalSpotTrades = [...spotData];
 
+  currentActiveTab = 'perpetual';
+  renderPerpetualPaginated();
   updatePaginationUI();
 
-  renderPaginatedTable();
-  initSorting();
+  updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
+}
+
+document.addEventListener('DOMContentLoaded', () => { initializeAllData(); });
+
+// ------ Swaap Jurnal ------ //
+document.querySelectorAll('.filter-jurnal-btn').forEach((btn) => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.filter-jurnal-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const perpTable = document.getElementById('tabel-perpetual');
+        const spotTable = document.getElementById('tabel-spot');
+        
+        currentPage = 1;
+        currentSort = { key: null, direction: null };
+        updateSortIcons();
+
+        if (this.innerText.includes("Perpetual")) {
+            currentActiveTab = 'perpetual';
+            perpTable.style.display = "table";
+            spotTable.style.display = "none";
+            renderPerpetualPaginated();
+            updatePaginationUI();
+        } else {
+            currentActiveTab = 'spot';
+            perpTable.style.display = "none";
+            spotTable.style.display = "table";
+            renderSpotPaginated();
+            updatePaginationUI();
+        }
+    });
+});
+
+// ------ Helper ------ //
+// Load Data Perpetual
+async function loadPerpetualData() {
+  const data = await getDBPerpetual();
+  perpetualTrades = data;
+  originalPerpetualTrades = [...data];
+  currentActiveTab = 'perpetual';
+  
+  renderPerpetualPaginated();
+  updatePaginationUI();
+}
+
+// Load Data Spot
+async function loadSpotData() {
+  const data = await getDBSpot();
+  spotTrades = data;
+  originalSpotTrades = [...data];
+  currentActiveTab = 'spot';
+  
+  renderSpotPaginated();
+  updatePaginationUI();
 }
 
 function isTradeItem(item) {
@@ -402,18 +509,19 @@ function isActionItem(item) {
   return item && item.hasOwnProperty('action') && (item.action === 'Deposit' || item.action === 'Withdraw');
 }
 
-// ------ RENDER TRADING TABLE ------ //
-function renderPaginatedTable() {
+// ------ Perpetual Tabel ------ //
+function renderPerpetualPaginated() {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
-  const pageData = globalTrades.slice(startIndex, endIndex);
-  renderTradingTable(pageData);
+  const pageData = perpetualTrades.slice(startIndex, endIndex);
+  renderPerpetualTable(pageData);
 }
 
-function renderTradingTable(data) {
+function renderPerpetualTable(data) {
   const tbody = document.querySelector(".tabel-trade tbody");
   tbody.innerHTML = "";
 
+  // Transaction
   data.forEach((item, index) => {
     if (isActionItem(item)) {
       const date = new Date(item.date * 1000);
@@ -445,7 +553,7 @@ function renderTradingTable(data) {
       return;
     }
 
-    // === HANDLE TRADE BIASA ===
+    // Trades
     if (!isTradeItem(item)) return;
 
     const trade = item;
@@ -469,7 +577,6 @@ function renderTradingTable(data) {
     const margin = Number(trade.Margin) || 0;
     const pnl = Number(trade.Pnl) || 0;
 
-    // ====== CLASS DYNAMIC RULES ======
     let rrClass = "rr-null";
     if (rr > 0) rrClass = "rr-win";
     else if (rr < 0) rrClass = "rr-lose";
@@ -486,7 +593,6 @@ function renderTradingTable(data) {
     if (pnl > 0) pnlClass = "pnl-win";
     else if (pnl < 0) pnlClass = "pnl-loss";
 
-    // ====== ROW TEMPLATE ======
     const row = document.createElement("tr");
     row.innerHTML = `
       <td><p class="no">${trade.tradeNumber || '-'}</p></td>
@@ -506,7 +612,7 @@ function renderTradingTable(data) {
       <td><p class="${psyClass}">${trade.Psychology || '-'}</p></td>
       <td><p class="class">${trade.Class || '-'}</p></td>
       <td>
-        <div class="box-causes" id="box-files" data-bias="${trade.Files?.Bias || '#'}" data-last="${trade.Files?.Last || '#'}">
+        <div class="box-causes" id="box-files" data-before="${trade.Files?.Before || '#'}" data-after="${trade.Files?.After || '#'}">
           <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
             <path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/>
           </svg>
@@ -520,8 +626,8 @@ function renderTradingTable(data) {
 
     row.querySelector("#box-causes").dataset.content = trade.Causes || "No causes";
     const boxFiles = row.querySelector("#box-files");
-    boxFiles.dataset.bias = trade.Files?.Bias || "#";
-    boxFiles.dataset.last = trade.Files?.Last || "#";
+    boxFiles.dataset.before = trade.Files?.Before || "#";
+    boxFiles.dataset.after = trade.Files?.After || "#";
 
     tbody.appendChild(row);
   });
@@ -531,7 +637,7 @@ function renderTradingTable(data) {
     window.tooltipManager = new TooltipManager();
   }, 100);
 
-  updateDashboardFromTrades(originalTrades);
+  updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
 
   if (isEditMode) {
     document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
@@ -543,18 +649,143 @@ function renderTradingTable(data) {
   }
 }
 
+// ------ Spot Tabel ------ //
+function renderSpotPaginated() {
+  const startIndex = (currentPage - 1) * rowsPerPage;
+  const endIndex = startIndex + rowsPerPage;
+  const pageData = spotTrades.slice(startIndex, endIndex);
+  
+  renderSpotTable(pageData);
+}
+
+function renderSpotTable(data) {
+    const tbody = document.querySelector("#tabel-spot tbody");
+    if (!tbody) return;
+
+    tbody.innerHTML = "";
+
+    data.forEach(item => {
+
+    // Transaction
+    if (item.action) {
+        const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
+        const isDeposit = item.action === "Deposit";
+        const value = Number(item.value) || 0;
+
+        const row = document.createElement("tr");
+        row.classList.add(isDeposit ? "deposit" : "withdraw");
+
+        row.innerHTML = `
+            <td><p class="no">${item.tradeNumber || "-"}</p></td>
+            <td><p class="date">${date}</p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p></p></td>
+            <td><p class="${isDeposit ? "result-win" : "result-lose"}">
+                ${item.action}
+            </p></td>
+            <td><p class="${isDeposit ? "pnl-win" : "pnl-loss"}">
+                ${isDeposit ? "+" : "-"}${formatUSD(Math.abs(value))}
+            </p></td>
+        `;
+
+        tbody.appendChild(row);
+        return;
+    }
+
+    // Trades
+    const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
+
+    const rr = Number(item.RR) || 0;
+    const pnl = Number(item.Pnl) || 0;
+    const margin = Number(item.Margin) || 0;
+
+    const rrClass = rr > 0 ? "rr-win" : rr < 0 ? "rr-lose" : "rr-null";
+    const pnlClass = pnl > 0 ? "pnl-win" : pnl < 0 ? "pnl-loss" : "pnl-null";
+    const resultClass =
+        item.Result?.toLowerCase() === "win" || item.Result?.toLowerCase() === "profit"
+            ? "result-win"
+            : "result-lose";
+
+    const row = document.createElement("tr");
+    row.innerHTML = `
+        <td><p class="no">${item.tradeNumber || "-"}</p></td>
+        <td><p class="date">${date}</p></td>
+        <td><p class="pairs">${item.Pairs || "-"}</p></td>
+        <td><p class="method">${item.Method || "-"}</p></td>
+        <td><p class="confluance">
+            ${(item.Confluance?.Entry || "-")} - ${(item.Confluance?.TimeFrame || "-")}
+        </p></td>
+        <td><p class="${rrClass}">${rr || "-"}</p></td>
+
+        <td>
+            <div class="box-causes" id="box-causes">
+              <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                <path d="M240-384h480v-72H240v72Zm0-132h480v-72H240v72Zm0-132h480v-72H240v72ZM864-96 720-240H168q-29.7 0-50.85-21.15Q96-282.3 96-312v-480q0-29.7 21.15-50.85Q138.3-864 168-864h624q29.7 0 50.85 21.15Q864-821.7 864-792v696ZM168-312h582l42 42v-522H168v480Zm0 0v-480 480Z"/>
+              </svg>
+            </div>
+        </td>
+
+        <td><p class="${(item.Psychology || "confident").toLowerCase()}">
+            ${item.Psychology || "-"}
+        </p></td>
+
+        <td><p class="class">${item.Class || "-"}</p></td>
+
+        <td>
+            <div class="box-causes" id="box-files"
+                  data-before="${item.Files?.Before || "#"}"
+                  data-after="${item.Files?.After || "#"}">
+                <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                  <path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/>
+                </svg>
+            </div>
+        </td>
+
+        <td><p class="margin">${formatUSD(margin)}</p></td>
+        <td><p class="${resultClass}">${item.Result || "-"}</p></td>
+        <td><p class="${pnlClass}">
+            ${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}
+        </p></td>
+    `;
+
+    row.querySelector("#box-causes").dataset.content = item.Causes || "No causes";
+
+    tbody.appendChild(row);
+      
+  });
+
+  setTimeout(() => {
+    if (window.tooltipManager) window.tooltipManager.destroy();
+    window.tooltipManager = new TooltipManager();
+  }, 100);
+
+  updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
+
+  if (isEditMode) {
+    document.querySelectorAll("#tabel-spot tbody tr").forEach(row => {
+      row.style.cursor = "pointer";
+      row.classList.add("editable");
+    });
+  }
+}
+
 // ------ Short Fiilter ------ //
-let globalTrades = [];
-let originalTrades = [];
 let currentSort = { key: null, direction: null };
 
 function getValue(item, key) {
   if (!item) return "";
   switch (key) {
     case "date":
-      return item.date;
+      return item.date || 0;
     case "pairs":
-      return item.Pairs ?? item.pairs ?? "";
+      return item.Pairs || item.pairs || "";
     case "pnl":
       return item.Pnl ?? item.pnl ?? item.PnL ?? 0;
     default:
@@ -563,51 +794,56 @@ function getValue(item, key) {
 }
 
 function nextSortState(key) {
-  if (key === "date") {
-    if (currentSort.key !== key || currentSort.direction === null) return "desc";
-    return null;
-  }
-
-  if (currentSort.key !== key) return "asc";
-  if (currentSort.direction === "asc") return "desc";
-  if (currentSort.direction === "desc") return null;
-  return "asc";
+  if (currentSort.key !== key) return "desc"; 
+  if (currentSort.direction === "desc") return "asc";
+  if (currentSort.direction === "asc") return null;
+  return "desc";
 }
 
-function initSorting() {
+// ------ Global Short Filter ------ //
+function initGlobalSorting() {
   const headers = document.querySelectorAll("th.sortable");
 
   headers.forEach(th => {
-    th.addEventListener("click", () => {
-      const key = th.dataset.key;
+    const newTh = th.cloneNode(true);
+    th.parentNode.replaceChild(newTh, th);
 
+    newTh.addEventListener("click", () => {
+      const key = newTh.dataset.key;
       const nextDirection = nextSortState(key);
-      if (!nextDirection) {
-        currentSort = { key: null, direction: null };
-        renderPaginatedTable();
-      } else {
-        currentSort = { key, direction: nextDirection };
 
-        const startIndex = (currentPage - 1) * rowsPerPage;
-        const endIndex = startIndex + rowsPerPage;
-        let pageData = globalTrades.slice(startIndex, endIndex);
-
-        pageData = [...pageData].sort((a, b) =>
-          sortTrades(a, b, currentSort.key, currentSort.direction)
-        );
-
-        renderTradingTable(pageData);
-      }
-
+      currentSort = nextDirection ? { key, direction: nextDirection } : { key: null, direction: null };
+      
+      executeSorting();
       updateSortIcons();
     });
   });
 
   document.querySelectorAll("th.sortable .sort-icon").forEach(span => {
-    const th = span.closest("th.sortable");
-    const key = th ? th.dataset.key : null;
-    span.innerHTML = getSortIcon(key, null);
+    span.innerHTML = getSortIcon(null, null);
   });
+}
+
+function executeSorting() {
+  let currentPageData;
+  if (currentActiveTab === 'perpetual') {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    currentPageData = perpetualTrades.slice(startIndex, startIndex + rowsPerPage);
+  } else {
+    const startIndex = (currentPage - 1) * rowsPerPage;
+    currentPageData = spotTrades.slice(startIndex, startIndex + rowsPerPage);
+  }
+
+  if (currentSort.key && currentSort.direction) {
+    currentPageData.sort((a, b) => sortTrades(a, b, currentSort.key, currentSort.direction));
+  }
+
+  if (currentActiveTab === 'perpetual') {
+    renderPerpetualTable(currentPageData);
+  } else {
+    renderSpotTable(currentPageData);
+  }
+
 }
 
 function sortTrades(a, b, key, direction) {
@@ -703,9 +939,9 @@ function getSortIcon(columnKey = null, direction = null) {
   `;
 }
 
-document.addEventListener("DOMContentLoaded", loadTradingData);
+document.addEventListener("DOMContentLoaded", loadPerpetualData);
 
-// ------ Trading Jurnal Tooltip ------ //
+// ------ Tooltip ------ //
 class TooltipManager {
   constructor() {
     this.tooltip = document.getElementById('tooltip-box');
@@ -760,22 +996,22 @@ class TooltipManager {
       content = `<div class="tooltip-text">${this.currentTarget.dataset.content || "No causes"}</div>`;
     } else if (this.currentTarget.id === "box-files") {
       title = "Files";
-      const bias = this.currentTarget.dataset.bias || "";
-      const last = this.currentTarget.dataset.last || "";
-      const biasLink = this.currentTarget.dataset.biasLink || bias;
-      const lastLink = this.currentTarget.dataset.lastLink || last;
+      const before = this.currentTarget.dataset.before || "";
+      const after = this.currentTarget.dataset.after || "";
+      const beforeLink = this.currentTarget.dataset.beforeLink || before;
+      const afterLink = this.currentTarget.dataset.afterLink || after;
 
     content = `
       <div class="tooltip-imgs-grid" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 8px;">
-        ${bias ? `
+        ${before ? `
           <div style="text-align: center;">
-            <a href="${biasLink}" target="_blank" style="display: inline-block;">
+            <a href="${beforeLink}" target="_blank" style="display: inline-block;">
               <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-                ${bias.startsWith('http') ? `<img src="${bias}" alt="Preview 1" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
+                ${before.startsWith('http') ? `<img src="${before}" alt="Preview 1" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
               </div>
             </a>
             <div style="margin-top: 6px; font-size: 12px;">
-              <a href="${biasLink}" target="_blank" class="tooltip-link">Image Before</a>
+              <a href="${beforeLink}" target="_blank" class="tooltip-link">Image Before</a>
             </div>
           </div>
         ` : `
@@ -789,15 +1025,15 @@ class TooltipManager {
           </div>
         `}
         
-        ${last ? `
+        ${after ? `
           <div style="text-align: center;">
-            <a href="${lastLink}" target="_blank" style="display: inline-block;">
+            <a href="${afterLink}" target="_blank" style="display: inline-block;">
               <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-                ${last.startsWith('http') ? `<img src="${last}" alt="Preview 2" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
+                ${after.startsWith('http') ? `<img src="${after}" alt="Preview 2" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
               </div>
             </a>
             <div style="margin-top: 6px; font-size: 12px;">
-              <a href="${lastLink}" target="_blank" class="tooltip-link">Image After</a>
+              <a href="${afterLink}" target="_blank" class="tooltip-link">Image After</a>
             </div>
           </div>
         ` : `
@@ -929,7 +1165,9 @@ let currentPage = 1;
 let rowsPerPage = 50;
 
 function updatePaginationUI() {
-  const totalTrades = globalTrades.length;
+  const activeData = (currentActiveTab === 'perpetual') ? perpetualTrades : spotTrades;
+  
+  const totalTrades = activeData.length;
   const totalPages = Math.max(1, Math.ceil(totalTrades / rowsPerPage));
 
   document.getElementById('tradeTotal').textContent = `${totalTrades} Trade${totalTrades !== 1 ? 's' : ''}`;
@@ -939,25 +1177,11 @@ function updatePaginationUI() {
   if (currentPage > totalPages) currentPage = totalPages;
   if (currentPage < 1) currentPage = 1;
 
-  const pageMenu = document.getElementById('pageDropdown');
-  const pageItems = Array.from({ length: totalPages }, (_, i) => (i + 1).toString());
   const pageActive = document.querySelector('#pageSelector .number-page-active');
-  pageActive.textContent = currentPage;
-
-  pageMenu.innerHTML = '';
-  pageItems.forEach(num => {
-    const div = document.createElement('div');
-    div.className = 'dropdown-item';
-    div.textContent = num;
-    div.addEventListener('click', (e) => {
-      e.stopPropagation();
-      goToPage(parseInt(num));
-      pageMenu.classList.remove('active');
-    });
-    pageMenu.appendChild(div);
-  });
+  if (pageActive) pageActive.textContent = currentPage;
 
   updatePageNumberBoxes(totalPages);
+  updatePageDropdown();
 }
 
 function updatePageNumberBoxes(totalPages) {
@@ -1038,14 +1262,21 @@ function createPageBox(pageNum, isActive) {
 }
 
 function goToPage(page) {
-  const totalPages = Math.ceil(globalTrades.length / rowsPerPage);
+  const activeData = (currentActiveTab === 'perpetual') ? perpetualTrades : spotTrades;
+  const totalPages = Math.ceil(activeData.length / rowsPerPage);
+  
   if (page < 1 || page > totalPages || page === currentPage) return;
 
   currentPage = page;
   
   currentSort = { key: null, direction: null };
   
-  renderPaginatedTable();
+  if (currentActiveTab === 'perpetual') {
+      renderPerpetualPaginated();
+  } else {
+      renderSpotPaginated();
+  }
+  
   updatePaginationUI();
 }
 
@@ -1090,6 +1321,33 @@ const pageMenu = document.getElementById('pageDropdown');
 const pageActive = pageTrigger.querySelector('.number-page-active');
 createDropdown(pageTrigger, pageMenu, ['1', '2'], pageActive);
 
+function updatePageDropdown() {
+  const pageTrigger = document.getElementById('pageSelector');
+  const pageMenu = document.getElementById('pageDropdown');
+  const pageActiveSpan = pageTrigger.querySelector('.number-page-active');
+
+  if (!pageMenu || !pageActiveSpan) return;
+
+  const activeData = (currentActiveTab === 'perpetual') ? perpetualTrades : spotTrades;
+  const totalPages = Math.max(1, Math.ceil(activeData.length / rowsPerPage));
+
+  pageActiveSpan.textContent = currentPage;
+
+  pageMenu.innerHTML = '';
+
+  for (let i = 1; i <= totalPages; i++) {
+    const item = document.createElement('div');
+    item.className = 'dropdown-item';
+    item.textContent = i;
+    item.addEventListener('click', (e) => {
+      e.stopPropagation();
+      goToPage(i);
+      pageMenu.classList.remove('active');
+    });
+    pageMenu.appendChild(item);
+  }
+}
+
 const rowsTrigger = document.getElementById('rowsSelector');
 const rowsMenu = document.getElementById('rowsDropdown');
 const rowsActive = rowsTrigger.querySelector('.number-page-active');
@@ -1114,7 +1372,12 @@ rowsTrigger.addEventListener('click', (e) => {
     
     rowsPerPage = newRows;
     currentPage = 1;
-    renderPaginatedTable();
+    
+    if (currentActiveTab === 'perpetual') {
+        renderPerpetualPaginated();
+    } else {
+        renderSpotPaginated();
+    }
     updatePaginationUI();
   });
   rowsMenu.appendChild(div);
@@ -1124,24 +1387,42 @@ document.querySelector('.left-frist-page').addEventListener('click', () => goToP
 document.querySelector('.left-one-page').addEventListener('click', () => goToPage(currentPage - 1));
 document.querySelector('.right-one-page').addEventListener('click', () => goToPage(currentPage + 1));
 document.querySelector('.right-frist-page').addEventListener('click', () => {
-  const totalPages = Math.ceil(globalTrades.length / rowsPerPage);
+  const totalPages = Math.ceil(perpetualTrades.length / rowsPerPage);
   goToPage(totalPages);
 });
+
+document.addEventListener("DOMContentLoaded", () => {
+  loadPerpetualData();
+  initGlobalSorting();
+});
+
+// --------------------------------------------------------------- //
 
 // =================== Dashboard Header =================== //
 async function updateEquityStats() {
   try {
-    const tradingData = await getDBPerpetual();
+    const dataPerpetual = await getDBPerpetual();
+    const dataSpot = await getDBSpot();
 
-    if (!Array.isArray(tradingData)) {
-      console.warn("Data trading tidak valid");
+    // Validasi data
+    if (!Array.isArray(dataPerpetual)) {
+      console.warn("Data perpetual tidak valid");
+      return;
+    }
+    if (!Array.isArray(dataSpot)) {
+      console.warn("Data spot tidak valid");
       return;
     }
 
+    // Inisialisasi total global
     let totalPnl = 0;
     let totalDeposit = 0;
     let totalWithdraw = 0;
     let totalFeePaid = 0;
+
+    // Inisialisasi per kategori
+    let pnlPerp = 0, depositPerp = 0, withdrawPerp = 0;
+    let pnlSpot = 0, depositSpot = 0, withdrawSpot = 0;
 
     const formatCurrency = (n) => {
       const v = Number(n) || 0;
@@ -1153,65 +1434,99 @@ async function updateEquityStats() {
       });
     };
 
-    tradingData.forEach(item => {
-      if (item.action === "Deposit") {
-        totalDeposit += Math.abs(item.value || 0);
-      } else if (item.action === "Withdraw") {
-        totalWithdraw += Math.abs(item.value || 0);
-      } else if (item.hasOwnProperty("Pnl")) {
-        totalPnl += Number(item.Pnl) || 0;
+    // Fungsi helper untuk proses satu dataset
+    const processDataset = (dataset, isPerp = true) => {
+      let localPnl = 0;
+      let localDeposit = 0;
+      let localWithdraw = 0;
+      let localFee = 0;
 
-        const rr = parseFloat(item.RR);
-        const margin = parseFloat(item.Margin);
-        const actualPnl = parseFloat(item.Pnl);
+      dataset.forEach(item => {
+        if (item.action === "Deposit") {
+          const val = Math.abs(item.value || 0);
+          localDeposit += val;
+          totalDeposit += val;
+        } else if (item.action === "Withdraw") {
+          const val = Math.abs(item.value || 0);
+          localWithdraw += val;
+          totalWithdraw += val;
+        } else if (item.hasOwnProperty("Pnl")) {
+          const pnlVal = Number(item.Pnl) || 0;
+          localPnl += pnlVal;
+          totalPnl += pnlVal;
 
-        if (!isNaN(rr) && !isNaN(margin) && margin > 0 && !isNaN(actualPnl)) {
-          const expectedPnl = rr * margin;
-          let fee = 0;
+          const rr = parseFloat(item.RR);
+          const margin = parseFloat(item.Margin);
+          const actualPnl = parseFloat(item.Pnl);
 
-          if (expectedPnl >= 0) {
-            if (actualPnl < expectedPnl) {
-              fee = expectedPnl - actualPnl;
+          if (!isNaN(rr) && !isNaN(margin) && margin > 0 && !isNaN(actualPnl)) {
+            const expectedPnl = rr * margin;
+            let fee = 0;
+
+            if (expectedPnl >= 0) {
+              if (actualPnl < expectedPnl) {
+                fee = expectedPnl - actualPnl;
+              }
+            } else {
+              if (actualPnl < expectedPnl) {
+                fee = expectedPnl - actualPnl;
+              }
             }
-          } else {
-            if (actualPnl < expectedPnl) {
-              fee = expectedPnl - actualPnl;
-            }
+
+            localFee += fee;
+            totalFeePaid += fee;
           }
-
-          totalFeePaid += fee;
         }
-      }
-    });
+      });
 
+      if (isPerp) {
+        pnlPerp = localPnl;
+        depositPerp = localDeposit;
+        withdrawPerp = localWithdraw;
+      } else {
+        pnlSpot = localPnl;
+        depositSpot = localDeposit;
+        withdrawSpot = localWithdraw;
+      }
+    };
+
+    // Proses kedua dataset
+    processDataset(dataPerpetual, true);
+    processDataset(dataSpot, false);
+
+    // Hitung equity masing-masing
+    const equityPerp = depositPerp + pnlPerp - withdrawPerp;
+    const equitySpot = depositSpot + pnlSpot - withdrawSpot;
     const totalEquity = totalDeposit + totalPnl - totalWithdraw;
+
+    // Hitung persentase
     const persentaseWithdraw = totalDeposit > 0
       ? ((totalWithdraw / totalDeposit) * 100).toFixed(2)
       : "0.00";
 
-    // === HITUNG PERSENTASE FEE ===
     let persentaseFee = "0.00";
     if (totalEquity > 0) {
       persentaseFee = ((totalFeePaid / totalEquity) * 100).toFixed(2);
     }
-    // Jika totalEquity <= 0, biarkan "0.00" (atau ganti jadi "N/A" jika mau)
 
-    // Update elemen
+    // Update elemen DOM
     const elTotalEquity = document.getElementById("totalEquity");
-    const elTotalPerp = document.getElementById("total-perp");
+    const elTotalPerp = document.getElementById("totalPerp");
+    const elTotalSpot = document.getElementById("totalSpot");
     const elPersentaseWithdraw = document.getElementById("persentaseWithdraw");
     const elValueWithdraw = document.getElementById("valueWithdraw");
     const elValueDeposit = document.getElementById("valueDeposit");
     const elValueFeePaid = document.getElementById("valueFeePaid");
-    const elPersentaseFeePaid = document.getElementById("persentaseFeePaid"); // <-- BARU
+    const elPersentaseFeePaid = document.getElementById("persentaseFeePaid");
 
     if (elTotalEquity) elTotalEquity.textContent = formatCurrency(totalEquity);
-    if (elTotalPerp) elTotalPerp.textContent = formatCurrency(totalEquity);
+    if (elTotalPerp) elTotalPerp.textContent = formatCurrency(equityPerp);
+    if (elTotalSpot) elTotalSpot.textContent = formatCurrency(equitySpot);
     if (elPersentaseWithdraw) elPersentaseWithdraw.textContent = `${persentaseWithdraw}%`;
     if (elValueWithdraw) elValueWithdraw.textContent = formatCurrency(totalWithdraw);
     if (elValueDeposit) elValueDeposit.textContent = formatCurrency(totalDeposit);
     if (elValueFeePaid) elValueFeePaid.textContent = formatCurrency(-totalFeePaid);
-    if (elPersentaseFeePaid) elPersentaseFeePaid.textContent = `(${persentaseFee}%)`; // <-- TAMPILKAN
+    if (elPersentaseFeePaid) elPersentaseFeePaid.textContent = `(${persentaseFee}%)`;
 
   } catch (error) {
     console.error("Gagal update equity stats:", error);
@@ -1221,165 +1536,233 @@ async function updateEquityStats() {
 document.addEventListener("DOMContentLoaded", updateEquityStats);
 window.updateEquityStats = updateEquityStats;
 
-// ======================= Container 1 Statistic ======================= //
-async function updateStats() {
-  const trades = await getDBPerpetual();
+// ======================= 1 Statistic ======================= //
+async function updateStats(mode = "Perpetual") {
+  let trades = [];
 
-  if (!Array.isArray(trades)) {
-    console.warn("Data trading tidak valid");
-    return;
-  }
-
-  let totalDeposit = 0;
-  let tradeOnly = [];
-
-  trades.forEach(item => {
-    if (item.action === "Deposit") {
-      totalDeposit += Math.abs(item.value || 0);
-    } else if (item.hasOwnProperty('Pnl')) {
-      tradeOnly.push(item);
+  try {
+    if (mode === "Perpetual") {
+      trades = await getDBPerpetual();
+    } else if (mode === "Spot") {
+      trades = await getDBSpot();
+    } else if (mode === "All") {
+      const perp = await getDBPerpetual();
+      const spot = await getDBSpot();
+      trades = [...(Array.isArray(perp) ? perp : []), ...(Array.isArray(spot) ? spot : [])];
     }
-  });
 
-  const deposit = totalDeposit || 0;
-
-  const totalPnL = tradeOnly.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
-
-  const formattedTotalPnL = formatUSD(Math.abs(totalPnL));
-  document.getElementById("totalProfite").textContent =
-    totalPnL < 0 ? `-${formattedTotalPnL}` : formattedTotalPnL;
-
-  const persentaseIncrease = deposit > 0 ? (totalPnL / deposit) * 100 : 0;
-  document.getElementById("persentaseIncrease").textContent = formatPercent(persentaseIncrease);
-
-  const totalWin = tradeOnly
-    .filter(t => {
-      const r = (t.Result || '').toString().toLowerCase();
-      return r === 'profit' || r === 'win';
-    })
-    .reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
-
-  const totalLoss = tradeOnly
-    .filter(t => {
-      const r = (t.Result || '').toString().toLowerCase();
-      return r === 'loss' || r === 'lose';
-    })
-    .reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
-
-  document.getElementById("totalValueWin").textContent = "+" + formatUSD(Math.abs(totalWin));
-  document.getElementById("totalValueLoss").textContent = "-" + formatUSD(Math.abs(totalLoss));
-
-  const totalAbsWin = Math.abs(totalWin);
-  const totalAbsLoss = Math.abs(totalLoss);
-  const totalAbs = totalAbsWin + totalAbsLoss;
-
-  const winPercent = totalAbs > 0 ? ((totalAbsWin / totalAbs) * 100).toFixed(2) : "0.00";
-  const lossPercent = totalAbs > 0 ? ((totalAbsLoss / totalAbs) * 100).toFixed(2) : "0.00";
-
-  document.getElementById("persentaseValueWin").textContent = winPercent + "%";
-  document.getElementById("persentaseValueLoss").textContent = lossPercent + "%";
-
-  const bxDwn = document.querySelector(".bx-dwn");
-  if (bxDwn) {
-    const winNum = parseFloat(winPercent);
-    const lossNum = parseFloat(lossPercent);
-
-    if (winNum >= 50) {
-      bxDwn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgb(52, 211, 153)">
-          <path d="m123-240-43-43 292-291 167 167 241-241H653v-60h227v227h-59v-123L538-321 371-488 123-240Z"/>
-        </svg>
-        <p class="value-lessons green">UP</p>
-      `;
-    } else if (lossNum > 50) {
-      bxDwn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgb(251, 113, 133)">
-          <path d="M624-209v-72h117L529-492 377-340 96-621l51-51 230 230 152-152 263 262v-117h72v240H624Z"/>
-        </svg>
-        <p class="value-lessons red">DOWN</p>
-      `;
-    } else {
-      bxDwn.innerHTML = `
-        <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgba(173, 173, 173, 1)">
-          <path d="m702-301-43-42 106-106H120v-60h646L660-615l42-42 178 178-178 178Z"/>
-        </svg>
-        <p class="value-lessons gray">NETRAL</p>
-      `;
+    if (!Array.isArray(trades)) {
+      console.warn("Data trading tidak valid untuk mode:", mode);
+      resetStatsUI();
+      return;
     }
-  }
 
-  const progressEl = document.getElementById("progressHighlight");
-  if (progressEl) {
-    progressEl.style.setProperty("--win-percent", winPercent + "%");
-  }
+    let totalDeposit = 0;
+    let tradeOnly = [];
 
-  let maxDropPercent = 0;
-  let maxDropValue = 0;
-  let runningBalance = deposit;
-  let currentDrop = 0;
-  let balanceBeforeStreak = deposit;
-
-  tradeOnly.forEach(t => {
-    const pnl = Number(t.Pnl) || 0;
-    const result = (t.Result || '').toString().toLowerCase().trim();
-
-    const isLossOrMissed = ['loss', 'lose', 'missed'].includes(result);
-    const isProfitOrBreakEven = ['profit', 'win', 'break even', 'breakeven'].includes(result);
-
-    if (isLossOrMissed) {
-      if (currentDrop === 0) {
-        balanceBeforeStreak = runningBalance;
+    trades.forEach(item => {
+      if (item.action === "Deposit") {
+        totalDeposit += Math.abs(item.value || 0);
+      } else if (item.hasOwnProperty('Pnl')) {
+        tradeOnly.push(item);
       }
-      if (['loss', 'lose'].includes(result) && pnl < 0) {
-        currentDrop += Math.abs(pnl);
+    });
+
+    const deposit = totalDeposit || 0;
+    const totalPnL = tradeOnly.reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
+
+    const formattedTotalPnL = formatUSD(Math.abs(totalPnL));
+    const elTotalProfite = document.getElementById("totalProfite");
+    if (elTotalProfite) {
+      elTotalProfite.textContent = totalPnL < 0 ? `-${formattedTotalPnL}` : formattedTotalPnL;
+    }
+
+    const persentaseIncrease = deposit > 0 ? (totalPnL / deposit) * 100 : 0;
+    const elPersentaseIncrease = document.getElementById("persentaseIncrease");
+    if (elPersentaseIncrease) {
+      elPersentaseIncrease.textContent = formatPercent(persentaseIncrease);
+    }
+
+    const totalWin = tradeOnly
+      .filter(t => {
+        const r = (t.Result || '').toString().toLowerCase();
+        return r === 'profit' || r === 'win';
+      })
+      .reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
+
+    const totalLoss = tradeOnly
+      .filter(t => {
+        const r = (t.Result || '').toString().toLowerCase();
+        return r === 'loss' || r === 'lose';
+      })
+      .reduce((sum, t) => sum + (Number(t.Pnl) || 0), 0);
+
+    const elTotalValueWin = document.getElementById("totalValueWin");
+    const elTotalValueLoss = document.getElementById("totalValueLoss");
+    if (elTotalValueWin) elTotalValueWin.textContent = "+" + formatUSD(Math.abs(totalWin));
+    if (elTotalValueLoss) elTotalValueLoss.textContent = "-" + formatUSD(Math.abs(totalLoss));
+
+    const totalAbsWin = Math.abs(totalWin);
+    const totalAbsLoss = Math.abs(totalLoss);
+    const totalAbs = totalAbsWin + totalAbsLoss;
+
+    const winPercent = totalAbs > 0 ? ((totalAbsWin / totalAbs) * 100).toFixed(2) : "0.00";
+    const lossPercent = totalAbs > 0 ? ((totalAbsLoss / totalAbs) * 100).toFixed(2) : "0.00";
+
+    const elPersentaseValueWin = document.getElementById("persentaseValueWin");
+    const elPersentaseValueLoss = document.getElementById("persentaseValueLoss");
+    if (elPersentaseValueWin) elPersentaseValueWin.textContent = winPercent + "%";
+    if (elPersentaseValueLoss) elPersentaseValueLoss.textContent = lossPercent + "%";
+
+    const bxDwn = document.querySelector(".bx-dwn");
+    if (bxDwn) {
+      const winNum = parseFloat(winPercent);
+      if (winNum >= 50) {
+        bxDwn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgb(52, 211, 153)">
+            <path d="m123-240-43-43 292-291 167 167 241-241H653v-60h227v227h-59v-123L538-321 371-488 123-240Z"/>
+          </svg>
+          <p class="value-lessons green">UP</p>
+        `;
+      } else if (parseFloat(lossPercent) > 50) {
+        bxDwn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgb(251, 113, 133)">
+            <path d="M624-209v-72h117L529-492 377-340 96-621l51-51 230 230 152-152 263 262v-117h72v240H624Z"/>
+          </svg>
+          <p class="value-lessons red">DOWN</p>
+        `;
+      } else {
+        bxDwn.innerHTML = `
+          <svg xmlns="http://www.w3.org/2000/svg" height="18px" viewBox="0 -960 960 960" width="18px" fill="rgba(173, 173, 173, 1)">
+            <path d="m702-301-43-42 106-106H120v-60h646L660-615l42-42 178 178-178 178Z"/>
+          </svg>
+          <p class="value-lessons gray">NETRAL</p>
+        `;
       }
-    } else if (isProfitOrBreakEven) {
-      if (currentDrop > 0) {
-        const dropPercent = balanceBeforeStreak > 0 
-          ? (currentDrop / balanceBeforeStreak) * 100 
-          : 0;
-        if (dropPercent > maxDropPercent) {
-          maxDropPercent = dropPercent;
-          maxDropValue = currentDrop;
+    }
+
+    const progressEl = document.getElementById("progressHighlight");
+    if (progressEl) {
+      progressEl.style.setProperty("--win-percent", winPercent + "%");
+    }
+
+    // --- Max Drawdown Logic ---
+    let maxDropPercent = 0;
+    let maxDropValue = 0;
+    let runningBalance = deposit;
+    let currentDrop = 0;
+    let balanceBeforeStreak = deposit;
+
+    tradeOnly.forEach(t => {
+      const pnl = Number(t.Pnl) || 0;
+      const result = (t.Result || '').toString().toLowerCase().trim();
+      const isLossOrMissed = ['loss', 'lose', 'missed'].includes(result);
+      const isProfitOrBreakEven = ['profit', 'win', 'break even', 'breakeven'].includes(result);
+
+      if (isLossOrMissed) {
+        if (currentDrop === 0) {
+          balanceBeforeStreak = runningBalance;
         }
-        currentDrop = 0;
+        if (['loss', 'lose'].includes(result) && pnl < 0) {
+          currentDrop += Math.abs(pnl);
+        }
+      } else if (isProfitOrBreakEven) {
+        if (currentDrop > 0) {
+          const dropPercent = balanceBeforeStreak > 0 
+            ? (currentDrop / balanceBeforeStreak) * 100 
+            : 0;
+          if (dropPercent > maxDropPercent) {
+            maxDropPercent = dropPercent;
+            maxDropValue = currentDrop;
+          }
+          currentDrop = 0;
+        }
+      }
+      runningBalance += pnl;
+    });
+
+    // Cek akhir jika masih dalam drawdown
+    if (currentDrop > 0) {
+      const dropPercent = balanceBeforeStreak > 0 
+        ? (currentDrop / balanceBeforeStreak) * 100 
+        : 0;
+      if (dropPercent > maxDropPercent) {
+        maxDropPercent = dropPercent;
+        maxDropValue = currentDrop;
       }
     }
-    runningBalance += pnl;
-  });
 
-  if (currentDrop > 0) {
-    const dropPercent = balanceBeforeStreak > 0 
-      ? (currentDrop / balanceBeforeStreak) * 100 
-      : 0;
-    if (dropPercent > maxDropPercent) {
-      maxDropPercent = dropPercent;
-      maxDropValue = currentDrop;
+    const displayWidth = Math.min(Math.max(maxDropPercent, 35), 100);
+    const dropBox = document.querySelector(".bx-usd");
+    if (dropBox) {
+      dropBox.style.width = displayWidth + "%";
     }
+
+    const elWorstTrade = document.getElementById("worstTrade");
+    const elValueWorstTrade = document.getElementById("valueWorstTrade");
+    if (elWorstTrade) elWorstTrade.textContent = "-" + maxDropPercent.toFixed(2) + "%";
+    if (elValueWorstTrade) elValueWorstTrade.textContent = "-" + formatUSD(maxDropValue);
+
+    // --- ATH Logic ---
+    let balance = deposit;
+    let athBalance = balance;
+    tradeOnly.forEach(t => {
+      balance += Number(t.Pnl) || 0;
+      if (balance > athBalance) athBalance = balance;
+    });
+
+    const elValueAthBalance = document.getElementById("valueAthBalance");
+    const elPersentaseAthBalance = document.getElementById("persentaseAthBalance");
+    if (elValueAthBalance) elValueAthBalance.textContent = formatUSD(athBalance);
+    const athPercent = deposit > 0 ? ((athBalance - deposit) / deposit) * 100 : 0;
+    if (elPersentaseAthBalance) elPersentaseAthBalance.textContent = formatPercent(athPercent) + " ROE";
+
+  } catch (error) {
+    console.error("Gagal update stats untuk mode:", mode, error);
+    resetStatsUI();
   }
-
-  const displayWidth = Math.min(Math.max(maxDropPercent, 35), 100);
-  const dropBox = document.querySelector(".bx-usd");
-  if (dropBox) {
-    dropBox.style.width = displayWidth + "%";
-  }
-
-  document.getElementById("worstTrade").textContent = "-" + maxDropPercent.toFixed(2) + "%";
-  document.getElementById("valueWorstTrade").textContent = "-" + formatUSD(maxDropValue);
-
-  let balance = deposit;
-  let athBalance = balance;
-  tradeOnly.forEach(t => {
-    balance += Number(t.Pnl) || 0;
-    if (balance > athBalance) athBalance = balance;
-  });
-
-  document.getElementById("valueAthBalance").textContent = formatUSD(athBalance);
-  const athPercent = deposit > 0 ? ((athBalance - deposit) / deposit) * 100 : 0;
-  document.getElementById("persentaseAthBalance").textContent = formatPercent(athPercent) + " ROE";
 }
 
-updateStats().catch(console.error);
+// Helper: reset UI ke
+function resetStatsUI() {
+  const ids = [
+    "totalProfite", "persentaseIncrease", "totalValueWin", "totalValueLoss",
+    "persentaseValueWin", "persentaseValueLoss", "worstTrade", "valueWorstTrade",
+    "valueAthBalance", "persentaseAthBalance"
+  ];
+  ids.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = "~";
+  });
+
+  const bxDwn = document.querySelector(".bx-dwn");
+  if (bxDwn) bxDwn.innerHTML = "";
+
+  const progressEl = document.getElementById("progressHighlight");
+  if (progressEl) progressEl.style.setProperty("--win-percent", "0%");
+
+  const dropBox = document.querySelector(".bx-usd");
+  if (dropBox) dropBox.style.width = "35%";
+}
+
+// --- Event Listener untuk Tombol Switch ---
+document.querySelectorAll(".btn-radio.data-value").forEach(btn => {
+    btn.addEventListener("click", function () {
+        document.querySelectorAll(".btn-radio.data-value").forEach(b => b.classList.remove("active"));
+        this.classList.add("active");
+
+        const mode = this.textContent.trim();
+        updateStats(mode);
+
+        if (typeof loadBalanceData === 'function') {
+            loadBalanceData(mode).then(() => {
+                updateFilterStats(currentFilterRange);
+            });
+        }
+    });
+});
+
+updateStats("Perpetual");
 
 // ======================= Monthly Prtformance & Calender Trade ======================= //
 // ------ Monthly Prtformance ------ //
@@ -3062,10 +3445,30 @@ function updateStatsNotes() {
 // ======================= Update UI Global ======================= //
 async function updateAllUI() {
   try {
-    const data = await getDBPerpetual();
+    // ✅ Reload kedua dataset
+    const [perpData, spotData] = await Promise.all([
+      getDBPerpetual(),
+      getDBSpot()
+    ]);
 
-    await loadTradingData()
-    updateDashboardFromTrades(data);
+    perpetualTrades = perpData;
+    spotTrades = spotData;
+    originalPerpetualTrades = [...perpData];
+    originalSpotTrades = [...spotData];
+
+    // ✅ Render sesuai tab aktif
+    if (currentActiveTab === 'perpetual') {
+      renderPerpetualPaginated();
+    } else {
+      renderSpotPaginated();
+    }
+
+    updatePaginationUI();
+
+    // ✅ Update dashboard & stats — pastikan pakai data aktif
+    updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
+
+    // ✅ Stats lain (pastikan tidak bergantung pada originalTrades global)
     await updateEquityStats();
     await updateTradeStats();
     await updateStats();     
@@ -3082,7 +3485,7 @@ async function updateAllUI() {
 
     window.dispatchEvent(new Event('recalculateTrading'));
 
-    console.log("✅ All UI updated successfully.");
+    console.log("All UI updated successfully.");
   } catch (error) {
     console.error("❌ Failed to update UI:", error);
   }
