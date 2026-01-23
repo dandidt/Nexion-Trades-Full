@@ -80,7 +80,7 @@
                         <p>PnL</p>
                         <p class="sket">|</p>
                         <p class="sub-profite" id="persentaseBestPerformer">0%</p>
-                        <p>ROI</p>
+                        <p>Roi</p>
                     </div>
                     <p class="footer-font">Based on best position</p>
                 </div>
@@ -311,14 +311,21 @@
                 <div class="box-statistic">
                     <p class="min-title">Total Equity</p>
                     <p class="total-equity" id="totalEquity">~</p>
-                    <div class="bx-in-st">
-                        <div class="circle-hj"></div>
-                        <p class="if-eq">Perp</p>
-                        <p class="if-tl-eq" id="total-perp">~</p>
+                    <div class="row-header-out">
+                        <div class="row-header">
+                            <div class="circle-green"></div>
+                            <p class="if-eq">Perp</p>
+                            <p class="if-tl-eq" id="totalPerp">~</p>
+                        </div>
+                        <div class="row-header">
+                            <div class="circle-blue"></div>
+                            <p class="if-eq">Spot</p>
+                            <p class="if-tl-eq" id="totalSpot">~</p>
+                        </div>
                     </div>
                 </div>
                 <div class="box-statistic">
-                    <div class="bx-in-st">
+                    <div class="row-header">
                         <p class="min-title">Withdraw</p>
                         <span class="value-wd" id="persentaseWithdraw">~</span>
                     </div>
@@ -406,10 +413,10 @@
                         </div>
                         <div class="bx-in-ll">
                             <div class="bx-prgs">
-                                <p class="min-title">Balance ATH</p>
+                                <p class="min-title">Equity ATH</p>
                                 <div class="bx-in-bl">
                                     <svg class="roi-bl-ath-svg" xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="#e3e3e3"><path d="M450-80v-686L242-558l-42-42 280-280 280 280-42 42-208-208v686h-60Z"/></svg>
-                                    <p class="roi-bl-ath" id="persentaseAthBalance">~ ROE</p>
+                                    <p class="roi-bl-ath" id="persentaseAthBalance">~</p>
                                 </div>
                             </div>
                             <p class="ath-balance" id="valueAthBalance">~</p>
@@ -425,7 +432,14 @@
                                 <button class="btn-radio filter-btn" data-range="1m">1M</button>
                                 <button class="btn-radio filter-btn" data-range="all">ALL</button>
                             </div>
-                            <button id="toggleCircles">Show Trade</button>
+                            <div class="column-value">
+                                <div class="btn-radio-wrapper">
+                                    <button class="btn-radio data-value active">Perpetual</button>
+                                    <button class="btn-radio data-value">Spot</button>
+                                    <button class="btn-radio data-value">All</button>
+                                </div>
+                                <button id="toggleCircles">Show Trade</button>
+                            </div>
                         </div>
                         <div class="stats-balance-wrapper">
                             <div class="stats-balance-time">

@@ -50,6 +50,7 @@ let balanceAnimationProgress = 1;
 let balanceOldPoints = [];
 let balanceTargetPoints = [];
 let balanceAnimationFrameId = null;
+let currentChartMode = 'Perpetual';
 
 
 function formatBalanceTime24(date) {
@@ -60,70 +61,82 @@ function formatBalanceTime24(date) {
     });
 }
 
-async function loadTradeHistory() {
+async function loadBalanceData(mode = 'Perpetual') {
+    currentChartMode = mode;
+
+    let perpetualData = [];
+    let spotData = [];
+
     try {
-        const tradeData = await getDBPerpetual();
-        if (!Array.isArray(tradeData) || tradeData.length === 0) {
-            console.warn('Data trading kosong');
-            balanceFullData = [];
-            balanceCurrentData = [];
-            resizeBalanceCanvas();
-            return;
+        if (mode === 'Perpetual' || mode === 'All') {
+            perpetualData = await getDBPerpetual();
         }
-
-        const sortedTrades = tradeData
-            .filter(t => t.date)
-            .sort((a, b) => Number(a.date) - Number(b.date));
-
-        let cumulativeBalance = 0;
-        const processedData = [];
-
-        for (const entry of sortedTrades) {
-            const timestampMs = Number(entry.date) * 1000;
-            const tradeDate = new Date(timestampMs);
-
-            if (entry.action === 'Deposit' || entry.action === 'Withdraw') {
-                const val = Number(entry.value) || 0;
-                cumulativeBalance += val;
-                processedData.push({
-                    date: tradeDate,
-                    balance: parseFloat(cumulativeBalance.toFixed(2)),
-                    tradeNumber: entry.tradeNumber,
-                    PnL: val,
-                    action: entry.action
-                });
-                continue;
-            }
-
-            if (entry.Pnl !== undefined && entry.Pnl !== null) {
-                const pnl = Number(entry.Pnl) || 0;
-                cumulativeBalance += pnl;
-                processedData.push({
-                    date: tradeDate,
-                    balance: parseFloat(cumulativeBalance.toFixed(2)),
-                    tradeNumber: entry.tradeNumber,
-                    PnL: pnl
-                });
-            }
+        if (mode === 'Spot' || mode === 'All') {
+            spotData = await getDBSpot();
         }
-
-        const firstValidDate = sortedTrades[0]?.date;
-        const firstDate = new Date((Number(firstValidDate) || Math.floor(Date.now() / 1000)) * 1000);
-        const zeroPointDate = new Date(firstDate.getTime() - 2000);
-
-        balanceFullData = [
-            { date: zeroPointDate, balance: 0 },
-            ...processedData
-        ];
-
-        balanceCurrentData = [...balanceFullData];
-        resizeBalanceCanvas();
-
     } catch (error) {
-        console.error('Error loading trade history:', error);
-        balanceCurrentData = [...balanceFullData];
+        console.error('Error loading balance data:', error);
+        balanceFullData = [];
+        balanceCurrentData = [];
         resizeBalanceCanvas();
+        return;
     }
+
+    // Gabung & sort semua data berdasarkan timestamp
+    const allRawData = [...perpetualData, ...spotData]
+        .filter(t => t.date)
+        .sort((a, b) => Number(a.date) - Number(b.date));
+
+    if (allRawData.length === 0) {
+        balanceFullData = [];
+        balanceCurrentData = [];
+        resizeBalanceCanvas();
+        return;
+    }
+
+    let cumulativeBalance = 0;
+    const processedData = [];
+
+    for (const entry of allRawData) {
+        const timestampMs = Number(entry.date) * 1000;
+        const tradeDate = new Date(timestampMs);
+
+        if (entry.action === 'Deposit' || entry.action === 'Withdraw') {
+            const val = Number(entry.value) || 0;
+            cumulativeBalance += val;
+            processedData.push({
+                date: tradeDate,
+                balance: parseFloat(cumulativeBalance.toFixed(2)),
+                tradeNumber: entry.tradeNumber,
+                PnL: val,
+                action: entry.action
+            });
+            continue;
+        }
+
+        if (entry.Pnl !== undefined && entry.Pnl !== null) {
+            const pnl = Number(entry.Pnl) || 0;
+            cumulativeBalance += pnl;
+            processedData.push({
+                date: tradeDate,
+                balance: parseFloat(cumulativeBalance.toFixed(2)),
+                tradeNumber: entry.tradeNumber,
+                PnL: pnl
+            });
+        }
+    }
+
+    const firstValidDate = allRawData[0]?.date;
+    const firstDate = new Date((Number(firstValidDate) || Math.floor(Date.now() / 1000)) * 1000);
+    const zeroPointDate = new Date(firstDate.getTime() - 2000);
+
+    balanceFullData = [
+        { date: zeroPointDate, balance: 0 },
+        ...processedData
+    ];
+
+    balanceCurrentData = [...balanceFullData];
+    resizeBalanceCanvas();
 }
 
 function filterData(range) {
@@ -202,7 +215,17 @@ function updateFilterStats(range) {
     const subtitle = document.getElementById('subtitleFilterBalance');
     const valueEl = document.getElementById('valueFilterBalance');
 
-    subtitle.textContent = `${range.toUpperCase()} Account Value (Combined)`;
+    // 🔥 Tentukan label berdasarkan mode chart saat ini
+    let accountLabel;
+    if (currentChartMode === 'Spot') {
+        accountLabel = 'Account Spot';
+    } else if (currentChartMode === 'Perpetual') {
+        accountLabel = 'Account Perpetual';
+    } else { // 'All'
+        accountLabel = 'Account Value (Combined)';
+    }
+
+    subtitle.textContent = `${range.toUpperCase()} ${accountLabel}`;
 
     if (balanceFullData.length === 0) {
         valueEl.textContent = '$0.00';
@@ -542,10 +565,10 @@ function drawBalanceChart(animProgress = 1) {
         const p2 = balancePoints[i + 1];
         const p3 = balancePoints[i + 2] || p2;
 
-        const cp1x = p1.x + (p2.x - p0.x) / 6;
-        const cp1y = p1.y + (p2.y - p0.y) / 6;
-        const cp2x = p2.x - (p3.x - p1.x) / 6;
-        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        const cp1x = p1.x + (p2.x - p0.x) / 8;
+        const cp1y = p1.y + (p2.y - p0.y) / 8;
+        const cp2x = p2.x - (p3.x - p1.x) / 8;
+        const cp2y = p2.y - (p3.y - p1.y) / 8;
 
         ctxBalance.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
     }
@@ -564,7 +587,7 @@ function drawBalanceChart(animProgress = 1) {
     }
 
     ctxBalance.strokeStyle = lineColor;
-    ctxBalance.lineWidth = 3;
+    ctxBalance.lineWidth = 2.5;
     ctxBalance.lineJoin = 'round';
     ctxBalance.lineCap = 'round';
     ctxBalance.shadowColor = shadowColor;
@@ -579,10 +602,10 @@ function drawBalanceChart(animProgress = 1) {
         const p2 = balancePoints[i + 1];
         const p3 = balancePoints[i + 2] || p2;
 
-        const cp1x = p1.x + (p2.x - p0.x) / 6;
-        const cp1y = p1.y + (p2.y - p0.y) / 6;
-        const cp2x = p2.x - (p3.x - p1.x) / 6;
-        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        const cp1x = p1.x + (p2.x - p0.x) / 8;
+        const cp1y = p1.y + (p2.y - p0.y) / 8;
+        const cp2x = p2.x - (p3.x - p1.x) / 8;
+        const cp2y = p2.y - (p3.y - p1.y) / 8;
 
         ctxBalance.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
     }
@@ -845,7 +868,7 @@ canvasBalance.addEventListener('mouseleave', () => {
     drawBalanceChart();
 });
 
-loadTradeHistory().then(() => {
+loadBalanceData('Perpetual').then(() => {
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -933,10 +956,10 @@ function drawSmoothPath(ctx, points) {
         const p2 = points[i + 1];
         const p3 = points[i + 2] || p2;
 
-        const cp1x = p1.x + (p2.x - p0.x) / 6;
-        const cp1y = p1.y + (p2.y - p0.y) / 6;
-        const cp2x = p2.x - (p3.x - p1.x) / 6;
-        const cp2y = p2.y - (p3.y - p1.y) / 6;
+        const cp1x = p1.x + (p2.x - p0.x) / 8;
+        const cp1y = p1.y + (p2.y - p0.y) / 8;
+        const cp2x = p2.x - (p3.x - p1.x) / 8;
+        const cp2y = p2.y - (p3.y - p1.y) / 8;
 
         ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
     }
@@ -1802,9 +1825,9 @@ window.addEventListener('resize', () => {
 });
 
 window.addEventListener('tradeDataUpdated', async () => {
-    console.log('RENDER CHART SELESAI');
+    console.log('Render Chart Commplite');
     // Balance Chart
-    await loadTradeHistory();
+    await loadBalanceData(currentChartMode);
     
     const activeBtn = document.querySelector('.filter-btn.active');
     const currentRange = activeBtn ? activeBtn.dataset.range : '24h';

@@ -533,7 +533,6 @@ document.addEventListener("DOMContentLoaded", () => {
         const options = dropdown.querySelector('.dropdown-options');
         const optionElements = dropdown.querySelectorAll('.dropdown-option');
         const name = dropdown.getAttribute('data-dropdown');
-        const closeIcon = selected.querySelector('.close-icon');
         const selectedSpan = selected.querySelector('span');
 
         function updateDropdownDisplay(hasValue, text = null) {
@@ -614,7 +613,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!input || !clearBtn) return;
 
         function updateClearButton() {
-            if (input.value.trim()) {
+            // Gunakan trim untuk memastikan spasi saja tidak dianggap value
+            if (input.value.trim().length > 0) {
                 container.classList.add('has-value');
             } else {
                 container.classList.remove('has-value');
@@ -622,11 +622,12 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         input.addEventListener('input', updateClearButton);
-
+        // Jalankan sekali saat load untuk cek data awal
         updateClearButton();
 
         clearBtn.addEventListener('click', () => {
             input.value = '';
+            // Dispatch event agar sinkron
             input.dispatchEvent(new Event('input'));
             input.focus();
         });
@@ -946,26 +947,47 @@ function getDropdownValue(dropdownName) {
 
 // ------ Reset Form After Update ------ //
 function resetForm(containerSelector) {
-  document.querySelectorAll(`${containerSelector} input, ${containerSelector} textarea`)
-    .forEach(el => {
-      if (el.type === 'datetime-local') {
-        el.value = new Date().toISOString().slice(0, 16);
-      } else {
-        el.value = '';
-      }
-    });
+  const container = document.querySelector(containerSelector);
+  if (!container) return;
 
-  document.querySelectorAll(`${containerSelector} .custom-dropdown`).forEach(dd => {
-    const span = dd.querySelector('.dropdown-selected span');
+  // 1. Bersihkan Input & Textarea
+  container.querySelectorAll('input, textarea').forEach(el => {
+    if (el.type === 'datetime-local') {
+      el.value = new Date().toISOString().slice(0, 16);
+    } else {
+      el.value = '';
+    }
+    // TRIGGER EVENT: Supaya listener 'input' jalan dan hapus icon X
+    el.dispatchEvent(new Event('input'));
+  });
+
+  // 2. Bersihkan Custom Dropdowns
+  container.querySelectorAll('.custom-dropdown').forEach(dd => {
+    const selectedEl = dd.querySelector('.dropdown-selected');
+    const span = selectedEl?.querySelector('span');
+    const name = dd.getAttribute('data-dropdown');
+    
+    // Kembalikan ke Placeholder
     if (span) {
       const placeholder = span.getAttribute('data-placeholder') || 'Select';
       span.textContent = placeholder;
       span.classList.add('placeholder');
-      dd.classList.remove('has-value');
     }
-    dd.querySelectorAll('.dropdown-option.selected').forEach(opt => opt.classList.remove('selected'));
-    const name = dd.getAttribute('data-dropdown');
-    if (name && window.dropdownData) delete window.dropdownData[name];
+
+    // Hapus Class Aktif & Value
+    if (selectedEl) {
+      selectedEl.classList.remove('has-value', 'active');
+    }
+
+    // Unselect semua opsi di dalam
+    dd.querySelectorAll('.dropdown-option.selected').forEach(opt => {
+      opt.classList.remove('selected');
+    });
+
+    // Hapus dari data global
+    if (name && window.dropdownData) {
+      delete window.dropdownData[name];
+    }
   });
 }
 
