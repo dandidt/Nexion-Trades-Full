@@ -51,15 +51,15 @@
             <div class="wrapper-stats fade-up">
                 <div class="box-stats box-stats-red">
                     <div class="bx-top">
-                        <p class="title-front">BEHAVIOR SENTIMENT</p>
+                        <p class="title-front">INSTRUMENT SPLIT</p>
                         <div class="icon-front-box icon-front-box-red">
                             <svg class="icon-red" xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="m312.59-161.87-60.66-60.65 98.5-98.5H81.87v-86h268.56l-98-98 60.66-60.65 201.39 201.65-201.89 202.15Zm334.82-232.46L445.52-596.48l201.39-201.65 60.66 60.65-98 98h268.56v86H609.57l98.5 98.5-60.66 60.65Z"/></svg>
                         </div>
                     </div>
                     <div class="mid-content">
-                        <p class="text-mid-content" id="statsNavReversal">0% Reversal</p>
+                        <p class="text-mid-content" id="statsNavPerpetual">0% Perpetual</p>
                     </div>
-                    <p class="subtitle-front" id="statsNavContinuation">0% Continuasion</p>
+                    <p class="subtitle-front" id="statsNavSpot">0% Spot</p>
                     <p class="footer-font">Based on total behavior</p>
                 </div>
                 <div class="box-stats box-stats-green">
@@ -1137,32 +1137,47 @@
             <div class="container-setting fade-up">
                 <h2 class="title-setting">Global Settings</h2>
 
-                <h2 class="title-setting">Automatic Calculator</h2>
-                <div class="form-group">
-                    <label for="fee">Fee (%)</label>
-                    <p class="info-text">This fee will be calculated when opening and closing a position.</p>
-                    <div class="input-wrapper">
-                        <input type="number" id="fee" step="0.01" min="0" max="100" placeholder="1">
-                        <span class="percent-sign">%</span>
-                    </div>
-                </div>
+                <div class="row-risk">
+                    <div class="column-risk">
+                        <h2 class="title-setting-fr">Perpetual Setup</h2>
+                        <div class="form-group">
+                            <label for="fee-perp">Fee (%)</label>
+                            <p class="info-text">This fee will be calculated when opening and closing a position.</p>
+                            <div class="input-wrapper">
+                                <input type="number" id="fee-perp" step="0.01" min="0" max="100" placeholder="0.2">
+                                <span class="percent-sign">%</span>
+                            </div>
+                        </div>
 
-                <div class="form-group">
-                    <label for="risk">Risk Per Trade (%)</label>
-                    <p class="info-text">Risk Per Trade from Initial Balance</p>
-                    <div class="input-wrapper">
-                        <input type="number" id="risk" step="0.1" min="0" max="100" placeholder="2.5">
-                        <span class="percent-sign">%</span>
+                        <div class="form-group">
+                            <label for="risk-perp">Risk Per Trade (%)</label>
+                            <p class="info-text">Risk Per Trade from Initial Balance</p>
+                            <div class="input-wrapper">
+                                <input type="number" id="risk-perp" step="0.1" min="0" max="100" placeholder="1">
+                                <span class="percent-sign">%</span>
+                            </div>
+                        </div>
                     </div>
-                </div>
 
-                <h2 class="title-setting">Data Jurnal Trade</h2>
-                <div class="form-group">
-                    <label>Download Data</label>
-                    <p class="info-text">To download data, you can directly click</p>
-                    <div class="column-download">
-                        <button class="btn btn-green btn-download" id="downloadCSV">Format CSV</button>
-                        <button class="btn btn-green btn-download" id="downloadJSON">Format JSON</button>
+                    <div class="column-risk">
+                        <h2 class="title-setting-fr">Spot Setup</h2>
+                        <div class="form-group">
+                            <label for="fee-spot">Fee (%)</label>
+                            <p class="info-text">This fee will be calculated when opening and closing a position.</p>
+                            <div class="input-wrapper">
+                                <input type="number" id="fee-spot" step="0.01" min="0" max="100" placeholder="0.2">
+                                <span class="percent-sign">%</span>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="risk-spot">Risk Per Trade (%)</label>
+                            <p class="info-text">Risk Per Trade from Initial Balance</p>
+                            <div class="input-wrapper">
+                                <input type="number" id="risk-spot" step="0.1" min="0" max="100" placeholder="1">
+                                <span class="percent-sign">%</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1486,7 +1501,7 @@
         <div class="popup-container popup-perpetual-edit">
             <div class="popup-header">
                 <h4>Edit Perpetual</h4>
-                <div class="box-auto" id="AutomationPnL">
+                <div class="box-auto" id="PerpetualAutoPnL">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M279-288h74.96l39.45-110H567l39.31 110H681L518-720h-77L279-288Zm136-173 63.06-179H482l63 179H415Zm65.28 365Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30ZM480-480Zm.23 312Q610-168 701-259.23t91-221Q792-610 700.77-701t-221-91Q350-792 259-700.77t-91 221Q168-350 259.23-259t221 91Z"/></svg>
                 </div>
             </div>
@@ -2085,7 +2100,7 @@
         <div class="popup-container popup-spot-edit">
             <div class="popup-header">
                 <h4>Edit Spot</h4>
-                <div class="box-auto" id="AutomationPnLSpot">
+                <div class="box-auto" id="SpotAutoPnL">
                     <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M279-288h74.96l39.45-110H567l39.31 110H681L518-720h-77L279-288Zm136-173 63.06-179H482l63 179H415Zm65.28 365Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30ZM480-480Zm.23 312Q610-168 701-259.23t91-221Q792-610 700.77-701t-221-91Q350-792 259-700.77t-91 221Q168-350 259.23-259t221 91Z"/></svg>
                 </div>
             </div>
@@ -2130,7 +2145,7 @@
                         <div class="form-group">
                             <label>RR</label>
                             <div class="input-with-clear">
-                                <input type="number" id="SpotEditRr" step="0.1">
+                                <input type="number" id="SpotEditRr" placeholder="1.5" step="0.1">
                                 <button type="button" class="clear-btn">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="#e3e3e3"><path d="M5.05 38.99L1.02 34.96 15.97 20.01 1.02 5.06 5.05 1.02 20 15.97 34.95 1.02 38.98 5.05 24.03 20 38.98 34.95 34.95 38.98 20 24.03 5.05 38.99Z"/></svg>
                                 </button>
@@ -2170,7 +2185,7 @@
                         <div class="form-group">
                             <label>Margin</label>
                             <div class="input-with-clear">
-                                <input type="number" id="SpotEditMargin" step="0.1">
+                                <input type="number" id="SpotEditMargin" placeholder="1.5" step="0.1">
                                 <button type="button" class="clear-btn">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="#e3e3e3"><path d="M5.05 38.99L1.02 34.96 15.97 20.01 1.02 5.06 5.05 1.02 20 15.97 34.95 1.02 38.98 5.05 24.03 20 38.98 34.95 34.95 38.98 20 24.03 5.05 38.99Z"/></svg>
                                 </button>
@@ -2219,7 +2234,7 @@
                         <div class="form-group">
                             <label>PnL</label>
                             <div class="input-with-clear">
-                                <input type="number" id="SpotEditPnl" step="0.1">
+                                <input type="number" id="SpotEditPnl" placeholder="1.5" step="0.1">
                                 <button type="button" class="clear-btn">
                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" fill="#e3e3e3"><path d="M5.05 38.99L1.02 34.96 15.97 20.01 1.02 5.06 5.05 1.02 20 15.97 34.95 1.02 38.98 5.05 24.03 20 38.98 34.95 34.95 38.98 20 24.03 5.05 38.99Z"/></svg>
                                 </button>
@@ -2467,19 +2482,19 @@
                 </div>
                 <div class="wraaper-row-btn">
                     <div class="box-btn-share" data-platform="twitter">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 40 40" fill="#000000"><path d="m31.2,2.34h5.98l-13.05,14.96,15.36,20.35h-12.02l-9.42-12.35-10.78,12.35H1.29l13.96-16L.52,2.34h12.33l8.51,11.28L31.2,2.34h0Zm-2.09,31.73h3.31L11.05,5.74h-3.55l21.61,28.33Z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 40 40" fill="#000000"><path d="m31.2,2.34h5.98l-13.05,14.96,15.36,20.35h-12.02l-9.42-12.35-10.78,12.35H1.29l13.96-16L.52,2.34h12.33l8.51,11.28L31.2,2.34h0Zm-2.09,31.73h3.31L11.05,5.74h-3.55l21.61,28.33Z"/></svg>
                     </div>
                     <div class="box-btn-share" data-platform="discord">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 40 40" fill="#000000"><path d="m33.52,7.45c-2.52-1.18-5.22-2.04-8.04-2.53-.35.63-.75,1.47-1.03,2.14-3-.45-5.97-.45-8.91,0-.28-.67-.69-1.51-1.04-2.14-2.82.49-5.52,1.35-8.04,2.53C1.37,15.14,0,22.64.68,30.03c3.37,2.52,6.64,4.05,9.86,5.05.79-1.09,1.5-2.25,2.11-3.48-1.16-.44-2.27-.99-3.33-1.62.28-.21.55-.42.82-.64,6.41,3,13.38,3,19.71,0,.27.22.54.44.82.64-1.05.64-2.17,1.18-3.33,1.62.61,1.22,1.31,2.39,2.11,3.48,3.22-1,6.49-2.53,9.87-5.06.81-8.57-1.38-15.99-5.79-22.58ZM13.53,25.48c-1.92,0-3.5-1.8-3.5-3.98s1.54-3.99,3.5-3.99,3.54,1.8,3.5,3.99c0,2.19-1.54,3.98-3.5,3.98Zm12.95,0c-1.92,0-3.5-1.8-3.5-3.98s1.54-3.99,3.5-3.99,3.54,1.8,3.5,3.99c0,2.19-1.54,3.98-3.5,3.98Z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 40 40" fill="#000000"><path d="m33.52,7.45c-2.52-1.18-5.22-2.04-8.04-2.53-.35.63-.75,1.47-1.03,2.14-3-.45-5.97-.45-8.91,0-.28-.67-.69-1.51-1.04-2.14-2.82.49-5.52,1.35-8.04,2.53C1.37,15.14,0,22.64.68,30.03c3.37,2.52,6.64,4.05,9.86,5.05.79-1.09,1.5-2.25,2.11-3.48-1.16-.44-2.27-.99-3.33-1.62.28-.21.55-.42.82-.64,6.41,3,13.38,3,19.71,0,.27.22.54.44.82.64-1.05.64-2.17,1.18-3.33,1.62.61,1.22,1.31,2.39,2.11,3.48,3.22-1,6.49-2.53,9.87-5.06.81-8.57-1.38-15.99-5.79-22.58ZM13.53,25.48c-1.92,0-3.5-1.8-3.5-3.98s1.54-3.99,3.5-3.99,3.54,1.8,3.5,3.99c0,2.19-1.54,3.98-3.5,3.98Zm12.95,0c-1.92,0-3.5-1.8-3.5-3.98s1.54-3.99,3.5-3.99,3.54,1.8,3.5,3.99c0,2.19-1.54,3.98-3.5,3.98Z"/></svg>
                     </div>
                     <div class="box-btn-share margin-right" data-platform="telegram">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" viewBox="0 0 40 40" fill="#000000"><path d="m39.37,6.64l-5.88,27.73c-.44,1.96-1.6,2.44-3.24,1.52l-8.96-6.6-4.32,4.16c-.48.48-.88.88-1.8.88l.64-9.12,16.6-15c.72-.64-.16-1-1.12-.36l-20.53,12.93-8.84-2.77c-1.92-.6-1.96-1.92.4-2.84L36.89,3.84c1.6-.6,3,.36,2.48,2.8h0Z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="18px" height="18px" viewBox="0 0 40 40" fill="#000000"><path d="m39.37,6.64l-5.88,27.73c-.44,1.96-1.6,2.44-3.24,1.52l-8.96-6.6-4.32,4.16c-.48.48-.88.88-1.8.88l.64-9.12,16.6-15c.72-.64-.16-1-1.12-.36l-20.53,12.93-8.84-2.77c-1.92-.6-1.96-1.92.4-2.84L36.89,3.84c1.6-.6,3,.36,2.48,2.8h0Z"/></svg>
                     </div>
                     <div class="box-btn-share" onclick="copyImageShare()">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" width="20px" viewBox="0 0 40 40" fill="#000000"><path d="m14.48,31.03c-.91,0-1.69-.32-2.34-.97-.65-.65-.97-1.43-.97-2.34V5.65c0-.91.32-1.69.97-2.34.65-.65,1.43-.97,2.34-.97h17.66c.91,0,1.69.32,2.34.97.65.65.97,1.43.97,2.34v22.07c0,.91-.32,1.69-.97,2.34-.65.65-1.43.97-2.34.97H14.48Zm0-3.31h17.66V5.65H14.48v22.07Zm-6.62,9.93c-.91,0-1.69-.32-2.34-.97-.65-.65-.97-1.43-.97-2.34V8.97h3.31v25.38h20.97v3.31H7.86Zm6.62-9.93V5.65v22.07Z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="18px" width="18px" viewBox="0 0 40 40" fill="#000000"><path d="m14.48,31.03c-.91,0-1.69-.32-2.34-.97-.65-.65-.97-1.43-.97-2.34V5.65c0-.91.32-1.69.97-2.34.65-.65,1.43-.97,2.34-.97h17.66c.91,0,1.69.32,2.34.97.65.65.97,1.43.97,2.34v22.07c0,.91-.32,1.69-.97,2.34-.65.65-1.43.97-2.34.97H14.48Zm0-3.31h17.66V5.65H14.48v22.07Zm-6.62,9.93c-.91,0-1.69-.32-2.34-.97-.65-.65-.97-1.43-.97-2.34V8.97h3.31v25.38h20.97v3.31H7.86Zm6.62-9.93V5.65v22.07Z"/></svg>
                     </div>
                     <div class="box-btn-share" onclick="downloadImageShare()">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" width="20px" viewBox="0 0 40 40" fill="#000000"><path d="m20,29.51l-10.86-10.86,2.89-2.89,5.94,5.94V2.34h4.07v19.35l5.94-5.94,2.89,2.89-10.86,10.86Zm-12.24,8.15c-1.12,0-2.08-.4-2.87-1.2-.79-.8-1.19-1.76-1.19-2.88v-4.07h4.07v4.07h24.45v-4.07h4.07v4.07c0,1.12-.4,2.08-1.2,2.88-.8.8-1.76,1.2-2.88,1.2H7.76Z"/></svg>
+                        <svg xmlns="http://www.w3.org/2000/svg" height="18px" width="18px" viewBox="0 0 40 40" fill="#000000"><path d="m20,29.51l-10.86-10.86,2.89-2.89,5.94,5.94V2.34h4.07v19.35l5.94-5.94,2.89,2.89-10.86,10.86Zm-12.24,8.15c-1.12,0-2.08-.4-2.87-1.2-.79-.8-1.19-1.76-1.19-2.88v-4.07h4.07v4.07h24.45v-4.07h4.07v4.07c0,1.12-.4,2.08-1.2,2.88-.8.8-1.76,1.2-2.88,1.2H7.76Z"/></svg>
                     </div>
                 </div>
             </div>
@@ -3015,10 +3030,17 @@
         <div class="popup-container popup-fee-analysis">
             <div class="popup-header">
                 <h4>Fee Analysis</h4>
-                <div class="btn btn-default btn-close" id="closeFeeAnalysis">
-                    <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
-                        <path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/>
-                    </svg>
+                <div class="wrapper-header">
+                    <div class="btn-radio-wrapper">
+                        <button class="btn-radio btn-fee active" >Perpetual</button>
+                        <button class="btn-radio btn-fee" >Spot</button>
+                        <button class="btn-radio btn-fee" >All</button>
+                    </div>
+                    <div class="btn btn-default btn-close" id="closeFeeAnalysis">
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+                            <path d="m291-240-51-51 189-189-189-189 51-51 189 189 189-189 51 51-189 189 189 189-51 51-189-189-189 189Z"/>
+                        </svg>
+                    </div>
                 </div>
             </div>
 

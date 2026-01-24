@@ -313,11 +313,11 @@ async function switchToAccount(refreshToken) {
         if (error) throw error;
         if (!data.session) throw new Error("No session returned after refresh!");
 
-        console.log("🔄 Switched to:", data.session.user.email);
+        console.log("Switched to:", data.session.user.email);
 
         if (account.avatar) {
             localStorage.setItem('avatar', account.avatar);
-            console.log("✅ Avatar akun baru disimpan ke localStorage");
+            console.log("Avatar new save LS");
         } else {
             localStorage.removeItem('avatar');
         }
@@ -615,7 +615,6 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!input || !clearBtn) return;
 
         function updateClearButton() {
-            // Gunakan trim untuk memastikan spasi saja tidak dianggap value
             if (input.value.trim().length > 0) {
                 container.classList.add('has-value');
             } else {
@@ -624,12 +623,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         input.addEventListener('input', updateClearButton);
-        // Jalankan sekali saat load untuk cek data awal
         updateClearButton();
 
         clearBtn.addEventListener('click', () => {
             input.value = '';
-            // Dispatch event agar sinkron
             input.dispatchEvent(new Event('input'));
             input.focus();
         });
@@ -952,41 +949,34 @@ function resetForm(containerSelector) {
   const container = document.querySelector(containerSelector);
   if (!container) return;
 
-  // 1. Bersihkan Input & Textarea
   container.querySelectorAll('input, textarea').forEach(el => {
     if (el.type === 'datetime-local') {
       el.value = new Date().toISOString().slice(0, 16);
     } else {
       el.value = '';
     }
-    // TRIGGER EVENT: Supaya listener 'input' jalan dan hapus icon X
     el.dispatchEvent(new Event('input'));
   });
 
-  // 2. Bersihkan Custom Dropdowns
   container.querySelectorAll('.custom-dropdown').forEach(dd => {
     const selectedEl = dd.querySelector('.dropdown-selected');
     const span = selectedEl?.querySelector('span');
     const name = dd.getAttribute('data-dropdown');
     
-    // Kembalikan ke Placeholder
     if (span) {
       const placeholder = span.getAttribute('data-placeholder') || 'Select';
       span.textContent = placeholder;
       span.classList.add('placeholder');
     }
 
-    // Hapus Class Aktif & Value
     if (selectedEl) {
       selectedEl.classList.remove('has-value', 'active');
     }
 
-    // Unselect semua opsi di dalam
     dd.querySelectorAll('.dropdown-option.selected').forEach(opt => {
       opt.classList.remove('selected');
     });
 
-    // Hapus dari data global
     if (name && window.dropdownData) {
       delete window.dropdownData[name];
     }
@@ -1554,8 +1544,7 @@ async function DeletePerpetual() {
         CancelEditPerpetual();
 
     } catch (err) {
-        console.error("❌ Gagal menghapus trade:", err);
-        alert("Gagal menghapus trade:\n" + err.message);
+        console.error("Error Remove:", err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -1568,7 +1557,6 @@ async function DeletePerpetualTransaction() {
     btn.classList.add("loading");
 
     if (!currentEditingTradeNo) {
-        alert("⚠️ Tidak ada transfer yang dipilih untuk dihapus!");
         btn.classList.remove("loading");
         return;
     }
@@ -1612,8 +1600,7 @@ async function DeletePerpetualTransaction() {
         CancelEditPerpetual();
 
     } catch (err) {
-        console.error("❌ Gagal menghapus transfer:", err);
-        alert("Gagal menghapus transfer:\n" + err.message);
+        console.error("Error Delete:", err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -2044,7 +2031,6 @@ function CancelEditSpot() {
     document.body.classList.remove("popup-open");
     document.body.style.overflow = "";
 
-    // Reset form fields & dropdown
     [popupEdit, popupTrans].forEach(popup => {
         if (!popup) return;
         popup.querySelectorAll('.custom-dropdown').forEach(dd => {
@@ -2103,8 +2089,7 @@ async function DeleteSpot() {
         CancelEditSpot();
 
     } catch (err) {
-        console.error("❌ Gagal menghapus Spot trade:", err);
-        alert("Gagal menghapus trade Spot:\n" + err.message);
+        console.error("Error Delete:", err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -2154,8 +2139,7 @@ async function DeleteSpotTransaction() {
         CancelEditSpot();
 
     } catch (err) {
-        console.error("❌ Gagal menghapus Spot transfer:", err);
-        alert("Gagal menghapus transfer Spot:\n" + err.message);
+        console.error("Error Delete:", err);
     } finally {
         btn.classList.remove("loading");
     }
@@ -2222,7 +2206,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeBtn = document.getElementById("closeCaculate");
 
     function openCaculate() {
-        closeAllPopups();
+        if (typeof closeAllPopups === "function") closeAllPopups();
+        
         document.body.classList.add("popup-open");
         document.body.style.overflow = "hidden";
         popupOverlay?.classList.add("show");
@@ -2239,58 +2224,138 @@ document.addEventListener("DOMContentLoaded", () => {
     btnCaculate?.addEventListener("click", openCaculate);
     closeBtn?.addEventListener("click", closeCaculate);
     popupOverlay?.addEventListener("click", closeCaculate);
+
+    popupCaculate?.addEventListener("click", function (e) {
+        const row = e.target.closest(".row-if");
+        if (row) {
+            const valueEl = row.querySelector(".value-caculate");
+            if (valueEl) {
+                let text = valueEl.textContent.replace(/[$,]/g, '');
+                
+                navigator.clipboard.writeText(text)
+                    .then(() => {
+                        if (typeof window.showToast === "function") {
+                            window.showToast(`Copied: ${text}`);
+                        } else {
+                            console.log("Copied:", text);
+                        }
+                    })
+                    .catch(() => {
+                        if (typeof window.showToast === "function") {
+                            window.showToast("Gagal copy!");
+                        }
+                    });
+            }
+        }
+    });
 });
 
-// ======================= Automation PnL  ======================= //
-document.getElementById("AutomationPnL")?.addEventListener("click", () => {
+// ------ Automation PnL Perpetual ------ //
+document.getElementById("PerpetualAutoPnL")?.addEventListener("click", () => {
     try {
-            window.dropdownData = window.dropdownData || {};
-            const resultValue = window.dropdownData["edit-result"];
+        window.dropdownData = window.dropdownData || {};
+        const resultValue = window.dropdownData["PerpetualEditResult"];
 
-            if (!resultValue || !["Profit", "Loss"].includes(resultValue)) {
-                return;
-            }
-
-            const dbPerpetual = JSON.parse(localStorage.getItem("dbperpetual") || "[]");
-            const setting = JSON.parse(localStorage.getItem("setting") || "{}");
-            const calc = JSON.parse(localStorage.getItem("calculate") || "{}");
-
-            const rrInput = document.getElementById("edit-rr");
-            const rr = parseFloat(rrInput?.value || "0");
-
-            const risk = parseFloat(setting.risk) || 0;
-            const feePercent = parseFloat(setting.fee) || 0;
-            const fee = feePercent / 100;
-            const leverage = parseFloat(calc.leverage) || 1;
-            const riskFactor = parseFloat(setting.riskFactor) || 1;
-
-            const totalPNL = dbPerpetual.reduce((sum, item) => sum + (parseFloat(item.Pnl ?? item.pnl ?? 0) || 0), 0);
-            const totalDeposit = dbPerpetual.reduce((sum, item) => item.action?.toLowerCase() === "deposit" ? sum + (parseFloat(item.value ?? 0) || 0) : sum, 0);
-            const finalBalance = totalPNL + totalDeposit;
-            const margin = finalBalance * (risk / 100) * riskFactor;
-            const positionSize = margin * leverage;
-            const feeValue = positionSize * fee * 2;
-
-            let pnlFinal = 0;
-            let rrUsed = rr;
-
-            if (resultValue === "Profit") {
-            if (isNaN(rr) || rr <= 0) {
-                return;
-            }
-            pnlFinal = margin * rrUsed - feeValue;
-            } else if (resultValue === "Loss") {
-                rrUsed = -1;
-                pnlFinal = -(margin + feeValue);
-            }
-
-            document.getElementById("edit-margin").value = margin.toFixed(2);
-            document.getElementById("edit-pnl").value = pnlFinal.toFixed(2);
-            document.getElementById("edit-rr").value = rrUsed.toFixed(2);
-
-        } catch (err) {
-            console.error("❌ Auto calc error:", err);
+        if (!resultValue || !["Profit", "Loss"].includes(resultValue)) {
+            showToast("Select Result Profit/Loss!");
+            return;
         }
+
+        const settingData = getLocalData("setting");
+        const calc = getLocalData("calculate") || {};
+        const activeSetting = settingData?.perp || {};
+        const dbTrades = getLocalData("dbperpetual") || [];
+
+        const rrInput = document.getElementById("PerpetualEditRr");
+        const marginInput = document.getElementById("PerpetualEditMargin");
+        const pnlInput = document.getElementById("PerpetualEditPnl");
+
+        const rr = parseFloat(rrInput?.value || "0");
+        const risk = parseFloat(activeSetting.risk) || 0;
+        const feePercent = parseFloat(activeSetting.fee) || 0;
+        const fee = feePercent / 100;
+        const leverage = parseFloat(calc.leverage) || 1;
+
+        const totalPNL = dbTrades.reduce((sum, item) => sum + (parseFloat(item.Pnl || item.pnl || 0)), 0);
+        const totalDeposit = dbTrades.reduce((sum, item) => 
+            item.action?.toLowerCase() === "deposit" ? sum + (parseFloat(item.value || 0)) : sum, 0);
+        
+        const finalBalance = totalPNL + totalDeposit;
+        const margin = finalBalance * (risk / 100);
+        const positionSize = margin * leverage;
+        const feeValue = positionSize * fee * 2;
+
+        let pnlFinal = 0;
+        let rrUsed = rr;
+
+        if (resultValue === "Profit") {
+            if (isNaN(rr) || rr <= 0) { showToast("Enter RR!"); return; }
+            pnlFinal = (margin * rrUsed) - feeValue;
+        } else if (resultValue === "Loss") {
+            rrUsed = -1;
+            pnlFinal = -(margin + feeValue);
+        }
+
+        if (marginInput) marginInput.value = margin.toFixed(2);
+        if (pnlInput) pnlInput.value = pnlFinal.toFixed(2);
+        if (rrInput) rrInput.value = rrUsed.toFixed(2);
+
+        showToast("Perpetual PnL Calculated!");
+    } catch (err) { console.error("Auto calc error:", err); }
+});
+
+// ------ Automation PnL Spot ------ //
+document.getElementById("SpotAutoPnL")?.addEventListener("click", () => {
+    try {
+        window.dropdownData = window.dropdownData || {};
+        const resultValue = window.dropdownData["SpotEditResult"];
+
+        if (!resultValue || !["Profit", "Loss"].includes(resultValue)) {
+            showToast("Select Result Profit/Loss!");
+            return;
+        }
+
+        const settingData = getLocalData("setting");
+        const activeSetting = settingData?.spot || {};
+        const dbTrades = getLocalData("dbspot") || [];
+
+        const rrInput = document.getElementById("SpotEditRr");
+        const marginInput = document.getElementById("SpotEditMargin");
+        const pnlInput = document.getElementById("SpotEditPnl");
+
+        const rr = parseFloat(rrInput?.value || "0");
+        const risk = parseFloat(activeSetting.risk) || 0;
+        const feePercent = parseFloat(activeSetting.fee) || 0;
+        const fee = feePercent / 100;
+        
+        const leverage = 1;
+
+        const totalPNL = dbTrades.reduce((sum, item) => sum + (parseFloat(item.Pnl || item.pnl || 0)), 0);
+        const totalDeposit = dbTrades.reduce((sum, item) => 
+            item.action?.toLowerCase() === "deposit" ? sum + (parseFloat(item.value || 0)) : sum, 0);
+        
+        const finalBalance = totalPNL + totalDeposit;
+        const margin = finalBalance * (risk / 100);
+        const positionSize = margin * leverage; 
+        const feeValue = positionSize * fee * 2;
+
+        let pnlFinal = 0;
+        let rrUsed = rr;
+
+        if (resultValue === "Profit") {
+            if (isNaN(rr) || rr <= 0) { showToast("Enter RR!"); return; }
+            pnlFinal = (margin * rrUsed) - feeValue;
+        } else if (resultValue === "Loss") {
+            rrUsed = -1;
+            pnlFinal = -(margin + feeValue);
+        }
+
+        if (marginInput) marginInput.value = margin.toFixed(2);
+        if (pnlInput) pnlInput.value = pnlFinal.toFixed(2);
+        if (rrInput) rrInput.value = rrUsed.toFixed(2);
+
+        showToast("Spot PnL Calculated!");
+    } catch (err) { console.error("Auto calc error:", err); }
 });
 
 // ======================= Popup SOP  ======================= //
@@ -2916,7 +2981,7 @@ async function SaveEditProfile() {
         renderAccountList();
 
     } catch (err) {
-        console.error("❌ Error:", err);
+        console.error("Error:", err);
         const alertEl = document.getElementById("usernameAltert");
         if (alertEl) {
             let message = "Failed to save: " + (err.message || "Unknown error");
@@ -2969,7 +3034,7 @@ function updateAvatarInSavedAccounts(user_id, newAvatarBase64) {
     if (accountIndex !== -1) {
         savedAccounts[accountIndex].avatar = newAvatarBase64;
         localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
-        console.log('✅ Avatar di saved_accounts diperbarui untuk user:', user_id);
+        console.log('Avatar Update:', user_id);
     }
 }
 
@@ -3067,7 +3132,6 @@ document.addEventListener("DOMContentLoaded", () => {
     document.getElementById("closeShare")?.addEventListener("click", () => closePopup(popupShare));
 });
 
-// EVENT UNTUK TOMBOL RANGE
 document.querySelectorAll('.share-btn').forEach(btn => {
     btn.addEventListener('click', () => {
         document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
@@ -3083,7 +3147,6 @@ const ctxShare = canvasShare.getContext('2d');
 let templateImageShare = null;
 let profileImageShare = null;
 
-// TEMPLATE SWITCHER
 const TEMPLATE_LIST_SHARE = [
     'Asset/Card-Default.png',
     'Asset/Card-Loss.png',
@@ -3504,7 +3567,7 @@ async function preloadAllTemplates() {
         return cached;
     }
 
-    console.log("📥 Memuat template dari server... (versi:", TEMPLATE_SHARE_VERSION, ")");
+    console.log("Memuat template dari server... (versi:", TEMPLATE_SHARE_VERSION, ")");
 
     const images = {};
     const promises = TEMPLATE_LIST_SHARE.map(url =>
@@ -3527,10 +3590,10 @@ async function preloadAllTemplates() {
     try {
         await Promise.all(promises);
         setTemplateCache(images);
-        console.log("💾 Template berhasil disimpan ke cache");
+        console.log("Template berhasil disimpan ke cache");
         return images;
     } catch (err) {
-        console.error("❌ Gagal preload template:", err);
+        console.error("Gagal preload template:", err);
         return {};
     }
 }
@@ -4217,7 +4280,6 @@ function setStatValue(id, value) {
     el.style.color = value === 0 ? 'var(--bg-70)' : '';
 }
 
-
 async function updatePairsPopupData(symbol) {
     const stats = await calculatePairStats(symbol);
     
@@ -4384,6 +4446,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
+// Setup switch mode
+const feeModeButtons = document.querySelectorAll('.btn-radio.btn-fee');
+feeModeButtons.forEach((btn, index) => {
+    const modes = ['perpetual', 'spot', 'all'];
+    btn.addEventListener('click', () => {
+        // Update active class
+        feeModeButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        // Set mode
+        currentFeeMode = modes[index];
+
+        // Reload data
+        loadFeeData(currentFeeMode);
+    });
+});
+
 const canvasFee = document.getElementById('chartCanvasFee');
 const ctxFee = canvasFee.getContext('2d');
 const tooltipFee = document.getElementById('tooltip-fee');
@@ -4393,6 +4472,7 @@ let feeFullData = [];
 let feePoints = [];
 let feeChartArea = {};
 let feeLastPoint = null;
+let currentFeeMode = 'perpetual';
 
 function formatFeeCurrency(value) {
     return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -4410,16 +4490,28 @@ function formatFeeDateShort(date) {
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 }
 
-async function loadFeeData() {
+async function loadFeeData(mode = 'perpetual') {
+    let rawDataPerp = [];
+    let rawDataSpot = [];
+
     try {
-        const rawData = await getDBPerpetual();
-        if (!Array.isArray(rawData) || rawData.length === 0) {
+        if (mode === 'spot' || mode === 'all') {
+            rawDataSpot = await getDBSpot(); // pastikan fungsi ini ada
+        }
+        if (mode === 'perpetual' || mode === 'all') {
+            rawDataPerp = await getDBPerpetual();
+        }
+
+        const combinedRaw = [...rawDataPerp, ...rawDataSpot];
+
+        if (!Array.isArray(combinedRaw) || combinedRaw.length === 0) {
             feeFullData = [];
             drawFeeChart();
+            updateFeeTotalDisplay(0);
             return;
         }
 
-        const sorted = rawData
+        const sorted = combinedRaw
             .filter(t => t.date)
             .sort((a, b) => Number(a.date) - Number(b.date));
 
@@ -4429,9 +4521,10 @@ async function loadFeeData() {
         for (const entry of sorted) {
             const timestampMs = Number(entry.date) * 1000;
             const tradeDate = new Date(timestampMs);
-            
+
             let feeIni = 0;
 
+            // Logika fee sama untuk spot & perpetual (asumsi struktur data mirip)
             if (entry.hasOwnProperty("Pnl")) {
                 const rr = parseFloat(entry.RR);
                 const margin = parseFloat(entry.Margin);
@@ -4446,7 +4539,7 @@ async function loadFeeData() {
             }
 
             cumulativeFee += feeIni;
-            
+
             processed.push({
                 date: tradeDate,
                 fee: parseFloat(cumulativeFee.toFixed(2))
@@ -4463,10 +4556,7 @@ async function loadFeeData() {
         ];
 
         const finalFee = feeFullData[feeFullData.length - 1]?.fee || 0;
-        const elValueFilterFee = document.getElementById('valueFilterFee');
-        if (elValueFilterFee) {
-            elValueFilterFee.textContent = formatFeeCurrency(finalFee); 
-        }
+        updateFeeTotalDisplay(finalFee);
 
         drawFeeChart();
 
@@ -4474,6 +4564,14 @@ async function loadFeeData() {
         console.error('Error loading fee data:', error);
         feeFullData = [];
         drawFeeChart();
+        updateFeeTotalDisplay(0);
+    }
+}
+
+function updateFeeTotalDisplay(value) {
+    const elValueFilterFee = document.getElementById('valueFilterFee');
+    if (elValueFilterFee) {
+        elValueFilterFee.textContent = formatFeeCurrency(value);
     }
 }
 
@@ -4498,19 +4596,16 @@ function createDiagonalStripePattern(color = 'rgba(163, 163, 163, 0.7)', gap = 1
     ctx.lineWidth = thickness;
     ctx.lineCap = 'round';
 
-    // Garis utama diagonal
     ctx.beginPath();
     ctx.moveTo(0, size);
     ctx.lineTo(size, 0);
     ctx.stroke();
 
-    // Penutup ujung kiri atas
     ctx.beginPath();
     ctx.moveTo(-1, 1);
     ctx.lineTo(1, -1);
     ctx.stroke();
 
-    // Penutup ujung kanan bawah
     ctx.beginPath();
     ctx.moveTo(size - 1, size + 1);
     ctx.lineTo(size + 1, size - 1);
@@ -4533,13 +4628,11 @@ function drawFeeChart() {
         return;
     }
 
-    // Hitung rentang nilai Y
     const allFees = feeFullData.map(d => d.fee);
     const minFee = Math.min(...allFees) * 0.9;
     const maxFee = Math.max(...allFees) * 1.1;
     const rangeFee = maxFee - minFee || 1;
 
-    // Padding kiri dinamis
     ctxFee.font = '12px Inter';
     const sampleTexts = [
         formatFeeCurrency(minFee),
@@ -4561,7 +4654,7 @@ function drawFeeChart() {
         height: canvasFee.height - padding.top - padding.bottom
     };
 
-    // Label sumbu Y
+    // Sumbu Y
     ctxFee.textBaseline = 'alphabetic'; 
     ctxFee.fillStyle = 'rgb(163, 163, 163)';
     ctxFee.textAlign = 'right';
@@ -4572,7 +4665,7 @@ function drawFeeChart() {
         ctxFee.fillText(formatFeeCurrency(value), feeChartArea.left - 10, y + 4);
     }
 
-    // Sumbu X: 8 label
+    // Sumbu X
     const sortedData = [...feeFullData].sort((a, b) => a.date - b.date);
     const axisStart = new Date(sortedData[0].date);
     const axisEnd = new Date(sortedData[sortedData.length - 1].date);
@@ -4585,14 +4678,13 @@ function drawFeeChart() {
               return new Date(axisStart.getTime() + totalDuration * ratio);
           });
 
-    ctxFee.font = '600 30px TASA Explorer';
+    ctxFee.font = '600 30px Sansation';
     ctxFee.fillStyle = 'rgba(255, 255, 255, 0.3)';
     ctxFee.textAlign = 'center';
     ctxFee.textBaseline = 'middle';
-    ctxFee.fillText('Fee Analysis', canvasFee.width / 2, canvasFee.height / 2.5);
+    ctxFee.fillText('NEXION TRADE', canvasFee.width / 2, canvasFee.height / 2.5);
     ctxFee.restore();
 
-    // Bangun titik chart
     let lastFee = feeFullData[0]?.fee || 0;
     feePoints = fullDates.map(d => {
         const match = sortedData
@@ -4617,7 +4709,6 @@ function drawFeeChart() {
 
     const lineColor = 'rgb(239, 68, 68)';
 
-    // Update circle akhir
     const circlefee = document.getElementById('circlefee');
     if (circlefee) {
         circlefee.style.display = 'block';
@@ -4626,7 +4717,6 @@ function drawFeeChart() {
         circlefee.style.setProperty('--circlefee-after-color', 'rgba(239, 68, 68, 0.6)');
     }
 
-    // Gradient fill
     ctxFee.beginPath();
     ctxFee.moveTo(feePoints[0].x, feeChartArea.bottom);
     ctxFee.lineTo(feePoints[0].x, feePoints[0].y);
@@ -4653,7 +4743,6 @@ function drawFeeChart() {
     ctxFee.fillStyle = stripePattern;
     ctxFee.fill();
 
-    // Garis utama
     ctxFee.strokeStyle = lineColor;
     ctxFee.lineWidth = 2;
     ctxFee.lineJoin = 'round';
@@ -4675,7 +4764,7 @@ function drawFeeChart() {
     }
     ctxFee.stroke();
 
-    // Label sumbu X
+    // Sumbu X
     ctxFee.fillStyle = 'rgb(163, 163, 163)';
     ctxFee.font = '11px Inter';
     ctxFee.textAlign = 'center';
@@ -4695,7 +4784,6 @@ function drawFeeChart() {
         ctxFee.fillText(label, point.x, feeChartArea.bottom + 20);
     });
 
-    // Posisi circle akhir
     const last = feePoints[feePoints.length - 1];
     if (last && circlefee) {
         circlefee.style.left = `${last.x}px`;
@@ -4731,7 +4819,6 @@ canvasFee.addEventListener('mousemove', (e) => {
 
     canvasFee.style.cursor = 'crosshair';
 
-    // Cari titik terdekat
     let closestPoint = null;
     let minDist = Infinity;
     feePoints.forEach(p => {
@@ -4746,7 +4833,6 @@ canvasFee.addEventListener('mousemove', (e) => {
 
     drawFeeChart();
 
-    // Garis vertikal dashed
     ctxFee.lineWidth = 1;
     ctxFee.setLineDash([5, 5]);
     ctxFee.beginPath();
@@ -4755,19 +4841,16 @@ canvasFee.addEventListener('mousemove', (e) => {
     ctxFee.stroke();
     ctxFee.setLineDash([]);
 
-    // Titik highlight
     ctxFee.fillStyle = '#fff';
     ctxFee.beginPath();
     ctxFee.arc(closestPoint.x, closestPoint.y, 2, 0, Math.PI * 2);
     ctxFee.fill();
 
-    // Tooltip
     tooltipFee.style.display = 'block';
     dateLabelFee.style.display = 'block';
 
     document.getElementById('feeTooltip').textContent = formatFeeCurrency(closestPoint.fee);
 
-    // Format tanggal tooltip
     const date = closestPoint.date;
     const d = date.getDate().toString().padStart(2, '0');
     const m = (date.getMonth() + 1).toString().padStart(2, '0');
@@ -4779,14 +4862,12 @@ canvasFee.addEventListener('mousemove', (e) => {
     const hh = h.toString().padStart(2, '0');
     tooltipFee.querySelector('.tooltip-date-fee').textContent = `${d}/${m}/${y} ${hh}:${min} ${ampm}`;
 
-    // Label di bawah chart
     const monthDay = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     const time = date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit' });
     dateLabelFee.textContent = `${monthDay} ${time}`;
 
     feeLastPoint = closestPoint;
 
-    // Posisi tooltip
     const tooltipX = mouseX + 20;
     const tooltipY = mouseY - 80;
     const tooltipWidth = tooltipFee.offsetWidth;
@@ -4805,7 +4886,6 @@ canvasFee.addEventListener('mousemove', (e) => {
     tooltipFee.style.left = finalX + 'px';
     tooltipFee.style.top = finalY + 'px';
 
-    // Posisi label bawah
     const labelWidth = dateLabelFee.offsetWidth || 60;
     const labelTop = feeChartArea.bottom + 10;
     const wrapperRect = canvasFee.parentElement.getBoundingClientRect();
@@ -4824,12 +4904,25 @@ canvasFee.addEventListener('mouseleave', () => {
     drawFeeChart();
 });
 
-// Init
 window.addEventListener('load', () => {
-    loadFeeData();
+    loadFeeData(currentFeeMode); // gunakan mode saat ini
     window.addEventListener('resize', resizeFeeCanvas);
 });
 
+// ======================= Toast ======================= //
+function showToast(message) {
+    let toast = document.querySelector(".toast");
+    if (!toast) {
+        toast = document.createElement("div");
+        toast.classList.add("toast");
+        document.body.appendChild(toast);
+    }
+    toast.textContent = message;
+    toast.classList.add("show");
+    setTimeout(() => toast.classList.remove("show"), 2000);
+}
+
+window.showToast = showToast;
 // ======================= Block 1000px ======================= //
 function checkDeviceWidth() {
     const minWidth = 999;

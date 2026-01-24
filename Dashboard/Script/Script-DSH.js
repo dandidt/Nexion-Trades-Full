@@ -205,23 +205,23 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
-  // --- Behavior Stats (HANYA dari dataPerpetual) ---
-  let reversalCount = 0, continuCount = 0;
-  const perpetualTrades = (Array.isArray(dataPerpetual) ? dataPerpetual : []).filter(isTradeItem);
-  perpetualTrades.forEach(t => {
-    const b = (t.Behavior || t.behavior || '').toString().toLowerCase();
-    if (b.includes('reversal')) reversalCount++;
-    else if (b.includes('continuation') || b.includes('continuasion')) continuCount++;
-  });
-  const totalBeh = reversalCount + continuCount;
-  if (totalBeh > 0) {
-    const revPct = Math.round((reversalCount / totalBeh) * 100);
-    const conPct = 100 - revPct;
-    if (elStatsNavReversal) elStatsNavReversal.textContent = `${revPct}% Reversal`;
-    if (elStatsNavContinuation) elStatsNavContinuation.textContent = `${conPct}% Continuation`;
+  // --- Distribution Stats (Perpetual vs Spot) ---
+  const elStatsNavPerpetual = document.getElementById('statsNavPerpetual');
+  const elStatsNavSpot = document.getElementById('statsNavSpot');
+
+  const countPerp = (Array.isArray(dataPerpetual) ? dataPerpetual : []).filter(isTradeItem).length;
+  const countSpot = (Array.isArray(dataSpot) ? dataSpot : []).filter(isTradeItem).length;
+  const totalTrades = countPerp + countSpot;
+
+  if (totalTrades > 0) {
+    const perpPct = Math.round((countPerp / totalTrades) * 100);
+    const spotPct = 100 - perpPct;
+
+    if (elStatsNavPerpetual) elStatsNavPerpetual.textContent = `${perpPct}% Perpetual`;
+    if (elStatsNavSpot) elStatsNavSpot.textContent = `${spotPct}% Spot`;
   } else {
-    if (elStatsNavReversal) elStatsNavReversal.textContent = '0% Reversal';
-    if (elStatsNavContinuation) elStatsNavContinuation.textContent = '0% Continuation';
+    if (elStatsNavPerpetual) elStatsNavPerpetual.textContent = '0% Perpetual';
+    if (elStatsNavSpot) elStatsNavSpot.textContent = '0% Spot';
   }
 
   // --- Best Performer (dari combinedData) ---
@@ -475,6 +475,9 @@ document.querySelectorAll('.filter-jurnal-btn').forEach((btn) => {
             renderSpotPaginated();
             updatePaginationUI();
         }
+
+        renderRiskInfo();
+        calculate();
     });
 });
 
@@ -1404,7 +1407,6 @@ async function updateEquityStats() {
     const dataPerpetual = await getDBPerpetual();
     const dataSpot = await getDBSpot();
 
-    // Validasi data
     if (!Array.isArray(dataPerpetual)) {
       console.warn("Data perpetual tidak valid");
       return;
@@ -1414,13 +1416,11 @@ async function updateEquityStats() {
       return;
     }
 
-    // Inisialisasi total global
     let totalPnl = 0;
     let totalDeposit = 0;
     let totalWithdraw = 0;
     let totalFeePaid = 0;
 
-    // Inisialisasi per kategori
     let pnlPerp = 0, depositPerp = 0, withdrawPerp = 0;
     let pnlSpot = 0, depositSpot = 0, withdrawSpot = 0;
 
@@ -1434,7 +1434,6 @@ async function updateEquityStats() {
       });
     };
 
-    // Fungsi helper untuk proses satu dataset
     const processDataset = (dataset, isPerp = true) => {
       let localPnl = 0;
       let localDeposit = 0;
@@ -1490,16 +1489,13 @@ async function updateEquityStats() {
       }
     };
 
-    // Proses kedua dataset
     processDataset(dataPerpetual, true);
     processDataset(dataSpot, false);
 
-    // Hitung equity masing-masing
     const equityPerp = depositPerp + pnlPerp - withdrawPerp;
     const equitySpot = depositSpot + pnlSpot - withdrawSpot;
     const totalEquity = totalDeposit + totalPnl - totalWithdraw;
 
-    // Hitung persentase
     const persentaseWithdraw = totalDeposit > 0
       ? ((totalWithdraw / totalDeposit) * 100).toFixed(2)
       : "0.00";
@@ -1509,7 +1505,6 @@ async function updateEquityStats() {
       persentaseFee = ((totalFeePaid / totalEquity) * 100).toFixed(2);
     }
 
-    // Update elemen DOM
     const elTotalEquity = document.getElementById("totalEquity");
     const elTotalPerp = document.getElementById("totalPerp");
     const elTotalSpot = document.getElementById("totalSpot");
@@ -1906,7 +1901,6 @@ function renderBarChart() {
     const monthsNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const currentYear = new Date().getFullYear();
 
-    // Buat array 12 bulan
     const fullMonthsData = monthsNames.map((monthName, idx) => {
         const existing = monthlyData.find(m => m.month === idx && m.year === currentYear);
         return existing || {
@@ -2442,7 +2436,6 @@ function calculateResultStreak(trades, targetType) {
             currentStreak++;
             maxStreak = Math.max(maxStreak, currentStreak);
         } else {
-            // Reset streak untuk semua trade yang bukan targetType (termasuk lawan jenis)
             currentStreak = 0;
         }
     }
@@ -2815,15 +2808,46 @@ if (document.readyState === 'loading') {
 
 // ======================= Setting ======================= //
 function loadSettings() {
-    const savedSetting = localStorage.getItem('setting');
+    const savedSetting = localStorage.getItem('tradingSettings');
+    
     if (savedSetting) {
-        const setting = JSON.parse(savedSetting);
-        document.getElementById('fee').value = setting.fee;
-        document.getElementById('risk').value = setting.risk;
+        const settings = JSON.parse(savedSetting);
+        
+        if (settings.perpetual) {
+            document.getElementById('fee-perp').value = settings.perpetual.fee || '';
+            document.getElementById('risk-perp').value = settings.perpetual.risk || '';
+        }
+        
+        if (settings.spot) {
+            document.getElementById('fee-spot').value = settings.spot.fee || '';
+            document.getElementById('risk-spot').value = settings.spot.risk || '';
+        }
     }
 }
 
-document.addEventListener('DOMContentLoaded', loadSettings);
+function saveSettings() {
+    const settings = {
+        perpetual: {
+            fee: document.getElementById('fee-perp').value,
+            risk: document.getElementById('risk-perp').value
+        },
+        spot: {
+            fee: document.getElementById('fee-spot').value,
+            risk: document.getElementById('risk-spot').value
+        }
+    };
+    
+    localStorage.setItem('tradingSettings', JSON.stringify(settings));
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    loadSettings();
+
+    const inputs = document.querySelectorAll('input[type="number"]');
+    inputs.forEach(input => {
+        input.addEventListener('input', saveSettings);
+    });
+});
 
 // ------ Avatar Profile ------ //
 function renderAvatar() {
@@ -2866,241 +2890,127 @@ async function renderProfile() {
 document.addEventListener("DOMContentLoaded", () => {
     renderProfile();
 });
+// ======================= Calculate & Settings ======================= //
 
-// ------ Download Data ------ //
-document.addEventListener('DOMContentLoaded', function () {
-    const downloadCSVBtn = document.getElementById('downloadCSV');
-    const downloadJSONBtn = document.getElementById('downloadJSON');
-    const localStorageKey = 'dbperpetual';
-
-    function downloadFile(content, filename, type = 'text/plain') {
-        const blob = new Blob([content], { type });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        URL.revokeObjectURL(url);
-    }
-
-    function flattenObject(obj, prefix = '') {
-        const flattened = {};
-        for (let key in obj) {
-            if (obj.hasOwnProperty(key)) {
-                const pre = prefix.length ? prefix + '.' : '';
-                if (typeof obj[key] === 'object' && obj[key] !== null && !Array.isArray(obj[key])) {
-                    Object.assign(flattened, flattenObject(obj[key], pre + key));
-                } else {
-                    flattened[pre + key] = obj[key] === null ? '' : String(obj[key]);
-                }
-            }
-        }
-        return flattened;
-    }
-
-    function convertToCSV(data) {
-        if (!Array.isArray(data) || data.length === 0) return 'No data';
-
-        const flatData = data.map(item => flattenObject(item));
-        const headers = [...new Set(flatData.flatMap(Object.keys))].sort();
-
-        const csvRows = [];
-        csvRows.push(headers.join(','));
-
-        for (const row of flatData) {
-            const values = headers.map(header => {
-                let val = row[header] || '';
-                if (val.includes(',') || val.includes('"') || val.includes('\n')) {
-                    val = `"${val.replace(/"/g, '""')}"`;
-                }
-                return val;
-            });
-            csvRows.push(values.join(','));
-        }
-
-        return csvRows.join('\n');
-    }
-
-    if (downloadJSONBtn) {
-        downloadJSONBtn.addEventListener('click', () => {
-            try {
-                const rawData = localStorage.getItem(localStorageKey);
-                if (!rawData) {
-                    return;
-                }
-                const data = JSON.parse(rawData);
-                const jsonStr = JSON.stringify(data, null, 2);
-                downloadFile(jsonStr, 'trades.json', 'application/json');
-            } catch (e) {
-                console.error('Gagal membuat file JSON:', e);
-            }
-        });
-    }
-
-    // === Event: Download CSV ===
-    if (downloadCSVBtn) {
-        downloadCSVBtn.addEventListener('click', () => {
-            try {
-                const rawData = localStorage.getItem(localStorageKey);
-                if (!rawData) {
-                    return;
-                }
-                const data = JSON.parse(rawData);
-                const csvContent = convertToCSV(data);
-                downloadFile(csvContent, 'trades.csv', 'text/csv');
-            } catch (e) {
-                console.error('Gagal membuat file CSV:', e);
-            }
-        });
-    }
-});
-
-// ======================= Caculate ======================= //
 function getLocalData(key) {
     try {
-        return JSON.parse(localStorage.getItem(key)) || null;
+        const data = localStorage.getItem(key);
+        return data ? JSON.parse(data) : null;
     } catch {
         return null;
     }
 }
 
-function showToast(message) {
-    let toast = document.querySelector(".toast");
-    if (!toast) {
-        toast = document.createElement("div");
-        toast.classList.add("toast");
-        document.body.appendChild(toast);
+window.renderRiskInfo = function() {
+    const riskInfoEl = document.querySelector(".informasion-risk");
+    if (riskInfoEl) {
+        const saved = getLocalData('setting');
+        const risk = currentActiveTab === 'perpetual' 
+            ? (saved?.perp?.risk || 0) 
+            : (saved?.spot?.risk || 0);
+        riskInfoEl.textContent = `Risk: ${risk}%`;
     }
-    toast.textContent = message;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 2000);
-}
+};
+
+window.calculate = async function() {
+    const lev = parseFloat(document.getElementById("inputLeverage")?.value);
+    const sl = parseFloat(document.getElementById("inputStopLoss")?.value);
+
+    if (isNaN(lev) || isNaN(sl) || lev <= 0 || sl <= 0) return;
+
+    const setting = getLocalData("setting");
+    let activeSetting, activeTrades;
+
+    if (currentActiveTab === 'perpetual') {
+        activeSetting = setting?.perp || { fee: 0, risk: 0 };
+        activeTrades = typeof originalPerpetualTrades !== 'undefined' ? originalPerpetualTrades : [];
+    } else {
+        activeSetting = setting?.spot || { fee: 0, risk: 0 };
+        activeTrades = typeof originalSpotTrades !== 'undefined' ? originalSpotTrades : [];
+    }
+
+    const totalPnl = activeTrades.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
+    const deposit = activeTrades.reduce((sum, trade) => {
+        return (trade.action?.toLowerCase() === "deposit") ? sum + (parseFloat(trade.value) || 0) : sum;
+    }, 0);
+    
+    const balance = deposit + totalPnl;
+    const riskPercent = (parseFloat(activeSetting.risk) || 0) / 100;
+    const feePercent = (parseFloat(activeSetting.fee) || 0) / 100;
+
+    const riskPerTrade = balance * riskPercent;
+    const positionSize = riskPerTrade / (sl / 100);
+    const margin = positionSize / (currentActiveTab === 'spot' ? 1 : lev); // Spot leverage selalu 1
+    const marginOpen = balance > 0 ? (margin / balance) * 100 : 0;
+    
+    const roiTP = sl * lev;
+    const roiSL = -sl * lev;
+    const feeValue = positionSize * feePercent; 
+
+    const values = document.querySelectorAll(".value-caculate");
+    if (values.length >= 6) {
+        values[0].textContent = formatUSD(positionSize);
+        values[1].textContent = formatUSD(margin);
+        values[2].textContent = `${marginOpen.toFixed(2)}%`;
+        values[3].textContent = formatUSD(feeValue);
+        values[4].textContent = `${roiTP.toFixed(2)}%`;
+        values[5].textContent = `${roiSL.toFixed(2)}%`;
+    }
+
+    const riskValueEl = document.querySelector(".risk-value");
+    if (riskValueEl) riskValueEl.textContent = formatUSD(riskPerTrade);
+
+    localStorage.setItem("calculate", JSON.stringify({ leverage: lev, stopLoss: sl }));
+};
 
 document.addEventListener('DOMContentLoaded', function () {
-    const feeInput = document.getElementById('fee');
-    const riskInput = document.getElementById('risk');
-    const riskInfoEl = document.querySelector(".informasion-risk");
-    const leverageInput = document.getElementById("inputLeverage");
-    const stopLossInput = document.getElementById("inputStopLoss");
-    const localStorageKey = 'setting';
-
-    const cachedData = getLocalData("calculate") || {};
-    if (cachedData.leverage) leverageInput.value = cachedData.leverage;
-    if (cachedData.stopLoss) stopLossInput.value = cachedData.stopLoss;
+    const inputs = {
+        perpFee: document.getElementById('fee-perp'),
+        perpRisk: document.getElementById('risk-perp'),
+        spotFee: document.getElementById('fee-spot'),
+        spotRisk: document.getElementById('risk-spot'),
+        leverage: document.getElementById("inputLeverage"),
+        stopLoss: document.getElementById("inputStopLoss")
+    };
 
     function saveSettings() {
         const settings = {
-            fee: feeInput?.value || 0,
-            risk: riskInput?.value || 0
+            perp: { fee: inputs.perpFee?.value || 0, risk: inputs.perpRisk?.value || 0 },
+            spot: { fee: inputs.spotFee?.value || 0, risk: inputs.spotRisk?.value || 0 }
         };
-        try {
-            localStorage.setItem(localStorageKey, JSON.stringify(settings));
-        } catch (e) {
-            console.error('Gagal menyimpan ke localStorage:', e);
-        }
+        localStorage.setItem('setting', JSON.stringify(settings));
     }
 
     function loadSettings() {
-        const saved = getLocalData(localStorageKey);
+        const saved = getLocalData('setting');
         if (saved) {
-            if (feeInput && saved.fee !== undefined) feeInput.value = saved.fee;
-            if (riskInput && saved.risk !== undefined) riskInput.value = saved.risk;
+            if (inputs.perpFee) inputs.perpFee.value = saved.perp?.fee || "";
+            if (inputs.perpRisk) inputs.perpRisk.value = saved.perp?.risk || "";
+            if (inputs.spotFee) inputs.spotFee.value = saved.spot?.fee || "";
+            if (inputs.spotRisk) inputs.spotRisk.value = saved.spot?.risk || "";
         }
-        renderRiskInfo();
+        
+        const cachedCalc = getLocalData("calculate") || {};
+        if (cachedCalc.leverage && inputs.leverage) inputs.leverage.value = cachedCalc.leverage;
+        if (cachedCalc.stopLoss && inputs.stopLoss) inputs.stopLoss.value = cachedCalc.stopLoss;
+        
+        window.renderRiskInfo();
     }
 
-    function renderRiskInfo() {
-        if (riskInfoEl) {
-            const setting = getLocalData(localStorageKey) || { risk: 0 };
-            const risk = parseFloat(setting.risk) || 0;
-            riskInfoEl.textContent = `Risk: ${risk}%`;
-        }
-    }
-
-    async function calculate() {
-        await getDBPerpetual();
-
-        const leverage = parseFloat(leverageInput?.value);
-        const stopLoss = parseFloat(stopLossInput?.value);
-
-        if (isNaN(leverage) || isNaN(stopLoss) || leverage <= 0 || stopLoss <= 0) return;
-
-        const setting = getLocalData("setting") || { fee: 0, risk: 0 };
-        const dbPerpetual = getLocalData("dbperpetual") || [];
-
-        const totalPnl = dbPerpetual.reduce((sum, trade) => sum + (parseFloat(trade.Pnl) || 0), 0);
-        const deposit = dbPerpetual.reduce((sum, trade) => {
-            if (trade.action && trade.action.toLowerCase() === "deposit") {
-                return sum + (parseFloat(trade.value) || 0);
-            }
-            return sum;
-        }, 0);
-        const balance = deposit + totalPnl;
-
-        const riskPercent = (parseFloat(setting.risk) || 0) / 100;
-        const feePercent = (parseFloat(setting.fee) || 0) / 100;
-
-        const riskPerTrade = balance * riskPercent;
-        const positionSize = riskPerTrade / (stopLoss / 100);
-        const margin = positionSize / leverage;
-        const marginOpen = (margin / balance) * 100;
-        const roiTP = stopLoss * leverage;
-        const roiSL = -stopLoss * leverage;
-        const feeValue = positionSize * feePercent / 100;
-
-        const values = document.querySelectorAll(".value-caculate");
-        if (values.length >= 6) {
-            values[0].textContent = formatUSD(positionSize);
-            values[1].textContent = formatUSD(margin);
-            values[2].textContent = `${marginOpen.toFixed(2)}%`;
-            values[3].textContent = formatUSD(feeValue);
-            values[4].textContent = `${roiTP.toFixed(2)}%`;
-            values[5].textContent = `${roiSL.toFixed(2)}%`;
-        }
-
-        const riskValueEl = document.querySelector(".risk-value");
-        if (riskValueEl) {
-            riskValueEl.textContent = formatUSD(riskPerTrade);
-        }
-
-        localStorage.setItem("calculate", JSON.stringify({
-            leverage: leverageInput.value,
-            stopLoss: stopLossInput.value
-        }));
-    }
-
-    window.addEventListener('recalculateTrading', calculate);
-
-    // Copy to clipboard on popup click
-    document.querySelector(".popup-caculate")?.addEventListener("click", function (e) {
-        const row = e.target.closest(".row-if");
-        if (row) {
-            const valueEl = row.querySelector(".value-caculate");
-            if (valueEl) {
-                let text = valueEl.textContent.replace('$', '').replace(/,/g, '');
-                navigator.clipboard.writeText(text)
-                    .then(() => showToast(`Copied: ${text}`))
-                    .catch(() => showToast("Gagal copy"));
-            }
-        }
+    // Event Listeners
+    [inputs.perpFee, inputs.perpRisk, inputs.spotFee, inputs.spotRisk].forEach(el => {
+        el?.addEventListener('input', () => {
+            saveSettings();
+            window.renderRiskInfo();
+            window.calculate();
+        });
     });
 
-    // Event listeners
-    feeInput?.addEventListener('input', saveSettings);
-    riskInput?.addEventListener('input', () => {
-        saveSettings();
-        renderRiskInfo();
-        calculate();
-    });
+    inputs.leverage?.addEventListener("input", window.calculate);
+    inputs.stopLoss?.addEventListener("input", window.calculate);
 
-    leverageInput?.addEventListener("input", calculate);
-    stopLossInput?.addEventListener("input", calculate);
-
-    // Init
     loadSettings();
-    calculate();
+    window.calculate();
 });
 
 // ======================= Notes ======================= //
@@ -3308,7 +3218,7 @@ async function handleAddNote() {
         if (dropdownSelected) dropdownSelected.innerText = "Category";
 
     } catch (err) {
-        console.error("❌ Gagal simpan catatan:", err.message);
+        console.error("Gagal simpan catatan:", err.message);
         alert("Gagal menyimpan. Coba lagi.");
     } finally {
         saveBtn.classList.remove("loading");
@@ -3347,7 +3257,7 @@ async function handleDeleteNote(noteId) {
         updateStatsNotes();
 
     } catch (err) {
-        console.error("❌ Gagal hapus:", err.message);
+        console.error("Gagal hapus:", err.message);
         alert("Gagal menghapus catatan.");
     } finally {
         if (deleteBtn) deleteBtn.classList.remove("loading");
@@ -3445,7 +3355,6 @@ function updateStatsNotes() {
 // ======================= Update UI Global ======================= //
 async function updateAllUI() {
   try {
-    // ✅ Reload kedua dataset
     const [perpData, spotData] = await Promise.all([
       getDBPerpetual(),
       getDBSpot()
@@ -3456,7 +3365,6 @@ async function updateAllUI() {
     originalPerpetualTrades = [...perpData];
     originalSpotTrades = [...spotData];
 
-    // ✅ Render sesuai tab aktif
     if (currentActiveTab === 'perpetual') {
       renderPerpetualPaginated();
     } else {
@@ -3465,10 +3373,8 @@ async function updateAllUI() {
 
     updatePaginationUI();
 
-    // ✅ Update dashboard & stats — pastikan pakai data aktif
     updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
 
-    // ✅ Stats lain (pastikan tidak bergantung pada originalTrades global)
     await updateEquityStats();
     await updateTradeStats();
     await updateStats();     
@@ -3487,7 +3393,7 @@ async function updateAllUI() {
 
     console.log("All UI updated successfully.");
   } catch (error) {
-    console.error("❌ Failed to update UI:", error);
+    console.error("Failed to update UI:", error);
   }
 }
 

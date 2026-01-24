@@ -795,61 +795,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ======================= Popup Discord ======================= //
-function nexionJoinDiscordV1() {
-    window.open('https://discord.gg/EmfvdUfZ7A', '_blank');
-}
-
-// Show popup
-function nexionShowPopupV1() {
-    const overlay = document.getElementById('nexionPopupOverlayV1');
-    overlay.style.display = 'flex';
-    overlay.style.animation = 'nexionFadeIn 0.3s ease';
-
-    // Lock scroll
-    document.body.classList.add('nexion-no-scroll');
-}
-
-// Close popup
-function nexionClosePopupV1() {
-    const overlay = document.getElementById('nexionPopupOverlayV1');
-    overlay.style.animation = 'nexionFadeOut 0.3s ease';
-
-    setTimeout(() => {
-        overlay.style.display = 'none';
-
-        // Unlock scroll
-        document.body.classList.remove('nexion-no-scroll');
-
-    }, 300);
-}
-
-// Overlay click close
-document.getElementById('nexionPopupOverlayV1').addEventListener('click', function(e) {
-    if (e.target === this) {
-        nexionClosePopupV1();
-    }
-});
-
-// ESC close
-document.addEventListener('keydown', function(e) {
-    if (e.key === 'Escape') {
-        nexionClosePopupV1();
-    }
-});
-
-// Auto appear once
-window.addEventListener('load', function() {
-    const alreadyShown = localStorage.getItem('nexionPopupShown');
-
-    if (!alreadyShown) {
-        setTimeout(() => {
-            nexionShowPopupV1();
-            localStorage.setItem('nexionPopupShown', 'true');
-        }, 1000);
-    }
-});
-
 // ======================= Block 1000px ======================= //
 function checkDeviceWidth() {
     const minWidth = 999;

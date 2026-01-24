@@ -187,7 +187,11 @@ a {
 }
 
 .btn-close {
-  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 39px;
+  height: 39px;
 }
 
 /* Loading Style Btn */
@@ -256,11 +260,15 @@ a {
   color: var(--green);
 }
 
-/* Input Clik Number None */
 input[type="number"]::-webkit-inner-spin-button,
 input[type="number"]::-webkit-outer-spin-button {
   -webkit-appearance: none;
   margin: 0;
+}
+
+.wrapper-header {
+  display: flex;
+  gap: 8px;
 }
 
 /* -------------------------- */
@@ -3884,9 +3892,15 @@ input[type="file"] {
   border: 1px solid var(--bg-38);
 }
 
-.container-setting h2 {
-  font-size: 16px;
-  font-weight: var(--wg-600);
+.title-setting {
+  font-size: var(--sz-16);
+}
+
+.title-setting-fr {
+  font-size: var(--sz-14);
+  font-weight: var(--wg-500);
+  color: var(--gray);
+  margin-bottom: 12px;
 }
 
 .info-text {
@@ -3912,16 +3926,6 @@ input[type="file"] {
   color: var(--gray);
   font-weight: var(--wg-600);
   pointer-events: none;
-}
-
-/* Download Data*/
-.column-download {
-  display: flex;
-  gap: 10px;
-}
-
-.btn-download {
-  padding: 10px 25px;
 }
 
 /* ---------------------------------------- */
@@ -4056,6 +4060,11 @@ body.popup-open .popup-container {
   font-size: var(--sz-12);
   font-weight: var(--wg-500);
   text-transform: uppercase;
+}
+
+.row-risk {
+  display: flex;
+  gap: 20px;
 }
 
 /* Clear */
@@ -4572,7 +4581,8 @@ input[type="number"]::placeholder {
 .toast {
   position: fixed;
   top: 20px;
-  right: 30px;
+  left: 50%;
+  transform: translate(-50%, -20px);
   background: var(--bg-27);
   border: 1px solid var(--bg-50);
   border-radius: 10px;
@@ -4580,15 +4590,15 @@ input[type="number"]::placeholder {
   color: var(--white);
   font-size: 14px;
   opacity: 0;
-  transform: translateY(-20px);
   transition: all 0.3s ease;
   pointer-events: none;
   z-index: 1000;
+  white-space: nowrap;
 }
 
 .toast.show {
   opacity: 1;
-  transform: translateY(0);
+  transform: translate(-50%, 0); 
 }
 
 .btn-caculate {
@@ -4634,8 +4644,8 @@ input[type="number"]::placeholder {
   justify-content: center;
   padding: 8px;
   border-radius: 10px;
-  background: var(--bg-38);
-  border: 1px solid var(--bg-55);
+  background: var(--bg-27);
+  border: 1px solid var(--bg-45);
   transition: all 0.1s ease;
   cursor: pointer;
 }
@@ -4645,8 +4655,8 @@ input[type="number"]::placeholder {
 }
 
 .box-btn-share:hover {
-  background: var(--bg-55);
-  border-color: var(--bg-70);
+  background: var(--bg-35);
+  border-color: var(--bg-55);
 }
 
 .box-btn-share:hover svg {

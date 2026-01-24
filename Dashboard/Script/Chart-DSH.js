@@ -82,7 +82,6 @@ async function loadBalanceData(mode = 'Perpetual') {
         return;
     }
 
-    // Gabung & sort semua data berdasarkan timestamp
     const allRawData = [...perpetualData, ...spotData]
         .filter(t => t.date)
         .sort((a, b) => Number(a.date) - Number(b.date));
@@ -215,13 +214,12 @@ function updateFilterStats(range) {
     const subtitle = document.getElementById('subtitleFilterBalance');
     const valueEl = document.getElementById('valueFilterBalance');
 
-    // 🔥 Tentukan label berdasarkan mode chart saat ini
     let accountLabel;
     if (currentChartMode === 'Spot') {
         accountLabel = 'Account Spot';
     } else if (currentChartMode === 'Perpetual') {
         accountLabel = 'Account Perpetual';
-    } else { // 'All'
+    } else {
         accountLabel = 'Account Value (Combined)';
     }
 
@@ -933,7 +931,7 @@ async function loadData() {
         }
         return data;
     } catch (err) {
-        console.error('Gagal memuat data trading:', err);
+        console.error('Error Data Pnl &  RR:', err);
         return [];
     }
 }
@@ -970,7 +968,6 @@ function drawChart() {
     const height = canvas.height;
 
     if (width <= 0 || height <= 0) {
-        console.warn("Canvas belum siap, skip render");
         return;
     }
 
@@ -1349,7 +1346,7 @@ async function loadAssetData() {
         const res = await fetch('Asset/Link-Symbol.json');
         assetData = await res.json();
     } catch (err) {
-        console.error("Gagal memuat Asset/Link-Symbol.json:", err);
+        console.error("Link-Symbol:", err);
         assetData = [];
     }
 }
@@ -1502,7 +1499,7 @@ async function loadPairData() {
 
     try {
         const rawData = await getDBPerpetual();
-        if (!Array.isArray(rawData)) throw new Error("Data tidak valid");
+        if (!Array.isArray(rawData)) throw new Error("Data not valid");
 
         const pairCount = {};
 
@@ -1538,7 +1535,7 @@ async function loadPairData() {
         renderChart(chartData);
 
     } catch (err) {
-        console.error("Gagal memuat data trading:", err);
+        console.error("Pairs Data Error:", err);
     }
 }
 
@@ -1612,7 +1609,7 @@ function updateSVGRing() {
     const winSeg = document.getElementById('winSegment');
     const loseSeg = document.getElementById('loseSegment');
     const missedSeg = document.getElementById('missedSegment');
-    const beSeg = document.getElementById('breakEvenSegment'); // ← tambahkan
+    const beSeg = document.getElementById('breakEvenSegment');
 
     if (!winSeg || !loseSeg || !missedSeg || !beSeg) return;
 
@@ -1757,7 +1754,7 @@ async function loadWrChartData() {
             { label: 'Win', value: counts.Profite, color1: '#4dd4ac', color2: '#4dd4ac' },
             { label: 'Lose', value: counts.Loss, color1: '#ff0000', color2: '#ff0000' },
             { label: 'Missed', value: counts.Missed, color1: '#cfcfcf', color2: '#cfcfcf' },
-            { label: 'Break Even', value: counts.BreakEven, color1: '#FFD700', color2: '#FFD700' } // ← warna kustom opsional
+            { label: 'Break Even', value: counts.BreakEven, color1: '#FFD700', color2: '#FFD700' }
         ];
 
         total = counts.Profite + counts.Loss + counts.Missed + counts.BreakEven;
@@ -1825,8 +1822,8 @@ window.addEventListener('resize', () => {
 });
 
 window.addEventListener('tradeDataUpdated', async () => {
-    console.log('Render Chart Commplite');
-    // Balance Chart
+    console.log('Render Chart Complite');
+
     await loadBalanceData(currentChartMode);
     
     const activeBtn = document.querySelector('.filter-btn.active');
@@ -1835,18 +1832,14 @@ window.addEventListener('tradeDataUpdated', async () => {
     updateFilterStats(currentRange);
     drawBalanceChart();
 
-    // Update Chart PnL & RR
     const loadedData = await loadData();
     data = loadedData;
     drawChart();
     
-    // Update Chart Pairs
     await loadAssetData();
     await loadPairData(); 
     
-    // Update Chart Winrate
     await loadWrChartData();
 
-    // Update Chart Fee Analysis
     await loadFeeData();
 });
