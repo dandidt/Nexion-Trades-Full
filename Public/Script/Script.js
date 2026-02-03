@@ -1,4 +1,4 @@
-// ============== LOGGIN ============== //
+// ───────── LOGIN ───────── //
 const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -78,7 +78,7 @@ document.getElementById('confirmLogoutBtn')?.addEventListener('click', () => {
     handleLogout();
 });
 
-// ============== Navbar ============== //
+// ───────── Navbar ───────── //
 window.addEventListener("scroll", () => {
     const navbar = document.querySelector(".navbar");
 
@@ -89,7 +89,7 @@ window.addEventListener("scroll", () => {
     }
 });
 
-// ============== Popup Profile Menu ============== //
+// ───────── Popup Profile Menu ───────── //
 const profileBox = document.querySelector('.box-profile');
 const popup = document.querySelector('.container-profile');
 
@@ -115,7 +115,7 @@ profileBox.addEventListener('click', () => {
 });
 
 
-// ============== Introduction ============== //
+// ───────── Introduction ───────── //
 async function checkAuthStatusAndRedirectLink() {
     const { data } = await supabaseClient.auth.getUser();
     const user = data?.user;
@@ -134,7 +134,7 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthStatusAndRedirectLink();
 });
 
-// ============== Features ============== //
+// ───────── Features ───────── //
 document.addEventListener('DOMContentLoaded', () => {
     const featureBoxes = document.querySelectorAll('.box-features');
 
@@ -143,14 +143,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!wrapper) return;
         const rows = wrapper.querySelectorAll('.row-ekspor');
 
-        // ==== 1. Isi tiap row ====
         rows.forEach(row => {
             const firstBox = row.querySelector('.box-files');
             if (!firstBox) return;
 
             const svgClone = firstBox.innerHTML;
 
-            // Tambah beberapa box baru
             for (let i = 0; i < 7; i++) {
                 const newBox = document.createElement('div');
                 newBox.className = 'box-files';
@@ -158,7 +156,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 row.appendChild(newBox);
             }
 
-            // Duplikat isi row biar bisa infinite scroll
             const boxes = Array.from(row.children);
             boxes.forEach(box => {
                 const clone = box.cloneNode(true);
@@ -166,7 +163,6 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         });
 
-        // ==== 2. Setup animasi untuk wrapper ini ====
         let isHovered = false;
         let animationId = null;
         let offset = 0;
@@ -186,7 +182,6 @@ document.addEventListener('DOMContentLoaded', () => {
             animationId = requestAnimationFrame(animate);
         };
 
-        // ==== 3. Hover hanya berlaku untuk box ini ====
         boxFeature.addEventListener('mouseenter', () => {
             isHovered = true;
             if (!animationId) animate();
@@ -196,7 +191,6 @@ document.addEventListener('DOMContentLoaded', () => {
             isHovered = false;
         });
 
-        // ==== 4. Inline style basic (aman tanpa CSS tambahan) ====
         wrapper.style.overflow = 'hidden';
         rows.forEach(row => {
             row.style.display = 'flex';
@@ -207,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
-// ============== Tabel ============== //
+// ───────── Tabel ───────── //
 const containerTabel = document.getElementById('boxFeaturesFrist');
 const svgWrapperTabel = document.getElementById('svgWrapperTabel');
 const canvasTabel = document.getElementById('svgCanvasTabel');
@@ -219,7 +213,6 @@ const scaleTabel = 0.25;
 let mouseXTabel = 0, mouseYTabel = 0, isHoveringTabel = false;
 let animationFrameIdTabel = null;
 
-// Resize canvas
 function resizeCanvasTabel() {
     const sizeTabel = Math.min(svgWrapperTabel.offsetWidth, svgWrapperTabel.offsetHeight);
     canvasTabel.width = sizeTabel;
@@ -228,7 +221,6 @@ function resizeCanvasTabel() {
 resizeCanvasTabel();
 window.addEventListener('resize', resizeCanvasTabel);
 
-// Draw SVG
 function drawSVGTabel() {
     ctxTabel.clearRect(0, 0, canvasTabel.width, canvasTabel.height);
     
@@ -244,16 +236,13 @@ function drawSVGTabel() {
     
     const pathTabel = new Path2D(svgPathTabel);
     
-    // Fill
     ctxTabel.fillStyle = '#2a2a2a';
     ctxTabel.fill(pathTabel);
     
-    // Stroke dasar (abu-abu)
     ctxTabel.strokeStyle = '#808080';
     ctxTabel.lineWidth = 4;
     ctxTabel.stroke(pathTabel);
     
-    // Stroke dengan gradient proximity saat hover
     if (isHoveringTabel) {
         const localXTabel = (mouseXTabel - centerXTabel) / scaleTabel + 500;
         const localYTabel = (mouseYTabel - centerYTabel) / scaleTabel + 500;
@@ -279,9 +268,9 @@ function drawSVGTabel() {
     
     animationFrameIdTabel = requestAnimationFrame(drawSVGTabel);
 }
+
 drawSVGTabel();
 
-// Mouse handlers
 containerTabel.addEventListener('mousemove', (e) => {
     const rectTabel = canvasTabel.getBoundingClientRect();
     mouseXTabel = e.clientX - rectTabel.left;
@@ -293,7 +282,7 @@ containerTabel.addEventListener('mouseleave', () => {
     isHoveringTabel = false;
 });
 
-// ============== Statistical ============== //
+// ───────── Statistical ───────── //
 var data = [
     {value: 45, profit: 1200 },
     {value: 52, profit: 1450 },
@@ -333,16 +322,13 @@ function drawChart() {
 
     const points = data.map((point, i) => ({
         x: (i / (data.length - 1)) * width,
-        // tambahin paddingTop di sini:
         y: height - (point.value / maxValue) * (height - paddingTop)
     }));
 
-    // === Area Gradient ===
     const gradient = ctx.createLinearGradient(0, 0, 0, height);
     gradient.addColorStop(0, 'rgba(52, 211, 153, 0.25)');
     gradient.addColorStop(1, 'rgba(52, 211, 153, 0)');
 
-    // === Area Fill Smooth ===
     ctx.beginPath();
     ctx.moveTo(points[0].x, height);
     ctx.lineTo(points[0].x, points[0].y);
@@ -366,7 +352,6 @@ function drawChart() {
     ctx.fillStyle = gradient;
     ctx.fill();
 
-    // === Line Smooth ===
     ctx.beginPath();
     ctx.moveTo(points[0].x, points[0].y);
     for (let i = 0; i < points.length - 1; i++) {
@@ -392,7 +377,6 @@ function drawChart() {
     ctx.stroke();
     ctx.shadowBlur = 0;
 
-    // === Hover Line ===
     if (hoverX !== null) {
         ctx.beginPath();
         ctx.strokeStyle = 'rgb(52, 211, 153)';
@@ -407,7 +391,7 @@ function drawChart() {
 
 canvas.addEventListener('mousemove', function (e) {
     const rect = canvas.getBoundingClientRect();
-    const parentRect = canvas.parentElement.getBoundingClientRect(); // 🔥 ambil area parent
+    const parentRect = canvas.parentElement.getBoundingClientRect();
     
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
@@ -452,7 +436,7 @@ window.addEventListener('resize', drawChart);
 
 drawChart();
 
-// ============== Reports ============== //
+// ───────── Reports ───────── //
 document.querySelectorAll('.card-reports').forEach((cardReports) => {
     const containerReports = cardReports.closest('.card-container-reports');
     const canvasReports = cardReports.querySelector('.card-border-reports');
@@ -462,7 +446,6 @@ document.querySelectorAll('.card-reports').forEach((cardReports) => {
 
     const ctxReports = canvasReports.getContext('2d');
 
-    // Resize canvas
     function resizeCanvas() {
         canvasReports.width = cardReports.offsetWidth;
         canvasReports.height = cardReports.offsetHeight;
@@ -470,18 +453,14 @@ document.querySelectorAll('.card-reports').forEach((cardReports) => {
     resizeCanvas();
     window.addEventListener('resize', resizeCanvas);
 
-    // State
     let mouseX = 0, mouseY = 0, isHovering = false;
     let targetRotateX = 0, targetRotateY = 0;
     let currentRotateX = 0, currentRotateY = 0;
     let animationFrameId = null;
-
-    // Draw border (dengan perbaikan sebelumnya)
     function drawBorder() {
         ctxReports.clearRect(0, 0, canvasReports.width, canvasReports.height);
         const radius = 16, w = canvasReports.width, h = canvasReports.height;
 
-        // Path rounded rectangle
         function drawRoundedRect() {
             ctxReports.beginPath();
             ctxReports.moveTo(radius, 0);
@@ -496,13 +475,11 @@ document.querySelectorAll('.card-reports').forEach((cardReports) => {
             ctxReports.closePath();
         }
 
-        // Border dasar
         drawRoundedRect();
         ctxReports.strokeStyle = 'rgba(55, 55, 55, 1)';
         ctxReports.lineWidth = 2;
         ctxReports.stroke();
 
-        // Glow saat hover
         if (isHovering) {
             drawRoundedRect();
             const gradientRadius = Math.max(w, h) * 0.8;
@@ -521,7 +498,6 @@ document.querySelectorAll('.card-reports').forEach((cardReports) => {
     }
     drawBorder();
 
-    // Animasi rotasi
     function animateRotation() {
         currentRotateX += (targetRotateX - currentRotateX) * 0.1;
         currentRotateY += (targetRotateY - currentRotateY) * 0.1;
@@ -530,7 +506,6 @@ document.querySelectorAll('.card-reports').forEach((cardReports) => {
     }
     animateRotation();
 
-    // Handler efek 3D
     function handle3DEffect(e, intensity = 1) {
         const rect = cardReports.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -558,7 +533,6 @@ document.querySelectorAll('.card-reports').forEach((cardReports) => {
         isHovering = false;
     }
 
-    // Event listeners per card
     const parentBox = cardReports.closest('.box-features');
     if (parentBox) {
         parentBox.addEventListener('mousemove', (e) => handle3DEffect(e, 0.6));
@@ -569,13 +543,11 @@ document.querySelectorAll('.card-reports').forEach((cardReports) => {
     containerReports.addEventListener('mouseleave', reset3DEffect);
 });
 
-// Baground
 const containerBg = document.getElementById('containerBgCard');
 const totalRings = 8;
 const duration = 60;
 const interval = (duration / totalRings) * 1000;
 
-// Buat ring secara dinamis
 for (let i = 0; i < totalRings; i++) {
     const ring = document.createElement('div');
     ring.className = 'ring';
@@ -584,7 +556,7 @@ for (let i = 0; i < totalRings; i++) {
     containerBg.appendChild(ring);
 }
 
-// ============== Calculator ============== //
+// ───────── Calculator ───────── //
 const container = document.querySelector('.wrapper-line');
 if (!container) {
     console.error("Element .wrapper-line tidak ditemukan!");
@@ -619,7 +591,7 @@ if (!container) {
     });
 }
 
-// ============== Preview ============== //
+// ───────── Preview ───────── //
 document.addEventListener("DOMContentLoaded", () => {
 
     const radioTable = document.getElementById("table-editor");
@@ -679,7 +651,7 @@ document.addEventListener("DOMContentLoaded", () => {
     updateUI("table");
 });
 
-// ============== Community ============== //
+// ───────── Community ───────── //
 const hostname = window.location.hostname;
 const protocol = window.location.protocol;
 
@@ -773,7 +745,7 @@ fetch(jsonPath)
     };
 });
 
-// ============== Footer ============== //
+// ───────── Footer ───────── //
 document.addEventListener('DOMContentLoaded', () => {
     const menuItems = document.querySelectorAll('.subcontainer-menu span');
 
@@ -788,33 +760,3 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 });
-
-// ======================= Block 1000px ======================= //
-function checkDeviceWidth() {
-    const minWidth = 999;
-    let overlay = document.getElementById("deviceBlocker");
-
-    if (window.innerWidth < minWidth) {
-        if (!overlay) {
-            overlay = document.createElement("div");
-            overlay.id = "deviceBlocker";
-
-            overlay.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3"><path d="M0-160v-60h141v-42q-24 0-42-18t-18-42v-458q0-24 18-42t42-18h678q24 0 42 18t18 42v458q0 24-18 42t-42 18v42h141v60H0Zm141-162h678v-458H141v458Zm0 0v-458 458Z"/></svg>
-                <h1>Desktop Required</h1>
-                <p>This website is optimized for desktop computers only. Your device screen is too small to display this site properly.</p>
-            `;
-
-            document.body.appendChild(overlay);
-            document.body.style.overflow = "hidden";
-        }
-    } else {
-        if (overlay) {
-            overlay.remove();
-            document.body.style.overflow = "";
-        }
-    }
-}
-
-window.addEventListener("load", checkDeviceWidth);
-window.addEventListener("resize", checkDeviceWidth);

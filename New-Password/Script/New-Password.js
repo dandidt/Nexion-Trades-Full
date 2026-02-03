@@ -1,6 +1,3 @@
-// =======================
-// Supabase setup
-// =======================
 const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
 const supabaseClient = supabase.createClient(
@@ -8,9 +5,6 @@ const supabaseClient = supabase.createClient(
     supabaseKey.trim()
 );
 
-// =======================
-// PASSWORD RULE
-// =======================
 function validatePassword(value) {
     if (value.length < 8 || value.length > 30) return false;
     const hasUpper = /[A-Z]/.test(value);
@@ -19,17 +13,11 @@ function validatePassword(value) {
     return hasUpper && hasLower && hasNumber;
 }
 
-// =======================
-// INPUT ELEMENTS
-// =======================
 const newPasswordForm = document.getElementById('newPasswordForm');
 const newPasswordInput = document.getElementById('new-password');
 const confirmPasswordInput = document.getElementById('confirm-password');
 const loader = document.querySelector('.page-loader');
 
-// =======================
-// REALTIME VALIDATION
-// =======================
 newPasswordInput.addEventListener('input', () => {
     const valid = validatePassword(newPasswordInput.value);
     newPasswordInput.style.borderColor = valid ? '#0eddb0' : '#ff5555';
@@ -49,16 +37,12 @@ confirmPasswordInput.addEventListener('input', () => {
             : '#ff5555';
 });
 
-// =======================
-// CHECK RESET SESSION (TOKEN)
-// =======================
 let resetUser = null;
 
 (async () => {
     const { data, error } = await supabaseClient.auth.getSession();
 
     if (error || !data.session) {
-        // Redirect tanpa alert
         window.location.href = '../Signin';
         return;
     }
@@ -66,9 +50,6 @@ let resetUser = null;
     resetUser = data.session.user;
 })();
 
-// =======================
-// FORM SUBMIT — RESET PASSWORD
-// =======================
 newPasswordForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -105,9 +86,6 @@ newPasswordForm.addEventListener('submit', async (e) => {
     document.getElementById('signupSuccessModal').style.display = 'flex';
 });
 
-// =======================
-// LOADER
-// =======================
 function startLoading() {
     loader.style.width = '0%';
     loader.style.display = 'block';
@@ -126,9 +104,6 @@ function finishLoading() {
     }, 400);
 }
 
-// =======================
-// HANDLE MODAL BUTTON
-// =======================
 document.getElementById('loginRedirectBtn')?.addEventListener('click', () => {
     window.location.href = '../Signin';
 });
@@ -142,9 +117,6 @@ if (modal) {
     });
 }
 
-// =======================
-// CANVAS DOT BACKGROUND
-// =======================
 const canvas = document.getElementById('dotCanvas');
 if (canvas) {
     const ctx = canvas.getContext('2d');
@@ -203,9 +175,6 @@ if (canvas) {
     drawDots();
 }
 
-// =======================
-// TOGGLE PASSWORD VISIBILITY
-// =======================
 document.querySelectorAll('.toggle-password, .toggle-repeat-password').forEach(btn => {
     btn.addEventListener('click', () => {
         const wrapper = btn.closest('.password-wrapper');
@@ -219,39 +188,3 @@ document.querySelectorAll('.toggle-password, .toggle-repeat-password').forEach(b
         hide.style.display = isPassword ? 'block' : 'none';
     });
 });
-
-// =======================
-// FADE ANIMATION
-// =======================
-document.addEventListener('DOMContentLoaded', () => {
-    document.querySelectorAll('.fade-up').forEach((el, i) => {
-        setTimeout(() => el.classList.add('show'), i * 150);
-    });
-});
-
-// =======================
-// DEVICE WIDTH BLOCKER
-// =======================
-function checkDeviceWidth() {
-    const minWidth = 999;
-    let overlay = document.getElementById('deviceBlocker');
-
-    if (window.innerWidth < minWidth) {
-        if (!overlay) {
-            overlay = document.createElement('div');
-            overlay.id = 'deviceBlocker';
-            overlay.innerHTML = `
-                <h1>Desktop Required</h1>
-                <p>This site is optimized for desktop devices only.</p>
-            `;
-            document.body.appendChild(overlay);
-            document.body.style.overflow = 'hidden';
-        }
-    } else {
-        overlay?.remove();
-        document.body.style.overflow = '';
-    }
-}
-
-window.addEventListener('load', checkDeviceWidth);
-window.addEventListener('resize', checkDeviceWidth);

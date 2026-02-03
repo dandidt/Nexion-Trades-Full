@@ -50,11 +50,11 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!section) return;
 
     const animatedItems = section.querySelectorAll('.fade-up');
-    animatedItems.forEach(el => el.classList.remove('visible'));
+    animatedItems.forEach(el => el.classList.remove('show'));
 
     animatedItems.forEach((el, index) => {
       setTimeout(() => {
-        el.classList.add('visible');
+        el.classList.add('show');
       }, index * 120);
     });
   }

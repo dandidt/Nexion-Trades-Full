@@ -369,35 +369,3 @@ input:-webkit-autofill {
     z-index: 200;
     transition: width 0.4s ease;
 }
-
-/* ===== IN ===== */
-.fade-up {
-    opacity: 0;
-    transform: translateY(10px);
-    filter: blur(6px);
-    transition: all 0.4s cubic-bezier(0.25, 0.1, 0.25, 1);
-}
-
-.fade-up.show {
-    opacity: 1;
-    transform: translateY(0);
-    filter: blur(0);
-}
-
-#deviceBlocker {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: #111;
-    color: white;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    gap: 10px;
-    z-index: 999999;
-    padding: 20px;
-}

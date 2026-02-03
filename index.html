@@ -4,14 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nexion Trade</title>
-    <link rel="stylesheet" href="Style/style.css">
     <link rel="icon" href="./favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="./favicon.ico">
     <link rel="apple-touch-icon" href="./favicon.ico">
+    <link rel="stylesheet" href="Public/Style/style.css">
+    <link rel="stylesheet" href="Global/Global.style.css">
 </head>
 <body>
-    <!-- ===== Navbar ===== -->
-    <nav class="navbar">
+    <!-- ───────── Navbar ───────── -->
+    <nav class="navbar">`
         <div class="box-logo">
             <img class="icon-title-navbar" src="Asset/Nexion.png">
             <span class="title-navbar">Nexion Trade</span>
@@ -38,7 +39,7 @@
         </div>
     </nav>
 
-    <!-- ===== Popup Profile Menu ===== -->
+    <!-- ───────── Popup Profile Menu ───────── -->
     <div class="container-profile">
         <div class="row-profile-account">
             <svg class="icon-account" xmlns="http://www.w3.org/2000/svg" height="12px" width="12px" viewBox="0 0 40 40" fill="#000000"><path d="m20,20c-2.65,0-4.9-.93-6.76-2.78s-2.78-4.11-2.78-6.76.93-4.9,2.78-6.76,4.11-2.78,6.76-2.78,4.9.93,6.76,2.78,2.78,4.11,2.78,6.76-.93,4.9-2.78,6.76c-1.86,1.86-4.11,2.78-6.76,2.78ZM.92,39.08v-6.36c0-1.02.28-1.98.83-2.88.55-.91,1.31-1.67,2.29-2.29,2.43-1.41,5-2.5,7.71-3.25,2.71-.75,5.46-1.13,8.25-1.13s5.55.38,8.26,1.13c2.72.75,5.29,1.83,7.72,3.25.97.57,1.73,1.33,2.29,2.25s.83,1.9.83,2.92v6.36H.92Zm4.77-4.77h28.63v-1.59c0-.23-.07-.44-.2-.62-.13-.19-.31-.33-.53-.44-2.03-1.24-4.2-2.16-6.49-2.78s-4.66-.93-7.09-.93-4.79.31-7.09.93-4.46,1.55-6.49,2.78c-.22.18-.4.35-.53.51-.13.16-.2.35-.2.55v1.59Zm14.33-19.08c1.32,0,2.44-.47,3.37-1.41.93-.94,1.39-2.06,1.39-3.38s-.47-2.44-1.41-3.37c-.94-.93-2.06-1.39-3.38-1.39s-2.44.47-3.37,1.41c-.93.94-1.39,2.06-1.39,3.38s.47,2.44,1.41,3.37c.94.93,2.06,1.39,3.38,1.39Z"/></svg>
@@ -51,7 +52,7 @@
         </div>
     </div>
 
-    <!-- ===== Introduction ===== -->
+    <!-- ───────── Introduction ───────── -->
     <section class="container cn-top introduction-view">
         <h1 class="title-introduction">Nexion Trade</h1>
         <h1 class="subtitle-introduction">Profesional Trading Jurnal</h1>
@@ -63,7 +64,7 @@
         </a>
     </section>
 
-    <!-- ===== Sub Introduction ===== -->
+    <!-- ───────── Sub Introduction ───────── -->
     <section class="container">
         <div class="wrapper-row-subintroduction">
             <div class="shadow-subintoruction"></div>
@@ -86,7 +87,7 @@
         <p class="text-person">Trial Community that has entered the trial phase</p>
     </section>
 
-    <!-- ===== Features ===== -->
+    <!-- ───────── Features ───────── -->
     <section class="container cn-mid fetures-view">
         <h2 class="title-features">Core Features of the Platform</h2>
         <p class="subtitle-features">manage everything in a single view</p>
@@ -385,7 +386,7 @@
         </div>
     </section>
 
-    <!-- ===== Preview ===== -->
+    <!-- ───────── Preview ───────── -->
     <section class="container cn-mid preview-view">
         <h2 class="title-preview">Stay productive and manage your app</h2>
         <p class="subtitle-preview">without leaving the dashboard</p>
@@ -410,7 +411,7 @@
         </div>
     </section>
 
-    <!-- ===== Community ===== -->
+    <!-- ───────── Community ───────── -->
     <section class="container-primary">
         <h2 class="title-community">Join the community</h2>
         <p class="subtitle-community">Discover what our community has to say about their Supabase experience.</p>
@@ -430,7 +431,7 @@
         </div>
     </section>
 
-    <!-- ===== Footer ===== -->
+    <!-- ───────── Footer ───────── -->
     <section class="container-footer cn-bottom">
         <div class="wrapper-top">
             <div class="subcontainer-logo">
@@ -453,9 +454,7 @@
         </div>
     </section>
 
-    <!-- ----------------- -->
-    <!-- ===== Popup ===== -->
-    <!-- ----------------- -->
+    <!-- ───────── Popup ───────── -->
     <div id="logoutModal" class="popup-modal">
         <div class="container-popup">
             <div class="icon-popup">
@@ -474,8 +473,9 @@
         </div>
     </div>
 
-    <!-- ===== Script ===== -->
+    <!-- ───────── Script ───────── -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="Script/Script.js"></script>
+    <script src="Public/Script/Script.js"></script>
+    <script src="Global/Global.script.js"></script>
 </body>
 </html>

@@ -450,20 +450,6 @@ input[type="number"]::-webkit-outer-spin-button {
   cursor: pointer;
 }
 
-/* ────── Animasi In Style ────── */
-.fade-up {
-  opacity: 0;
-  transform: translateY(15px);
-  transition:
-    opacity 0.3s ease-out,
-    transform 0.3s ease-out;
-}
-
-.fade-up.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
-
 /* ────── Jurnaling Secsion ────── */
 
 .jurnaling {
@@ -5399,35 +5385,4 @@ input[type="number"]::placeholder {
     transform: translate(-50%, -50%) scale(3.5);
     opacity: 0;
   }
-}
-
-/* ────── Block ────── */
-#Block {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  color: var(--white);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 999999;
-  text-align: center;
-}
-
-#Block svg {
-  width: 80px;
-  height: 80px;
-  margin-bottom: 20px;
-  fill: var(--white);
-}
-
-#Block h1 {
-  font-size: 24px;
-  margin-bottom: 10px;
-}
-
-#Block p {
-  font-size: 16px;
-  max-width: 400px;
 }

@@ -1,13 +1,7 @@
-// =======================
-// Supabase setup
-// =======================
 const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// =======================
-// DOM Elements
-// =======================
 const fullnameInput = document.getElementById('fullname');
 const emailInput = document.getElementById('email');
 const passwordInput = document.getElementById('password');
@@ -18,9 +12,6 @@ const userDotsDisplay = document.querySelector('.user-dots');
 const avatarInput = document.getElementById('avatarInput');
 const avatarPlaceholder = document.querySelector('.avatar-placeholder');
 
-// =======================
-// Validation Functions
-// =======================
 function validateFullname(value) {
     return /^[a-zA-Z0-9\s]{3,20}$/.test(value.trim());
 }
@@ -43,9 +34,7 @@ function validateEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
 }
 
-// =======================
-// UI Helpers
-// =======================
+// ───────── UI Helpers ───────── //
 function updateInputBorder(input, isValid) {
     input.style.borderColor = isValid ? '#0eddb0' : '#ff5555';
 }
@@ -60,9 +49,7 @@ function truncateName(name, maxLength = 20) {
     return name.substring(0, maxLength).replace(/\s+\S*$/, '') + '...';
 }
 
-// =======================
-// Real-time Preview & Validation
-// =======================
+// ───────── Preview & Validation ───────── //
 fullnameInput.addEventListener('input', function () {
     clearAlert('usernameAlert');
     this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
@@ -104,9 +91,7 @@ accessInput.addEventListener('input', function () {
     this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
 });
 
-// =======================
-// Edit Username on Click
-// =======================
+// ───────── Edit Username ───────── //
 window.tempUsername = '';
 userNameDisplay.addEventListener('click', () => {
     const newUsername = prompt('Enter your username:', window.tempUsername || fullnameInput.value);
@@ -114,13 +99,10 @@ userNameDisplay.addEventListener('click', () => {
     userNameDisplay.textContent = newUsername;
     window.tempUsername = newUsername;
     fullnameInput.value = newUsername;
-    // Trigger input event for validation
     fullnameInput.dispatchEvent(new Event('input'));
 });
 
-// =======================
-// Form Submission
-// =======================
+// ───────── Form Submission ───────── //
 document.getElementById('signupForm')?.addEventListener('submit', async function (e) {
     e.preventDefault();
 
@@ -194,6 +176,9 @@ document.getElementById('signupForm')?.addEventListener('submit', async function
         document.getElementById('signupSuccessModal').style.display = 'flex';
 
         document.getElementById('loginRedirectBtn').onclick = () => {
+            localStorage.removeItem('dbperpetual');
+            localStorage.removeItem('dbspot');
+
             const isGithub = window.location.hostname.includes('github.io');
             const target = isGithub ? '/Nexion-Trades-Full/index.html' : '/index.html';
             window.location.href = target;
@@ -215,9 +200,7 @@ document.getElementById('signupForm')?.addEventListener('submit', async function
     }
 });
 
-// =======================
-// Loading UI
-// =======================
+// ───────── Loading UI ───────── //
 const loader = document.querySelector('.page-loader');
 
 function startLoading() {
@@ -240,9 +223,7 @@ function finishLoading() {
     }, 400);
 }
 
-// =======================
-// Smooth Link Transitions
-// =======================
+// ───────── Smooth Link Transitions ───────── //
 document.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', (e) => {
         if (link.href && !link.href.startsWith('#') && !link.target) {
@@ -253,9 +234,7 @@ document.querySelectorAll('a').forEach(link => {
     });
 });
 
-// =======================
-// Toggle Password Visibility
-// =======================
+// ───────── Toggle Password Visibility ───────── //
 const toggleBtn = document.querySelector('.toggle-password');
 const repeatToggleBtn = document.querySelector('.toggle-repeat-password');
 
@@ -280,43 +259,3 @@ repeatToggleBtn?.addEventListener('click', () => {
         hideIcon.style.display = isPassword ? 'block' : 'none';
     }
 });
-
-// =======================
-// Fade-up Animation
-// =======================
-document.addEventListener('DOMContentLoaded', () => {
-    const elements = document.querySelectorAll('.fade-up');
-    elements.forEach((el, index) => {
-        setTimeout(() => el.classList.add('show'), index * 100);
-    });
-});
-
-// ======================= Block 1000px ======================= //
-function checkDeviceWidth() {
-    const minWidth = 999;
-    let overlay = document.getElementById("deviceBlocker");
-
-    if (window.innerWidth < minWidth) {
-        if (!overlay) {
-            overlay = document.createElement("div");
-            overlay.id = "deviceBlocker";
-
-            overlay.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3"><path d="M0-160v-60h141v-42q-24 0-42-18t-18-42v-458q0-24 18-42t42-18h678q24 0 42 18t18 42v458q0 24-18 42t-42 18v42h141v60H0Zm141-162h678v-458H141v458Zm0 0v-458 458Z"/></svg>
-                <h1>Desktop Required</h1>
-                <p>This website is optimized for desktop computers only. Your device screen is too small to display this site properly.</p>
-            `;
-
-            document.body.appendChild(overlay);
-            document.body.style.overflow = "hidden";
-        }
-    } else {
-        if (overlay) {
-            overlay.remove();
-            document.body.style.overflow = "";
-        }
-    }
-}
-
-window.addEventListener("load", checkDeviceWidth);
-window.addEventListener("resize", checkDeviceWidth);

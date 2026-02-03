@@ -1,6 +1,3 @@
-// =======================
-// Supabase setup
-// =======================
 const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
@@ -31,7 +28,6 @@ function drawDots() {
     
     const gridSpacing = 20;
     const cornerSize = 0.7;
-    const edgeSize = 0.3;
     const glowRadius = 180;
     
     const centerX = canvas.width / 2;
@@ -79,22 +75,19 @@ drawDots();
 
 function urlToBase64(url) {
     return new Promise((resolve, reject) => {
-        console.log("🚀 Memulai konversi URL ke base64:", url);
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.onload = () => {
-            console.log("✅ Gambar berhasil dimuat, ukuran:", img.width, "x", img.height);
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
             canvas.width = img.width;
             canvas.height = img.height;
             ctx.drawImage(img, 0, 0);
             const dataURL = canvas.toDataURL('image/png');
-            console.log("✅ Konversi ke base64 berhasil. Panjang data:", dataURL.length);
             resolve(dataURL);
         };
         img.onerror = (err) => {
-            console.error("❌ Gagal memuat gambar dari URL:", url, "| Error:", err);
+            console.error("URL:", url, "| Error:", err);
             reject(new Error("Image load failed"));
         };
         img.src = url;
@@ -109,39 +102,35 @@ async function saveAccountToLocalStorage() {
             return;
         }
 
-        // Ambil avatar base64 dari localStorage (yang sudah disimpan saat login)
         const avatarBase64 = localStorage.getItem('avatar') || null;
 
         const accountData = {
             user_id: session.user.id,
             email: session.user.email,
             refresh_token: session.refresh_token,
-            avatar: avatarBase64 // 🔹 tambahkan avatar di sini
+            avatar: avatarBase64
         };
 
-        // Ambil akun yang sudah tersimpan
         let savedAccounts = [];
         const stored = localStorage.getItem(STORAGE_KEY);
         if (stored) {
             savedAccounts = JSON.parse(stored);
         }
 
-        // Cek duplikat berdasarkan user_id
         const existingIndex = savedAccounts.findIndex(acc => acc.user_id === accountData.user_id);
         if (existingIndex !== -1) {
-            savedAccounts[existingIndex] = accountData; // perbarui (termasuk avatar baru)
+            savedAccounts[existingIndex] = accountData;
         } else {
-            savedAccounts.push(accountData); // tambah baru
+            savedAccounts.push(accountData);
         }
 
         localStorage.setItem(STORAGE_KEY, JSON.stringify(savedAccounts));
-        console.log('✅ Akun + avatar berhasil disimpan ke local cache:', accountData.email);
     } catch (err) {
-        console.error('❌ Gagal menyimpan akun ke local cache:', err);
+        console.error('Local cache:', err);
     }
 }
 
-// Form handling - Supabase login (diperbaiki)
+// ────── Form handling ────── //
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
@@ -163,9 +152,7 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         if (userError) throw userError;
 
         const user = userData.user;
-        console.log("👤 Data user lengkap:", user);
 
-        console.log("🔍 Mencari avatar_path di tabel profiles...");
         const { data: profileData, error: profileError } = await supabaseClient
             .from('profiles')
             .select('avatar_url')
@@ -177,11 +164,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
         }
 
         const avatarPath = profileData?.avatar_url;
-        console.log("🖼️ avatar_path dari profiles:", avatarPath);
 
         if (avatarPath) {
             try {
-                console.log("⏳ Memulai download avatar via Supabase client...");
                 const { data: fileData, error: downloadError } = await supabaseClient
                     .storage
                     .from('avatars')
@@ -197,16 +182,14 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
                 )}`;
 
                 localStorage.setItem('avatar', base64);
-                console.log("✅ Avatar berhasil disimpan ke localStorage");
 
-                localStorage.removeItem('dbtrade');
+                localStorage.removeItem('dbperpetual');
+                localStorage.removeItem('dbspot');
             } catch (imgErr) {
-                console.warn("⚠️ Gagal menyimpan avatar ke cache:", imgErr);
                 localStorage.removeItem('avatar');
             }
         } else {
             localStorage.removeItem('avatar');
-            console.log("🗑️ Tidak ada avatar_path — menghapus cache avatar lama");
         }
 
         await saveAccountToLocalStorage();
@@ -252,7 +235,6 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
     }
 });
 
-// Bersihkan error saat user mulai mengetik
 document.getElementById('email').addEventListener('input', function() {
     this.style.borderColor = 'rgba(255, 255, 255, 0.1)';
     document.querySelector('.altert-text').textContent = '';
@@ -270,7 +252,6 @@ inputs.forEach(input => {
     });
 });
 
-// Toggle password visibility
 const togglePasswordBtn = document.querySelector('.toggle-password');
 const passwordInput = document.getElementById('password');
 const showIcon = togglePasswordBtn?.querySelector('.icon-show');
@@ -324,43 +305,3 @@ document.querySelectorAll('a').forEach(link => {
         }
     });
 });
-
-document.addEventListener("DOMContentLoaded", () => {
-    const elements = document.querySelectorAll(".fade-up");
-
-    elements.forEach((el, index) => {
-        setTimeout(() => {
-        el.classList.add("show");
-        }, index * 150);
-    });
-});
-
-// ======================= Block 1000px ======================= //
-function checkDeviceWidth() {
-    const minWidth = 999;
-    let overlay = document.getElementById("deviceBlocker");
-
-    if (window.innerWidth < minWidth) {
-        if (!overlay) {
-            overlay = document.createElement("div");
-            overlay.id = "deviceBlocker";
-
-            overlay.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3"><path d="M0-160v-60h141v-42q-24 0-42-18t-18-42v-458q0-24 18-42t42-18h678q24 0 42 18t18 42v458q0 24-18 42t-42 18v42h141v60H0Zm141-162h678v-458H141v458Zm0 0v-458 458Z"/></svg>
-                <h1>Desktop Required</h1>
-                <p>This website is optimized for desktop computers only. Your device screen is too small to display this site properly.</p>
-            `;
-
-            document.body.appendChild(overlay);
-            document.body.style.overflow = "hidden";
-        }
-    } else {
-        if (overlay) {
-            overlay.remove();
-            document.body.style.overflow = "";
-        }
-    }
-}
-
-window.addEventListener("load", checkDeviceWidth);
-window.addEventListener("resize", checkDeviceWidth);

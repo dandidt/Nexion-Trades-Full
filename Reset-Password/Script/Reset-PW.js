@@ -1,13 +1,7 @@
-// =======================
-// Supabase setup
-// =======================
 const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
 const supabaseClient = supabase.createClient(supabaseUrl.trim(), supabaseKey.trim());
 
-// =======================
-// Canvas
-// =======================
 const canvas = document.getElementById('dotCanvas');
 const ctx = canvas.getContext('2d');
 
@@ -134,7 +128,6 @@ form.addEventListener('submit', async function(e) {
     }
 });
 
-// Remove error state saat user mulai mengetik
 emailInput.addEventListener('input', function() {
     if (this.classList.contains('error')) {
         this.classList.remove('error');
@@ -173,43 +166,3 @@ document.querySelectorAll('a').forEach(link => {
         }
     });
 });
-
-document.addEventListener("DOMContentLoaded", () => {
-    const elements = document.querySelectorAll(".fade-up");
-
-    elements.forEach((el, index) => {
-        setTimeout(() => {
-            el.classList.add("show");
-        }, index * 150);
-    });
-});
-
-// ======================= Block 1000px ======================= //
-function checkDeviceWidth() {
-    const minWidth = 999;
-    let overlay = document.getElementById("deviceBlocker");
-
-    if (window.innerWidth < minWidth) {
-        if (!overlay) {
-            overlay = document.createElement("div");
-            overlay.id = "deviceBlocker";
-
-            overlay.innerHTML = `
-                <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3"><path d="M0-160v-60h141v-42q-24 0-42-18t-18-42v-458q0-24 18-42t42-18h678q24 0 42 18t18 42v458q0 24-18 42t-42 18v42h141v60H0Zm141-162h678v-458H141v458Zm0 0v-458 458Z"/></svg>
-                <h1>Desktop Required</h1>
-                <p>This website is optimized for desktop computers only. Your device screen is too small to display this site properly.</p>
-            `;
-
-            document.body.appendChild(overlay);
-            document.body.style.overflow = "hidden";
-        }
-    } else {
-        if (overlay) {
-            overlay.remove();
-            document.body.style.overflow = "";
-        }
-    }
-}
-
-window.addEventListener("load", checkDeviceWidth);
-window.addEventListener("resize", checkDeviceWidth);
