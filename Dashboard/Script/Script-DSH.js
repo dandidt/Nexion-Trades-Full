@@ -1,4 +1,4 @@
-// ======================= Format ======================= //
+// ────── Format ────── //
 function formatUSD(value) {
     if (value === 0) return "$0";
     return `$${value.toLocaleString('en-US', {
@@ -34,17 +34,15 @@ function formatCurrencyCompact(n) {
   return sign + '$' + abs.toFixed(2);
 }
 
-// ======================= Button Navbar ======================= //
+// ────── Button Navbar ────── //
 document.addEventListener("DOMContentLoaded", () => {
   const menus = document.querySelectorAll(".box-menu-in");
 
   const jurnalingSection = document.querySelector(".jurnaling");
   const statsSection = document.querySelector(".statistic");
-  const notesSection = document.querySelector(".notes");
   const settingSection = document.querySelector(".setting");
 
   if (statsSection) statsSection.style.display = "none";
-  if (notesSection) notesSection.style.display = "none";
   if (settingSection) settingSection.style.display = "none";
   jurnalingSection.style.display = "block";
 
@@ -74,7 +72,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
       jurnalingSection.style.display = "none";
       if (statsSection) statsSection.style.display = "none";
-      if (notesSection) notesSection.style.display = "none";
       if (settingSection) settingSection.style.display = "none";
 
       window.scrollTo({ top: 0, behavior: 'instant' });
@@ -92,17 +89,9 @@ document.addEventListener("DOMContentLoaded", () => {
             if (balanceCurrentData.length > 0) {
               drawBalanceChart();
             } else {
-              loadTradeHistory().then(() => {
-                filterData('all');
-              });
+              return;
             }
           }, 300);
-        }
-      }
-      else if (menuName === "notes") {
-        if (notesSection) {
-          notesSection.style.display = "block";
-          animateSection(notesSection);
         }
       }
       else if (menuName === "setting") {
@@ -115,7 +104,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// ======================= Back to Top Button ======================= //
+// ────── Back to Top Button ────── //
 document.addEventListener("DOMContentLoaded", () => {
   const btnUp = document.querySelector(".box-up");
   const btnDown = document.querySelector(".box-down");
@@ -158,9 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 });
 
-// --------------------------------------------------------------- //
-
-// ======================= Front Dashboard ======================= //
+// ────── Front Dashboard ────── //
 function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
   const combinedData = [...dataPerpetual, ...dataSpot].filter(isTradeItem);
 
@@ -244,7 +231,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       elValueBestPerformer.textContent = bestPnl < 0 ? `-${formattedBest}` : formattedBest;
     }
 
-    // --- Cari modal awal: gabung saldoAwal + deposit dari KEDUA database ---
     let originalPerpetual = [];
     let originalSpot = [];
     try {
@@ -273,7 +259,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       console.warn("⚠️ Gagal ambil saldoAwal:", err);
     }
 
-    // Hitung total deposit dari kedua DB
     let totalDeposit = 0;
     [originalPerpetual, originalSpot].forEach(db => {
       if (Array.isArray(db)) {
@@ -287,12 +272,10 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       }
     });
 
-    // Cari posisi bestTrade di salah satu DB asli (untuk akurasi urutan)
     let bestIndexInOriginal = -1;
     let sourceDb = null;
     const bestDateMs = new Date(bestTrade.date * 1000).getTime();
 
-    // Cek di perpetual dulu
     for (let i = 0; i < originalPerpetual.length; i++) {
       const t = originalPerpetual[i];
       const tDateMs = new Date(t.date * 1000).getTime();
@@ -420,22 +403,22 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
   if (elAvgPnlPerday) elAvgPnlPerday.textContent = `Avg Daily PnL: ${formatCurrencyCompact(avgDaily)}`;
 }
 
-// ======================= Trading Jurnal ======================= //
+// ────── Trading Jurnal ────── //
 // ------ Global Deklarasi ------ //
 let perpetualTrades = [];
 let spotTrades = [];
 let originalPerpetualTrades = [];
 let originalSpotTrades = [];  
 let currentActiveTab = 'perpetual';
+let selectedSpotNumbers = [];
+let selectedPerpetualNumbers = [];
 
 // ------ Init All Data on Page Load ------ //
 async function initializeAllData() {
-  // Load perpetual
   const perpData = await getDBPerpetual();
   perpetualTrades = perpData;
   originalPerpetualTrades = [...perpData];
 
-  // Load spot
   const spotData = await getDBSpot();
   spotTrades = spotData;
   originalSpotTrades = [...spotData];
@@ -450,9 +433,9 @@ async function initializeAllData() {
 document.addEventListener('DOMContentLoaded', () => { initializeAllData(); });
 
 // ------ Swaap Jurnal ------ //
-document.querySelectorAll('.filter-jurnal-btn').forEach((btn) => {
+document.querySelectorAll('.swap-tabel').forEach((btn) => {
     btn.addEventListener('click', function() {
-        document.querySelectorAll('.filter-jurnal-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.swap-tabel').forEach(b => b.classList.remove('active'));
         this.classList.add('active');
 
         const perpTable = document.getElementById('tabel-perpetual');
@@ -521,23 +504,46 @@ function renderPerpetualPaginated() {
 }
 
 function renderPerpetualTable(data) {
-  const tbody = document.querySelector(".tabel-trade tbody");
+  const tbody = document.querySelector("#tabel-perpetual tbody");
+  if (!tbody) return;
+  
   tbody.innerHTML = "";
 
   // Transaction
-  data.forEach((item, index) => {
+  data.forEach((item) => {
     if (isActionItem(item)) {
-      const date = new Date(item.date * 1000);
-      const formattedDate = date.toLocaleDateString("id-ID");
+      const noCell = isEditMode
+      ? `
+        <td>
+          <label class="ios-checkbox red">
+            <input type="checkbox" data-id="${item.tradeNumber || 'tx'}" />
+            <div class="checkbox-wrapper">
+              <div class="checkbox-bg"></div>
+              <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none">
+                <path class="check-path"
+                  d="M4 12L10 18L20 6"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </label>
+        </td>
+      `
+      : `<td><p class="no">${item.tradeNumber || '-'}</p></td>`;
+
+      const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
       const value = item.value || 0;
       const isDeposit = item.action === "Deposit";
 
       const row = document.createElement("tr");
+      row.dataset.tradeNumber = item.tradeNumber || '';
       row.classList.add(isDeposit ? "deposit" : "withdraw");
 
       row.innerHTML = `
-        <td><p class="no">${item.tradeNumber || '-'}</p></td>
-        <td><p class="date">${formattedDate}</p></td>
+        ${noCell}
+        <td><p class="date">${date}</p></td>
         <td><p></p></td>
         <td><p></p></td>
         <td><p></p></td>
@@ -552,40 +558,57 @@ function renderPerpetualTable(data) {
         <td><p class="${isDeposit ? 'result-win' : 'result-lose'}">${item.action}</p></td>
         <td><p class="${isDeposit ? 'pnl-win' : 'pnl-loss'}">${isDeposit ? '+' : ''}${formatUSD(Math.abs(value))}</p></td>
       `;
+      
       tbody.appendChild(row);
       return;
     }
 
     // Trades
     if (!isTradeItem(item)) return;
-
     const trade = item;
 
-    function formatDateAsWIB(dateInput) {
-      const timestamp = typeof dateInput === 'number' ? dateInput * 1000 : dateInput;
-      const d = new Date(timestamp);
-      if (isNaN(d.getTime())) return '-';
+    const noCell = isEditMode
+      ? `
+        <td>
+          <label class="ios-checkbox">
+            <input type="checkbox" data-id="${trade.tradeNumber || 'tx'}" />
+            <div class="checkbox-wrapper">
+              <div class="checkbox-bg"></div>
+              <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none">
+                <path class="check-path"
+                  d="M4 12L10 18L20 6"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </label>
+        </td>
+      `
+      : `<td><p class="no">${trade.tradeNumber || '-'}</p></td>`;
 
-      return d.toLocaleDateString('id-ID', {
-        timeZone: 'Asia/Jakarta',
-        day: 'numeric',
-        month: 'numeric',
-        year: 'numeric'
-      });
-    }
-
-    const formattedDate = formatDateAsWIB(item.date);
+    const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
 
     const rr = Number(trade.RR);
-    const margin = Number(trade.Margin) || 0;
     const pnl = Number(trade.Pnl) || 0;
+    const margin = Number(trade.Margin) || 0;
 
     let rrClass = "rr-null";
     if (rr > 0) rrClass = "rr-win";
     else if (rr < 0) rrClass = "rr-lose";
 
     const psyClass = (trade.Psychology || "confident").toLowerCase();
-    const posClass = (trade.Pos === "S") ? "short" : "long";
+    let posClass = "pos-null";
+    let posText  = "-";
+
+    if (trade.Pos === "S") {
+      posClass = "short";
+      posText = "SHORT";
+    } else if (trade.Pos === "B") {
+      posClass = "long";
+      posText = "LONG";
+    }
 
     let resultClass = "result-lose";
     const resultValue = trade.Result?.toLowerCase();
@@ -596,13 +619,19 @@ function renderPerpetualTable(data) {
     if (pnl > 0) pnlClass = "pnl-win";
     else if (pnl < 0) pnlClass = "pnl-loss";
 
+    const confluanceText = [trade.Confluance?.Entry, trade.Confluance?.TimeFrame]
+    .filter(v => v && v !== '-')
+    .join(' - ') || '-';
+
     const row = document.createElement("tr");
+    row.dataset.tradeNumber = trade.tradeNumber;
+
     row.innerHTML = `
-      <td><p class="no">${trade.tradeNumber || '-'}</p></td>
-      <td><p class="date">${formattedDate}</p></td>
+      ${noCell}
+      <td><p class="date">${date}</p></td>
       <td><p class="pairs">${trade.Pairs || '-'}</p></td>
       <td><p class="method">${trade.Method || '-'}</p></td>
-      <td><p class="confluance">${(trade.Confluance?.Entry || '-') + ' - ' + (trade.Confluance?.TimeFrame || '-')}</p></td>
+      <td><p class="confluance">${confluanceText}</p></td>
       <td><p class="${rrClass}">${isNaN(rr) ? "-" : rr}</p></td>
       <td><p class="behavior">${trade.Behavior || '-'}</p></td>
       <td>
@@ -621,7 +650,7 @@ function renderPerpetualTable(data) {
           </svg>
         </div>
       </td>
-      <td><p class="${posClass}">${posClass.toUpperCase()}</p></td>
+      <td><p class="${posClass}">${posText}</p></td>
       <td><p class="margin">${formatUSD(margin)}</p></td>
       <td><p class="${resultClass}">${trade.Result || '-'}</p></td>
       <td><p class="${pnlClass}">${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}</p></td>
@@ -647,8 +676,12 @@ function renderPerpetualTable(data) {
       row.style.cursor = "pointer";
       row.classList.add("editable");
     });
+
     const btnEdit = document.getElementById("btnEdit");
     if (btnEdit) btnEdit.classList.add("active");
+  } else {
+    const btnEdit = document.getElementById("btnEdit");
+    if (btnEdit) btnEdit.classList.remove("active");
   }
 }
 
@@ -657,7 +690,6 @@ function renderSpotPaginated() {
   const startIndex = (currentPage - 1) * rowsPerPage;
   const endIndex = startIndex + rowsPerPage;
   const pageData = spotTrades.slice(startIndex, endIndex);
-  
   renderSpotTable(pageData);
 }
 
@@ -666,102 +698,137 @@ function renderSpotTable(data) {
     if (!tbody) return;
 
     tbody.innerHTML = "";
-
-    data.forEach(item => {
-
+    
     // Transaction
+    data.forEach(item => {
     if (item.action) {
-        const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
-        const isDeposit = item.action === "Deposit";
-        const value = Number(item.value) || 0;
+      const noCell = isEditMode
+      ? `
+        <td>
+          <label class="ios-checkbox red">
+            <input type="checkbox" data-id="${item.tradeNumber || 'tx'}" />
+            <div class="checkbox-wrapper">
+              <div class="checkbox-bg"></div>
+              <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none">
+                <path class="check-path"
+                  d="M4 12L10 18L20 6"
+                  stroke="currentColor"
+                  stroke-width="3"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"/>
+              </svg>
+            </div>
+          </label>
+        </td>
+      `
+      : `<td><p class="no">${item.tradeNumber || '-'}</p></td>`;
+      
+      const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
+      const value = Number(item.value) || 0;
+      const isDeposit = item.action === "Deposit";
 
-        const row = document.createElement("tr");
-        row.classList.add(isDeposit ? "deposit" : "withdraw");
+      const row = document.createElement("tr");
+      row.dataset.tradeNumber = item.tradeNumber || '';
+      row.classList.add(isDeposit ? "deposit" : "withdraw");
 
-        row.innerHTML = `
-            <td><p class="no">${item.tradeNumber || "-"}</p></td>
-            <td><p class="date">${date}</p></td>
-            <td><p></p></td>
-            <td><p></p></td>
-            <td><p></p></td>
-            <td><p></p></td>
-            <td><p></p></td>
-            <td><p></p></td>
-            <td><p></p></td>
-            <td><p></p></td>
-            <td><p></p></td>
-            <td><p class="${isDeposit ? "result-win" : "result-lose"}">
-                ${item.action}
-            </p></td>
-            <td><p class="${isDeposit ? "pnl-win" : "pnl-loss"}">
-                ${isDeposit ? "+" : "-"}${formatUSD(Math.abs(value))}
-            </p></td>
-        `;
+      row.innerHTML = `
+          ${noCell}
+          <td><p class="date">${date}</p></td>
+          <td><p></p></td>
+          <td><p></p></td>
+          <td><p></p></td>
+          <td><p></p></td>
+          <td><p></p></td>
+          <td><p></p></td>
+          <td><p></p></td>
+          <td><p></p></td>
+          <td><p></p></td>
+          <td><p class="${isDeposit ? "result-win" : "result-lose"}">${item.action}</p></td>
+          <td><p class="${isDeposit ? "pnl-win" : "pnl-loss"}">${isDeposit ? "+" : "-"}${formatUSD(Math.abs(value))}</p></td>
+      `;
 
-        tbody.appendChild(row);
-        return;
+      tbody.appendChild(row);
+      return;
     }
 
     // Trades
-    const date = new Date(item.date * 1000).toLocaleDateString("id-ID");
+    if (!isTradeItem(item)) return;
+    const trade = item;
 
-    const rr = Number(item.RR) || 0;
-    const pnl = Number(item.Pnl) || 0;
-    const margin = Number(item.Margin) || 0;
+    const noCell = isEditMode
+    ? `
+      <td>
+        <label class="ios-checkbox red">
+          <input type="checkbox" data-id="${trade.tradeNumber || 'tx'}" />
+          <div class="checkbox-wrapper">
+            <div class="checkbox-bg"></div>
+            <svg class="checkbox-icon" viewBox="0 0 24 24" fill="none">
+              <path class="check-path"
+                d="M4 12L10 18L20 6"
+                stroke="currentColor"
+                stroke-width="3"
+                stroke-linecap="round"
+                stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </label>
+      </td>
+    `
+    : `<td><p class="no">${trade.tradeNumber || '-'}</p></td>`;
+    
+    const date = new Date(trade.date * 1000).toLocaleDateString("id-ID");
+
+    const rr = Number(trade.RR) || 0;
+    const pnl = Number(trade.Pnl) || 0;
+    const margin = Number(trade.Margin) || 0;
 
     const rrClass = rr > 0 ? "rr-win" : rr < 0 ? "rr-lose" : "rr-null";
     const pnlClass = pnl > 0 ? "pnl-win" : pnl < 0 ? "pnl-loss" : "pnl-null";
     const resultClass =
-        item.Result?.toLowerCase() === "win" || item.Result?.toLowerCase() === "profit"
+        trade.Result?.toLowerCase() === "win" || trade.Result?.toLowerCase() === "profit"
             ? "result-win"
             : "result-lose";
 
+    const confluanceText = [trade.Confluance?.Entry, trade.Confluance?.TimeFrame]
+    .filter(v => v && v !== '-')
+    .join(' - ') || '-';
+
     const row = document.createElement("tr");
+    row.dataset.tradeNumber = trade.tradeNumber || '';
+
     row.innerHTML = `
-        <td><p class="no">${item.tradeNumber || "-"}</p></td>
-        <td><p class="date">${date}</p></td>
-        <td><p class="pairs">${item.Pairs || "-"}</p></td>
-        <td><p class="method">${item.Method || "-"}</p></td>
-        <td><p class="confluance">
-            ${(item.Confluance?.Entry || "-")} - ${(item.Confluance?.TimeFrame || "-")}
-        </p></td>
-        <td><p class="${rrClass}">${rr || "-"}</p></td>
-
-        <td>
-            <div class="box-causes" id="box-causes">
-              <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
-                <path d="M240-384h480v-72H240v72Zm0-132h480v-72H240v72Zm0-132h480v-72H240v72ZM864-96 720-240H168q-29.7 0-50.85-21.15Q96-282.3 96-312v-480q0-29.7 21.15-50.85Q138.3-864 168-864h624q29.7 0 50.85 21.15Q864-821.7 864-792v696ZM168-312h582l42 42v-522H168v480Zm0 0v-480 480Z"/>
-              </svg>
-            </div>
-        </td>
-
-        <td><p class="${(item.Psychology || "confident").toLowerCase()}">
-            ${item.Psychology || "-"}
-        </p></td>
-
-        <td><p class="class">${item.Class || "-"}</p></td>
-
-        <td>
-            <div class="box-causes" id="box-files"
-                  data-before="${item.Files?.Before || "#"}"
-                  data-after="${item.Files?.After || "#"}">
-                <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
-                  <path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/>
-                </svg>
-            </div>
-        </td>
-
-        <td><p class="margin">${formatUSD(margin)}</p></td>
-        <td><p class="${resultClass}">${item.Result || "-"}</p></td>
-        <td><p class="${pnlClass}">
-            ${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}
-        </p></td>
+      ${noCell}
+      <td><p class="date">${date}</p></td>
+      <td><p class="pairs">${trade.Pairs || "-"}</p></td>
+      <td><p class="method">${trade.Method || "-"}</p></td>
+      <td><p class="confluance">${confluanceText}</p></td>
+      <td><p class="${rrClass}">${rr || "-"}</p></td>
+      <td>
+        <div class="box-causes" id="box-causes">
+          <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+            <path d="M240-384h480v-72H240v72Zm0-132h480v-72H240v72Zm0-132h480v-72H240v72ZM864-96 720-240H168q-29.7 0-50.85-21.15Q96-282.3 96-312v-480q0-29.7 21.15-50.85Q138.3-864 168-864h624q29.7 0 50.85 21.15Q864-821.7 864-792v696ZM168-312h582l42 42v-522H168v480Zm0 0v-480 480Z"/>
+          </svg>
+        </div>
+      </td>
+      <td><p class="${(trade.Psychology || "confident").toLowerCase()}">${trade.Psychology || "-"}</p></td>
+      <td><p class="class">${trade.Class || "-"}</p></td>
+      <td>
+        <div class="box-causes" id="box-files"
+              data-before="${trade.Files?.Before || "#"}"
+              data-after="${trade.Files?.After || "#"}">
+            <svg class="icon-causes" xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
+              <path d="M264-240h432L557-426q-2-1-3.69-1.6-1.69-.6-3.31-1.4L444-288l-72-96-108 144ZM216-96q-29.7 0-50.85-21.15Q144-138.3 144-168v-528q0-29.7 21.15-50.85Q186.3-768 216-768h192v72H216v528h528v-231l72 72v159q0 29.7-21.15 50.85Q773.7-96 744-96H216Zm264-336Zm381 48L738-507q-20 13-42.55 20-22.55 7-47.92 7Q578-480 529-529t-49-119q0-70 49-119t119-49q70 0 119 48.95t49 118.88q0 25.17-7 47.67T789-558l123 123-51 51ZM647.77-552Q688-552 716-579.77q28-27.78 28-68Q744-688 716.23-716q-27.78-28-68-28Q608-744 580-716.23q-28 27.78-28 68Q552-608 579.77-580q27.78 28 68 28Z"/>
+            </svg>
+        </div>
+      </td>
+      <td><p class="margin">${formatUSD(margin)}</p></td>
+      <td><p class="${resultClass}">${trade.Result || "-"}</p></td>
+      <td><p class="${pnlClass}">${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}</p></td>
     `;
 
-    row.querySelector("#box-causes").dataset.content = item.Causes || "No causes";
+    row.querySelector("#box-causes").dataset.content = trade.Causes || "No causes";
 
     tbody.appendChild(row);
-      
   });
 
   setTimeout(() => {
@@ -772,10 +839,16 @@ function renderSpotTable(data) {
   updateDashboardFromTrades(originalPerpetualTrades, originalSpotTrades);
 
   if (isEditMode) {
-    document.querySelectorAll("#tabel-spot tbody tr").forEach(row => {
+    document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
       row.style.cursor = "pointer";
       row.classList.add("editable");
     });
+
+    const btnEdit = document.getElementById("btnEdit");
+    if (btnEdit) btnEdit.classList.add("active");
+  } else {
+    const btnEdit = document.getElementById("btnEdit");
+    if (btnEdit) btnEdit.classList.remove("active");
   }
 }
 
@@ -928,7 +1001,7 @@ function getSortIcon(columnKey = null, direction = null) {
     }
   }
 
-  const color = "#ffffff";
+  const color = "#fff";
   return `
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" width="15px" height="15px" style="color:${color};vertical-align:middle;">
       <polygon fill="currentColor" opacity="${upOpacity}" 
@@ -947,8 +1020,8 @@ document.addEventListener("DOMContentLoaded", loadPerpetualData);
 // ------ Tooltip ------ //
 class TooltipManager {
   constructor() {
-    this.tooltip = document.getElementById('tooltip-box');
-    this.tooltipContent = document.getElementById('tooltip-content');
+    this.tooltip = document.getElementById('TooltipBox');
+    this.tooltipContent = document.getElementById('TooltipContent');
     this.hideTimeout = null;
     this.showTimeout = null;
     this.currentTarget = null;
@@ -1190,11 +1263,6 @@ function updatePaginationUI() {
 function updatePageNumberBoxes(totalPages) {
   const container = document.querySelector('.wrapper-page-pagination');
 
-  const leftFirst = document.querySelector('.left-frist-page');
-  const leftOne = document.querySelector('.left-one-page');
-  const rightOne = document.querySelector('.right-one-page');
-  const rightFirst = document.querySelector('.right-frist-page');
-
   container.innerHTML = '';
 
   const addPage = (num, active = false) => {
@@ -1399,8 +1467,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initGlobalSorting();
 });
 
-// --------------------------------------------------------------- //
-
 // =================== Dashboard Header =================== //
 async function updateEquityStats() {
   try {
@@ -1531,7 +1597,7 @@ async function updateEquityStats() {
 document.addEventListener("DOMContentLoaded", updateEquityStats);
 window.updateEquityStats = updateEquityStats;
 
-// ======================= 1 Statistic ======================= //
+// ────── 1 Statistic ────── //
 async function updateStats(mode = "Perpetual") {
   let trades = [];
 
@@ -1676,7 +1742,6 @@ async function updateStats(mode = "Perpetual") {
       runningBalance += pnl;
     });
 
-    // Cek akhir jika masih dalam drawdown
     if (currentDrop > 0) {
       const dropPercent = balanceBeforeStreak > 0 
         ? (currentDrop / balanceBeforeStreak) * 100 
@@ -1718,7 +1783,6 @@ async function updateStats(mode = "Perpetual") {
   }
 }
 
-// Helper: reset UI ke
 function resetStatsUI() {
   const ids = [
     "totalProfite", "persentaseIncrease", "totalValueWin", "totalValueLoss",
@@ -1759,7 +1823,7 @@ document.querySelectorAll(".btn-radio.data-value").forEach(btn => {
 
 updateStats("Perpetual");
 
-// ======================= Monthly Prtformance & Calender Trade ======================= //
+// ────── Monthly Prtformance & Calender Trade ────── //
 // ------ Monthly Prtformance ------ //
 
 let monthlyData = [];
@@ -2324,7 +2388,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ]);
 });
 
-// ======================= Container 2 Statistic ======================= //
+// ────── Container 2 Statistic ────── //
 
 // ------ Swap menu Detailed Statistics ------ /
 const radios = document.querySelectorAll('input[name="toggle"]');
@@ -2520,7 +2584,7 @@ async function updateTradeStats() {
 updateTradeStats();
 window.updateTradeStats = updateTradeStats;
 
-// ======================= Global Sumary  & Single Bhhavior ======================= //
+// ────── Global Sumary  & Single Bhhavior ────── //
 async function loadTradeStats() {
   try {
     const data = await getDBPerpetual();
@@ -2577,7 +2641,6 @@ async function loadTradeStats() {
     swingEl.textContent = `${swingPct}%`;
     intraEl.textContent = `${intraPct}%`;
 
-    // Update warna badge
     [scalpEl, swingEl, intraEl].forEach(el => {
       const val = parseFloat(el.textContent);
       el.classList.remove("badge-green", "badge-gray");
@@ -2666,7 +2729,7 @@ async function loadPsychologyStats() {
 
 document.addEventListener("DOMContentLoaded", loadPsychologyStats);
 
-// ======================= List Pairs ======================= //
+// ────── List Pairs ────── //
 window.assetData = window.assetData || [];
 
 async function loadAssetDataIfNeeded() {
@@ -2676,7 +2739,7 @@ async function loadAssetDataIfNeeded() {
       if (!res.ok) throw new Error('File tidak ditemukan');
       window.assetData = await res.json();
     } catch (err) {
-      console.error("⚠️ Gagal memuat Asset/Link-Symbol.json:", err);
+      console.error("Gagal memuat Asset/Link-Symbol.json:", err);
       window.assetData = [];
     }
   }
@@ -2806,7 +2869,7 @@ if (document.readyState === 'loading') {
   updatePairsTable();
 }
 
-// ======================= Setting ======================= //
+// ────── Setting ────── //
 function loadSettings() {
     const savedSetting = localStorage.getItem('tradingSettings');
     
@@ -2890,8 +2953,8 @@ async function renderProfile() {
 document.addEventListener("DOMContentLoaded", () => {
     renderProfile();
 });
-// ======================= Calculate & Settings ======================= //
 
+// ────── Calculate & Settings ────── //
 function getLocalData(key) {
     try {
         const data = localStorage.getItem(key);
@@ -2940,7 +3003,7 @@ window.calculate = async function() {
 
     const riskPerTrade = balance * riskPercent;
     const positionSize = riskPerTrade / (sl / 100);
-    const margin = positionSize / (currentActiveTab === 'spot' ? 1 : lev); // Spot leverage selalu 1
+    const margin = positionSize / (currentActiveTab === 'spot' ? 1 : lev);
     const marginOpen = balance > 0 ? (margin / balance) * 100 : 0;
     
     const roiTP = sl * lev;
@@ -2997,7 +3060,6 @@ document.addEventListener('DOMContentLoaded', function () {
         window.renderRiskInfo();
     }
 
-    // Event Listeners
     [inputs.perpFee, inputs.perpRisk, inputs.spotFee, inputs.spotRisk].forEach(el => {
         el?.addEventListener('input', () => {
             saveSettings();
@@ -3013,346 +3075,7 @@ document.addEventListener('DOMContentLoaded', function () {
     window.calculate();
 });
 
-// ======================= Notes ======================= //
-function formatDate(timestamp) {
-    const d = new Date(timestamp);
-    return d.toLocaleString("id-ID", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-    });
-}
-
-async function renderNotes(filter = "ALL") {
-    const container = document.querySelector(".wrapper-content-notes");
-    if (!container) return;
-
-    let db = await window.getDBNotes();
-
-    let filtered = db;
-    if (filter !== "ALL") {
-        filtered = db.filter(note =>
-            note.category && note.category.toLowerCase() === filter.toLowerCase()
-        );
-    }
-
-    filtered.sort((a, b) => b.timestamp - a.timestamp);
-
-    if (filtered.length === 0) {
-        container.innerHTML = `<p style="color:#999; text-align:center; padding:20px;">Data not available</p>`;
-        return;
-    }
-
-    let html = "";
-    filtered.forEach(note => {
-        html += `
-            <div class="content-notes">
-                <p class="title-content-notes">${note.title}</p>
-                <p class="date-content-notes">${formatDate(note.timestamp)}</p>
-                <p class="content-main-notes">
-                    <strong>Something happened: </strong>${note.something || "-"}
-                </p>
-                <div class="learning-content-notes">
-                    <div class="text-learning-notes">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480-144 216-276v-240L48-600l432-216 432 216v312h-72v-276l-96 48v240L480-144Zm0-321 271-135-271-135-271 135 271 135Zm0 240 192-96v-159l-192 96-192-96v159l192 96Zm0-240Zm0 81Zm0 0Z"/></svg>
-                        <p><strong>Learning: </strong>${note.learning || "-"}</p>
-                    </div>
-                </div>
-                <div class="action-content-plan-notes">
-                    <div class="action-content-plan">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M407.74-240Q378-240 357-261.15 336-282.3 336-312v-67q-57-37.3-88.5-95.65Q216-533 216-600q0-110.31 76.78-187.16 76.78-76.84 187-76.84T667-787.16q77 76.85 77 187.16 0 66.82-31.5 125.41T624-379v67q0 29.7-21.18 50.85Q581.65-240 551.91-240H407.74Zm.26-72h144v-106l33-21q41-26 64-69.18 23-43.18 23-91.82 0-79.68-56.23-135.84-56.22-56.16-136-56.16Q400-792 344-735.84 288-679.68 288-600q0 48.64 23 91.82Q334-465 375-439l33 21v106Zm0 216q-20.4 0-34.2-13.8Q360-123.6 360-144v-24h240v24q0 20.4-13.8 34.2Q572.4-96 552-96H408Zm72-504Z"/></svg>
-                        <p><strong>Action Plan: </strong>${note.plan || "-"}</p>
-                    </div>
-                </div>
-                <div class="wrapper-position-right-notes">
-                    <div class="box-category-notes">
-                        <p class="text-category-notes">${note.category || "None"}</p>
-                    </div>
-                    <div class="box-delete-notes" data-id="${note.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3">
-                            <path d="M312-144q-29.7 0-50.85-21.15Q240-186.3 240-216v-480h-48v-72h192v-48h192v48h192v72h-48v479.57Q720-186 698.85-165T648-144H312Zm336-552H312v480h336v-480ZM384-288h72v-336h-72v336Zm120 0h72v-336h-72v336ZM312-696v480-480Z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-        `;
-    });
-
-    container.innerHTML = html;
-}
-
-function getNextNoteId() {
-    const db = localStorage.getItem("dbnotes");
-    if (!db) return 1;
-
-    try {
-        const notes = JSON.parse(db);
-        if (!Array.isArray(notes) || notes.length === 0) return 1;
-        const maxId = Math.max(...notes.map(n => Number(n.id) || 0));
-        return maxId + 1;
-    } catch (e) {
-        console.warn("⚠️ Gagal baca dbnotes untuk ID", e);
-        return 1;
-    }
-}
-
-function showConfirmDeleteNotes(noteId) {
-    return new Promise((resolve) => {
-        const popup = document.getElementById("confirmDeleteNotes");
-        const messageEl = document.getElementById("confirmasionIdNotes");
-        const btnDelete = document.getElementById("btnDeleteNotes");
-        const btnCancel = document.getElementById("btnCancelNotes");
-
-        messageEl.textContent = `Are you sure you want to delete note #${noteId}?`;
-        popup.classList.remove("hidden");
-
-        btnDelete.replaceWith(btnDelete.cloneNode(true));
-        btnCancel.replaceWith(btnCancel.cloneNode(true));
-
-        const newBtnDelete = document.getElementById("btnDeleteNotes");
-        const newBtnCancel = document.getElementById("btnCancelNotes");
-
-        newBtnDelete.onclick = () => {
-            popup.classList.add("hidden");
-            resolve(true);
-        };
-
-        newBtnCancel.onclick = () => {
-            popup.classList.add("hidden");
-            resolve(false);
-        };
-
-        popup.onclick = (e) => {
-            if (e.target === popup) {
-                popup.classList.add("hidden");
-                resolve(false);
-            }
-        };
-    });
-}
-
-async function handleAddNote() {
-    const saveBtn = document.getElementById("notesSave");
-    if (!saveBtn) return;
-    saveBtn.classList.add("loading");
-
-    try {
-        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
-        if (authErr || !user) throw new Error("User tidak login!");
-
-        const title = document.getElementById("notesTitle")?.value.trim();
-        const something = document.getElementById("notesSomething")?.value.trim();
-        const learning = document.getElementById("notesLearning")?.value.trim();
-        const plan = document.getElementById("notesPlan")?.value.trim();
-        const dropdownSelected = document.querySelector('.custom-dropdown[data-dropdown="category"] .dropdown-selected span');
-        const category = dropdownSelected?.innerText.trim() || "Category";
-
-        const titleInput = document.getElementById("notesTitle");
-        const dropdownSelectedEl = document.querySelector('.custom-dropdown[data-dropdown="category"] .dropdown-selected');
-
-        titleInput.style.borderColor = "";
-        if (dropdownSelectedEl) dropdownSelectedEl.style.borderColor = "";
-
-        let isValid = true;
-
-        if (!titleInput.value.trim()) {
-            titleInput.style.borderColor = "rgb(250, 93, 117)";
-            isValid = false;
-        }
-
-        if (category === "Category") {
-            if (dropdownSelectedEl) dropdownSelectedEl.style.borderColor = "rgb(250, 93, 117)";
-            isValid = false;
-        }
-
-        if (!isValid) {
-            return;
-        }
-
-        const nextId = getNextNoteId();
-
-        const serverNote = {
-            id: nextId,
-            user_id: user.id,
-            timestamp: Date.now(),
-            title: title,
-            category: category === "Category" ? null : category,
-            something: something || null,
-            learning: learning || null,
-            plan: plan || null
-        };
-
-        const { data: insertedNote, error: insertErr } = await supabaseClient
-            .from("notes")
-            .insert(serverNote)
-            .select()
-            .single();
-
-        if (insertErr) throw insertErr;
-
-        const localNote = {
-            id: insertedNote.id,
-            timestamp: insertedNote.timestamp,
-            title: insertedNote.title,
-            category: insertedNote.category,
-            something: insertedNote.something || "",
-            learning: insertedNote.learning || "",
-            plan: insertedNote.plan || ""
-        };
-
-        let db = localStorage.getItem("dbnotes");
-        db = db ? JSON.parse(db) : [];
-        db.push(localNote);
-        localStorage.setItem("dbnotes", JSON.stringify(db));
-
-        refreshDBNotesCache();
-        renderNotes("ALL");
-        updateStatsNotes();
-
-        document.getElementById("notesTitle").value = "";
-        document.getElementById("notesSomething").value = "";
-        document.getElementById("notesLearning").value = "";
-        document.getElementById("notesPlan").value = "";
-        if (dropdownSelected) dropdownSelected.innerText = "Category";
-
-    } catch (err) {
-        console.error("Gagal simpan catatan:", err.message);
-        alert("Gagal menyimpan. Coba lagi.");
-    } finally {
-        saveBtn.classList.remove("loading");
-    }
-}
-
-async function handleDeleteNote(noteId) {
-    const confirmed = await showConfirmDeleteNotes(noteId);
-    if (!confirmed) return;
-
-    const deleteBtn = document.getElementById("btnDeleteNotes");
-    if (deleteBtn) deleteBtn.classList.add("loading");
-
-    try {
-        const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
-        if (authErr || !user) throw new Error("User tidak login!");
-
-        const { error: deleteErr } = await supabaseClient
-            .from("notes")
-            .delete()
-            .eq("id", noteId)
-            .eq("user_id", user.id);
-
-        if (deleteErr) throw deleteErr;
-
-        let db = localStorage.getItem("dbnotes");
-        if (db) {
-            db = JSON.parse(db).filter(note => note.id !== noteId);
-            localStorage.setItem("dbnotes", JSON.stringify(db));
-        }
-
-        refreshDBNotesCache();
-
-        const activeFilter = document.querySelector(".btn-filter-notes.active span")?.textContent.trim() || "ALL";
-        renderNotes(activeFilter);
-        updateStatsNotes();
-
-    } catch (err) {
-        console.error("Gagal hapus:", err.message);
-        alert("Gagal menghapus catatan.");
-    } finally {
-        if (deleteBtn) deleteBtn.classList.remove("loading");
-    }
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    const saveBtn = document.getElementById("notesSave");
-    const notesContainer = document.querySelector(".wrapper-content-notes");
-    const filterButtons = document.querySelectorAll(".btn-filter-notes");
-
-    if (saveBtn) saveBtn.addEventListener("click", handleAddNote);
-
-    const titleInput = document.getElementById("notesTitle");
-    if (titleInput) {
-        titleInput.addEventListener("input", () => {
-            if (titleInput.value.trim()) {
-                titleInput.style.borderColor = "";
-            }
-        });
-    }
-
-    const dropdownOptions = document.querySelectorAll('.custom-dropdown[data-dropdown="category"] .dropdown-option');
-    const dropdownContainer = document.querySelector('.custom-dropdown[data-dropdown="category"]');
-    const dropdownSelectedSpan = dropdownContainer?.querySelector('.dropdown-selected span');
-
-    dropdownOptions.forEach(option => {
-        option.addEventListener("click", () => {
-            if (dropdownContainer) {
-                dropdownContainer.style.borderColor = "";
-            }
-        });
-    });
-
-    const dropdownSelected = document.querySelector('.custom-dropdown[data-dropdown="category"] .dropdown-selected');
-    if (dropdownSelected) {
-        dropdownSelected.addEventListener("click", () => {
-            if (dropdownContainer) {
-                dropdownContainer.style.borderColor = "";
-            }
-        });
-    }
-
-    filterButtons.forEach(btn => {
-        btn.addEventListener("click", () => {
-            filterButtons.forEach(b => b.classList.remove("active"));
-            btn.classList.add("active");
-            const filterText = btn.querySelector("span").textContent.trim();
-            renderNotes(filterText);
-        });
-    });
-
-    if (notesContainer) {
-        notesContainer.addEventListener("click", (e) => {
-            const deleteBtn = e.target.closest(".box-delete-notes");
-            if (deleteBtn) {
-                const id = Number(deleteBtn.getAttribute("data-id"));
-                if (!isNaN(id)) handleDeleteNote(id);
-            }
-        });
-    }
-
-    renderNotes("ALL");
-    updateStatsNotes();
-});
-
-function updateStatsNotes() {
-    let db = localStorage.getItem("dbnotes");
-    db = db ? JSON.parse(db) : [];
-
-    document.getElementById("statsTotalLearning").textContent = db.length;
-
-    const now = Date.now();
-    const sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
-    const thisWeekCount = db.filter(note => note.timestamp >= sevenDaysAgo).length;
-    document.getElementById("statsWeekLearning").textContent = thisWeekCount;
-
-    const categoryCount = {};
-    db.forEach(note => {
-        if (note.category) {
-            categoryCount[note.category] = (categoryCount[note.category] || 0) + 1;
-        }
-    });
-
-    let mostCategory = "–";
-    if (Object.keys(categoryCount).length > 0) {
-        mostCategory = Object.keys(categoryCount).reduce((a, b) =>
-            categoryCount[a] > categoryCount[b] ? a : b
-        );
-    }
-
-    document.getElementById("statsMostCategories").textContent = mostCategory;
-}
-
-// ======================= Update UI Global ======================= //
+// ────── Update UI Global ────── //
 async function updateAllUI() {
   try {
     const [perpData, spotData] = await Promise.all([
@@ -3385,9 +3108,6 @@ async function updateAllUI() {
     await updatePairsTable();
     await loadMonthlyData(); 
     await loadDailyPnLData();
-
-    renderNotes("ALL");
-    updateStatsNotes();
 
     window.dispatchEvent(new Event('recalculateTrading'));
 

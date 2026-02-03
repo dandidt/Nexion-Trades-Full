@@ -36,7 +36,7 @@ function FormatRR(value) {
     return formatted;
 }
 
-// ======================= Chart BALANCE ======================= //
+// ────── Chart BALANCE ────── //
 const canvasBalance = document.getElementById('chartCanvasBalance');
 const ctxBalance = canvasBalance.getContext('2d');
 const tooltipBalance = document.getElementById('tooltip-balance');
@@ -878,7 +878,7 @@ loadBalanceData('Perpetual').then(() => {
     filterData('24h');
 });
 
-// ======================= Chart PnL & RR ======================= //
+// ────── Chart PnL & RR ────── //
 const canvas = document.getElementById('chartCanvas');
 const ctx = canvas.getContext('2d');
 const tooltip = document.getElementById('tooltip');
@@ -1329,7 +1329,7 @@ if (document.readyState === 'loading') {
 window.addEventListener('resize', resizeCanvas);
 resizeCanvas();
 
-// ======================= Chart Pairs ======================= //
+// ────── Chart Pairs ────── //
 let assetData = [];
 const RADIUS = 100;
 const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
@@ -1547,7 +1547,7 @@ loadAssetData().then(() => {
     }
 });
 
-// ======================= Chart Winrate ======================= //
+// ────── Chart Winrate ────── //
 const canvasWrChart = document.getElementById('donutChart');
 const ctxWrChart = canvasWrChart.getContext('2d');
 const circumferenceSVG = 2 * Math.PI * 82.5;
@@ -1815,7 +1815,7 @@ document.addEventListener('visibilitychange', () => {
     }
 });
 
-// ======================= Update UI Global ======================= //
+// ────── Update UI Global ────── //
 window.addEventListener('resize', () => {
     resizeCanvas();
     resizeBalanceCanvas();

@@ -20,9 +20,9 @@ function unixToWIBDatetimeLocal(unixSeconds) {
     return `${y}-${m}-${d}T${h}:${min}`;
 }
 
-// ======================= Navbar Popup Menu ======================= //
+// ────── Navbar Popup Menu ────── //
 // ------ Popup Account Menu ------ //
-const profileBox = document.querySelector('#navbarAccountIcon');
+const profileBox = document.querySelector('#NavAccount');
 const popupAccount = document.querySelector('#popupAccount');
 
 if (profileBox && popupAccount) {
@@ -145,7 +145,7 @@ document.getElementById("logoutAccount")?.addEventListener("click", function (e)
 
 // ------ Account Icon ------ //
 function renderNavbarAvatar() {
-    const imgEl = document.getElementById("navbarAccountIcon");
+    const imgEl = document.getElementById("NavAccount");
     if (!imgEl) return;
 
     const avatar = localStorage.getItem("avatar");
@@ -304,7 +304,6 @@ async function switchToAccount(refreshToken) {
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbperpetual');
         localStorage.removeItem('dbspot');
-        localStorage.removeItem('dbnotes');
 
         const { data, error } = await supabaseClient.auth.refreshSession({
             refresh_token: refreshToken
@@ -357,7 +356,6 @@ document.querySelector(".signout-btn-universal")?.addEventListener("click", asyn
         localStorage.removeItem('avatar');
         localStorage.removeItem('dbperpetual');
         localStorage.removeItem('dbspot');
-        localStorage.removeItem('dbnotes');
 
         const isGithub = window.location.hostname.includes("github.io");
         const target = isGithub ? "/Nexion-Trades-Full" : "/";
@@ -375,7 +373,7 @@ document.querySelector('.btn-add-account')?.addEventListener('click', () => {
     window.location.href = loginPage;
 });
 
-// ======================= POPUP & DROPDOWN SETUP ======================= //
+// ────── POPUP & DROPDOWN SETUP ────── //
 function closeAllPopups() {
     document.querySelector(".popup-perpetual-add")?.classList.remove("show");
     document.querySelector(".popup-perpetual-edit")?.classList.remove("show");
@@ -476,22 +474,21 @@ document.addEventListener("DOMContentLoaded", () => {
     // ------ Edit Mode ------ //
     btnEdit?.addEventListener("click", () => {
         isEditMode = !isEditMode;
-        document.querySelectorAll(".tabel-trade tbody tr").forEach(row => {
-            row.style.cursor = isEditMode ? "pointer" : "default";
-            row.classList.toggle("editable", isEditMode);
-        });
-        btnEdit.classList.toggle("active", isEditMode);
+        renderPerpetualPaginated();
+        renderSpotPaginated();
     });
     
     // ------ EDIT MODE (SPOT & PERPETUAL) ------
     document.querySelectorAll(".tabel-trade tbody").forEach(tableBody => {
         tableBody.addEventListener("click", async (e) => {
             if (!isEditMode) return;
+            if (e.target.closest('input[type="checkbox"], label')) return;
+
             const row = e.target.closest("tr");
             if (!row) return;
 
             const isSpotTable = row.closest("#tabel-spot") !== null;
-            const tradeNumber = parseInt(row.querySelector(".no")?.textContent);
+            const tradeNumber = parseInt(row.dataset.tradeNumber);
             if (!tradeNumber) return;
 
             const db = isSpotTable
@@ -516,6 +513,46 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         });
+    });
+
+    // ------ DELETE MASSAL ------
+    const btnDeleteSelect = document.getElementById("btnDeleteSelect");
+
+    document.addEventListener("change", (e) => {
+        const checkbox = e.target;
+        if (!checkbox.matches('.tabel-trade input[type="checkbox"]')) return;
+        if (!isEditMode) return;
+
+        const anyChecked = document.querySelector(
+            '.tabel-trade input[type="checkbox"]:checked'
+        );
+
+        btnDeleteSelect.style.display = anyChecked ? "flex" : "none";
+    });
+
+    document.addEventListener("change", (e) => {
+    const cb = e.target;
+    if (!cb.matches('.tabel-trade input[type="checkbox"]')) return;
+    if (!isEditMode) return;
+
+    const row = cb.closest("tr");
+    if (!row) return;
+
+    const tradeNumber = Number(row.dataset.tradeNumber);
+    if (!tradeNumber) return;
+
+    const isSpot = row.closest("#tabel-spot") !== null;
+
+    const targetArr = isSpot ? selectedSpotNumbers : selectedPerpetualNumbers;
+
+    if (cb.checked) {
+        if (!targetArr.includes(tradeNumber)) {
+        targetArr.push(tradeNumber);
+        }
+    } else {
+        const idx = targetArr.indexOf(tradeNumber);
+        if (idx > -1) targetArr.splice(idx, 1);
+    }
     });
 
     // ------ Overlay ------ //
@@ -637,7 +674,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// ======================= Serch Data ======================= //
+// ────── Serch Data ────── //
 function refreshClearButtons() {
     document.querySelectorAll('.input-with-clear').forEach(container => {
         const input = container.querySelector('input, textarea');
@@ -713,7 +750,7 @@ function fillEditFormSpotTransfer(trade) {
     refreshClearButtons();
 }
 
-// ======================= DROPDOWN ======================= //
+// ────── DROPDOWN ────── //
 function setDropdownValue(dropdownName, value) {
     const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
     if (!dropdown) return;
@@ -1017,7 +1054,7 @@ function getNextLocalIdsSpot() {
     return { newId, nextTradeNumber };
 }
 
-// ======================= POPUP JURNAL ======================= //
+// ────── POPUP JURNAL ────── //
 
 // ------ Perpetual ------ //
 //  Swap Trades = Transaction  //
@@ -1295,7 +1332,16 @@ async function SaveEditPerpetual() {
 
         // --- Date ---
         const dateInputValue = getVal("PerpetualEditDate");
-        if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
+        if (!dateInputValue) {
+            const input = document.getElementById("PerpetualEditDate");
+            input.classList.add("input-error");
+
+            setTimeout(() => {
+                input.classList.remove("input-error");
+            }, 2000);
+
+            return;
+        }
         const correctedDate = new Date(dateInputValue);
 
         // --- Server ---
@@ -1398,15 +1444,40 @@ async function SaveEditPerpetualTransaction() {
         const recordId = item.id;
 
         const dateInputValue = getVal("PerpetualTransactionEditDate");
-        if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
+        if (!dateInputValue) {
+            const input = document.getElementById("PerpetualTransactionEditDate");
+            input.classList.add("input-error");
+
+            setTimeout(() => {
+                input.classList.remove("input-error");
+            }, 2000);
+
+            return;
+        }
         const correctedDate = new Date(dateInputValue);
 
         const action = getDropdownValue("PerpetualTransactionEditAction");
+
         if (!action || !["Deposit", "Withdraw"].includes(action)) {
-            throw new Error("Pilih action yang valid (Deposit/Withdraw)!");
+            const selected = document.querySelector(
+                '.custom-dropdown[data-dropdown="PerpetualTransactionEditAction"] .dropdown-selected'
+            );
+            if (selected) {
+                selected.classList.add("input-error");
+                setTimeout(() => {
+                selected.classList.remove("input-error");
+                }, 2000);
+            }
+            return;
         }
+
         let value = parseFloat(getVal("PerpetualTransactionEditValue"));
-        if (isNaN(value) || value === 0) throw new Error("Nilai harus valid dan tidak nol!");
+        if (isNaN(value) || value === 0) {
+        const input = document.getElementById("PerpetualTransactionEditValue");
+        input.classList.add("input-error");
+        setTimeout(() => input.classList.remove("input-error"), 2000);
+        return;
+        }
         value = action === "Withdraw" ? -Math.abs(value) : Math.abs(value);
 
         // --- Server ---
@@ -1869,7 +1940,16 @@ async function SaveEditSpot() {
 
         // --- Validasi Wajib ---
         const dateInputValue = getVal("SpotEditDate");
-        if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
+        if (!dateInputValue) {
+            const input = document.getElementById("SpotEditDate");
+            input.classList.add("input-error");
+
+            setTimeout(() => {
+                input.classList.remove("input-error");
+            }, 2000);
+
+            return;
+        }
         const correctedDate = new Date(dateInputValue);
 
         // --- Data untuk Server ---
@@ -1967,16 +2047,39 @@ async function SaveEditSpotTransaction() {
         const recordId = item.id;
 
         const dateInputValue = getVal("EditSpotTransactionDate");
-        if (!dateInputValue) throw new Error("Tanggal wajib diisi!");
+        if (!dateInputValue) {
+            const input = document.getElementById("EditSpotTransactionDate");
+            input.classList.add("input-error");
+
+            setTimeout(() => {
+                input.classList.remove("input-error");
+            }, 2000);
+
+            return;
+        }
         const correctedDate = new Date(dateInputValue);
 
         const action = getDropdown("EditSpotTransactionAction");
         if (!action || !["Deposit", "Withdraw"].includes(action)) {
-            throw new Error("Pilih action yang valid (Deposit/Withdraw)!");
+            const selected = document.querySelector(
+                '.custom-dropdown[data-dropdown="EditSpotTransactionAction"] .dropdown-selected'
+            );
+            if (selected) {
+                selected.classList.add("input-error");
+                setTimeout(() => {
+                selected.classList.remove("input-error");
+                }, 2000);
+            }
+            return;
         }
 
         let value = parseFloat(getVal("EditSpotTransactionValue"));
-        if (isNaN(value) || value === 0) throw new Error("Nilai harus valid dan tidak nol!");
+        if (isNaN(value) || value === 0) {
+        const input = document.getElementById("EditSpotTransactionValue");
+        input.classList.add("input-error");
+        setTimeout(() => input.classList.remove("input-error"), 2000);
+        return;
+        }
         value = action === "Withdraw" ? -Math.abs(value) : Math.abs(value);
 
         const serverUpdate = {
@@ -2198,7 +2301,120 @@ function ConfirmDeletePerpetual(message) {
     });
 }
 
-// ======================= CALCULATE POPUP ======================= //
+// ────── DELETE MASSAL ────── //
+function hideDeleteButton() {
+  btnDeleteSelect.style.display = "none";
+}
+
+document.getElementById("btnDeleteSelect")?.addEventListener("click", async () => {
+
+  const isSpot = selectedSpotNumbers.length > 0;
+  const isPerpetual = selectedPerpetualNumbers.length > 0;
+
+  if (isSpot && isPerpetual) {
+    alert("⚠️ Tidak bisa delete Spot & Perpetual bersamaan");
+    return;
+  }
+
+  const target = isSpot ? "Spot" : "Perpetual";
+  const total = isSpot ? selectedSpotNumbers.length : selectedPerpetualNumbers.length;
+
+  if (total === 0) return;
+
+  const confirmed = await ConfirmDeletePerpetual(
+    `Delete ${total} ${target} trade(s)?`
+  );
+
+  if (!confirmed) return;
+
+  if (isSpot) {
+    await DeleteSelectedSpotTrades();
+  } else {
+    await DeleteSelectedPerpetualTrades();
+  }
+
+  // cleanup UI
+  selectedSpotNumbers = [];
+  selectedPerpetualNumbers = [];
+  hideDeleteButton();
+});
+
+async function DeleteSelectedPerpetualTrades() {
+  try {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    if (error || !user) throw new Error("User tidak login");
+    const user_id = user.id;
+
+    const db = JSON.parse(localStorage.getItem("dbperpetual")) || [];
+
+    const targets = db.filter(t =>
+      selectedPerpetualNumbers.includes(t.tradeNumber)
+    );
+
+    for (const item of targets) {
+      const table = item.action ? "perpetual_transactions" : "perpetual";
+
+      await supabaseClient
+        .from(table)
+        .delete()
+        .eq("id", item.id)
+        .eq("user_id", user_id);
+    }
+
+    const newDb = db.filter(
+      t => !selectedPerpetualNumbers.includes(t.tradeNumber)
+    );
+
+    localStorage.setItem("dbperpetual", JSON.stringify(newDb));
+
+    refreshDBPerpetualCache();
+    if (typeof updateAllUI === "function") await updateAllUI();
+    restartSOP();
+    CancelEditPerpetual();
+
+  } catch (err) {
+    console.error("Mass Delete Perpetual Error:", err);
+  }
+}
+
+async function DeleteSelectedSpotTrades() {
+  try {
+    const { data: { user }, error } = await supabaseClient.auth.getUser();
+    if (error || !user) throw new Error("User tidak login");
+    const user_id = user.id;
+
+    const db = JSON.parse(localStorage.getItem("dbspot")) || [];
+
+    const targets = db.filter(t =>
+      selectedSpotNumbers.includes(t.tradeNumber)
+    );
+
+    for (const item of targets) {
+      const table = item.action ? "spot_transactions" : "spot";
+
+      await supabaseClient
+        .from(table)
+        .delete()
+        .eq("id", item.id)
+        .eq("user_id", user_id);
+    }
+
+    const newDb = db.filter(
+      t => !selectedSpotNumbers.includes(t.tradeNumber)
+    );
+
+    localStorage.setItem("dbspot", JSON.stringify(newDb));
+
+    refreshDBSpotCache?.();
+    if (typeof updateAllUI === "function") await updateAllUI();
+    restartSOP();
+
+  } catch (err) {
+    console.error("Mass Delete Spot Error:", err);
+  }
+}
+
+// ────── CALCULATE POPUP ────── //
 document.addEventListener("DOMContentLoaded", () => {
     const popupCaculate = document.querySelector(".popup-caculate");
     const popupOverlay = document.querySelector(".popup-overlay");
@@ -2358,7 +2574,7 @@ document.getElementById("SpotAutoPnL")?.addEventListener("click", () => {
     } catch (err) { console.error("Auto calc error:", err); }
 });
 
-// ======================= Popup SOP  ======================= //
+// ────── Popup SOP  ────── //
 let globalPopupOverlay = null;
 let globalPopupSop = null;
 
@@ -2383,7 +2599,7 @@ function openPopupSop() {
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupSop = document.querySelector(".popup-sop");
-    const btnSopTrading = document.getElementById("sopTrading");
+    const btnSopTrading = document.getElementById("BtnSop");
 
     globalPopupOverlay = popupOverlay;
     globalPopupSop = popupSop;
@@ -2703,7 +2919,7 @@ function restartSOP() {
     console.log('SOP UI Restarted:', tradingDataSop);
 }
 
-// ======================= Edit Profile ======================= //
+// ────── Edit Profile ────── //
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupSop = document.querySelector(".popup-container.popup-edit-profile");
@@ -3038,11 +3254,11 @@ function updateAvatarInSavedAccounts(user_id, newAvatarBase64) {
     }
 }
 
-// ======================= POPUP SHARE ======================= //
+// ────── POPUP SHARE ────── //
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
     const popupShare = document.querySelector(".popup-share");
-    const btnShare = document.getElementById("btnShare");
+    const btnShare = document.getElementById("BtnShare");
 
     function hasAnyPopupOpen() {
         return popupShare?.classList.contains("show");
@@ -3867,7 +4083,7 @@ shareButtons.forEach((btn) => {
     });
 });
 
-// ======================= MONTHLY DETAIL POPUP TRIGGER ======================= //
+// ────── MONTHLY DETAIL POPUP TRIGGER ────── //
 let selectedMonthlyEntry = null;
 
 function closeMonthlyPopup() {
@@ -4176,7 +4392,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// ======================= COIN DETAIL POPUP ======================= //
+// ────── COIN DETAIL POPUP ────── //
 let selectedPairEntry = null;
 
 function closePairsPopup() {
@@ -4323,7 +4539,7 @@ async function updatePairsPopupData(symbol) {
     setStatValue("swingPairs", stats.swing);
 
 
-    // === Update Buy/Sell Progress Bar ===
+    // Buy/Sell Progress
     const buySellTotal = stats.buy + stats.sell;
     const buyPercent = buySellTotal > 0 ? (stats.buy / buySellTotal) * 100 : 0;
     const bsFill1 = document.querySelectorAll(".subcolumn-stats .bs-fill")[0];
@@ -4331,7 +4547,7 @@ async function updatePairsPopupData(symbol) {
         bsFill1.style.width = `${buyPercent}%`;
     }
 
-    // === Update Continuation/Reversal Progress Bar ===
+    // Continuation/Reversal Progress
     const contRevTotal = stats.continuation + stats.reversal;
     const contPercent = contRevTotal > 0 ? (stats.continuation / contRevTotal) * 100 : 0;
     const bsFill2 = document.querySelectorAll(".subcolumn-stats .bs-fill")[1];
@@ -4393,11 +4609,11 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// ======================= FEE ANALYSIS POPUP ======================= //
+// ────── FEE ANALYSIS POPUP ────── //
 document.addEventListener("DOMContentLoaded", () => {
     const popupFeeAnalysis = document.querySelector(".popup-fee-analysis");
     const popupOverlay = document.querySelector(".popup-overlay");
-    const btnFeeInfo = document.getElementById("btnFeeInfo");
+    const btnFeeInfo = document.getElementById("BtnFee");
     const closeFeeAnalysis = document.getElementById("closeFeeAnalysis");
 
     if (!popupFeeAnalysis || !btnFeeInfo || !closeFeeAnalysis || !popupOverlay) return;
@@ -4446,19 +4662,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Setup switch mode
+// switch mode
 const feeModeButtons = document.querySelectorAll('.btn-radio.btn-fee');
 feeModeButtons.forEach((btn, index) => {
     const modes = ['perpetual', 'spot', 'all'];
     btn.addEventListener('click', () => {
-        // Update active class
         feeModeButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        // Set mode
         currentFeeMode = modes[index];
 
-        // Reload data
         loadFeeData(currentFeeMode);
     });
 });
@@ -4496,7 +4709,7 @@ async function loadFeeData(mode = 'perpetual') {
 
     try {
         if (mode === 'spot' || mode === 'all') {
-            rawDataSpot = await getDBSpot(); // pastikan fungsi ini ada
+            rawDataSpot = await getDBSpot();
         }
         if (mode === 'perpetual' || mode === 'all') {
             rawDataPerp = await getDBPerpetual();
@@ -4524,7 +4737,6 @@ async function loadFeeData(mode = 'perpetual') {
 
             let feeIni = 0;
 
-            // Logika fee sama untuk spot & perpetual (asumsi struktur data mirip)
             if (entry.hasOwnProperty("Pnl")) {
                 const rr = parseFloat(entry.RR);
                 const margin = parseFloat(entry.Margin);
@@ -4905,11 +5117,83 @@ canvasFee.addEventListener('mouseleave', () => {
 });
 
 window.addEventListener('load', () => {
-    loadFeeData(currentFeeMode); // gunakan mode saat ini
+    loadFeeData(currentFeeMode);
     window.addEventListener('resize', resizeFeeCanvas);
 });
 
-// ======================= Toast ======================= //
+// ────── Delete All Data (Perpetual + Spot) ────── //
+document.addEventListener("DOMContentLoaded", () => {
+  const deleteAllBtn = document.getElementById("DeleteDataAll");
+  if (!deleteAllBtn) return;
+
+  deleteAllBtn.addEventListener("click", async (e) => {
+    e.preventDefault();
+
+    const confirmed = await ConfirmDeletePerpetual(
+      "This action will permanently delete all Perpetual and Spot data. This cannot be undone."
+    );
+
+    if (!confirmed) return;
+
+    await DeleteAllData();
+  });
+});
+
+async function DeleteAllData() {
+  const btn = document.getElementById("DeleteDataAll");
+  if (btn) btn.classList.add("loading");
+
+  try {
+    // --- User Session ---
+    const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+    if (authErr || !user) throw new Error("User not authenticated");
+    const user_id = user.id;
+
+    // --- Hapus dari Server ---
+    const promises = [
+      supabaseClient.from("perpetual").delete().eq("user_id", user_id),
+      supabaseClient.from("perpetual_transactions").delete().eq("user_id", user_id),
+      supabaseClient.from("spot").delete().eq("user_id", user_id),
+      supabaseClient.from("spot_transactions").delete().eq("user_id", user_id),
+    ];
+
+    const results = await Promise.all(promises);
+    for (const { error } of results) {
+      if (error) throw error;
+    }
+
+    // --- Hapus dari Local Storage ---
+    localStorage.removeItem("dbperpetual");
+    localStorage.removeItem("dbspot");
+
+    // --- Reset State Global ---
+    if (typeof currentEditingTradeNo !== 'undefined') {
+      currentEditingTradeNo = null;
+    }
+
+    // --- Refresh UI ---
+    if (typeof refreshDBPerpetualCache === "function") refreshDBPerpetualCache();
+    if (typeof updateAllUI === "function") await updateAllUI();
+    if (typeof restartSOP === "function") restartSOP();
+    if (typeof CancelEditPerpetual === "function") CancelEditPerpetual();
+
+    const activePopup = document.querySelector(".popup.active");
+    if (activePopup) {
+      activePopup.classList.remove("active");
+    }
+
+    location.reload()
+    
+    console.log("All data deleted successfully.");
+
+  } catch (err) {
+    console.error("Delete ALL Error:", err.message || err);
+  } finally {
+    if (btn) btn.classList.remove("loading");
+  }
+}
+
+// ────── Toast ────── //
 function showToast(message) {
     let toast = document.querySelector(".toast");
     if (!toast) {
@@ -4923,15 +5207,16 @@ function showToast(message) {
 }
 
 window.showToast = showToast;
-// ======================= Block 1000px ======================= //
+
+// ────── Block 1000px ────── //
 function checkDeviceWidth() {
     const minWidth = 999;
-    let overlay = document.getElementById("deviceBlocker");
+    let overlay = document.getElementById("Block");
 
     if (window.innerWidth < minWidth) {
         if (!overlay) {
             overlay = document.createElement("div");
-            overlay.id = "deviceBlocker";
+            overlay.id = "Block";
 
             overlay.innerHTML = `
                 <svg xmlns="http://www.w3.org/2000/svg" height="48px" viewBox="0 -960 960 960" width="48px" fill="#e3e3e3"><path d="M0-160v-60h141v-42q-24 0-42-18t-18-42v-458q0-24 18-42t42-18h678q24 0 42 18t18 42v458q0 24-18 42t-42 18v42h141v60H0Zm141-162h678v-458H141v458Zm0 0v-458 458Z"/></svg>

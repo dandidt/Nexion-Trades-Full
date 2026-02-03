@@ -628,7 +628,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const videoPreview = document.querySelector(".preview-video source");
     const videoElement = document.querySelector(".preview-video");
 
-    // DATA TEXT
     const DATA = {
         table: {
             video: "Asset/JURNAL.mp4",
@@ -653,15 +652,12 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     function updateUI(type) {
-        // ======= UPDATE VIDEO =======
         videoPreview.src = DATA[type].video;
         videoElement.load();
         videoElement.play();
 
-        // ======= CLEAR LIST =======
         informasiWrapper.innerHTML = "";
 
-        // ======= GENERATE LIST BARU =======
         DATA[type].text.forEach(item => {
             const row = document.createElement("div");
             row.className = "row-informasi";
@@ -677,11 +673,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // EVENT LISTENER RADIO
     radioTable.addEventListener("change", () => updateUI("table"));
     radioSQL.addEventListener("change", () => updateUI("sql"));
 
-    // DEFAULT LOAD
     updateUI("table");
 });
 
@@ -696,7 +690,7 @@ const isLocal =
 
 const isGithub = hostname.includes('github.io');
 
-const localJSON = './data/user.json';
+const localJSON = './Data/User.json';
 const githubJSON = 'https://raw.githubusercontent.com/dandidt/Nexion-Trades-Full/main/Data/user.json';
 
 let jsonPath;

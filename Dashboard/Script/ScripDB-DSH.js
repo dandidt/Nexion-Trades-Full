@@ -176,7 +176,7 @@ window.getDBPerpetual = getDBPerpetual;
 window.loadDBPerpetual = loadDBPerpetual;
 window.refreshDBPerpetualCache = refreshDBPerpetualCache;
 
-// ======================= Spot Trading ======================= //
+// ────── Spot Trading ────── //
 const CACHE_KEY_SPOT = 'dbspot';
 let dbSpotPromise = null;
 
@@ -335,106 +335,3 @@ document.addEventListener('DOMContentLoaded', () => {
 window.getDBSpot = getDBSpot;
 window.loadDBSpot = loadDBSpot;
 window.refreshDBSpotCache = refreshDBSpotCache;
-
-// ======================= Notes ======================= //
-const CACHE_KEY_NOTES = 'dbnotes';
-let dbNotesPromise = null;
-
-function saveNotesToCache(data) {
-    try {
-        localStorage.setItem(CACHE_KEY_NOTES, JSON.stringify(data));
-        console.log('Notes saved local...');
-    } catch (error) {
-        console.warn('Failed save notes:', error);
-    }
-}
-
-function getNotesFromCache() {
-    try {
-        const cached = localStorage.getItem(CACHE_KEY_NOTES);
-        if (cached) {
-            return JSON.parse(cached);
-        }
-    } catch (error) {
-        console.warn('Failed load notes cache:', error);
-    }
-    return null;
-}
-
-async function loadDBNotes(ignoreCache = false) {
-    if (!ignoreCache) {
-        const cachedData = getNotesFromCache();
-        if (cachedData) return cachedData;
-    }
-
-    try {
-        const { data: { user }, error: authError } = await supabaseClient.auth.getUser();
-        if (authError || !user) {
-            return [];
-        }
-
-        const userId = user.id;
-
-        const { data: notes, error: notesErr } = await supabaseClient
-            .from('notes')
-            .select(`
-                id,
-                timestamp,
-                title,
-                category,
-                something,
-                learning,
-                plan,
-                user_id
-            `)
-            .eq('user_id', userId);
-
-        if (notesErr) throw notesErr;
-
-        const processedNotes = notes.map(note => ({
-            id: note.id,
-            timestamp: note.timestamp,
-            title: note.title || '',
-            category: note.category || '',
-            something: note.something || '',
-            learning: note.learning || '',
-            plan: note.plan || ''
-        }));
-
-        saveNotesToCache(processedNotes);
-        return processedNotes;
-
-    } catch (err) {
-        console.error('Error loading notes:', err);
-        const cachedData = getNotesFromCache();
-        if (cachedData) {
-            return cachedData;
-        }
-        return [];
-    }
-}
-
-async function getDBNotes() {
-    if (!dbNotesPromise) {
-        dbNotesPromise = loadDBNotes();
-    }
-    return await dbNotesPromise;
-}
-
-function refreshDBNotesCache() {
-    console.log('Notes Force refreshing server...');
-    dbNotesPromise = loadDBNotes(true);
-    return dbNotesPromise;
-}
-
-document.addEventListener('DOMContentLoaded', async () => {
-    dbNotesPromise = loadDBNotes().then(data => {
-        window.dbnotesData = data;
-        document.dispatchEvent(new CustomEvent('notesLoaded', { detail: data }));
-        return data;
-    });
-});
-
-window.getDBNotes = getDBNotes;
-window.loadDBNotes = loadDBNotes;
-window.refreshDBNotesCache = refreshDBNotesCache;
