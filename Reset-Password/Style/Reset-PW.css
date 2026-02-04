@@ -189,23 +189,7 @@ input:-webkit-autofill {
 .reset-btn {
     width: 100%;
     padding: 11px;
-    background: #0b9779;
-    border: 1px solid #0bbb95;
-    color: #fff;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
     margin-top: 8px;
-}
-
-.reset-btn:hover {
-    background: #0a775f;
-}
-
-.reset-btn:active {
-    transform: translateY(1px);
 }
 
 .reset-btn:disabled {

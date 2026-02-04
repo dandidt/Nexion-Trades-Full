@@ -153,7 +153,7 @@ function renderNavbarAvatar() {
     }
 }
 
-// ------ Popup Account Switch (Manage Account) ------ //
+// ------ Popup Account Switch ------ //
 document.addEventListener("DOMContentLoaded", () => {
     renderNavbarAvatar();
 
@@ -332,7 +332,7 @@ async function switchToAccount(refreshToken) {
     }
 }
 
-// ------ Logout Akun (Single & Manage) ------ //
+// ------ Logout Akun ------ //
 function removeAccount(accountId, anchorBtn) {
     showLogoutPopup(anchorBtn, accountId);
 }

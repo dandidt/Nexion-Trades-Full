@@ -1,0 +1,123 @@
+
+/* Btn Global */
+.btn {
+  position: relative;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  overflow: hidden;
+  border: none;
+
+  font-size: var(--s12);
+  font-weight: var(--w7);
+  font-family: inherit;
+  transition:
+    fill 0.2s ease-in-out,
+    transform 0.15s ease-in-out;
+}
+
+.btn:active {
+  transform: scale(0.95);
+}
+
+.btn.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn-default {
+  color: var(--gray);
+  fill: var(--gray);
+  background: var(--bg-35);
+}
+
+.btn-default svg,
+.btn-default span,
+.btn-default p {
+  fill: var(--gray);
+  color: var(--gray);
+}
+
+.btn-default:hover {
+  fill: var(--white);
+  color: var(--white);
+  background: var(--bg-40);
+}
+
+.btn-default:hover svg,
+.btn-default:hover span,
+.btn-default:hover p {
+  fill: var(--white);
+  color: var(--white);
+}
+
+.btn-green {
+  background: var(--green-dark);
+  color: var(--bg-30);
+  fill: var(--bg-30);
+}
+
+.btn-green svg,
+.btn-green span,
+.btn-green p {
+  color: var(--bg-30);
+  fill: var(--bg-30);
+}
+
+.btn-green:hover {
+  background: var(--green);
+  color: var(--bg-40);
+  fill: var(--bg-40);
+}
+
+.btn-green:hover svg,
+.btn-green:hover span,
+.btn-green:hover p {
+  color: var(--bg-40);
+  fill: var(--bg-40);
+}
+
+.btn-red {
+  color: var(--bg-30);
+  fill: var(--bg-30);
+  stroke: var(--bg-30);
+  background: var(--red-dark);
+}
+
+.btn-red svg,
+.btn-red span,
+.btn-red p {
+  color: var(--bg-30);
+  fill: var(--bg-30);
+  stroke: var(--bg-30);
+}
+
+.btn-red:hover {
+  background: var(--red);
+  color: var(--bg-40);
+  fill: var(--bg-40);
+  stroke: var(--bg-40);
+}
+
+.btn-red:hover svg,
+.btn-red:hover span,
+.btn-red:hover p {
+  color: var(--bg-40);
+  fill: var(--bg-40);
+  stroke: var(--bg-40);
+}
+
+.btn-default::before,
+.btn-green::before,
+.btn-red::before {
+  box-shadow: inset 0 1px 0 0 rgb(255 255 255 / 0.06);
+  border-radius: inherit;
+  pointer-events: none;
+  position: absolute;
+  content: "";
+  inset: 0;
+}

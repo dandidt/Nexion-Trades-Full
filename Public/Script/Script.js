@@ -663,7 +663,7 @@ const isLocal =
 const isGithub = hostname.includes('github.io');
 
 const localJSON = './Data/User.json';
-const githubJSON = 'https://raw.githubusercontent.com/dandidt/Nexion-Trades-Full/main/Data/user.json';
+const githubJSON = 'https://raw.githubusercontent.com/dandidt/Nexion-Trades-Full/main/Data/User.json';
 
 let jsonPath;
 

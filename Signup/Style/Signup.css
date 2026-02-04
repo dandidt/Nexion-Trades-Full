@@ -252,26 +252,9 @@ input:-webkit-autofill {
   gap: 16px;
 }
 
-.create-btn {
+.btn-send {
   width: 100%;
-  padding: 11px;
-  background: #0b9779;
-  border: 1px solid #0bbb95;
-  color: var(--white);
-  border-radius: 8px;
-  font-size: 15px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-  margin-top: 12px;
-}
-
-.create-btn:hover {
-  background: #0a775f;
-}
-
-.create-btn:active {
-  transform: translateY(1px);
+  padding: 10px;
 }
 
 .terms {

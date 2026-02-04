@@ -208,62 +208,13 @@ body.nexion-no-scroll {
 }
 
 .btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   gap: 8px;
-  background: var(--bg-20);
   padding: 6px 15px;
-  border-radius: 8px;
-  border: 1px solid var(--bg-40);
-  font-size: var(--s12);
-  font-weight: var(--w6);
-  font-family: inherit;
-  color: rgb(161, 161, 161);
-  transform: translateY(0px);
-  transition: all 0.1s ease;
-  cursor: pointer;
 }
 
 .btn svg {
   height: 18px;
   width: 18px;
-}
-
-.btn:active {
-  transform: translateY(1px);
-}
-
-.btn-default {
-  background: var(--bg-40);
-  border-color: var(--bg-55);
-}
-
-.btn-default:hover {
-  color: var(--white);
-  background: var(--bg-55);
-  border-color: rgba(70, 70, 70, 1);
-}
-
-.btn-green {
-  color: var(--white);
-  background: rgb(6, 100, 69);
-  border-color: rgb(13, 133, 89);
-}
-
-.btn-green:hover {
-  background: rgb(4, 78, 54);
-  border-color: rgb(12, 117, 79);
-}
-
-.btn-red {
-  color: var(--white);
-  background: var(--red-dark);
-  border: 1px solid var(--red-border);
-}
-
-.btn-red:hover {
-  background: var(--red-light);
 }
 
 .padding-btn {
@@ -1348,44 +1299,39 @@ b {
 }
 
 .container-popup {
-  background: linear-gradient(135deg, #1e1e1e 0%, #252525 100%);
-  border: 1px solid #383838;
-  border-radius: 15px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-25);
+  border: 1px solid var(--bg-35);
+  border-radius: 12px;
   padding: 20px;
-  max-width: 420px;
-  text-align: center;
-  animation: slideUp 0.4s ease;
-  position: relative;
-  overflow: hidden;
+  min-width: 400px;
+  animation: scaleIn 0.4s ease;
 }
 
 .icon-popup {
-  width: 70px;
-  height: 70px;
-  margin: 24px auto 24px;
-  background: linear-gradient(
-    135deg,
-    var(--red-light) 0%,
-    var(--red-dark) 100%
-  );
-  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(244, 67, 54, 0.2);
-  animation: scaleIn 0.5s ease 0.2s backwards;
-  position: relative;
-  z-index: 1;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  background: linear-gradient(-90deg, var(--bg-25) 0%, var(--bg-45) 100%);
+  border: 1px solid var(--bg-45);
+  margin: 14px 0;
 }
 
 .icon-popup svg {
-  margin: 3px 0 0 4px;
+  margin: 3px 0 0 3px;
   height: 30px;
   width: 30px;
+  stroke: var(--red-light);
+  fill: none;
 }
 
 .title-popup {
-  color: var(--red-light);
   font-size: 24px;
   margin-bottom: 12px;
   font-weight: 700;
@@ -1404,41 +1350,22 @@ b {
 
 .button-group {
   display: flex;
-  gap: 12px;
   justify-content: center;
+  gap: 12px;
+  width: 100%;
 }
 
 .button-group button {
-  padding: 12px 34px;
+  padding: 10px 0;
+  width: 100%;
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-@keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0.96); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }

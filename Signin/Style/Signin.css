@@ -2,41 +2,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=TASA+Explorer:wght@400..800&display=swap');
 
-:root {
-    --bg-15: rgba(15, 15, 15, 1);
-    --bg-18: rgba(18, 18, 18, 1);
-    --bg-20: rgba(20, 20, 20, 1);
-    --bg-23: rgba(23, 23, 23, 1);
-    --bg-27: rgba(27, 27, 27, 1);
-    --bg-33: rgba(33, 33, 33, 1);
-    --bg-36: rgba(36, 36, 36, 1);
-    --bg-38: rgba(38, 38, 38, 1);
-    --bg-34: rgba(34, 34, 34, 1);
-    --bg-50: rgba(50, 50, 50, 1);
-    --bg-55: rgba(55, 55, 55, 1);
-    --bg-60: rgba(60, 60, 60, 1);
-    --bg-70: rgba(70, 70, 70, 1);
-    --bg-100: rgba(100, 100, 100, 1);
-    --bg-150: rgba(150, 150, 150, 1);
-
-    --wg-3: 300;
-    --wg-4: 400;
-    --wg-5: 500;
-    --wg-6: 600;
-    --wg-7: 700;
-    --wg-8: 800;
-
-    --sz-10: 10px;
-    --sz-12: 12px;
-    --sz-14: 14px;
-    --sz-16: 16px;
-    --sz-18: 18px;
-    --sz-20: 20px;
-    --sz-22: 22px;
-    --sz-24: 24px;
-    --sz-30: 30px;
-}
-
 * {
     margin: 0;
     padding: 0;
@@ -54,7 +19,6 @@ body {
     justify-content: center;
 }
 
-/* Dot pattern background */
 .dot-pattern {
     position: fixed;
     top: 0;
@@ -69,7 +33,6 @@ body {
     height: 100%;
 }
 
-/* Radial overlay gelap di pinggir */
 .radial-overlay {
     position: fixed;
     top: 0;
@@ -270,8 +233,6 @@ label {
     outline: none;
 }
 
-
-
 input {
     width: 100%;
     padding: 12px 16px;
@@ -306,23 +267,7 @@ input:-webkit-autofill {
 .sign-in-btn {
     width: 100%;
     padding: 11px;
-    background: #0b9779;
-    border: 1px solid #0bbb95;
-    color: #fff;
-    border-radius: 8px;
-    font-size: 15px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.3s;
     margin-top: 8px;
-}
-
-.sign-in-btn:hover {
-    background: #0a775f;
-}
-
-.sign-in-btn:active {
-    transform: translateY(1px);
 }
 
 .signup-link {
