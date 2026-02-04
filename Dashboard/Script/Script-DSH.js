@@ -7,20 +7,38 @@ function formatUSD(value) {
     })}`;
 }
 
-function formatPercentI(value) {
-    if (value === 0) return "0%";
-    return `${value.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    })}%`;
+function formatUSDShort(value) {
+    if (value === 0) return "0";
+
+    let formatted = '';
+    let suffix = '';
+
+    if (Math.abs(value) >= 1_000_000_000) {
+        formatted = (value / 1_000_000_000).toFixed(2);
+        suffix = 'B';
+    } else if (Math.abs(value) >= 1_000_000) {
+        formatted = (value / 1_000_000).toFixed(2);
+        suffix = 'M';
+    } else if (Math.abs(value) >= 100_000) {
+        formatted = (value / 1_000).toFixed(2);
+        suffix = 'K';
+    } else {
+        return value.toLocaleString('en-US', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    if (formatted.endsWith('.00')) formatted = formatted.slice(0, -3);
+    return `${formatted}${suffix}`;
 }
 
 function formatPercent(value) {
-    if (value === 0) return "0%";
-    return value.toLocaleString('id-ID', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    }) + "%";
+  if (value === 0) return "0%";
+  return `${value.toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+  })}%`;
 }
 
 function formatCurrencyCompact(n) {
@@ -32,6 +50,18 @@ function formatCurrencyCompact(n) {
   if (abs >= 1_000_000) return sign + '$' + (abs / 1_000_000).toFixed(2) + 'M';
   if (abs >= 1_000) return sign + '$' + (abs / 1_000).toFixed(1) + 'K';
   return sign + '$' + abs.toFixed(2);
+}
+
+function formatValue(value) {
+    let formatted = value.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    formatted = formatted.replace(/(\.\d*?[1-9])0+$/, '$1');
+    formatted = formatted.replace(/\.0+$/, '');
+
+    return formatted;
 }
 
 // ────── Button Navbar ────── //
@@ -173,10 +203,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
     return `${pad(dt.getDate())}-${pad(dt.getMonth()+1)}-${dt.getFullYear()}`;
   };
 
-  // --- Ambil elemen DOM ---
-  const elStatsNavReversal = document.getElementById('statsNavReversal');
-  const elStatsNavContinuation = document.getElementById('statsNavContinuation');
-
   const elPairsBestPerformer = document.getElementById('pairsBestPerformer');
   const elDateBestPerformer = document.getElementById('dateBestPerformer');
   const elValueBestPerformer = document.getElementById('valueBestPerformer');
@@ -192,7 +218,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
   const elTotalProfitabilty = document.getElementById('totalProfitabilty');
   const elAvgPnlPerday = document.getElementById('avgPnlPerday');
 
-  // --- Distribution Stats (Perpetual vs Spot) ---
+  // --- Distribution Stats  ---
   const elStatsNavPerpetual = document.getElementById('statsNavPerpetual');
   const elStatsNavSpot = document.getElementById('statsNavSpot');
 
@@ -211,7 +237,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
     if (elStatsNavSpot) elStatsNavSpot.textContent = '0% Spot';
   }
 
-  // --- Best Performer (dari combinedData) ---
+  // --- Best Performer ---
   let bestTrade = null;
   let bestPnl = -Infinity;
   for (const trade of combinedData) {
@@ -238,7 +264,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       if (rawPerp) originalPerpetual = JSON.parse(rawPerp);
       if (!Array.isArray(originalPerpetual)) originalPerpetual = [];
     } catch (err) {
-      console.warn("⚠️ Gagal parse dbperpetual:", err);
+      console.warn("Fail parse dbperpetual:", err);
       originalPerpetual = [];
     }
 
@@ -247,7 +273,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       if (rawSpot) originalSpot = JSON.parse(rawSpot);
       if (!Array.isArray(originalSpot)) originalSpot = [];
     } catch (err) {
-      console.warn("⚠️ Gagal parse dbspot:", err);
+      console.warn("Fail parse dbspot:", err);
       originalSpot = [];
     }
 
@@ -256,7 +282,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       const rawSaldo = localStorage.getItem("saldoAwal");
       saldoAwal = rawSaldo ? Number(rawSaldo) : 0;
     } catch (err) {
-      console.warn("⚠️ Gagal ambil saldoAwal:", err);
+      console.warn("Fail ambil saldoAwal:", err);
     }
 
     let totalDeposit = 0;
@@ -292,7 +318,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       }
     }
 
-    // Kalau belum ketemu, cek di spot
     if (bestIndexInOriginal === -1) {
       for (let i = 0; i < originalSpot.length; i++) {
         const t = originalSpot[i];
@@ -311,7 +336,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       }
     }
 
-    // Hitung total PnL sebelum best trade
     let totalPnlBeforeBest = 0;
     if (bestIndexInOriginal >= 0 && sourceDb) {
       for (let i = 0; i < bestIndexInOriginal; i++) {
@@ -323,7 +347,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
     if (totalModal > 0) {
       const kenaikanPct = (bestPnl / totalModal) * 100;
       if (elPersentaseBestPerformer)
-        elPersentaseBestPerformer.textContent = formatPercentI(kenaikanPct);
+        elPersentaseBestPerformer.textContent = formatPercent(kenaikanPct);
     } else {
       if (elPersentaseBestPerformer)
         elPersentaseBestPerformer.textContent = 'N/A';
@@ -335,7 +359,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
     if (elPersentaseBestPerformer) elPersentaseBestPerformer.textContent = '0%';
   }
 
-  // --- Pair Stats (dari combinedData) ---
+  // --- Pair Stats ---
   const countMap = {};
   const pnlMap = {};
   combinedData.forEach(t => {
@@ -346,7 +370,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
     pnlMap[p] = (pnlMap[p] || 0) + parsePnl(t.Pnl);
   });
 
-  // Highest PnL Pair
   let topByPnl = null, topByPnlValue = 0;
   for (const p in pnlMap) {
     if (pnlMap[p] > topByPnlValue || topByPnl === null) {
@@ -357,7 +380,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
   if (elHighestPairs) elHighestPairs.textContent = topByPnl || '-';
   if (elValuehighestPairs) elValuehighestPairs.textContent = topByPnl ? formatCurrencyCompact(topByPnlValue) : '$0';
 
-  // Most Traded Pair
   let topByCount = null, topCount = 0;
   for (const p in countMap) {
     if (countMap[p] > topCount || topByCount === null) {
@@ -368,7 +390,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
   if (elMostpairs) elMostpairs.textContent = topByCount || '-';
   if (elTotalMostTraded) elTotalMostTraded.textContent = topCount ? `${topCount} Trades` : '0 Trades';
 
-  // --- Profitability (dari combinedData) ---
+  // --- Profitability ---
   let win = 0, lose = 0;
   combinedData.forEach(t => {
     const r = (t.Result || t.result || '').toString().toLowerCase();
@@ -385,7 +407,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
     if (elTotalProfitabilty) elTotalProfitabilty.textContent = `0 of 0 Profite Trade`;
   }
 
-  // --- Avg Daily PnL (hanya profit, dari combinedData) ---
+  // --- Avg Daily PnL ---
   const dailyWins = {};
   combinedData.forEach(t => {
     const pnl = parsePnl(t.Pnl);
@@ -602,10 +624,12 @@ function renderPerpetualTable(data) {
     let posClass = "pos-null";
     let posText  = "-";
 
-    if (trade.Pos === "S") {
+    const rawPos = trade.Pos || ""; 
+
+    if (rawPos === "Short") {
       posClass = "short";
       posText = "SHORT";
-    } else if (trade.Pos === "B") {
+    } else if (rawPos === "Long") {
       posClass = "long";
       posText = "LONG";
     }
@@ -1467,7 +1491,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initGlobalSorting();
 });
 
-// =================== Dashboard Header =================== //
+// ────── Dashboard Header ────── //
 async function updateEquityStats() {
   try {
     const dataPerpetual = await getDBPerpetual();
@@ -1590,14 +1614,13 @@ async function updateEquityStats() {
     if (elPersentaseFeePaid) elPersentaseFeePaid.textContent = `(${persentaseFee}%)`;
 
   } catch (error) {
-    console.error("Gagal update equity stats:", error);
+    console.error("Fail update equity stats:", error);
   }
 }
 
 document.addEventListener("DOMContentLoaded", updateEquityStats);
 window.updateEquityStats = updateEquityStats;
 
-// ────── 1 Statistic ────── //
 async function updateStats(mode = "Perpetual") {
   let trades = [];
 
@@ -1778,7 +1801,7 @@ async function updateStats(mode = "Perpetual") {
     if (elPersentaseAthBalance) elPersentaseAthBalance.textContent = formatPercent(athPercent) + " ROE";
 
   } catch (error) {
-    console.error("Gagal update stats untuk mode:", mode, error);
+    console.error("Fail update stats untuk mode:", mode, error);
     resetStatsUI();
   }
 }
@@ -1907,7 +1930,6 @@ async function loadMonthlyData() {
 
             balanceBefore += pnlThisMonth;
         }
-
 
         const currentYear = new Date().getFullYear();
         monthlyData = fullResult.filter(m => m.year === currentYear);
@@ -2388,8 +2410,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     ]);
 });
 
-// ────── Container 2 Statistic ────── //
-
 // ------ Swap menu Detailed Statistics ------ /
 const radios = document.querySelectorAll('input[name="toggle"]');
 const activeLine = document.getElementById('activeLine');
@@ -2482,7 +2502,7 @@ async function updateTradingStats() {
         document.getElementById('averageLossStreak').textContent = '≈ ' + maxLossStreak;
 
     } catch (err) {
-        console.error('Gagal memuat statistik trading:', err);
+        console.error('Fail memuat statistik trading:', err);
         const ids = ['averageProfite', 'averageLoss', 'averageRR', 'averageProfiteStreak', 'averageLossStreak'];
         ids.forEach(id => {
             const el = document.getElementById(id);
@@ -2577,7 +2597,7 @@ async function updateTradeStats() {
     document.getElementById('bestDailtStreek').textContent = bestStreak;
 
   } catch (error) {
-    console.error('Gagal memuat data:', error);
+    console.error('Fail load data:', error);
   }
 }
 
@@ -2589,11 +2609,11 @@ async function loadTradeStats() {
   try {
     const data = await getDBPerpetual();
 
-    // Pos (Long / Short)
+    // Pos
     let countLong = 0, countShort = 0;
     data.forEach(item => {
-      if (item.Pos === "B") countLong++;
-      else if (item.Pos === "S") countShort++;
+      if (item.Pos === "Long") countLong++;
+      else if (item.Pos === "Short") countShort++;
     });
 
     const totalPos = countLong + countShort || 1;
@@ -2604,7 +2624,7 @@ async function loadTradeStats() {
     document.getElementById("short").textContent = `${shortPct}%`;
     document.getElementById("progressLongShort").style.width = `${longPct}%`;
 
-    // Behavior (Reversal / Continuation)
+    // Behavior
     let countRev = 0, countCon = 0;
     data.forEach(item => {
       if (item.Behavior === "Reversal") countRev++;
@@ -2619,7 +2639,7 @@ async function loadTradeStats() {
     document.getElementById("continuation").textContent = `${conPct}%`;
     document.getElementById("progressRevCon").style.width = `${revPct}%`;
 
-    // Method (Scalping / Swing / Intraday)
+    // Method
     let countScalp = 0, countSwing = 0, countIntra = 0;
     data.forEach(item => {
       const method = item.Method;
@@ -2648,7 +2668,7 @@ async function loadTradeStats() {
     });
 
   } catch (err) {
-    console.error("Gagal memuat data trading:", err);
+    console.error("Fail Load Trading:", err);
   }
 }
 
@@ -2703,7 +2723,7 @@ async function loadBehaviorStats() {
     wrContEl.classList.add(wrContinuation >= 50 ? "winrate-positive" : "winrate-negative");
 
   } catch (err) {
-    console.error("Gagal memuat data trading:", err);
+    console.error("Fail Load Trading:", err);
   }
 }
 
@@ -2723,7 +2743,7 @@ async function loadPsychologyStats() {
     document.getElementById("doubt").textContent = totalDoubt;
     document.getElementById("reckl").textContent = totalReck;
   } catch (err) {
-    console.error("Gagal memuat data psychology:", err);
+    console.error("Fail Load Psychology:", err);
   }
 }
 
@@ -2739,7 +2759,7 @@ async function loadAssetDataIfNeeded() {
       if (!res.ok) throw new Error('File tidak ditemukan');
       window.assetData = await res.json();
     } catch (err) {
-      console.error("Gagal memuat Asset/Link-Symbol.json:", err);
+      console.error("Fail Load Icon:", err);
       window.assetData = [];
     }
   }

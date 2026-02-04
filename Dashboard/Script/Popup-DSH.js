@@ -3,7 +3,6 @@ let isEditMode = false;
 let currentEditingTradeNo = null;
 const dropdownData = {};
 
-// Konversi Unix timestamp WIB
 function unixToWIBDatetimeLocal(unixSeconds) {
     if (!unixSeconds && unixSeconds !== 0) return "";
     
@@ -706,8 +705,7 @@ function fillEditFormTrade(trade) {
     setDropdownValue("PerpetualEditBehavior", trade.Behavior);
     setDropdownValue("PerpetualEditPsychology", trade.Psychology);
     setDropdownValue("PerpetualEditClass", trade.Class);
-    const posVal = trade.Pos === "B" ? "Long" : trade.Pos === "S" ? "Short" : "";
-    setDropdownValue("PerpetualEditPosition", posVal);
+    setDropdownValue("PerpetualEditPosition", trade.Pos);
     setDropdownValue("PerpetualEditResult", trade.Result);
     setDropdownValue("PerpetualEditTimeframe", trade.Confluance?.TimeFrame || "");
     setDropdownValue("PerpetualEditEntry", trade.Confluance?.Entry || "");
@@ -1136,9 +1134,7 @@ async function AddPerpetual() {
             class: classValue,
             before: document.getElementById("PerpetualBefore-url").value.trim(),
             after: document.getElementById("PerpetualAfter-url").value.trim(),
-            pos:
-                positionValue === "Long" ? "B" :
-                positionValue === "Short" ? "S" : "",
+            pos: positionValue || "",
             margin: parseFloat(document.getElementById("PerpetualMargin").value) || 0,
             result: getDropdownValue("PerpetualResult") || "",
             pnl: parseFloat(document.getElementById("PerpetualPnl").value) || 0
@@ -1366,8 +1362,7 @@ async function SaveEditPerpetual() {
             class: getDropdown("PerpetualEditClass"),
             before: getVal("PerpetualEditBefore-url"),
             after: getVal("PerpetualEditAfter-url"),
-            pos: getDropdown("PerpetualEditPosition") === "Long" ? "B" :
-                getDropdown("PerpetualEditPosition") === "Short" ? "S" : "",
+            pos: getDropdown("PerpetualEditPosition") || "",
             margin: parseFloat(getVal("PerpetualEditMargin")) || 0,
             result: getDropdown("PerpetualEditResult"),
             pnl: parseFloat(getVal("PerpetualEditPnl")) || 0
@@ -4463,9 +4458,9 @@ async function calculatePairStats(symbol) {
         const intraday = pairTrades.filter(t => t.Method === "Intraday").length;
         const swing = pairTrades.filter(t => t.Method === "Swing").length;
 
-        // Hitung berdasarkan Position (Buy/Sell)
-        const buy = pairTrades.filter(t => t.Pos === "B").length;
-        const sell = pairTrades.filter(t => t.Pos === "S").length;
+        // Hitung berdasarkan Position
+        const buy = pairTrades.filter(t => t.Pos === "Long").length;
+        const sell = pairTrades.filter(t => t.Pos === "Short").length;
 
         // Hitung berdasarkan Behavior
         const continuation = pairTrades.filter(t => t.Behavior === "Continuation").length;
@@ -4671,6 +4666,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // switch mode
 const feeModeButtons = document.querySelectorAll('.btn-radio.btn-fee');
+
 feeModeButtons.forEach((btn, index) => {
     const modes = ['perpetual', 'spot', 'all'];
     btn.addEventListener('click', () => {
@@ -5090,7 +5086,6 @@ canvasFee.addEventListener('mousemove', (e) => {
     const tooltipX = mouseX + 20;
     const tooltipY = mouseY - 80;
     const tooltipWidth = tooltipFee.offsetWidth;
-    const tooltipHeight = tooltipFee.offsetHeight;
 
     let finalX = tooltipX;
     let finalY = tooltipY;
@@ -5128,7 +5123,7 @@ window.addEventListener('load', () => {
     window.addEventListener('resize', resizeFeeCanvas);
 });
 
-// ────── Delete All Data (Perpetual + Spot) ────── //
+// ────── Delete All Data ────── //
 document.addEventListener("DOMContentLoaded", () => {
   const deleteAllBtn = document.getElementById("DeleteDataAll");
   if (!deleteAllBtn) return;
@@ -5156,7 +5151,7 @@ async function DeleteAllData() {
     if (authErr || !user) throw new Error("User not authenticated");
     const user_id = user.id;
 
-    // --- Hapus dari Server ---
+    // --- Delete From Server ---
     const promises = [
       supabaseClient.from("perpetual").delete().eq("user_id", user_id),
       supabaseClient.from("perpetual_transactions").delete().eq("user_id", user_id),

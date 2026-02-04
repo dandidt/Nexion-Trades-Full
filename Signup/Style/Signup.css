@@ -10,7 +10,7 @@
 body {
   font-family: "Inter", sans-serif;
   background: #000;
-  color: #fff;
+  color: var(--white);
   height: 100vh;
   display: flex;
   align-items: center;
@@ -71,19 +71,19 @@ h1 {
 }
 
 .subtitle {
-  color: #888;
+  color: var(--gray);
   margin-bottom: 32px;
   font-size: 15px;
 }
 
 .subtitle a {
-  color: #888;
+  color: var(--gray);
   text-decoration: none;
   transition: color 0.1s;
 }
 
 .subtitle a:hover {
-  color: #fff;
+  color: var(--white);
   text-decoration: underline;
 }
 
@@ -114,19 +114,19 @@ label {
   display: block;
   font-size: 14px;
   font-weight: 500;
-  color: #fff;
+  color: var(--white);
 }
 
 #tooltipUsername,
 .tooltipPassword {
-  fill: #666;
+  fill: var(--gray);
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 #tooltipUsername:hover,
 .tooltipPassword:hover {
-  fill: #fff;
+  fill: var(--white);
   cursor: pointer;
 }
 
@@ -220,9 +220,9 @@ input {
   padding: 12px 16px;
   background: rgba(30, 30, 30, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  caret-color: #fff;
+  caret-color: var(--white);
   border-radius: 8px;
-  color: #fff;
+  color: var(--white);
   font-size: 14px;
   font-weight: 500;
   transition: all 0.3s;
@@ -230,7 +230,7 @@ input {
 }
 
 input::placeholder {
-  color: #666;
+  color: var(--gray);
 }
 
 input:hover {
@@ -242,7 +242,7 @@ input:focus {
 }
 
 input:-webkit-autofill {
-  -webkit-text-fill-color: #fff;
+  -webkit-text-fill-color: var(--white);
   transition: background-color 5000s ease-in-out 0s;
 }
 
@@ -257,7 +257,7 @@ input:-webkit-autofill {
   padding: 11px;
   background: #0b9779;
   border: 1px solid #0bbb95;
-  color: #fff;
+  color: var(--white);
   border-radius: 8px;
   font-size: 15px;
   font-weight: 600;
@@ -277,18 +277,18 @@ input:-webkit-autofill {
 .terms {
   text-align: center;
   font-size: 13px;
-  color: #666;
+  color: var(--gray);
   margin-top: 20px;
 }
 
 .terms a {
-  color: #888;
+  color: var(--gray);
   text-decoration: underline;
   transition: color 0.3s;
 }
 
 .terms a:hover {
-  color: #fff;
+  color: var(--white);
 }
 
 .preview-section {
@@ -297,7 +297,7 @@ input:-webkit-autofill {
   justify-content: center;
   width: 50%;
   height: 100%;
-  background: #202020;
+  background: var(--bg-20);
   position: relative;
   overflow: hidden;
 }
@@ -396,13 +396,13 @@ input:-webkit-autofill {
 
 .plus-icon {
   font-size: 32px;
-  color: #666;
+  color: var(--gray);
   margin-bottom: 4px;
 }
 
 .avatar-text {
   font-size: 11px;
-  color: #666;
+  color: var(--gray);
 }
 
 .avatar-size {
@@ -414,7 +414,7 @@ input:-webkit-autofill {
   font-size: 24px;
   font-weight: 600;
   margin-bottom: 8px;
-  color: #666;
+  color: var(--gray);
 }
 
 .user-dots {
@@ -457,7 +457,7 @@ input:-webkit-autofill {
 .user-id {
   font-family: "Courier New", monospace;
   font-size: 10px;
-  color: #666;
+  color: var(--gray);
   letter-spacing: 1px;
 }
 
@@ -477,7 +477,7 @@ input:-webkit-autofill {
   align-items: center;
   justify-content: center;
   font-size: 12px;
-  color: #666;
+  color: var(--gray);
   display: flex;
   gap: 6px;
 }
@@ -491,7 +491,7 @@ input:-webkit-autofill {
   display: flex;
   gap: 8px;
   font-size: 14px;
-  color: #666;
+  color: var(--gray);
 }
 
 /* Popup */
@@ -573,34 +573,18 @@ input:-webkit-autofill {
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes slideUp {
-  from {
-    transform: translateY(30px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
+  from { transform: translateY(30px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 @keyframes scaleIn {
-  from {
-    transform: scale(0);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 .page-loader {
@@ -609,7 +593,7 @@ input:-webkit-autofill {
   left: 0;
   height: 1px;
   width: 0%;
-  background: #0bbb95;
+  background: var(--green);
   z-index: 200;
   transition: width 0.4s ease;
 }

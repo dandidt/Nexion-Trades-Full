@@ -597,8 +597,8 @@ b {
   stroke: var(--green);
   stroke-miterlimit: 10;
   stroke-width: 4px;
-  filter: drop-shadow(0 0 6px var(--green))
-    drop-shadow(0 0 20px var(--green)) drop-shadow(0 0 35px var(--green));
+  filter: drop-shadow(0 0 6px var(--green)) drop-shadow(0 0 20px var(--green))
+    drop-shadow(0 0 35px var(--green));
   stroke-dasharray: 2000;
   stroke-dashoffset: 2000;
   opacity: 0;

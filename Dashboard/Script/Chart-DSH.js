@@ -1,41 +1,3 @@
-function FormatUSD(value) {
-    if (value === 0) return "0";
-
-    let formatted = '';
-    let suffix = '';
-
-    if (Math.abs(value) >= 1_000_000_000) {
-        formatted = (value / 1_000_000_000).toFixed(2);
-        suffix = 'B';
-    } else if (Math.abs(value) >= 1_000_000) {
-        formatted = (value / 1_000_000).toFixed(2);
-        suffix = 'M';
-    } else if (Math.abs(value) >= 100_000) {
-        formatted = (value / 1_000).toFixed(2);
-        suffix = 'K';
-    } else {
-        return value.toLocaleString('en-US', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        });
-    }
-
-    if (formatted.endsWith('.00')) formatted = formatted.slice(0, -3);
-    return `${formatted}${suffix}`;
-}
-
-function FormatRR(value) {
-    let formatted = value.toLocaleString('en-US', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-    });
-
-    formatted = formatted.replace(/(\.\d*?[1-9])0+$/, '$1');
-    formatted = formatted.replace(/\.0+$/, '');
-
-    return formatted;
-}
-
 // ────── Chart BALANCE ────── //
 const canvasBalance = document.getElementById('chartCanvasBalance');
 const ctxBalance = canvasBalance.getContext('2d');
@@ -1064,7 +1026,7 @@ function drawChart() {
     for (let i = 0; i <= numLabels; i++) {
         const value = minPnl + (rangePnl * (i / numLabels));
         const y = padding.top + ((numLabels - i) / numLabels) * chartHeight;
-        const label = `$${FormatUSD(value)}`;
+        const label = `$${formatUSDShort(value)}`;
         ctx.fillText(label, padding.left - 10, y + 3);
     }
 
@@ -1073,7 +1035,7 @@ function drawChart() {
     for (let i = 0; i <= numLabels; i++) {
         const value = minRR + (rangeRR * (i / numLabels));
         const y = padding.top + ((numLabels - i) / numLabels) * chartHeight;
-        const label = FormatRR(value);
+        const label = formatValue(value);
         ctx.fillText(label, width - padding.right + 10, y + 3);
     }
 
@@ -1116,7 +1078,7 @@ function drawChart() {
             const x = padding.left + (dataIndex / (data.length - 1)) * chartWidth;
             const y = mousePos.y;
 
-            const pnlValue = `$${FormatUSD(point.pnl)}`;
+            const pnlValue = `$${formatUSDShort(point.pnl)}`;
             const pnlWidth = ctx.measureText(pnlValue).width + 18;
             const pnlHeight = 20;
             const pnlX = padding.left - pnlWidth - 6;
@@ -1135,7 +1097,7 @@ function drawChart() {
             ctx.textBaseline = 'middle';
             ctx.fillText(pnlValue, pnlX + pnlWidth / 2, pnlY + pnlHeight / 2);
 
-            const rrValue = FormatRR(point.rr);
+            const rrValue = formatValue(point.rr);
             const rrWidth = ctx.measureText(rrValue).width + 18;
             const rrHeight = 20;
             const rrX = width - padding.right + 6;
@@ -1280,8 +1242,8 @@ canvas.addEventListener('mousemove', (e) => {
         const dateStr = `${day}/${month}/${year} ${String(hours).padStart(2,'0')}:${minutes} ${ampm}`;
 
         tooltipDate.textContent = dateStr;
-        tooltipPnL.textContent = `$${FormatUSD(point.pnl)}`;
-        tooltipRR.textContent = `${FormatRR(point.rr)}`;
+        tooltipPnL.textContent = `$${formatUSDShort(point.pnl)}`;
+        tooltipRR.textContent = `${formatValue(point.rr)}`;
         tooltip.style.display = 'block';
 
         let tooltipX = e.clientX - rect.left + 40;

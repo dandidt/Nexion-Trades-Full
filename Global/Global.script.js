@@ -35,3 +35,21 @@ function checkDeviceWidth() {
 
 window.addEventListener("load", checkDeviceWidth);
 window.addEventListener("resize", checkDeviceWidth);
+
+// ────── Update Safety ────── //
+const SAFETY_VERSION = "V.001";
+const SAFETY_KEY = "safety_version";
+
+function initSafetyCache() {
+    const currentVersion = localStorage.getItem(SAFETY_KEY);
+    if (currentVersion === SAFETY_VERSION) {
+        return;
+    }
+    localStorage.removeItem("dbperpetual");
+    localStorage.removeItem("dbspot");
+    localStorage.setItem(SAFETY_KEY, SAFETY_VERSION);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+    initSafetyCache();
+});
