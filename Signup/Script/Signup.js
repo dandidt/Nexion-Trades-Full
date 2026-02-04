@@ -93,6 +93,7 @@ accessInput.addEventListener('input', function () {
 
 // ───────── Edit Username ───────── //
 window.tempUsername = '';
+
 userNameDisplay.addEventListener('click', () => {
     const newUsername = prompt('Enter your username:', window.tempUsername || fullnameInput.value);
     if (!newUsername) return;
@@ -109,153 +110,77 @@ document.getElementById('signupForm')?.addEventListener('submit', async function
     const username = (window.tempUsername || fullnameInput.value).trim();
     const email = emailInput.value.trim();
     const password = passwordInput.value;
-    const repeatPassword = repeatPasswordInput.value;
     const accessCode = accessInput.value.trim();
 
-    // --- CLIENT-SIDE VALIDATION ---
     let hasError = false;
-
-    if (!accessCode) {
-        accessInput.style.borderColor = '#ff5555';
-        document.getElementById('accessAlert').textContent = 'Access code is required';
-        hasError = true;
-    }
-
-    if (!validateFullname(username)) {
-        fullnameInput.style.borderColor = '#ff5555';
-        document.getElementById('usernameAlert').textContent = 'Username must be 3–20 letters/numbers';
-        hasError = true;
-    }
-
-    if (!validateEmail(email)) {
-        emailInput.style.borderColor = '#ff5555';
-        document.getElementById('emailAlert').textContent = 'Invalid email format';
-        hasError = true;
-    }
-
-    if (!validatePassword(password)) {
-        passwordInput.style.borderColor = '#ff5555';
-        hasError = true;
-    }
-
-    if (!validateRepeatPassword()) {
-        repeatPasswordInput.style.borderColor = '#ff5555';
-        hasError = true;
-    }
+    if (!accessCode) { accessInput.style.borderColor = '#ff5555'; hasError = true; }
+    if (!validateFullname(username)) { fullnameInput.style.borderColor = '#ff5555'; hasError = true; }
+    if (!validateEmail(email)) { emailInput.style.borderColor = '#ff5555'; hasError = true; }
+    if (!validatePassword(password)) { passwordInput.style.borderColor = '#ff5555'; hasError = true; }
 
     if (hasError) return;
 
     startLoading();
 
     try {
-        const accessResponse = await fetch(
-            `https://script.google.com/macros/s/AKfycbzB-oRL8sjNXO0P0dcinbAdt5DxGWIp4llHcIQNF6bQ9lVvdUFak4whdiKIxGYNMhbf/exec?code=${encodeURIComponent(accessCode)}`
+        const response = await fetch(
+            "https://olnjccddsquaspnacqyw.supabase.co/functions/v1/Access-Code---Sign-Up",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "apikey": supabaseKey,
+                    "Authorization": `Bearer ${supabaseKey}`
+                },
+                body: JSON.stringify({
+                    username,
+                    email,
+                    access_code: accessCode,
+                    password,
+                }),
+            }
         );
-        const accessData = await accessResponse.json();
 
-        if (!accessData.isValid) {
+        const result = await response.json();
+
+        if (!response.ok) {
             finishLoading();
-            accessInput.style.borderColor = '#ff5555';
-            document.getElementById('accessAlert').textContent = 'Invalid access code';
+
+            if (response.status === 401) {
+                accessInput.style.borderColor = '#ff5555';
+                document.getElementById('accessAlert').textContent = 'Invalid access code';
+            } else if (response.status === 402) {
+                emailInput.style.borderColor = '#ff5555';
+                document.getElementById('emailAlert').textContent = 'Only @gmail.com';
+            } else if (response.status === 403) {
+                accessInput.style.borderColor = '#ff5555';
+                document.getElementById('accessAlert').textContent = 'Quota exhausted';
+            } else if (response.status === 404) {
+                fullnameInput.style.borderColor = '#ff5555';
+                document.getElementById('usernameAlert').textContent = 'Username is already taken';
+            } else if (response.status === 405) {
+                emailInput.style.borderColor = '#ff5555';
+                document.getElementById('emailAlert').textContent = 'Email has been registered';
+            }
+
             return;
         }
-
-        const { data: authData, error: authError } = await supabaseClient.auth.signUp({
-            email,
-            password,
-            options: {
-                data: { username }
-            }
-        });
-
-        if (authError) throw authError;
-        if (!authData?.user) throw new Error('User creation failed');
 
         finishLoading();
         document.getElementById('signupEmailDisplay').textContent = email;
         document.getElementById('signupSuccessModal').style.display = 'flex';
 
         document.getElementById('loginRedirectBtn').onclick = () => {
-            localStorage.removeItem('dbperpetual');
-            localStorage.removeItem('dbspot');
-
             const isGithub = window.location.hostname.includes('github.io');
-            const target = isGithub ? '/Nexion-Trades-Full/index.html' : '/index.html';
+            const target = isGithub
+                ? '/Nexion-Trades-Full/index.html'
+                : '/index.html';
             window.location.href = target;
         };
 
     } catch (err) {
         finishLoading();
-        console.error('Signup error:', err);
-
-        if (err.message?.toLowerCase().includes('already registered')) {
-            emailInput.style.borderColor = '#ff5555';
-            document.getElementById('emailAlert').textContent = 'Email is already registered';
-        } else if (err.message?.includes('username')) {
-            fullnameInput.style.borderColor = '#ff5555';
-            document.getElementById('usernameAlert').textContent = 'Invalid username';
-        } else {
-            alert('Signup failed: ' + (err.message || 'Please try again'));
-        }
-    }
-});
-
-// ───────── Loading UI ───────── //
-const loader = document.querySelector('.page-loader');
-
-function startLoading() {
-    if (!loader) return;
-    loader.style.width = '0%';
-    loader.style.display = 'block';
-    setTimeout(() => loader.style.width = '80%', 100);
-}
-
-function finishLoading() {
-    if (!loader) return;
-    loader.style.width = '100%';
-    setTimeout(() => {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.width = '0%';
-            loader.style.opacity = '1';
-            loader.style.display = 'none';
-        }, 300);
-    }, 400);
-}
-
-// ───────── Smooth Link Transitions ───────── //
-document.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', (e) => {
-        if (link.href && !link.href.startsWith('#') && !link.target) {
-            e.preventDefault();
-            startLoading();
-            setTimeout(() => window.location.href = link.href, 600);
-        }
-    });
-});
-
-// ───────── Toggle Password Visibility ───────── //
-const toggleBtn = document.querySelector('.toggle-password');
-const repeatToggleBtn = document.querySelector('.toggle-repeat-password');
-
-toggleBtn?.addEventListener('click', () => {
-    const isPassword = passwordInput.type === 'password';
-    passwordInput.type = isPassword ? 'text' : 'password';
-    const showIcon = toggleBtn.querySelector('.icon-show');
-    const hideIcon = toggleBtn.querySelector('.icon-hide');
-    if (showIcon && hideIcon) {
-        showIcon.style.display = isPassword ? 'none' : 'block';
-        hideIcon.style.display = isPassword ? 'block' : 'none';
-    }
-});
-
-repeatToggleBtn?.addEventListener('click', () => {
-    const isPassword = repeatPasswordInput.type === 'password';
-    repeatPasswordInput.type = isPassword ? 'text' : 'password';
-    const showIcon = repeatToggleBtn.querySelector('.icon-show');
-    const hideIcon = repeatToggleBtn.querySelector('.icon-hide');
-    if (showIcon && hideIcon) {
-        showIcon.style.display = isPassword ? 'none' : 'block';
-        hideIcon.style.display = isPassword ? 'block' : 'none';
+        console.error('Connection Error:', err);
+        alert('Server connection failed. Please try again later.');
     }
 });
