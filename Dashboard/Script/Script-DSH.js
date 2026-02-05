@@ -531,8 +531,8 @@ function renderPerpetualTable(data) {
   
   tbody.innerHTML = "";
 
-  // Transaction
   data.forEach((item) => {
+    // Transaction
     if (isActionItem(item)) {
       const noCell = isEditMode
       ? `
@@ -680,10 +680,52 @@ function renderPerpetualTable(data) {
       <td><p class="${pnlClass}">${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}</p></td>
     `;
 
-    row.querySelector("#box-causes").dataset.content = trade.Causes || "No causes";
+    const boxCauses = row.querySelector("#box-causes");
+    const causes = trade.Causes?.trim();
+
+    if (!causes || causes === "-" || causes === "No causes") {
+      boxCauses.classList.add("causes-disabled");
+      boxCauses.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg"
+          height="20px" width="20px" viewBox="0 -960 960 960">
+          <path d="M140-240q-23 0-41.5-18.5T80-300v-494l-54-54 43-43L876-84l-43 43-199-199H140Zm740 74L746-300h74v-520H226l-60-60h654q24 0 42 18.5t18 41.5v654ZM140-300h434L474-400H240v-60h174l-70-70H240v-60h44L140-734v434Zm506-100-60-60h134v60h-74ZM516-530l-60-60h264v60H516ZM386-660l-60-60h394v60H386Z"/>
+        </svg>
+      `;
+    } else {
+      boxCauses.dataset.content = causes;
+    }
+
     const boxFiles = row.querySelector("#box-files");
-    boxFiles.dataset.before = trade.Files?.Before || "#";
-    boxFiles.dataset.after = trade.Files?.After || "#";
+
+    const before = trade.Files?.Before?.trim();
+    const after  = trade.Files?.After?.trim();
+
+    const hasBefore = before && before !== "#";
+    const hasAfter  = after  && after  !== "#";
+
+    if (!hasBefore && !hasAfter) {
+      boxFiles.classList.add("files-disabled");
+      boxFiles.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="m816-246-72-72v-426H318l-72-72h498q29 0 50.5 21.5T816-744v498ZM768-90l-54-54H216q-29 0-50.5-21.5T144-216v-498l-54-54 51-51 678 678-51 51ZM264-288l108-144 72 96 34-45-262-261v426h426l-72-72H264Zm264-240ZM426-426Z"/></svg>
+      `;
+    }
+
+    else if (hasBefore ^ hasAfter) {
+      boxFiles.classList.add("files-single");
+
+      boxFiles.dataset.before = hasBefore ? before : "";
+      boxFiles.dataset.after  = hasAfter ? after : "";
+      boxFiles.dataset.single = "true";
+
+      boxFiles.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M216-144q-29.7 0-50.85-21.5Q144-187 144-216v-528q0-29 21.15-50.5T216-816h528q29.7 0 50.85 21.5Q816-773 816-744v528q0 29-21.15 50.5T744-144H216Zm0-72h528v-528H216v528Zm48-72h432L552-480 444-336l-72-96-108 144Zm-48 72v-528 528Z"/></svg>
+      `;
+    }
+
+    else {
+      boxFiles.dataset.before = before;
+      boxFiles.dataset.after  = after;
+    }
 
     tbody.appendChild(row);
   });
@@ -718,14 +760,14 @@ function renderSpotPaginated() {
 }
 
 function renderSpotTable(data) {
-    const tbody = document.querySelector("#tabel-spot tbody");
-    if (!tbody) return;
+  const tbody = document.querySelector("#tabel-spot tbody");
+  if (!tbody) return;
 
-    tbody.innerHTML = "";
-    
+  tbody.innerHTML = "";
+  
+  data.forEach((item) => {
     // Transaction
-    data.forEach(item => {
-    if (item.action) {
+    if (isActionItem(item)) {
       const noCell = isEditMode
       ? `
         <td>
@@ -850,7 +892,52 @@ function renderSpotTable(data) {
       <td><p class="${pnlClass}">${pnl === 0 ? formatUSD(0) : (pnl > 0 ? "+" : "-") + formatUSD(Math.abs(pnl))}</p></td>
     `;
 
-    row.querySelector("#box-causes").dataset.content = trade.Causes || "No causes";
+    const boxCauses = row.querySelector("#box-causes");
+    const causes = trade.Causes?.trim();
+
+    if (!causes || causes === "-" || causes === "No causes") {
+      boxCauses.classList.add("causes-disabled");
+      boxCauses.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg"
+          height="20px" width="20px" viewBox="0 -960 960 960">
+          <path d="M140-240q-23 0-41.5-18.5T80-300v-494l-54-54 43-43L876-84l-43 43-199-199H140Zm740 74L746-300h74v-520H226l-60-60h654q24 0 42 18.5t18 41.5v654ZM140-300h434L474-400H240v-60h174l-70-70H240v-60h44L140-734v434Zm506-100-60-60h134v60h-74ZM516-530l-60-60h264v60H516ZM386-660l-60-60h394v60H386Z"/>
+        </svg>
+      `;
+    } else {
+      boxCauses.dataset.content = causes;
+    }
+
+    const boxFiles = row.querySelector("#box-files");
+
+    const before = trade.Files?.Before?.trim();
+    const after  = trade.Files?.After?.trim();
+
+    const hasBefore = before && before !== "#";
+    const hasAfter  = after  && after  !== "#";
+
+    if (!hasBefore && !hasAfter) {
+      boxFiles.classList.add("files-disabled");
+      boxFiles.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="m816-246-72-72v-426H318l-72-72h498q29 0 50.5 21.5T816-744v498ZM768-90l-54-54H216q-29 0-50.5-21.5T144-216v-498l-54-54 51-51 678 678-51 51ZM264-288l108-144 72 96 34-45-262-261v426h426l-72-72H264Zm264-240ZM426-426Z"/></svg>
+      `;
+    }
+
+    else if (hasBefore ^ hasAfter) {
+      boxFiles.classList.add("files-single");
+
+      boxFiles.dataset.before = hasBefore ? before : "";
+      boxFiles.dataset.after  = hasAfter ? after : "";
+      boxFiles.dataset.single = "true";
+
+      boxFiles.innerHTML = `
+        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px"><path d="M216-144q-29.7 0-50.85-21.5Q144-187 144-216v-528q0-29 21.15-50.5T216-816h528q29.7 0 50.85 21.5Q816-773 816-744v528q0 29-21.15 50.5T744-144H216Zm0-72h528v-528H216v528Zm48-72h432L552-480 444-336l-72-96-108 144Zm-48 72v-528 528Z"/></svg>
+      `;
+    }
+
+    else {
+      boxFiles.dataset.before = before;
+      boxFiles.dataset.after  = after;
+    }
 
     tbody.appendChild(row);
   });
@@ -1043,6 +1130,22 @@ document.addEventListener("DOMContentLoaded", loadPerpetualData);
 
 // ------ Tooltip ------ //
 class TooltipManager {
+
+  createImageHtml(src, link, label) {
+    return `
+      <div style="text-align: center;">
+        <a href="${link}" target="_blank" style="display: inline-block;">
+          <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
+            <img src="${src}" alt="${label}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">
+          </div>
+        </a>
+        <div style="margin-top: 6px; font-size: 12px;">
+          <a href="${link}" target="_blank" class="tooltip-link">${label}</a>
+        </div>
+      </div>
+    `;
+  }
+
   constructor() {
     this.tooltip = document.getElementById('TooltipBox');
     this.tooltipContent = document.getElementById('TooltipContent');
@@ -1097,57 +1200,34 @@ class TooltipManager {
     } else if (this.currentTarget.id === "box-files") {
       title = "Files";
       const before = this.currentTarget.dataset.before || "";
-      const after = this.currentTarget.dataset.after || "";
+      const after  = this.currentTarget.dataset.after  || "";
       const beforeLink = this.currentTarget.dataset.beforeLink || before;
       const afterLink = this.currentTarget.dataset.afterLink || after;
 
-    content = `
-      <div class="tooltip-imgs-grid" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 8px;">
-        ${before ? `
-          <div style="text-align: center;">
-            <a href="${beforeLink}" target="_blank" style="display: inline-block;">
-              <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-                ${before.startsWith('http') ? `<img src="${before}" alt="Preview 1" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
-              </div>
-            </a>
-            <div style="margin-top: 6px; font-size: 12px;">
-              <a href="${beforeLink}" target="_blank" class="tooltip-link">Image Before</a>
-            </div>
-          </div>
-        ` : `
-          <div style="text-align: center;">
-            <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #444; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-              No image
-            </div>
-            <div style="margin-top: 6px; font-size: 12px; color: #555;">
-              Image Before
-            </div>
-          </div>
-        `}
-        
-        ${after ? `
-          <div style="text-align: center;">
-            <a href="${afterLink}" target="_blank" style="display: inline-block;">
-              <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #eee; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-                ${after.startsWith('http') ? `<img src="${after}" alt="Preview 2" style="width: 100%; height: 100%; object-fit: cover; border-radius: 4px;">` : 'No image'}
-              </div>
-            </a>
-            <div style="margin-top: 6px; font-size: 12px;">
-              <a href="${afterLink}" target="_blank" class="tooltip-link">Image After</a>
-            </div>
-          </div>
-        ` : `
-          <div style="text-align: center;">
-            <div class="tooltip-img-placeholder" style="width: 160px; height: 90px; border-radius: 4px; border: 1px solid #444; background: #333; display: flex; align-items: center; justify-content: center; color: #666; font-size: 12px;">
-              No image
-            </div>
-            <div style="margin-top: 6px; font-size: 12px; color: #555;">
-              Image After
-            </div>
-          </div>
-        `}
-      </div>
-    `;
+      const hasBefore = before && before !== "#" && before.startsWith('http');
+      const hasAfter = after && after !== "#" && after.startsWith('http');
+
+      let imagesHtml = "";
+
+      if (hasBefore && hasAfter) {
+        imagesHtml = `
+          ${this.createImageHtml(before, beforeLink, "Image Before")}
+          ${this.createImageHtml(after, afterLink, "Image After")}
+        `;
+      } else if (hasBefore || hasAfter) {
+        const img = hasBefore ? before : after;
+        const link = hasBefore ? beforeLink : afterLink;
+        const label = hasBefore ? "Image Before" : "Image After";
+        imagesHtml = this.createImageHtml(img, link, label);
+      } else {
+        imagesHtml = `<div style="color: #666; font-size: 12px; padding: 10px;">No images available</div>`;
+      }
+
+      content = `
+        <div class="tooltip-imgs-grid" style="display: flex; gap: 12px; justify-content: center; margin-bottom: 8px;">
+          ${imagesHtml}
+        </div>
+      `;
     }
 
     this.tooltipContent.innerHTML = `<div class="tooltip-title">${title}</div>${content}`;

@@ -795,6 +795,12 @@ th.sortable {
   fill: var(--gray-dark);
 }
 
+.causes-disabled {
+  opacity: 0.35;
+  pointer-events: none; 
+  fill: var(--gray-dark);
+}
+
 .confident {
   font-size: var(--s12);
   font-weight: var(--w4);
@@ -829,6 +835,17 @@ th.sortable {
   font-size: var(--s12);
   font-weight: var(--w4);
   color: var(--white);
+}
+
+.files-disabled {
+  fill: var(--gray-dark);
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.files-single {
+  fill: var(--gray-dark);
+  opacity: 0.9;
 }
 
 .short {
