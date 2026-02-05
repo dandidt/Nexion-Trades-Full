@@ -704,7 +704,14 @@
 
                 <!-- WR Chart -->
                 <div class="container-chart-wr">
-                    <p class="title-pairs-wr">Winrate</p>
+                    <div class="wrapper-header-winrate">
+                        <p class="title-pairs-wr">Winrate</p>
+                        <div class="btn-radio-wrapper">
+                            <button class="btn-radio btn-swap-winrate active">Perpetual</button>
+                            <button class="btn-radio btn-swap-winrate">Spot</button>
+                            <button class="btn-radio btn-swap-winrate">All</button>
+                        </div>
+                    </div>
                     <div class="wrapper-chartwr">
                         <!-- SVG -->
                         <svg id="wrChartSVG" viewBox="0 0 200 200">
@@ -882,23 +889,32 @@
             <div class="container-statistic fade-up">
                 <!-- Pairs Allocation -->
                 <div class="container-chart-pairs">
-                    <div class="container-in-pairs">
+                    <div class="wrapper-header-pairs">
                         <p class="title-pairs-chart">Pairs Allocation</p>
-                        <div class="chart-container-pairs">
-                            <svg width="267" height="267" viewBox="0 0 267 267">
-                                <defs></defs>
-                                <!-- JS -->
-                                <circle cx="133.5" cy="133.5" r="100" fill="none" stroke="rgba(40,40,40,0.5)" stroke-width="40" />
-                            </svg>
-
-                            <div class="chart-center">
-                                <div class="total-value-pairs">0</div>
-                            </div>
+                        <div class="btn-radio-wrapper">
+                            <button class="btn-radio btn-swap-pairs active">Perpetual</button>
+                            <button class="btn-radio btn-swap-pairs">Spot</button>
+                            <button class="btn-radio btn-swap-pairs">All</button>
                         </div>
                     </div>
-                    <div class="wrapper-paris-identifier">
-                        <div class="box-identifier-pairs">
-                            <!-- JS -->
+                    <div class="wrapper-pairs">
+                        <div class="container-in-pairs">
+                            <div class="chart-container-pairs">
+                                <svg width="267" height="267" viewBox="0 0 267 267">
+                                    <defs></defs>
+                                    <!-- JS -->
+                                    <circle cx="133.5" cy="133.5" r="100" fill="none" stroke="rgba(40,40,40,0.5)" stroke-width="40" />
+                                </svg>
+    
+                                <div class="chart-center">
+                                    <div class="total-value-pairs">0</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="wrapper-paris-identifier">
+                            <div class="box-identifier-pairs">
+                                <!-- JS -->
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -2589,7 +2605,7 @@
                 <div class="leftcontainer">
                     <div class="subcontainer-trading-summary">
                         <div class="column-title-popup">
-                             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-circle-dollar-sign-icon lucide-circle-dollar-sign"><circle cx="12" cy="12" r="10"/><path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/><path d="M12 18V6"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M12 12.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0-7ZM10.5 16a1.5 1.5 0 1 1 3 0a1.5 1.5 0 0 1-3 0Z"/><path fill="currentColor" d="M17.526 5.116L14.347.659L2.658 9.997L2.01 9.99V10H1.5v12h21V10h-.962l-1.914-5.599l-2.098.715ZM19.425 10H9.397l7.469-2.546l1.522-.487L19.425 10ZM15.55 5.79L7.84 8.418l6.106-4.878l1.604 2.25ZM3.5 18.169v-4.34A3.008 3.008 0 0 0 5.33 12h13.34a3.009 3.009 0 0 0 1.83 1.83v4.34A3.009 3.009 0 0 0 18.67 20H5.332A3.01 3.01 0 0 0 3.5 18.169Z"/></svg>
                             <p class="title-rightcontainer">PnL Overview</p>
                         </div>
                         <div class="subcolumn-stats-one">
@@ -2599,7 +2615,7 @@
                     </div>
                     <div class="subcontainer-average-stats">
                         <div class="column-title-popup">
-                            <svg xmlns="http://www.w3.org/2000/svg" height="24px" viewBox="0 -960 960 960" width="24px" fill="#e3e3e3"><path d="M280-280h80v-200h-80v200Zm320 0h80v-400h-80v400Zm-160 0h80v-120h-80v120Zm0-200h80v-80h-80v80ZM200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h560q33 0 56.5 23.5T840-760v560q0 33-23.5 56.5T760-120H200Zm0-80h560v-560H200v560Zm0-560v560-560Z"/></svg>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"><path fill="currentColor" d="M9.96 11.31C10.82 8.1 11.5 6 13 6s2.18 2.1 3.04 5.31C17 14.92 18.1 19 22 19v-2c-2.2 0-3-2.46-4.03-6.2C17.08 7.46 16.15 4 13 4c-3.15 0-4.08 3.46-4.97 6.8C7.03 14.54 6.2 17 4 17V2H2v20h20v-2H4v-1c3.9 0 5-4.08 5.96-7.69Z"/></svg>
                             <p class="title-rightcontainer">Average</p>
                         </div>
                         <div class="subcontainer-stats">
@@ -2632,11 +2648,11 @@
                                 <span class="value-stats-two gray-secondary" id="alltradePairs">0</span>
                             </div>
                             <div class="box-performance-pairs">
-                                <span class="text-title">Win: <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="var(--green)"><path d="m429-336 238-237-51-51-187 186-85-84-51 51 136 135Zm51 240q-79 0-149-30t-122.5-82.5Q156-261 126-331T96-480q0-80 30-149.5t82.5-122Q261-804 331-834t149-30q80 0 149.5 30t122 82.5Q804-699 834-629.5T864-480q0 79-30 149t-82.5 122.5Q699-156 629.5-126T480-96Z"/></svg></span>
+                                <span class="text-title">Win:</span>
                                 <span class="value-stats-two gray-secondary" id="tradeprofitPairs">0</span>
                             </div>
                             <div class="box-performance-pairs">
-                                <span class="text-title">Loss: <svg xmlns="http://www.w3.org/2000/svg" height="15px" viewBox="0 -960 960 960" width="15px" fill="var(--red)"><path d="m339-288 141-141 141 141 51-51-141-141 141-141-51-51-141 141-141-141-51 51 141 141-141 141 51 51ZM480-96q-79 0-149-30t-122.5-82.5Q156-261 126-331T96-480q0-80 30-149.5t82.5-122Q261-804 331-834t149-30q80 0 149.5 30t122 82.5Q804-699 834-629.5T864-480q0 79-30 149t-82.5 122.5Q699-156 629.5-126T480-96Z"/></svg></span>
+                                <span class="text-title">Loss:</span>
                                 <span class="value-stats-two gray-secondary" id="tradelossPairs">0</span>
                             </div>
                             <div class="box-performance-pairs">

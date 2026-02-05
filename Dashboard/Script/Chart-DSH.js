@@ -1298,6 +1298,7 @@ const CIRCUMFERENCE = 2 * Math.PI * RADIUS;
 const CENTER_X = 133.5;
 const CENTER_Y = 133.5;
 const STROKE_WIDTH = 40;
+let currentPairMode = "perpetual";
 
 const DEFAULT_ICON = "https://cdn.jsdelivr.net/gh/dandidt/Crypto-Icon/Pairs%20Icon/Nexion-Default.png";
 const DEFAULT_COLOR_START = "#6c757d";
@@ -1374,7 +1375,6 @@ function renderChart(chartData) {
         const { symbol, name, percentage, icon, colorStart, colorEnd } = item;
         const idSafe = symbol.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() || `asset${i}`;
 
-        // === Gradient ===
         const gradientId = `grad-${idSafe}`;
         const gradient = document.createElementNS("http://www.w3.org/2000/svg", "linearGradient");
         gradient.setAttribute("id", gradientId);
@@ -1395,7 +1395,6 @@ function renderChart(chartData) {
         gradient.appendChild(stop2);
         defs.appendChild(gradient);
 
-        // === Segmen ===
         const segmentLength = (percentage / 100) * CIRCUMFERENCE;
         const segment = document.createElementNS("http://www.w3.org/2000/svg", "circle");
         segment.classList.add("segment", "dynamic-segment");
@@ -1414,7 +1413,6 @@ function renderChart(chartData) {
 
         svg.appendChild(segment);
 
-        // === Tooltip ===
         const tooltip = document.createElement("div");
         tooltip.className = "tooltip-pairs dynamic-tooltip";
         tooltip.innerHTML = `
@@ -1437,7 +1435,6 @@ function renderChart(chartData) {
 
         tooltipContainer.appendChild(tooltip);
 
-        // === Identifier ===
         const identifier = document.createElement("div");
         identifier.className = "bx-in-identifier";
         identifier.innerHTML = `
@@ -1460,40 +1457,51 @@ async function loadPairData() {
     }
 
     try {
-        const rawData = await getDBPerpetual();
+        let rawData = [];
+
+        if (currentPairMode === "perpetual") {
+            rawData = await getDBPerpetual();
+        } else if (currentPairMode === "spot") {
+            rawData = await getDBSpot();
+        } else if (currentPairMode === "all") {
+            const [perp, spot] = await Promise.all([
+                getDBPerpetual(),
+                getDBSpot()
+            ]);
+            rawData = [...(perp || []), ...(spot || [])];
+        }
+
         if (!Array.isArray(rawData)) throw new Error("Data not valid");
 
         const pairCount = {};
 
         rawData.forEach(item => {
-        if (!item.Pairs) return;
-        const baseSymbol = extractBaseSymbol(item.Pairs);
-        if (!baseSymbol) return;
-        pairCount[baseSymbol] = (pairCount[baseSymbol] || 0) + 1;
+            if (!item.Pairs) return;
+            const baseSymbol = extractBaseSymbol(item.Pairs);
+            if (!baseSymbol) return;
+            pairCount[baseSymbol] = (pairCount[baseSymbol] || 0) + 1;
         });
 
-        const total = Object.values(pairCount).reduce((sum, v) => sum + v, 0);
+        const total = Object.values(pairCount).reduce((s, v) => s + v, 0);
         if (total === 0) {
-        renderChart([]);
-        return;
+            renderChart([]);
+            return;
         }
 
         const chartData = Object.keys(pairCount).map(symbol => {
-        const count = pairCount[symbol];
-        const percentage = (count / total) * 100;
-        const asset = getAssetInfo(symbol);
-        return {
-            symbol: asset.symbol,
-            name: asset.name,
-            percentage,
-            icon: asset.icon,
-            colorStart: asset.colorStart,
-            colorEnd: asset.colorEnd
-        };
+            const percentage = (pairCount[symbol] / total) * 100;
+            const asset = getAssetInfo(symbol);
+            return {
+                symbol: asset.symbol,
+                name: asset.name,
+                percentage,
+                icon: asset.icon,
+                colorStart: asset.colorStart,
+                colorEnd: asset.colorEnd
+            };
         });
 
         chartData.sort((a, b) => b.percentage - a.percentage);
-
         renderChart(chartData);
 
     } catch (err) {
@@ -1509,6 +1517,22 @@ loadAssetData().then(() => {
     }
 });
 
+document.querySelectorAll(".btn-swap-pairs").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".btn-swap-pairs")
+            .forEach(b => b.classList.remove("active"));
+
+        btn.classList.add("active");
+
+        const text = btn.textContent.toLowerCase();
+        if (text.includes("perpetual")) currentPairMode = "perpetual";
+        else if (text.includes("spot")) currentPairMode = "spot";
+        else currentPairMode = "all";
+
+        loadPairData();
+    });
+});
+
 // ────── Chart Winrate ────── //
 const canvasWrChart = document.getElementById('donutChart');
 const ctxWrChart = canvasWrChart.getContext('2d');
@@ -1521,6 +1545,7 @@ let centerX = 0;
 let centerY = 0;
 let dataWrChart = [];
 let total = 0;
+let currentWrMode = "perpetual";
 
 function getBg35Color() {
     return getComputedStyle(document.documentElement).getPropertyValue('--bg-35').trim() || '#333333';
@@ -1702,7 +1727,19 @@ function renderWrChart() {
 
 async function loadWrChartData() {
     try {
-        const data = await getDBPerpetual();
+        let data = [];
+
+        if (currentWrMode === "perpetual") {
+            data = await getDBPerpetual();
+        } else if (currentWrMode === "spot") {
+            data = await getDBSpot();
+        } else if (currentWrMode === "all") {
+            const [perp, spot] = await Promise.all([
+                getDBPerpetual(),
+                getDBSpot()
+            ]);
+            data = [...(perp || []), ...(spot || [])];
+        }
 
         const counts = { Profite: 0, Loss: 0, Missed: 0, BreakEven: 0 };
         data.forEach(item => {
@@ -1775,6 +1812,22 @@ document.addEventListener('visibilitychange', () => {
             renderWrChart();
         }
     }
+});
+
+document.querySelectorAll(".btn-swap-winrate").forEach(btn => {
+    btn.addEventListener("click", () => {
+        document.querySelectorAll(".btn-swap-winrate")
+            .forEach(b => b.classList.remove("active"));
+
+        btn.classList.add("active");
+
+        const text = btn.textContent.toLowerCase();
+        if (text.includes("perpetual")) currentWrMode = "perpetual";
+        else if (text.includes("spot")) currentWrMode = "spot";
+        else currentWrMode = "all";
+
+        loadWrChartData();
+    });
 });
 
 // ────── Update UI Global ────── //
