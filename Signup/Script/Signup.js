@@ -173,8 +173,8 @@ document.getElementById('signupForm')?.addEventListener('submit', async function
         document.getElementById('loginRedirectBtn').onclick = () => {
             const isGithub = window.location.hostname.includes('github.io');
             const target = isGithub
-                ? '/Nexion-Trades-Full/index.html'
-                : '/index.html';
+                ? "/Nexion-Trades-Full"
+                : "../";
             window.location.href = target;
         };
 

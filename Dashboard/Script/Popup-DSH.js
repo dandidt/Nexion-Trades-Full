@@ -2252,55 +2252,54 @@ async function DeleteSpotTransaction() {
 
 // Confirmasi Delete Perpetual & Spot //
 function ConfirmDeletePerpetual(message) {
-    return new Promise((resolve) => {
-        const popup = document.getElementById("confirmPopup");
-        const msg = document.getElementById("confirmMessage");
-        const yes = document.getElementById("confirmYes");
-        const no = document.getElementById("confirmNo");
-        const popupContent = document.querySelector(".confirm-popup-content");
+  return new Promise((resolve) => {
+    const popup = document.getElementById("confirmPopup");
+    const msg = document.getElementById("confirmMessage");
+    const yes = document.getElementById("confirmYes");
+    const no = document.getElementById("confirmNo");
+    const popupContent = document.querySelector(".container-confirm");
 
-        msg.textContent = message;
+    msg.textContent = message;
 
-        popup.style.zIndex = "99999";
-        popup.classList.remove("hidden");
-        popup.offsetHeight;
+    popup.style.display = "flex";
+    popup.style.zIndex = "99999";
 
-        const cleanup = (result) => {
-            setTimeout(() => {
-                popup.classList.add("hidden");
-                yes.removeEventListener("click", onYes);
-                no.removeEventListener("click", onNo);
-                document.removeEventListener("keydown", onEscKey);
-                document.removeEventListener("click", onOutsideClick);
-                resolve(result);
-            }, 200);
-        };
+    const cleanup = (result) => {
+      popup.style.display = "none";
 
-        const onYes = (e) => {
-            e.stopPropagation();
-            cleanup(true);
-        };
+      yes.removeEventListener("click", onYes);
+      no.removeEventListener("click", onNo);
+      document.removeEventListener("keydown", onEscKey);
+      popup.removeEventListener("click", onOutsideClick);
 
-        const onNo = (e) => {
-            e.stopPropagation();
-            cleanup(false);
-        };
+      resolve(result);
+    };
 
-        const onEscKey = (e) => {
-            if (e.key === "Escape") cleanup(false);
-        };
+    const onYes = (e) => {
+      e.stopPropagation();
+      cleanup(true);
+    };
 
-        const onOutsideClick = (e) => {
-            if (!popupContent.contains(e.target)) {
-                cleanup(false);
-            }
-        };
+    const onNo = (e) => {
+      e.stopPropagation();
+      cleanup(false);
+    };
 
-        yes.addEventListener("click", onYes);
-        no.addEventListener("click", onNo);
-        document.addEventListener("keydown", onEscKey);
-        popup.addEventListener("click", onOutsideClick);
-    });
+    const onEscKey = (e) => {
+      if (e.key === "Escape") cleanup(false);
+    };
+
+    const onOutsideClick = (e) => {
+      if (!popupContent.contains(e.target)) {
+        cleanup(false);
+      }
+    };
+
+    yes.addEventListener("click", onYes);
+    no.addEventListener("click", onNo);
+    document.addEventListener("keydown", onEscKey);
+    popup.addEventListener("click", onOutsideClick);
+  });
 }
 
 // ────── DELETE MASSAL ────── //

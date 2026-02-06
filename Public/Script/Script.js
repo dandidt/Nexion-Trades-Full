@@ -67,11 +67,11 @@ async function handleLogout() {
 // ----- Event Modal Logout -----
 document.getElementById('logoutAccount')?.addEventListener('click', (e) => {
     e.preventDefault();
-    document.getElementById('logoutModal').style.display = 'flex';
+    document.getElementById('logoutConfirm').style.display = 'flex';
 });
 
 document.getElementById('cancelLogoutBtn')?.addEventListener('click', () => {
-    document.getElementById('logoutModal').style.display = 'none';
+    document.getElementById('logoutConfirm').style.display = 'none';
 });
 
 document.getElementById('confirmLogoutBtn')?.addEventListener('click', () => {

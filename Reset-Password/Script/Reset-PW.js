@@ -135,26 +135,6 @@ emailInput.addEventListener('input', function() {
     }
 });
 
-const loader = document.querySelector('.page-loader');
-
-function startLoading() {
-    loader.style.width = '0%';
-    loader.style.display = 'block';
-    setTimeout(() => loader.style.width = '80%', 100);
-}
-
-function finishLoading() {
-    loader.style.width = '100%';
-    setTimeout(() => {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.width = '0%';
-            loader.style.opacity = '1';
-            loader.style.display = 'none';
-        }, 300);
-    }, 400);
-}
-
 document.querySelectorAll('a').forEach(link => {
     link.addEventListener('click', (e) => {
         if (link.href && !link.href.startsWith('#')) {

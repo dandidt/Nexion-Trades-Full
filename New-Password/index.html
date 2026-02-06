@@ -97,24 +97,23 @@
     </div>
 
     <!-- Success Modal -->
-    <div id="signupSuccessModal">
-        <div class="container-success">
-            <div class="icon-success">
-                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12"></polyline>
-                </svg>
+    <div class="bg-confirm" id="signupSuccess">
+        <div class="container-confirm">
+            <div class="icon-confirm">
+                <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
             </div>
-            <h3 class="title-success">Password Reset Successful!</h3>
-            <p class="text-success">
+            <h3 class="title-confirm">Password Reset Successful!</h3>
+            <p class="text-confirm">
                 Your password has been updated successfully.<br>
                 Please sign in with your new password.
             </p>
-            <button id="loginRedirectBtn">Go to Login</button>
+            <button class="btn btn-green" id="loginRedirectBtn">Go to Login</button>
         </div>
     </div>
+
     <div class="page-loader"></div>
 
-        <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="Script/New-Password.js"></script>
     <script src="../Global/Global.script.js"></script>
 </body>

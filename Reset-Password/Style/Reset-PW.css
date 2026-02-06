@@ -240,14 +240,3 @@ input:-webkit-autofill {
     width: 16px;
     height: 16px;
 }
-
-.page-loader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 1px;
-    width: 0%;
-    background: #0bbb95;
-    z-index: 200;
-    transition: width 0.4s ease;
-}

@@ -1283,89 +1283,11 @@ b {
 }
 
 /* ───────── Popup Logout ───────── */
-.popup-modal {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.15);
-  backdrop-filter: blur(2px);
-  z-index: 1000;
-  align-items: center;
-  justify-content: center;
-  animation: fadeIn 0.3s ease;
-}
-
-.container-popup {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  background: var(--bg-25);
-  border: 1px solid var(--bg-35);
-  border-radius: 12px;
-  padding: 20px;
-  min-width: 400px;
-  animation: scaleIn 0.4s ease;
-}
-
-.icon-popup {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 70px;
-  height: 70px;
-  border-radius: 50%;
-  background: linear-gradient(-90deg, var(--bg-25) 0%, var(--bg-45) 100%);
-  border: 1px solid var(--bg-45);
-  margin: 14px 0;
-}
-
-.icon-popup svg {
-  margin: 3px 0 0 3px;
-  height: 30px;
-  width: 30px;
-  stroke: var(--red-light);
+.icon-confirm svg {
+  stroke: var(--white);
   fill: none;
 }
 
-.title-popup {
-  font-size: 24px;
-  margin-bottom: 12px;
-  font-weight: 700;
-  position: relative;
-  z-index: 1;
-}
-
-.text-popup {
-  color: var(--gray);
-  margin-bottom: 32px;
-  font-size: 15px;
-  line-height: 1.6;
-  position: relative;
-  z-index: 1;
-}
-
-.button-group {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  width: 100%;
-}
-
-.button-group button {
-  padding: 10px 0;
-  width: 100%;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes scaleIn {
-  from { transform: scale(0.96); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+.title-confirm {
+  color: var(--red);
 }

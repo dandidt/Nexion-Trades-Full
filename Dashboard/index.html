@@ -14,12 +14,6 @@
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-        <meta name="next-head-count" content="0">
-        <div id="__next"></div>
-        <script src="/_next/static/chunks/main.js"></script>
-        <script>window.__REACT_DEVTOOLS_GLOBAL_HOOK__ = {};</script>
-        <meta name="generator" content="Next.js">
     </head>
     <body>
         <!-- ───────── Navbar ────── -->
@@ -2791,20 +2785,18 @@
         </div>
 
         <!-- ────── Delete Data ────── -->
-        <div class="hidden" id="confirmPopup">
-            <div class="confirm-popup-content">
-                <div class="confirm-icon-wrapper">
-                    <div class="circle-delet">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 304 384"><path d="M21 341V85h256v256q0 18-12.5 30.5T235 384H64q-18 0-30.5-12.5T21 341zM299 21v43H0V21h75L96 0h107l21 21h75z"/></svg>
-                    </div>
+        <div class="bg-confirm" id="confirmPopup">
+            <div class="container-confirm">
+                <div class="icon-confirm">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 304 384"><path d="M21 341V85h256v256q0 18-12.5 30.5T235 384H64q-18 0-30.5-12.5T21 341zM299 21v43H0V21h75L96 0h107l21 21h75z"/></svg>
                 </div>
                 
-                <h3 class="confirm-title">Confirm Delete?</h3>
-                <p id="confirmMessage" class="confirm-message"></p>
+                <h3 class="title-confirm">Confirm Delete?</h3>
+                <p id="confirmMessage" class="text-confirm"></p>
                 
-                <div class="confirm-buttons">
-                    <button id="confirmNo" class="btn btn-default btn-delete">Cancel</button>
-                    <button id="confirmYes" class="btn btn-red btn-delete">Confirm</button>
+                <div class="wrapper-confirm">
+                    <button id="confirmNo" class="btn btn-default">Cancel</button>
+                    <button id="confirmYes" class="btn btn-red">Confirm</button>
                 </div>
             </div>
         </div>

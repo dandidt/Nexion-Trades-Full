@@ -16,7 +16,6 @@ function validatePassword(value) {
 const newPasswordForm = document.getElementById('newPasswordForm');
 const newPasswordInput = document.getElementById('new-password');
 const confirmPasswordInput = document.getElementById('confirm-password');
-const loader = document.querySelector('.page-loader');
 
 newPasswordInput.addEventListener('input', () => {
     const valid = validatePassword(newPasswordInput.value);
@@ -83,32 +82,14 @@ newPasswordForm.addEventListener('submit', async (e) => {
         return;
     }
 
-    document.getElementById('signupSuccessModal').style.display = 'flex';
+    document.getElementById('signupSuccess').style.display = 'flex';
 });
-
-function startLoading() {
-    loader.style.width = '0%';
-    loader.style.display = 'block';
-    setTimeout(() => loader.style.width = '80%', 100);
-}
-
-function finishLoading() {
-    loader.style.width = '100%';
-    setTimeout(() => {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-            loader.style.width = '0%';
-            loader.style.opacity = '1';
-        }, 300);
-    }, 400);
-}
 
 document.getElementById('loginRedirectBtn')?.addEventListener('click', () => {
     window.location.href = '../Signin';
 });
 
-const modal = document.getElementById('signupSuccessModal');
+const modal = document.getElementById('signupSuccess');
 if (modal) {
     modal.addEventListener('click', (e) => {
         if (e.target === modal) {
