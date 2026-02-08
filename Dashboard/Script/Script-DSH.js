@@ -2831,6 +2831,7 @@ document.addEventListener("DOMContentLoaded", loadPsychologyStats);
 
 // ────── List Pairs ────── //
 window.assetData = window.assetData || [];
+let currentPairsMode = "perpetual";
 
 async function loadAssetDataIfNeeded() {
   if (window.assetData.length === 0) {
@@ -2860,7 +2861,13 @@ function extractBaseSymbol(pairStr) {
 
 async function updatePairsTable() {
   await loadAssetDataIfNeeded();
-  const rawData = await getDBPerpetual();
+  let rawData = [];
+
+  if (currentPairsMode === "perpetual") {
+    rawData = await getDBPerpetual();
+  } else {
+    rawData = await getDBSpot();
+  }
 
   if (!Array.isArray(rawData)) {
     console.warn("Data trading tidak valid.");
@@ -2968,6 +2975,20 @@ if (document.readyState === 'loading') {
   if (typeof loadBehaviorStats === 'function') loadBehaviorStats();
   updatePairsTable();
 }
+
+document.querySelectorAll(".btn-swap-pairs-tabel").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.querySelectorAll(".btn-swap-pairs-tabel")
+      .forEach(b => b.classList.remove("active"));
+
+    btn.classList.add("active");
+
+    const text = btn.textContent.toLowerCase();
+    currentPairsMode = text.includes("spot") ? "spot" : "perpetual";
+
+    updatePairsTable();
+  });
+});
 
 // ────── Setting ────── //
 function loadSettings() {
@@ -3174,6 +3195,80 @@ document.addEventListener('DOMContentLoaded', function () {
     loadSettings();
     window.calculate();
 });
+
+// ────── Download Data ────── //
+function getLocalDB() {
+  const spot = JSON.parse(localStorage.getItem("dbspot") || "[]");
+  const perp = JSON.parse(localStorage.getItem("dbperpetual") || "[]");
+  return { spot, perpetual: perp };
+}
+
+function downloadJSON() {
+  const data = getLocalDB();
+
+  const blob = new Blob(
+    [JSON.stringify(data, null, 2)],
+    { type: "application/json" }
+  );
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "trading-data.json";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function flattenObject(obj, prefix = "", res = {}) {
+  for (const key in obj) {
+    const val = obj[key];
+    const newKey = prefix ? `${prefix}.${key}` : key;
+
+    if (typeof val === "object" && val !== null && !Array.isArray(val)) {
+      flattenObject(val, newKey, res);
+    } else {
+      res[newKey] = val;
+    }
+  }
+  return res;
+}
+
+function toCSV(arr) {
+  if (!arr.length) return "";
+
+  const flatData = arr.map(d => flattenObject(d));
+  const headers = [...new Set(flatData.flatMap(o => Object.keys(o)))];
+
+  const rows = flatData.map(o =>
+    headers.map(h => `"${(o[h] ?? "").toString().replace(/"/g, '""')}"`).join(",")
+  );
+
+  return [headers.join(","), ...rows].join("\n");
+}
+
+function downloadCSV() {
+  const { spot, perpetual } = getLocalDB();
+
+  const spotCSV = toCSV(spot);
+  const perpCSV = toCSV(perpetual);
+
+  const finalCSV =
+    `### DB SPOT ###\n${spotCSV}\n\n### DB PERPETUAL ###\n${perpCSV}`;
+
+  const blob = new Blob([finalCSV], { type: "text/csv" });
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "trading-data.csv";
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+document.getElementById("DwnDataJSON")
+  .addEventListener("click", downloadJSON);
+
+document.getElementById("DwnDataCSV")
+  .addEventListener("click", downloadCSV);
+
 
 // ────── Update UI Global ────── //
 async function updateAllUI() {

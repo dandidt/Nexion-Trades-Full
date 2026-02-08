@@ -921,7 +921,13 @@
 
                 <!-- List Pairs -->
                 <div class="container-stats-pairs">
-                    <h2>Pairs Performance</h2>
+                    <div class="wrapper-header-pairs">
+                        <h2>Pairs Performance</h2>
+                        <div class="btn-radio-wrapper">
+                            <button class="btn-radio btn-swap-pairs-tabel active">Perpetual</button>
+                            <button class="btn-radio btn-swap-pairs-tabel">Spot</button>
+                        </div>
+                    </div>
                     <div class="pairs-container">
                         <div class="pairs-header">
                             <div>Pairs</div>
@@ -952,52 +958,69 @@
                 </div>
             </div>
 
-            <div class="container-setting fade-up">
-                <h2 class="title-setting">Global Settings</h2>
-
-                <div class="row-settiing">
-                    <div class="column-settiing">
-                        <h2 class="title-setting-fr">Perpetual Setup</h2>
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label for="fee-perp">Fee (%)</label>
-                            <p class="info-text">This fee will be calculated when opening and closing a position.</p>
-                            <div class="input-wrapper">
-                                <input type="number" id="fee-perp" step="0.01" min="0" max="100" placeholder="0.2">
-                                <span class="percent-sign">%</span>
+            <div class="wrapper-setting fade-up">
+                <div class="container-setting">
+                    <h2 class="title-setting">Calculator</h2>
+    
+                    <div class="row-settiing">
+                        <div class="column-settiing">
+                            <h2 class="title-setting-fr">Perpetual Setup</h2>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label for="fee-perp">Fee (%)</label>
+                                <p class="info-text">This fee will be calculated when opening and closing a position.</p>
+                                <div class="input-wrapper">
+                                    <input type="number" id="fee-perp" step="0.01" min="0" max="100" placeholder="0.2">
+                                    <span class="percent-sign">%</span>
+                                </div>
+                            </div>
+    
+                            <div class="form-group">
+                                <label for="risk-perp">Risk Per Trade (%)</label>
+                                <p class="info-text">Risk Per Trade from Initial Balance</p>
+                                <div class="input-wrapper">
+                                    <input type="number" id="risk-perp" step="0.1" min="0" max="100" placeholder="1">
+                                    <span class="percent-sign">%</span>
+                                </div>
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <label for="risk-perp">Risk Per Trade (%)</label>
-                            <p class="info-text">Risk Per Trade from Initial Balance</p>
-                            <div class="input-wrapper">
-                                <input type="number" id="risk-perp" step="0.1" min="0" max="100" placeholder="1">
-                                <span class="percent-sign">%</span>
+    
+                        <div class="column-settiing">
+                            <h2 class="title-setting-fr">Spot Setup</h2>
+                            <div class="form-group" style="margin-bottom: 20px;">
+                                <label for="fee-spot">Fee (%)</label>
+                                <p class="info-text">This fee will be calculated when opening and closing a position.</p>
+                                <div class="input-wrapper">
+                                    <input type="number" id="fee-spot" step="0.01" min="0" max="100" placeholder="0.2">
+                                    <span class="percent-sign">%</span>
+                                </div>
+                            </div>
+    
+                            <div class="form-group">
+                                <label for="risk-spot">Risk Per Trade (%)</label>
+                                <p class="info-text">Risk Per Trade from Initial Balance</p>
+                                <div class="input-wrapper">
+                                    <input type="number" id="risk-spot" step="0.1" min="0" max="100" placeholder="1">
+                                    <span class="percent-sign">%</span>
+                                </div>
                             </div>
                         </div>
                     </div>
+                </div>
 
+                <div class="container-setting">
+                    <h2 class="title-setting">Data Center</h2>
+    
                     <div class="column-settiing">
-                        <h2 class="title-setting-fr">Spot Setup</h2>
-                        <div class="form-group" style="margin-bottom: 20px;">
-                            <label for="fee-spot">Fee (%)</label>
-                            <p class="info-text">This fee will be calculated when opening and closing a position.</p>
-                            <div class="input-wrapper">
-                                <input type="number" id="fee-spot" step="0.01" min="0" max="100" placeholder="0.2">
-                                <span class="percent-sign">%</span>
-                            </div>
-                        </div>
-
+                        <h2 class="title-setting-fr">Download</h2>
                         <div class="form-group">
-                            <label for="risk-spot">Risk Per Trade (%)</label>
-                            <p class="info-text">Risk Per Trade from Initial Balance</p>
-                            <div class="input-wrapper">
-                                <input type="number" id="risk-spot" step="0.1" min="0" max="100" placeholder="1">
-                                <span class="percent-sign">%</span>
+                            <label for="risk-spot">Download All Data</label>
+                            <p class="info-text">This action will download all Perpetual and Spot data.</p>
+                            <div class="wrapper-btn-row">
+                                <button class="btn btn-default btn-download-data" id="DwnDataCSV">CSV</button>
+                                <button class="btn btn-default btn-download-data" id="DwnDataJSON">JSON</button>
                             </div>
                         </div>
                     </div>
-
                     <div class="column-settiing">
                         <h2 class="title-setting-fr">Delete</h2>
                         <div class="form-group">

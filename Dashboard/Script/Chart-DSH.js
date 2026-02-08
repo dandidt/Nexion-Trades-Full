@@ -1431,7 +1431,10 @@ function renderChart(chartData) {
         tooltip.style.top = `${y}px`;
         tooltip.style.transform = 'translate(-50%, -50%)';
         tooltip.style.position = 'absolute';
+        const delay = i * 220;
+        setTimeout(() => {
         tooltip.classList.add('show');
+        }, delay);
 
         tooltipContainer.appendChild(tooltip);
 

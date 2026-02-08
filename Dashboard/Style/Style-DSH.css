@@ -2737,13 +2737,15 @@ canvas {
   gap: 7px;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transform: translate(-50%, -50%) scale(0.85);
+  transition: opacity .4s ease, transform .4s ease;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   z-index: 1;
 }
 
 .tooltip-pairs.show {
   opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
 }
 
 .tooltip-icon {
@@ -3151,11 +3153,10 @@ circle.segment {
   inset: 0;
 }
 
-.container-stats-pairs h2 {
+.wrapper-header-pairs h2 {
   font-size: var(--s16);
   color: var(--white);
   font-weight: var(--w5);
-  margin-bottom: 10px;
 }
 
 .pairs-container {
@@ -3711,10 +3712,15 @@ input[type="file"] {
   color: var(--gray);
 }
 
+.wrapper-setting {
+  display: flex;
+  align-items: stretch;
+  gap: 10px;
+}
+
 .container-setting {
   display: flex;
   flex-direction: column;
-  flex: 1;
   gap: 8px;
   padding: 20px;
   border-radius: 15px;
@@ -3756,6 +3762,17 @@ input[type="file"] {
   color: var(--gray);
   font-weight: var(--w6);
   pointer-events: none;
+}
+
+.wrapper-btn-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-download-data {
+  padding: 10px 0;
+  width: 100%;
 }
 
 .btn-delete-data {

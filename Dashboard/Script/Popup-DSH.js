@@ -4410,7 +4410,14 @@ function closePairsPopup() {
 
 async function calculatePairStats(symbol) {
     try {
-        const rawData = await getDBPerpetual();
+        let rawData = [];
+
+        if (currentPairsMode === "perpetual") {
+        rawData = await getDBPerpetual();
+        } else {
+        rawData = await getDBSpot();
+        }
+
         if (!Array.isArray(rawData)) {
             console.warn("Raw data tidak valid untuk pair:", symbol);
             return null;
