@@ -3261,19 +3261,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const popupShare = document.querySelector(".popup-share");
     const btnShare = document.getElementById("BtnShare");
 
-    function hasAnyPopupOpen() {
-        return popupShare?.classList.contains("show");
-    }
-
-    function closePopup(popup) {
-        popup?.classList.remove("show");
-        if (!hasAnyPopupOpen()) {
-            popupOverlay?.classList.remove("show");
-            document.body.classList.remove("popup-open");
-            document.body.style.overflow = "";
-        }
-    }
-
     function closeAllPopups() {
         popupShare?.classList.remove("show");
         popupOverlay?.classList.remove("show");
@@ -3281,339 +3268,352 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = "";
     }
 
-    btnShare.addEventListener("click", async () => {
-        try {
-            const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+    if(btnShare) {
+        btnShare.addEventListener("click", async () => {
+            try {
+                if(typeof supabaseClient !== 'undefined') {
+                    const { data: { user }, error: authErr } = await supabaseClient.auth.getUser();
+                    if (!authErr && user) {
+                        const { data: profile } = await supabaseClient.from("profiles").select("username").eq("id", user.id).single();
+                        TEXT_CONTENT_SHARE.username = profile?.username || 'User';
+                    }
+                }
+            } catch (err) { console.error(err); }
 
-            if (authErr || !user) {
-                TEXT_CONTENT_SHARE.username = 'User';
-            } else {
-                const { data: profile, error: profileErr } = await supabaseClient
-                    .from("profiles")
-                    .select("username")
-                    .eq("id", user.id)
-                    .single();
-
-                TEXT_CONTENT_SHARE.username = profile?.username || 'User';
-            }
-
+            closeAllPopups();
+            document.body.classList.add("popup-open");
+            document.body.style.overflow = "hidden";
+            popupOverlay?.classList.add("show");
+            popupShare?.classList.add("show");
+            
             updateDataShare();
-
-            const currentAvatar = getCurrentAvatarPath();
-            profileImageShare = null;
-
-            closeAllPopups();
-            document.body.classList.add("popup-open");
-            document.body.style.overflow = "hidden";
-            popupOverlay?.classList.add("show");
-            popupShare?.classList.add("show");
-
-            const img = new Image();
-            img.onload = () => {
-                profileImageShare = img;
-                drawCanvasShare();
-            };
-            img.onerror = () => {
-                profileImageShare = null;
-                drawCanvasShare();
-            };
-            img.src = currentAvatar;
-
-        } catch (err) {
-            console.error("Error saat ambil user:", err);
-            TEXT_CONTENT_SHARE.username = 'User';
-
-            const currentAvatar = getCurrentAvatarPath();
-            profileImageShare = null;
-
-            closeAllPopups();
-            document.body.classList.add("popup-open");
-            document.body.style.overflow = "hidden";
-            popupOverlay?.classList.add("show");
-            popupShare?.classList.add("show");
-
-            const img = new Image();
-            img.onload = () => {
-                profileImageShare = img;
-                drawCanvasShare();
-            };
-            img.onerror = () => {
-                profileImageShare = null;
-                drawCanvasShare();
-            };
-            img.src = currentAvatar;
-        }
-    });
+            loadProfileImageShare();
+        });
+    }
 
     popupOverlay?.addEventListener("click", closeAllPopups);
-    document.getElementById("closeShare")?.addEventListener("click", () => closePopup(popupShare));
-});
-
-document.querySelectorAll('.share-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.share-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        selectedRangeShare = btn.textContent.trim();
-        updateDataShare();
-        drawCanvasShare();
+    document.getElementById("closeShare")?.addEventListener("click", () => {
+        popupShare?.classList.remove("show");
+        if (!document.querySelector(".popup-container.show")) {
+             popupOverlay?.classList.remove("show");
+             document.body.classList.remove("popup-open");
+             document.body.style.overflow = "";
+        }
     });
 });
 
+document.addEventListener("DOMContentLoaded", async () => {
+    await loadFonts();
+    await loadAssets();
+    
+    loadProfileImageShare();
+    updateDataShare();
+
+    document.querySelectorAll('.share-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+
+            if (btn.classList.contains('active')) return;
+
+            document.querySelectorAll('.share-btn')
+                .forEach(b => b.classList.remove('active'));
+
+            btn.classList.add('active');
+            selectedRangeShare = btn.textContent.trim();
+            updateDataShare();
+        });
+    });
+
+});
+
+// --- GLOBAL CONFIG & STATE --- //
 const canvasShare = document.getElementById('canvasShare');
 const ctxShare = canvasShare.getContext('2d');
-let templateImageShare = null;
+
+const CANVAS_WIDTH = 1700;
+const NORMAL_TEXT_SPACING = 1;
+
+let selectedRangeShare = '24H';
 let profileImageShare = null;
+let templateImageShare = null;
+let pairIconImage = null;
+let symbolJsonData = null;
 
-const TEMPLATE_LIST_SHARE = [
-    'Asset/Card-Default.png',
-    'Asset/Card-Loss.png',
-    'Asset/Card-Gold.png'
-];
-const TEMPLATE_SHARE_VERSION = "1.0";
-
-let currentTemplateIndexShare = 0;
-
-function getCurrentAvatarPath() {
-    return localStorage.getItem('avatar') || '../Asset/User.png';
-}
+const TEMPLATE_SHARE_VERSION = "2.2";
+const TEMPLATE_URL_SHARE = 'Asset/template.jpg';
+const SYMBOL_JSON_URL = 'Asset/Link-Symbol.json';
 
 const TEXT_CONTENT_SHARE = {
-    title: 'ALL-Time Realized',
-    profit: '$0.00',
-    persentase: '+0.00%',
-    divestasi: '$0.00',
-    trade: '0',
+    username: 'N/A',
+    timestamp: getCurrentTimestamp(),
+    pairName: 'N/A',
+    tradeCount: '0',
+    avgRR: '0.00',
     winrate: '0.00%',
-    invested: '$0.00',
-    username: 'Dhanntara',
-    timestamp: getCurrentTimestamp()
+    volume: '$0.00',
+    return: '+0.00%',
+    toWin: '$0.00',
+    mainEdge: 'N/A',
+    performanceTitle: 'N/A'
 };
 
-const TEXT_POSITIONS_SHARE = {
-    title: [190, 232],
-    profit: [430, 545],
-    persentase: [175, 425],
-    divestasi: [652, 697],
-    trade: [208, 830],
-    winrate: [584, 830],
-    invested: [278, 697],
-    username: [1553, 120],
-    profilePhoto: [1500, 108],
-    timestamp: [1560, 168]
-};
+// --- HELPER FUNCTIONS --- //
 
-// STYLE TEKS
-const STYLE_TITLE_SHARE = {
-    font: `800 60px Inter`,
-    color: '#ffffff',
-    letterSpacing: 1.4,
-    align: 'left'
-};
-
-const STYLE_TIMESTAMP_SHARE = {
-    font: `500 25px Inter`,
-    color: '#cccccc',
-    letterSpacing: 0.5,
-    align: 'left'
-};
-
-const STYLE_PROFIT_SHARE = {
-    font: `800 70px Inter`,
-    color: '#ffffff',
-    letterSpacing: -1,
-    align: 'left'
-};
-
-const STYLE_PERSENTASE_SHARE = {
-    font: `800 195px Inter`,
-    gradient: null,
-    letterSpacing: -1,
-    align: 'left'
-};
-
-const STYLE_DIVESTASI_SHARE = {
-    font: `800 60px Inter`,
-    color: '#ffffff',
-    letterSpacing: -1,
-    align: 'left'
-};
-
-const STYLE_TRADE_SHARE = {
-    font: `800 60px Inter`,
-    color: '#ffffff',
-    letterSpacing: -1,
-    align: 'left'
-};
-
-const STYLE_WINRATE_SHARE = {
-    font: `800 60px Inter`,
-    color: '#ffffff',
-    letterSpacing: -1,
-    align: 'left'
-};
-
-const STYLE_INVESTED_SHARE = {
-    font: `800 60px Inter`,
-    color: '#ffffff',
-    letterSpacing: -1,
-    align: 'left'
-};
-
-const STYLE_USERNAME_SHARE = {
-    font: `700 40px Inter`,
-    color: '#ffffff',
-    letterSpacing: 1,
-    align: 'left'
-};
-
-function determineTemplateIndex(persentaseText) {
-    const clean = persentaseText.replace(/[+\-%]/g, '');
-    const value = parseFloat(clean);
+function loadFonts() {
+    if (!document.fonts || typeof document.fonts.load !== "function") {
+        return Promise.resolve();
+    }
+    const fonts = new Set();
+    fonts.add("600 36px Poppins");
+    fonts.add("24px Arial");
+    fonts.add("700 88px Arial");
+    fonts.add("28px Poppins");
+    fonts.add("600 34px Arial");
+    fonts.add("600 60px Arial");
+    fonts.add("bold 60px Arial");
+    fonts.add("700 30px Poppins");
+    fonts.add("600 38px Poppins");
+    fonts.add("600 30px Poppins");
     
-    if (isNaN(value)) return 0;
+    return Promise.all(Array.from(fonts).map(f => document.fonts.load(f))).then(() => document.fonts.ready);
+}
 
-    if (persentaseText.startsWith('-')) {
-        return 1;
-    } else if (value === 0) {
-        return 0;
+function getFontSizePx(font, fallback = 24) {
+    if (!font) return fallback;
+    const match = String(font).match(/(\d+(?:\.\d+)?)px/);
+    if (!match) return fallback;
+    const size = Number.parseFloat(match[1]);
+    return Number.isFinite(size) ? size : fallback;
+}
+
+function normalizePadding(padding) {
+    if (Array.isArray(padding)) {
+        const [top = 0, right = 0, bottom = 0, left = 0] = padding;
+        return { top, right, bottom, left };
+    }
+    return { top: padding ?? 0, right: padding ?? 0, bottom: padding ?? 0, left: padding ?? 0 };
+}
+
+function drawRoundedRect(x, y, width, height, radius) {
+    const r = Math.min(radius, width / 2, height / 2);
+    ctxShare.beginPath();
+    if (typeof ctxShare.roundRect === "function") {
+        ctxShare.roundRect(x, y, width, height, r);
     } else {
-        return value >= 10 ? 2 : 0;
+        ctxShare.moveTo(x + r, y);
+        ctxShare.lineTo(x + width - r, y);
+        ctxShare.quadraticCurveTo(x + width, y, x + width, y + r);
+        ctxShare.lineTo(x + width, y + height - r);
+        ctxShare.quadraticCurveTo(x + width, y + height, x + width - r, y + height);
+        ctxShare.lineTo(x + r, y + height);
+        ctxShare.quadraticCurveTo(x, y + height, x, y + height - r);
+        ctxShare.lineTo(x, y + r);
+        ctxShare.quadraticCurveTo(x, y, x + r, y);
+        ctxShare.closePath();
     }
 }
+
+function drawCircleImage(img, x, y, size, borderWidth = 0, borderColor = "#ffffff") {
+    if (!img) return;
+    const radius = size / 2;
+    const centerX = x + radius;
+    const centerY = y + radius;
+
+    ctxShare.save();
+    ctxShare.beginPath();
+    ctxShare.arc(centerX, centerY, radius, 0, Math.PI * 2);
+    ctxShare.closePath();
+    ctxShare.clip();
+    ctxShare.drawImage(img, x, y, size, size);
+    ctxShare.restore();
+
+    if (borderWidth > 0) {
+        ctxShare.beginPath();
+        ctxShare.arc(centerX, centerY, radius - borderWidth / 2, 0, Math.PI * 2);
+        ctxShare.strokeStyle = borderColor;
+        ctxShare.lineWidth = borderWidth;
+        ctxShare.stroke();
+    }
+}
+
+// --- TEXT DRAWING --- //
+function drawTextWithSpacing(text, x, y, spacing = 0, font, color, align = 'left') {
+    ctxShare.font = font;
+    ctxShare.fillStyle = color;
+    
+    let totalWidth = 0;
+    const charWidths = [];
+    
+    for (const char of text) {
+        const w = ctxShare.measureText(char).width;
+        charWidths.push(w);
+        totalWidth += w + spacing;
+    }
+    if (text.length > 0) totalWidth -= spacing;
+
+    let startX = x;
+    if (align === 'right') {
+        startX = x - totalWidth;
+    } else if (align === 'center') {
+        startX = x - (totalWidth / 2);
+    }
+
+    let currentX = startX;
+    for (let i = 0; i < text.length; i++) {
+        ctxShare.fillText(text[i], currentX, y);
+        currentX += charWidths[i] + spacing;
+    }
+}
+
+// --- RENDER LOGIC --- //
+
+function renderUserBadge() {
+    const config = {
+        x: "center",
+        y: 65,
+        padding: [16, 30, 16, 20],
+        gap: 12,
+        radius: "pill",
+        avatarSize: 60,
+        text: TEXT_CONTENT_SHARE.username,
+        font: "600 36px Poppins",
+        textColor: "#ffffff",
+        background: "rgba(10, 10, 10, 0.45)",
+    };
+
+    const { x, y, padding, gap, radius, avatarSize, text, font, textColor, background } = config;
+    const { top, right, bottom, left } = normalizePadding(padding);
+
+    ctxShare.font = font;
+    const textWidth = ctxShare.measureText(text).width;
+    const fontSize = getFontSizePx(font, 24);
+    const contentHeight = Math.max(avatarSize, fontSize);
+    const width = Math.ceil(left + avatarSize + gap + textWidth + right);
+    const height = Math.ceil(top + contentHeight + bottom);
+    
+    const baseX = x === "center" ? Math.round((canvasShare.width - width) / 2) : x;
+
+    const resolvedRadius = radius === "pill" || radius == null ? height / 2 : Math.min(radius, height / 2);
+
+    ctxShare.fillStyle = background;
+    drawRoundedRect(baseX, y, width, height, resolvedRadius);
+    ctxShare.fill();
+
+    const avatarX = baseX + left;
+    const avatarY = y + top + (contentHeight - avatarSize) / 2;
+    
+    if (profileImageShare) {
+        drawCircleImage(profileImageShare, avatarX, avatarY, avatarSize, 0);
+    } else {
+        ctxShare.beginPath();
+        ctxShare.arc(avatarX + avatarSize/2, avatarY + avatarSize/2, avatarSize/2, 0, Math.PI*2);
+        ctxShare.fillStyle = '#333';
+        ctxShare.fill();
+    }
+
+    const textX = avatarX + avatarSize + gap;
+    const textY = y + top + contentHeight / 2 + fontSize * 0.35;
+    
+    ctxShare.fillStyle = textColor;
+    ctxShare.textAlign = 'left';
+    ctxShare.fillText(text, textX, textY);
+}
+
+function renderPairIcon() {
+    const config = {
+        x: 280,
+        y: 340,
+        size: 72,
+        borderWidth: 2,
+        borderColor: "#8e8e8e",
+    };
+    
+    if(pairIconImage) {
+        drawCircleImage(pairIconImage, config.x, config.y, config.size, config.borderWidth, config.borderColor);
+    }
+}
+
+function renderTextLayers() {
+    const layers = [
+        { text: "Best Pairs", x: 280, y: 320, font: "600 28px Poppins", color: "#fff" },
+        { text: TEXT_CONTENT_SHARE.timestamp, x: 280, y: 455, font: "24px Arial", color: "rgb(163, 163, 163)" },
+        { text: TEXT_CONTENT_SHARE.pairName, x: 370, y: 398, font: "700 60px Arial", color: "#fff" },
+
+        { text: "Total Trades", x: 280, y: 525, font: "28px Poppins", color: "rgb(163, 163, 163)" },
+        { text: "Avg RR", x: 510, y: 525, font: "28px Poppins", color: "rgb(163, 163, 163)" },
+        { text: "Winrate", x: 680, y: 525, font: "28px Poppins", color: "rgb(163, 163, 163)" },
+
+        { text: TEXT_CONTENT_SHARE.tradeCount, x: 280, y: 580, font: "600 36px Arial", color: "#fff" },
+        { text: TEXT_CONTENT_SHARE.avgRR, x: 510, y: 580, font: "600 36px Arial", color: "#fff" },
+        { text: TEXT_CONTENT_SHARE.winrate, x: 680, y: 580, font: "600 36px Arial", color: "#fff" },
+
+        { text: "Main Edge:", x: 280, y: 650, font: "28px Poppins", color: "rgb(163, 163, 163)" },
+        { text: TEXT_CONTENT_SHARE.mainEdge, x: 450, y: 650, font: "600 30px Poppins", color: "#fff" },
+
+        { text: TEXT_CONTENT_SHARE.performanceTitle, x: 1040, y: 320, font: "600 38px Poppins", color: "rgb(52, 211, 153)" },
+        { text: "Capital I.V", x: 1040, y: 385, font: "28px Poppins", color: "rgb(163, 163, 163)" },
+        { text: TEXT_CONTENT_SHARE.volume, x: 1465, y: 385, font: "600 34px Arial", align: "right", color: "#ffffff" },
+        
+        { text: "Return", x: 1040, y: 455, font: "28px Poppins", color: "rgb(163, 163, 163)" },
+        { text: TEXT_CONTENT_SHARE.return, x: 1465, y: 455, font: "600 34px Arial", align: "right", color: "#ffffff" },
+        
+        { text: "To Win", x: 1040, y: 565, font: "700 30px Poppins", color: "#fff" },
+        { text: TEXT_CONTENT_SHARE.toWin, x: 1040, y: 645, font: "600 60px Arial", align: "left", color: "#ffffff" },
+    ];
+
+    layers.forEach(layer => {
+        const spacing = layer.letterSpacing != null ? layer.letterSpacing : (layer.font.includes('bold') || /[6-9]00/.test(layer.font) ? 0 : NORMAL_TEXT_SPACING);
+        drawTextWithSpacing(layer.text, layer.x, layer.y, spacing, layer.font, layer.color, layer.align || 'left');
+    });
+}
+
+function renderImage() {
+    if (!templateImageShare) return;
+
+    const scale = CANVAS_WIDTH / templateImageShare.width;
+    canvasShare.width = CANVAS_WIDTH;
+    canvasShare.height = Math.round(templateImageShare.height * scale);
+
+    ctxShare.clearRect(0, 0, canvasShare.width, canvasShare.height);
+    
+    ctxShare.drawImage(templateImageShare, 0, 0, canvasShare.width, canvasShare.height);
+
+    renderUserBadge();
+    renderPairIcon();
+    renderTextLayers();
+}
+
+// --- DATA CALCULATION & LOGIC --- //
 
 function getCurrentTimestamp() {
     const now = new Date();
-    return now.getFullYear() +
-           '-' +
-           String(now.getMonth() + 1).padStart(2, '0') +
-           '-' +
-           String(now.getDate()).padStart(2, '0') +
-           ' ' +
-           String(now.getHours()).padStart(2, '0') +
-           ':' +
-           String(now.getMinutes()).padStart(2, '0');
+    return now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0') + '-' + String(now.getDate()).padStart(2, '0') + ' ' + String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
 }
 
-function getPersentaseGradientShare() {
-    if (currentTemplateIndexShare === 1) {
-        return ['#ffffff', '#ffebee', '#f28b82'];
-    } else if (currentTemplateIndexShare === 2) {
-        return ['#ffffff', '#ebf1ef', '#eddf83'];
-    } else {
-        return ['#ffffff', '#ebf1ef', '#71ecbf'];
+function cleanPairName(pair) {
+    if (!pair) return 'BTC';
+    const upperPair = String(pair).toUpperCase();
+    const usdIndex = upperPair.indexOf('USD');
+    if (usdIndex !== -1) {
+    return upperPair.substring(0, usdIndex);
     }
+    return upperPair || 'BTC';
 }
 
-function getUsernameBorderColorShare() {
-    if (currentTemplateIndexShare === 1) {
-        return 'rgba(211, 47, 47, 0.25)';
-    } else if (currentTemplateIndexShare === 2) {
-        return 'rgba(163, 152, 0, 0.25)';
-    } else {
-        return 'rgba(0, 144, 163, 0.25)';
+function getPerformanceTitle(range) {
+    switch (range) {
+        case '24H': return 'Daily Performance';
+        case '1W': return 'Weekly Performance';
+        case '30D': return 'Monthly Performance';
+        case 'ALL': return 'All-Time Performance';
+        default: return 'Performance';
     }
 }
 
-function getUsernameBgColorShare() {
-    if (currentTemplateIndexShare === 1) {
-        return 'rgba(255, 205, 210, 0.05)';
-    } else if (currentTemplateIndexShare === 2) {
-        return 'rgba(211, 200, 52, 0.05)';
-    } else {
-        return 'rgba(52, 211, 153, 0.05)';
-    }
+function getTradeTimestamp(item) {
+    if (typeof item.date === 'number') return item.date * 1000;
+    if (typeof item.date === 'string') return new Date(item.date).getTime();
+    return 0;
 }
-
-// FORMAT
-function formatNumberShare(num) {
-    if (num === null || num === undefined || isNaN(num)) return '0';
-
-    const abs = Math.abs(num);
-    let sign = num < 0 ? '-' : '';
-
-    let value = abs;
-    let suffix = '';
-
-    if (abs >= 1e9) {
-        value = abs / 1e9;
-        suffix = 'B';
-    } else if (abs >= 1e6) {
-        value = abs / 1e6;
-        suffix = 'M';
-    } else if (abs >= 1e3) {
-        value = abs / 1e3;
-        suffix = 'K';
-    }
-
-    let formattedValue;
-    if (Number.isInteger(value)) {
-        formattedValue = value.toString();
-    } else {
-        let str = value.toFixed(2);
-        if (str.includes('.')) {
-            str = str.replace(/\.?0+$/, '');
-        }
-        formattedValue = str;
-    }
-
-    return formattedValue + suffix;
-}
-
-function formatPersenShare(pct) {
-    if (pct === null || pct === undefined || isNaN(pct)) return '0%';
-
-    const sign = pct < 0 ? '-' : (pct > 0 ? '+' : '');
-    const abs = Math.abs(pct);
-
-    let value = abs;
-    let suffix = '';
-
-    if (abs >= 1e9) {
-        value = abs / 1e9;
-        suffix = 'B';
-    } else if (abs >= 1e6) {
-        value = abs / 1e6;
-        suffix = 'M';
-    } else if (abs >= 1e3) {
-        value = abs / 1e3;
-        suffix = 'K';
-    }
-
-    let formattedValue;
-    if (Number.isFinite(value) && !Number.isInteger(value)) {
-        let str = value.toFixed(2);
-        str = str.replace(/\.?0+$/, ''); 
-        formattedValue = str;
-    } else {
-        formattedValue = value.toString();
-    }
-
-    return `${sign}${formattedValue}${suffix}%`;
-}
-
-function parseFormattedNumber(str) {
-    if (typeof str !== 'string') return NaN;
-
-    let clean = str.trim().toLowerCase();
-    let multiplier = 1;
-
-    if (clean.endsWith('k')) {
-        multiplier = 1e3;
-        clean = clean.slice(0, -1);
-    } else if (clean.endsWith('m')) {
-        multiplier = 1e6;
-        clean = clean.slice(0, -1);
-    } else if (clean.endsWith('b')) {
-        multiplier = 1e9;
-        clean = clean.slice(0, -1);
-    }
-
-    const num = parseFloat(clean);
-    return isNaN(num) ? NaN : num * multiplier;
-}
-
-// FILTER & HITUNG DATA
-let selectedRangeShare = '24H';
 
 function filterByRangeShare(data, range) {
     if (range === 'ALL') return data;
@@ -3624,465 +3624,282 @@ function filterByRangeShare(data, range) {
     else if (range === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
 
     return data.filter(item => {
-        let tDate;
-        if (typeof item.date === 'string') {
-            tDate = new Date(item.date).getTime();
-        } else if (typeof item.date === 'number') {
-            tDate = item.date * 1000;
-        } else {
-            tDate = NaN;
-        }
-        return !isNaN(tDate) && tDate >= cutoff;
+        const tDate = getTradeTimestamp(item);
+        return tDate >= cutoff;
     });
-}
-
-function getTitleByRangeShare(range) {
-    switch (range) {
-        case '30D': return '30D Performance';
-        case '1W': return '1W Performance';
-        case '24H': return '24H Performance';
-        default: return 'ALL-Time Performance';
-    }
 }
 
 function calculateBalanceAtTime(trades, targetTime) {
     let balance = 0;
     trades.forEach(t => {
-        let tDate;
-        if (typeof t.date === 'string') {
-            tDate = new Date(t.date).getTime();
-        } else if (typeof t.date === 'number') {
-            tDate = t.date * 1000;
-        } else {
-            tDate = NaN;
-        }
-        
+        const tDate = getTradeTimestamp(t);
         if (!tDate || tDate > targetTime) return;
 
-        if (t.action?.toLowerCase() === 'deposit') {
-            balance += parseFloat(t.value) || 0;
-        } else if (t.action?.toLowerCase() === 'withdraw') {
-            balance -= parseFloat(t.value) || 0;
-        } else if ((t.Result === 'Profit' || t.Result === 'Loss') && typeof t.Pnl === 'number') {
-            balance += parseFloat(t.Pnl) || 0;
-        }
+        if (t.action?.toLowerCase() === 'deposit') balance += parseFloat(t.value) || 0;
+        else if (t.action?.toLowerCase() === 'withdraw') balance -= parseFloat(t.value) || 0;
+        else if ((t.Result === 'Profit' || t.Result === 'Loss') && typeof t.Pnl === 'number') balance += parseFloat(t.Pnl) || 0;
     });
     return balance;
 }
 
-// UPDATE DATA DARI LOCAL STORAGE
-function updateDataShare() {
-    const trades = JSON.parse(localStorage.getItem('dbperpetual') || '[]');
-    const allDates = trades.map(t => {
-        let d;
-        if (typeof t.date === 'string') {
-            d = new Date(t.date).getTime();
-        } else if (typeof t.date === 'number') {
-            d = t.date * 1000;
-        } else {
-            d = NaN;
+// --- DATA PROCESSING --- //
+
+async function loadSymbolJson() {
+    if (symbolJsonData) return symbolJsonData;
+    try {
+        const response = await fetch(SYMBOL_JSON_URL);
+        const data = await response.json();
+        symbolJsonData = data;
+        return data;
+    } catch (e) {
+        console.error("Failed to load symbol JSON", e);
+        return [];
+    }
+}
+
+function getMostFrequentPair(trades) {
+    const counts = {};
+    let maxCount = 0;
+    let topPair = 'BTC';
+
+    trades.forEach(t => {
+        if (!t.Pairs) return;
+        const clean = cleanPairName(t.Pairs).toUpperCase();
+        counts[clean] = (counts[clean] || 0) + 1;
+        if (counts[clean] > maxCount) {
+            maxCount = counts[clean];
+            topPair = clean;
         }
-        return isNaN(d) ? 0 : d;
-    }).filter(d => d > 0);
+    });
+    return topPair;
+}
+
+async function updatePairIcon(pairSymbol) {
+    if (!symbolJsonData) await loadSymbolJson();
+    
+    const found = symbolJsonData.find(item => item.symbol?.toUpperCase() === pairSymbol.toUpperCase());
+    
+    if (found && found.link) {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+            pairIconImage = img;
+            renderImage();
+        };
+        img.onerror = () => {
+            pairIconImage = null; 
+            renderImage();
+        };
+        img.src = found.link.trim();
+    } else {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => { pairIconImage = img; renderImage(); };
+        img.src = 'Asset/btc.png';
+    }
+}
+
+function getMostFrequentEdge(trades) {
+    const counts = {};
+    let maxCount = 0;
+    let topEdge = 'Scalping Reversal';
+
+    trades.forEach(t => {
+        const method = t.Method || 'Scalping';
+        const behavior = t.Behavior || 'Reversal';
+        const key = `${method} ${behavior}`;
+        
+        counts[key] = (counts[key] || 0) + 1;
+        if (counts[key] > maxCount) {
+            maxCount = counts[key];
+            topEdge = key;
+        }
+    });
+    return topEdge;
+}
+
+const canvasLoading = document.getElementById('canvasLoading');
+
+function showLoading() {
+    if (canvasLoading) {
+        canvasLoading.classList.add('active');
+    }
+}
+
+function hideLoading() {
+    if (canvasLoading) {
+        canvasLoading.classList.remove('active');
+    }
+}
+
+function delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function updateDataShare() {
+    showLoading();
+    
+    const tradesPerp = JSON.parse(localStorage.getItem('dbperpetual') || '[]');
+    const tradesSpot = JSON.parse(localStorage.getItem('dbspot') || '[]');
+    
+    let allTrades = [...tradesPerp, ...tradesSpot];
 
     const now = Date.now();
+    const filteredTrades = filterByRangeShare(allTrades, selectedRangeShare);
 
-    const filteredTrades = filterByRangeShare(trades, selectedRangeShare);
-
-    const depositData = filteredTrades.filter(t => t.action?.toLowerCase() === 'deposit');
-    const withdrawData = filteredTrades.filter(t => t.action?.toLowerCase() === 'withdraw');
-    const executedTrades = filteredTrades.filter(
-        t => (t.Result === 'Profit' || t.Result === 'Loss') && typeof t.Pnl === 'number'
+    const executedTrades = filteredTrades.filter(t => 
+        ['Profit', 'Loss', 'Break Even'].includes(t.Result)
     );
 
-    const totalDeposit = depositData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
-    const totalWithdraw = withdrawData.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
+    const totalTradeCount = executedTrades.length;
+
+    const winCount = executedTrades.filter(t => t.Result === 'Profit').length;
+    const winratePercent = totalTradeCount > 0 ? (winCount / totalTradeCount) * 100 : 0;
+
+    const profitTrades = executedTrades.filter(t => t.Result === 'Profit');
+    let avgRR = 0;
+    if (profitTrades.length > 0) {
+        const totalRR = profitTrades.reduce((sum, t) => sum + (parseFloat(t.RR) || 0), 0);
+        avgRR = totalRR / profitTrades.length;
+    }
+
+    const mainEdge = getMostFrequentEdge(executedTrades);
+
+    const topPairSymbol = getMostFrequentPair(executedTrades);
+    TEXT_CONTENT_SHARE.pairName = topPairSymbol;
+    await updatePairIcon(topPairSymbol);
+
+    const allDeposits = [...tradesPerp, ...tradesSpot].filter(t => t.action?.toLowerCase() === 'deposit');
+
     const totalPnL = executedTrades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
 
     let roiPercent = 0;
-
     if (['24H', '1W', '30D'].includes(selectedRangeShare)) {
         let cutoff = 0;
         if (selectedRangeShare === '24H') cutoff = now - 24 * 60 * 60 * 1000;
         else if (selectedRangeShare === '1W') cutoff = now - 7 * 24 * 60 * 60 * 1000;
         else if (selectedRangeShare === '30D') cutoff = now - 30 * 24 * 60 * 60 * 1000;
 
-        const balanceBefore = calculateBalanceAtTime(trades, cutoff - 1);
+        const balanceBefore = calculateBalanceAtTime(allTrades, cutoff - 1);
         roiPercent = balanceBefore !== 0 ? (totalPnL / balanceBefore) * 100 : 0;
-        TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnL);
-
     } else {
-        const allDeposits = trades.filter(t => t.action?.toLowerCase() === 'deposit');
         const totalDepositAll = allDeposits.reduce((sum, t) => sum + (parseFloat(t.value) || 0), 0);
-
-        const allExecutedTrades = trades.filter(
-            t => (t.Result === 'Profit' || t.Result === 'Loss') && typeof t.Pnl === 'number'
-        );
-        const totalPnLAll = allExecutedTrades.reduce((sum, t) => sum + (parseFloat(t.Pnl) || 0), 0);
-
-        roiPercent = totalDepositAll !== 0 ? (totalPnLAll / totalDepositAll) * 100 : 0;
-        TEXT_CONTENT_SHARE.profit = formatNumberShare(totalPnLAll);
+        roiPercent = totalDepositAll !== 0 ? (totalPnL / totalDepositAll) * 100 : 0;
     }
 
-    TEXT_CONTENT_SHARE.persentase = formatPersenShare(roiPercent);
-    TEXT_CONTENT_SHARE.invested = formatNumberShare(totalDeposit);
-    TEXT_CONTENT_SHARE.divestasi = formatNumberShare(totalWithdraw);
-    TEXT_CONTENT_SHARE.trade = executedTrades.length.toString();
-    TEXT_CONTENT_SHARE.winrate = formatPersenShare(
-        executedTrades.length > 0 ? (executedTrades.filter(t => t.Pnl > 0).length / executedTrades.length) * 100 : 0
-    ).replace('+', '');
-    TEXT_CONTENT_SHARE.title = getTitleByRangeShare(selectedRangeShare);
+    const capitalImpactVolume = executedTrades.reduce((sum, t) => {
+        const pnl = parseFloat(t.Pnl) || 0;
+        return sum + Math.abs(pnl);
+    }, 0);
 
-    const persenStr = TEXT_CONTENT_SHARE.persentase;
-    let newTemplateIndex = 0;
+    TEXT_CONTENT_SHARE.tradeCount = totalTradeCount.toString();
+    TEXT_CONTENT_SHARE.winrate = formatPercent(winratePercent).replace('+', '');
+    TEXT_CONTENT_SHARE.avgRR = avgRR.toFixed(2);
+    TEXT_CONTENT_SHARE.mainEdge = mainEdge;
+    
+    TEXT_CONTENT_SHARE.volume = '$' + formatUSDShort(capitalImpactVolume);
+    TEXT_CONTENT_SHARE.return = formatPercent(roiPercent);
+    TEXT_CONTENT_SHARE.toWin =
+    totalPnL < 0
+        ? `-$${formatUSDShort(Math.abs(totalPnL))}`
+        : `$${formatUSDShort(totalPnL)}`;
+    
+    TEXT_CONTENT_SHARE.timestamp = getCurrentTimestamp();
+    TEXT_CONTENT_SHARE.performanceTitle = getPerformanceTitle(selectedRangeShare);
 
-    if (persenStr.startsWith('-')) {
-        newTemplateIndex = 1;
-    } else {
-        const cleanStr = persenStr.replace(/[+\-%]/g, '').trim();
-        const value = parseFormattedNumber(cleanStr);
-
-        newTemplateIndex = (!isNaN(value) && value >= 100) ? 2 : 0;
-    }
-
-    if (newTemplateIndex !== currentTemplateIndexShare) {
-        currentTemplateIndexShare = newTemplateIndex;
-        loadTemplateShare();
-    } else {
-        drawCanvasShare();
-    }
+    renderImage();
+    
+    await delay(1000);
+    
+    hideLoading();
 }
 
-// ------ CACHE UTILS ------
+async function handleRangeChange(range) {
+    selectedRangeShare = range;
+    await updateDataShare();
+}
+
+async function handleShareButtonClick() {
+    await updateDataShare();
+}
+
+// --- ASSET & CACHE --- //
+
 function getTemplateCache() {
     try {
         const cached = JSON.parse(localStorage.getItem("templateShareCache"));
-        if (cached && cached.version === TEMPLATE_SHARE_VERSION) {
-            return cached.images;
-        }
-    } catch (e) {
-        console.warn("Gagal baca cache template:", e);
-    }
+        if (cached && cached.version === TEMPLATE_SHARE_VERSION) return cached.images;
+    } catch (e) { console.warn("Cache error", e); }
     return null;
 }
 
 function setTemplateCache(imagesObj) {
     try {
-        localStorage.setItem("templateShareCache", JSON.stringify({
-            version: TEMPLATE_SHARE_VERSION,
-            images: imagesObj
-        }));
-    } catch (e) {
-        console.error("Gagal simpan cache template:", e);
-    }
+        localStorage.setItem("templateShareCache", JSON.stringify({ version: TEMPLATE_SHARE_VERSION, images: imagesObj }));
+    } catch (e) { console.error("Save cache error", e); }
 }
 
-// ------ LOAD ALL TEMPLATES ONCE ------
-async function preloadAllTemplates() {
+async function loadAssets() {
     const cached = getTemplateCache();
-    if (cached) {
-        return cached;
-    }
-
-    console.log("Memuat template dari server... (versi:", TEMPLATE_SHARE_VERSION, ")");
-
-    const images = {};
-    const promises = TEMPLATE_LIST_SHARE.map(url =>
-        fetch(url)
-            .then(res => {
-                if (!res.ok) throw new Error(`Gagal load: ${url}`);
-                return res.blob();
-            })
-            .then(blob => new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsDataURL(blob);
-            }))
-            .then(base64 => {
-                images[url] = base64;
-            })
-    );
-
-    try {
-        await Promise.all(promises);
-        setTemplateCache(images);
-        console.log("Template berhasil disimpan ke cache");
-        return images;
-    } catch (err) {
-        console.error("Gagal preload template:", err);
-        return {};
-    }
-}
-
-// ------ LOAD SINGLE TEMPLATE ------
-async function loadTemplateShare() {
-    const cached = getTemplateCache();
-    const targetUrl = TEMPLATE_LIST_SHARE[currentTemplateIndexShare];
-
-    let imgSrc = null;
-
-    if (cached && cached[targetUrl]) {
-        imgSrc = cached[targetUrl];
+    
+    if (cached && cached[TEMPLATE_URL_SHARE]) {
+        templateImageShare = new Image();
+        templateImageShare.src = cached[TEMPLATE_URL_SHARE];
     } else {
-        console.warn("Template tidak ada di cache, load dari server:", targetUrl);
-        try {
-            const res = await fetch(targetUrl);
-            if (!res.ok) throw new Error("File tidak ditemukan");
-            const blob = await res.blob();
-            imgSrc = URL.createObjectURL(blob);
-        } catch (err) {
-            console.error("Gagal load template:", err);
-            drawErrorCanvas();
-            return;
-        }
+        templateImageShare = new Image();
+        templateImageShare.crossOrigin = "anonymous";
+        templateImageShare.src = TEMPLATE_URL_SHARE;
     }
 
-    const img = new Image();
-    img.onload = () => {
-        templateImageShare = img;
-        canvasShare.width = img.width;
-        canvasShare.height = img.height;
-        drawCanvasShare();
+    await new Promise(resolve => {
+        if(templateImageShare.complete) resolve();
+        else templateImageShare.onload = resolve;
+    });
 
-        if (!cached || !cached[targetUrl]) {
-            const reader = new FileReader();
-            reader.onload = () => {
-                const fullCache = getTemplateCache() || {};
-                const newImages = { ...(fullCache || {}), [targetUrl]: reader.result };
-                setTemplateCache(newImages);
-            };
-            fetch(imgSrc).then(r => r.blob()).then(b => reader.readAsDataURL(b));
-        }
-    };
-    img.onerror = () => {
-        drawErrorCanvas();
-    };
-    img.src = imgSrc;
+    if (!cached || !cached[TEMPLATE_URL_SHARE]) {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const fullCache = getTemplateCache() || {};
+            fullCache[TEMPLATE_URL_SHARE] = reader.result;
+            setTemplateCache(fullCache);
+        };
+        fetch(TEMPLATE_URL_SHARE).then(r => r.blob()).then(b => reader.readAsDataURL(b));
+    }
+    
+    await loadSymbolJson();
 }
 
-function drawErrorCanvas() {
-    canvasShare.width = 800;
-    canvasShare.height = 600;
-    ctxShare.fillStyle = '#ff0000';
-    ctxShare.font = '20px Inter';
-    ctxShare.textAlign = 'center';
-    ctxShare.fillText('Error: template tidak bisa dimuat!', canvasShare.width / 2, canvasShare.height / 2);
+function getCurrentAvatarPath() {
+    return localStorage.getItem('avatar') || '../Asset/User.png';
 }
-
-// ------ INIT ON PAGE LOAD ------
-document.addEventListener("DOMContentLoaded", async () => {
-    const allCached = await preloadAllTemplates();
-
-    currentTemplateIndexShare = 0;
-
-    loadTemplateShare();
-});
 
 function loadProfileImageShare() {
     const img = new Image();
+    img.crossOrigin = "anonymous";
     img.onload = function() {
         profileImageShare = img;
-        drawCanvasShare();
+        renderImage();
     };
     img.onerror = function() {
-        drawCanvasShare();
+        profileImageShare = null;
+        renderImage();
     };
     img.src = getCurrentAvatarPath();
-}
-
-// DRAWING FUNCTIONS
-function drawTextWithLetterSpacingShare(ctx, text, x, y, letterSpacing = 0, style) {
-    ctx.font = style.font;
-    ctx.textAlign = 'left';
-
-    let fillStyle = style.color || '#fff';
-    if (style.gradient) {
-        const fontSizeMatch = style.font.match(/(\d+)px/);
-        const fontSize = fontSizeMatch ? parseInt(fontSizeMatch[1], 10) : 50;
-        const gradient = ctx.createLinearGradient(x, y - fontSize, x, y);
-        style.gradient.forEach((c, i, arr) => gradient.addColorStop(i / (arr.length - 1), c));
-        fillStyle = gradient;
-    }
-    ctx.fillStyle = fillStyle;
-
-    const charWidths = Array.from(text).map(ch => ctx.measureText(ch).width);
-    const totalWidth = charWidths.reduce((sum, w) => sum + w, 0) + letterSpacing * (text.length - 1);
-
-    let currentX = x;
-    if (style.align === 'center') currentX -= totalWidth / 2;
-    else if (style.align === 'right') currentX -= totalWidth;
-
-    for (let i = 0; i < text.length; i++) {
-        ctx.fillText(text[i], currentX, y);
-        currentX += charWidths[i] + letterSpacing;
-    }
-}
-
-function drawProfilePhotoShare() {
-    const [centerX, centerY] = TEXT_POSITIONS_SHARE.profilePhoto;
-    const radius = 40;
-    const strokeWidth = 2;
-
-    ctxShare.save();
-    ctxShare.beginPath();
-    ctxShare.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctxShare.closePath();
-    ctxShare.clip();
-
-    if (profileImageShare) {
-        ctxShare.drawImage(profileImageShare, centerX - radius, centerY - radius, radius * 2, radius * 2);
-    } else {
-        ctxShare.fillStyle = '#666';
-        ctxShare.fill();
-    }
-
-    ctxShare.restore();
-
-    ctxShare.beginPath();
-    ctxShare.arc(centerX, centerY, radius, 0, Math.PI * 2);
-    ctxShare.strokeStyle = '#ffffff';
-    ctxShare.lineWidth = strokeWidth;
-    ctxShare.stroke();
-}
-
-function drawCanvasShare() {
-    if (!templateImageShare) return;
-
-    ctxShare.clearRect(0, 0, canvasShare.width, canvasShare.height);
-    ctxShare.drawImage(templateImageShare, 0, 0);
-
-    const usernameText = TEXT_CONTENT_SHARE.username;
-    const [x, y] = TEXT_POSITIONS_SHARE.username;
-    const style = STYLE_USERNAME_SHARE;
-
-    ctxShare.font = style.font;
-    const letterSpacing = style.letterSpacing;
-    const charWidths = Array.from(usernameText).map(ch => ctxShare.measureText(ch).width);
-    const totalWidth = charWidths.reduce((sum, w) => sum + w, 0) + letterSpacing * (usernameText.length - 1);
-    const fontSize = parseInt(style.font.match(/(\d+)px/)[1]);
-    const ascent = ctxShare.measureText('M').fontBoundingBoxAscent || fontSize * 0.8;
-    const paddingX = 35, paddingY = 8, borderRadius = 15;
-    const boxW = totalWidth + 2 * paddingX;
-    const boxH = (ascent + (fontSize * 0.2)) + 2 * paddingY;
-    const boxX = x - paddingX;
-    const boxY = y - ascent - paddingY;
-
-    ctxShare.fillStyle = getUsernameBgColorShare();
-    ctxShare.beginPath();
-    if (ctxShare.roundRect) ctxShare.roundRect(boxX, boxY, boxW, boxH, borderRadius);
-    else ctxShare.rect(boxX, boxY, boxW, boxH);
-    ctxShare.fill();
-
-    ctxShare.strokeStyle = getUsernameBorderColorShare();
-    ctxShare.lineWidth = 1;
-    ctxShare.stroke();
-
-    const textY = boxY + paddingY + ascent;
-    drawTextWithLetterSpacingShare(ctxShare, usernameText, boxX + paddingX, textY, letterSpacing, style);
-
-    drawProfilePhotoShare();
-
-    const keys = ['title', 'profit', 'persentase', 'divestasi', 'trade', 'winrate', 'invested'];
-    keys.forEach(key => {
-        const text = TEXT_CONTENT_SHARE[key];
-        if (!text) return;
-        const [x, y] = TEXT_POSITIONS_SHARE[key];
-        let style;
-        switch (key) {
-            case 'title': style = STYLE_TITLE_SHARE; break;
-            case 'profit': style = STYLE_PROFIT_SHARE; break;
-            case 'persentase': style = STYLE_PERSENTASE_SHARE; style.gradient = getPersentaseGradientShare(); break;
-            case 'divestasi': style = STYLE_DIVESTASI_SHARE; break;
-            case 'trade': style = STYLE_TRADE_SHARE; break;
-            case 'winrate': style = STYLE_WINRATE_SHARE; break;
-            case 'invested': style = STYLE_INVESTED_SHARE; break;
-            default: style = STYLE_DIVESTASI_SHARE;
-        }
-        drawTextWithLetterSpacingShare(ctxShare, text, x, y, style.letterSpacing, style);
-    });
-
-    const timestampText = TEXT_CONTENT_SHARE.timestamp;
-    const [timestampX, timestampY] = TEXT_POSITIONS_SHARE.timestamp;
-    drawTextWithLetterSpacingShare(
-        ctxShare,
-        timestampText,
-        timestampX,
-        timestampY,
-        STYLE_TIMESTAMP_SHARE.letterSpacing,
-        STYLE_TIMESTAMP_SHARE
-    );
 }
 
 async function copyImageShare() {
     try {
         const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
         await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-    } catch (err) {
-        console.error('Gagal copy image:', err);
-    }
+    } catch (err) { console.error('Gagal copy image:', err); }
 }
 
 function downloadImageShare() {
     const link = document.createElement('a');
-    link.download = 'Nexion Trade.png';
+    link.download = 'Nexion_Trade_Result.png';
     link.href = canvasShare.toDataURL('image/png');
     link.click();
 }
-
-document.querySelectorAll('.range-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        selectedRangeShare = btn.dataset.range;
-        updateDataShare();
-        drawCanvasShare();
-    });
-});
-
-canvasShare.width = 800;
-canvasShare.height = 600;
-ctxShare.fillStyle = '#f0f0f0';
-ctxShare.fillRect(0, 0, canvasShare.width, canvasShare.height);
-ctxShare.fillStyle = '#999';
-ctxShare.font = '20px Inter';
-ctxShare.textAlign = 'center';
-ctxShare.fillText('Loading template.png...', canvasShare.width / 2, canvasShare.height / 2);
-
-updateDataShare();
-loadTemplateShare();
-loadProfileImageShare();
-
-const shareButtons = document.querySelectorAll('.box-btn-share[data-platform]');
-
-shareButtons.forEach((btn) => {
-    btn.addEventListener('click', async () => {
-
-        try {
-            const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
-            await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-        } catch (err) {
-            console.warn('Gagal copy gambar, mungkin izin clipboard belum diberikan.');
-        }
-
-        const platform = btn.dataset.platform;
-
-        const shareText = `My ${TEXT_CONTENT_SHARE.title}: ${TEXT_CONTENT_SHARE.profit} (${TEXT_CONTENT_SHARE.persentase}) — via Nexion Trade`;
-
-        let url;
-        switch (platform) {
-            case 'twitter':
-                url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(shareText)}`;
-                break;
-            case 'discord':
-                url = 'https://discord.com/channels/@me';
-                break;
-            case 'telegram':
-                url = `https://t.me/share/url?url=&text=${encodeURIComponent(shareText)}`;
-                break;
-        }
-
-        window.open(url, '_blank');
-    });
-});
 
 // ────── MONTHLY DETAIL POPUP TRIGGER ────── //
 let selectedMonthlyEntry = null;

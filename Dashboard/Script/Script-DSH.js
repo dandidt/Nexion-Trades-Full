@@ -10,27 +10,30 @@ function formatUSD(value) {
 function formatUSDShort(value) {
     if (value === 0) return "0";
 
+    const sign = value < 0 ? '-' : '';
+    const abs = Math.abs(value);
+
     let formatted = '';
     let suffix = '';
 
-    if (Math.abs(value) >= 1_000_000_000) {
-        formatted = (value / 1_000_000_000).toFixed(2);
+    if (abs >= 1_000_000_000) {
+        formatted = (abs / 1_000_000_000).toFixed(2);
         suffix = 'B';
-    } else if (Math.abs(value) >= 1_000_000) {
-        formatted = (value / 1_000_000).toFixed(2);
+    } else if (abs >= 1_000_000) {
+        formatted = (abs / 1_000_000).toFixed(2);
         suffix = 'M';
-    } else if (Math.abs(value) >= 100_000) {
-        formatted = (value / 1_000).toFixed(2);
+    } else if (abs >= 100_000) {
+        formatted = (abs / 1_000).toFixed(2);
         suffix = 'K';
     } else {
-        return value.toLocaleString('en-US', {
+        return sign + abs.toLocaleString('en-US', {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2
         });
     }
 
     if (formatted.endsWith('.00')) formatted = formatted.slice(0, -3);
-    return `${formatted}${suffix}`;
+    return sign + formatted + suffix;
 }
 
 function formatPercent(value) {
@@ -72,66 +75,87 @@ document.addEventListener("DOMContentLoaded", () => {
   const statsSection = document.querySelector(".statistic");
   const settingSection = document.querySelector(".setting");
 
-  if (statsSection) statsSection.style.display = "none";
-  if (settingSection) settingSection.style.display = "none";
-  jurnalingSection.style.display = "block";
+  function hideAll() {
+    if (jurnalingSection) jurnalingSection.style.display = "none";
+    if (statsSection) statsSection.style.display = "none";
+    if (settingSection) settingSection.style.display = "none";
+  }
 
   function animateSection(section) {
     if (!section) return;
-
-    const animatedItems = section.querySelectorAll('.fade-up');
-    animatedItems.forEach(el => el.classList.remove('show'));
-
-    animatedItems.forEach((el, index) => {
-      setTimeout(() => {
-        el.classList.add('show');
-      }, index * 120);
+    const items = section.querySelectorAll(".fade-up");
+    items.forEach(el => el.classList.remove("show"));
+    items.forEach((el, i) => {
+      setTimeout(() => el.classList.add("show"), i * 120);
     });
   }
 
-  animateSection(jurnalingSection);
+  function openSection(name) {
+    hideAll();
+    window.scrollTo({ top: 0 });
 
-  menus.forEach((menu) => {
-    menu.addEventListener("click", () => {
-      if (menu.classList.contains("active")) return;
+    menus.forEach(m => m.classList.remove("active"));
+    menus.forEach(m => {
+      const text = m.querySelector("span")?.textContent.trim().toLowerCase();
+      if (text === name) m.classList.add("active");
+    });
 
-      menus.forEach((m) => m.classList.remove("active"));
-      menu.classList.add("active");
+    if (name === "jurnaling" && jurnalingSection) {
+      jurnalingSection.style.display = "block";
+      animateSection(jurnalingSection);
+    }
 
-      const menuName = menu.querySelector("span").textContent.trim().toLowerCase();
-
-      jurnalingSection.style.display = "none";
-      if (statsSection) statsSection.style.display = "none";
-      if (settingSection) settingSection.style.display = "none";
-
-      window.scrollTo({ top: 0, behavior: 'instant' });
-
-      if (menuName === "jurnaling") {
-        jurnalingSection.style.display = "block";
-        animateSection(jurnalingSection);
-      } 
-      else if (menuName === "statistic") {
-        if (statsSection) {
-          statsSection.style.display = "flex";
-          animateSection(statsSection);
-          setTimeout(() => {
-            resizeBalanceCanvas();
-            if (balanceCurrentData.length > 0) {
-              drawBalanceChart();
-            } else {
-              return;
-            }
-          }, 300);
+    if (name === "statistic" && statsSection) {
+      statsSection.style.display = "flex";
+      animateSection(statsSection);
+      setTimeout(() => {
+        if (typeof resizeBalanceCanvas === "function") resizeBalanceCanvas();
+        if (typeof drawBalanceChart === "function" && window.balanceCurrentData?.length) {
+          drawBalanceChart();
         }
-      }
-      else if (menuName === "setting") {
-        if (settingSection) {
-          settingSection.style.display = "block";
-          animateSection(settingSection);
-        }
-      }
+      }, 300);
+    }
+
+    if (name === "setting" && settingSection) {
+      settingSection.style.display = "block";
+      animateSection(settingSection);
+    }
+  }
+
+  menus.forEach(menu => {
+    menu.addEventListener("click", e => {
+      e.preventDefault();
+
+      const name = menu.querySelector("span")?.textContent.trim().toLowerCase();
+      if (!name || menu.classList.contains("active")) return;
+
+      openSection(name);
     });
   });
+
+  const hashMap = {
+    "#Header-Statistic": "statistic",
+    "#Chart-Balance-Target": "statistic",
+    "#Calender-Trade": "statistic",
+    "#Pairs-Allocation": "statistic",
+    "#Pairs-Performance": "statistic"
+  };
+
+  function handleHash() {
+    const hash = window.location.hash;
+    if (hashMap[hash]) {
+      openSection(hashMap[hash]);
+      setTimeout(() => {
+        const target = document.getElementById(hash.replace("#", ""));
+        if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 300);
+    } else {
+      openSection("jurnaling");
+    }
+  }
+
+  handleHash();
+  window.addEventListener("hashchange", handleHash);
 });
 
 // ────── Back to Top Button ────── //

@@ -9,16 +9,58 @@
     <link rel="apple-touch-icon" href="./favicon.ico">
     <link rel="stylesheet" href="Global/Root.style.css">
     <link rel="stylesheet" href="Global/Global.style.css">
-    <link rel="stylesheet" href="Public/Style/style.css">
     <link rel="stylesheet" href="Global/Button.style.css">
+    <link rel="stylesheet" href="Global/Font.style.css">
+    <link rel="stylesheet" href="Public/Style/pages.css">
+
+    <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+
+    <script>
+        const lenis = new Lenis({
+            duration: 0.85,
+            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+            wheelMultiplier: 1,
+            touchMultiplier: 2,
+        })
+
+        function raf(time) {
+            lenis.raf(time)
+            requestAnimationFrame(raf)
+        }
+
+        requestAnimationFrame(raf)
+    </script>
 </head>
 <body>
     <!-- ───────── Navbar ───────── -->
     <nav class="navbar">
         <div class="box-logo">
-            <img class="icon-title-navbar" src="Asset/Nexion.png">
+            <img class="icon-title-navbar" src="Asset/Nexion White.png">
             <span class="title-navbar">Nexion Trade</span>
+            <div class="wrapper-menu-navbar">
+                <button class="button-section" data-type="product">
+                    <span>Product</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+                <button class="button-section" data-type="ecosystem">
+                    <span>Ecosystem</span>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"></path></svg>
+                </button>
+                <a href="https://document.nexiontrade.xyz">
+                    <button class="button-section">
+                        <span>Support</span>
+                    </button>
+                </a>
+    
+                <div id="popup-container" class="dropdown-popup">
+                    <div class="popup-content">
+                        <ul id="popup-list"></ul>
+                    </div>
+                </div>
+            </div>
         </div>
+
+        
         <div class="box-logo">
             <div class="box-no-loggin">
                 <a href="Signin">
@@ -86,7 +128,7 @@
             </div>
         </div>
 
-        <p class="text-person">Trial Community that has entered the trial phase</p>
+        <p class="text-person">Communities that have used this platform</p>
     </section>
 
     <!-- ───────── Features ───────── -->
@@ -437,8 +479,8 @@
     <section class="container-footer cn-bottom">
         <div class="wrapper-top">
             <div class="subcontainer-logo">
-                <img src="Asset/Nexion.png">
-                <span>Nexion Trade</span>
+                <img src="/Asset/Nexion White.png">
+                <span>Nexion</span>
             </div>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16"><path d="M12.6.75h2.454l-5.36 6.142L16 15.25h-4.937l-3.867-5.07-4.425 5.07H.316l5.733-6.57L0 .75h5.063l3.495 4.633L12.601.75Zm-.86 13.028h1.36L4.323 2.145H2.865z"/></svg>
         </div>
@@ -449,10 +491,10 @@
                     <span data-target="preview-view">Preview</span>
                     <span data-target="container-primary">Community</span>
                 </div>
-            <span>© 2025 Nexion Trade. All rights reserved.</span>
+            <span>© 2025 Nexion. All rights reserved.</span>
         </div>
         <div class="wrapper-bottom">
-            <h1 class="footer-title">NEXION TRADE</h1>
+            <h1 class="footer-title">Nexion Platfroms</h1>
         </div>
     </section>
 

@@ -5,29 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>404 - Page Not Found</title>
     <link rel="icon" href="./favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" href="Global/Root.style.css">
+    <link rel="stylesheet" href="Global/Button.style.css">
+    <link rel="stylesheet" href="Global/Font.style.css">
     <style>
-      @import url("https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap");
-      @import url("https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap");
-
-      :root {
-        --bg-15: rgba(15, 15, 15, 1);
-        --bg-27: rgba(27, 27, 27, 1);
-        --bg-35: rgba(35, 35, 35, 1);
-        --bg-45: rgba(45, 45, 45, 1);
-        --bg-50: rgba(50, 50, 50, 1);
-        --white: rgb(245, 245, 245);
-        --gray: rgb(163, 163, 163);
-        --green: rgb(52, 211, 153);
-        --green-border: rgba(16, 185, 129, 0.2);
-        --red: rgb(250, 93, 117);
-        --wg-500: 500;
-        --wg-700: 700;
-        --sz-14: 14px;
-        --sz-16: 16px;
-        --sz-24: 24px;
-        --sz-30: 30px;
-      }
-
       * {
         box-sizing: border-box;
         margin: 0;
@@ -108,7 +89,6 @@
         opacity: 0.8;
       }
 
-      /* --- CONTENT SECTION --- */
       .container {
         text-align: center;
         z-index: 10;
@@ -118,7 +98,7 @@
 
       .error-code {
         font-size: 110px;
-        font-weight: var(--wg-700);
+        font-weight: var(--w7);
         line-height: 1;
         margin-bottom: 20px;
         position: relative;
@@ -126,13 +106,13 @@
       }
 
       h1 {
-        font-size: var(--sz-24);
-        font-weight: var(--wg-700);
+        font-size: var(--s24);
+        font-weight: var(--w7);
         margin-bottom: 16px;
       }
 
       p {
-        font-size: var(--sz-14);
+        font-size: var(--s14);
         color: var(--gray);
         margin-bottom: 32px;
         max-width: 500px;
@@ -143,20 +123,8 @@
       .btn-home {
         display: inline-block;
         padding: 12px 28px;
-        background: var(--bg-35);
-        border: 1px solid var(--bg-50);
-        border-radius: 8px;
-        text-decoration: none;
-        font-weight: var(--wg-500);
-        transition: all 0.3s ease;
-        cursor: pointer;
+        font-weight: var(--w5);
       }
-
-      .btn-home:hover {
-        background: var(--bg-45);
-        border-color: var(--bg-50);
-      }
-
     </style>
   </head>
   <body>
@@ -173,7 +141,7 @@
         Sorry, the page you're looking for seems to be hiding in another
         dimension.
       </p>
-      <button class="btn-home" onclick="goHome()">Back to Home</button>
+      <button class="btn btn-default btn-home" onclick="goHome()">Back to Home</button>
     </div>
 
     <script>
