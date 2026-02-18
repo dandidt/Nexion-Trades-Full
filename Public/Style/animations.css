@@ -1,0 +1,227 @@
+/* ───────── Introduction ───────── */
+.intro-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+  margin: 75px 0 35px;
+}
+
+.typing-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: max-content;
+  margin: 0 auto;
+}
+
+.subtitle-introduction {
+  visibility: hidden;
+}
+
+.title-introduction,
+.subtitle-introduction {
+  display: inline-block;
+  white-space: pre;
+}
+
+.char {
+  display: inline-block;
+  opacity: 0;
+  transition: opacity 0.05s;
+  color: inherit;
+}
+
+.char.visible {
+  opacity: 1;
+}
+
+.cursor {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 3px;
+  background: linear-gradient(
+    to bottom,
+    var(--white) 45%,
+    var(--green) 65%,
+    var(--green-light) 100%
+  );
+  height: 90%;
+  display: none;
+}
+
+.cursor.active {
+  display: block;
+  animation: blink 0.6s infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+.title-introduction {
+  font-family: "poppins";
+  font-size: 70px;
+  font-weight: 600;
+  line-height: 65px;
+}
+
+.subtitle-introduction {
+  font-family: "poppins";
+  font-size: 62px;
+  font-weight: 500;
+  line-height: 60px;
+  color: var(--green);
+}
+
+/* Show Up */
+.show-up,
+.show-up-community,
+.show-up-preview {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 1.2s cubic-bezier(0.23, 1, 0.32, 1),
+    transform 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+  will-change: transform, opacity;
+}
+
+.show-up.active,
+.show-up-community.active,
+.show-up-preview.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Animasi Text */
+.text-person {
+  font-size: 14px;
+  color: var(--gray);
+  display: inline-block;
+  white-space: pre;
+}
+
+/* ───────── Features ───────── */
+
+/* Animsi Title Scroll */
+.features-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+
+  margin-bottom: 30px;
+}
+
+.title-features,
+.subtitle-features {
+  display: inline-block;
+  white-space: pre;
+  visibility: hidden;
+}
+
+.title-features {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.subtitle-features {
+  font-size: 36px;
+  font-weight: 500;
+  color: var(--gray);
+}
+
+.subcontainer-features {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  width: 1166px;
+  height: auto;
+
+  transform: scale(1);
+  will-change: transform, opacity;
+}
+
+/* ───────── Preview ───────── */
+/* Animsi Title Scroll */
+.preview-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+
+  margin-bottom: 30px;
+}
+
+.title-preview,
+.subtitle-preview {
+  display: inline-block;
+  white-space: pre;
+  visibility: hidden;
+}
+
+.title-preview {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.subtitle-preview {
+  font-size: 36px;
+  font-weight: 500;
+  color: var(--gray);
+}
+
+/* Animasi Box Scroll */
+.container-preview {
+  padding: 10px;
+  border: 1px solid var(--bg-55);
+  border-radius: 15px;
+  width: 1166px;
+  height: auto;
+
+  transform: scale(1);
+  will-change: transform, opacity;
+}
+
+/* ───────── Community ───────── */
+/* Animsi Title Scroll */
+.community-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+
+  margin-bottom: 20px;
+}
+
+.title-community {
+  display: inline-block;
+  white-space: pre;
+  visibility: hidden;
+}
+
+.title-community {
+  font-size: 36px;
+  font-weight: 600;
+}
+
+.subtitle-community {
+  font-size: 16px;
+  color: var(--gray);
+  display: inline-block;
+  white-space: pre;
+
+  margin-bottom: 20px;
+}

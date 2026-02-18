@@ -45,7 +45,10 @@ body.nexion-no-scroll {
   align-items: center;
   padding: 12px 100px;
 
-  transition: transform 1.5s cubic-bezier(0.16, 1, 0.3, 1), background 0.3s ease, backdrop-filter 0.3s ease;
+  transition:
+    transform 1.5s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s ease,
+    backdrop-filter 0.3s ease;
   background: transparent;
   border-bottom: 1px solid transparent;
   z-index: 500;
@@ -173,22 +176,22 @@ body.nexion-no-scroll {
   padding: 20px 25px;
   min-width: 200px;
   height: 0;
-  box-shadow: 0 15px 35px rgba(0,0,0,.3);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
   z-index: 999;
 
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
   transform: translateX(-50%) scale(0.85);
-  transform-origin: top center; 
+  transform-origin: top center;
   overflow: hidden;
 
   transition:
-    opacity .3s ease,
-    transform .35s cubic-bezier(.45, 1.2, .65, 1),
-    left .5s cubic-bezier(.45, 1.2, .65, 1),
-    height .5s cubic-bezier(.45, 1.2, .65, 1),
-    visibility .3s;
+    opacity 0.3s ease,
+    transform 0.35s cubic-bezier(0.45, 1.2, 0.65, 1),
+    left 0.5s cubic-bezier(0.45, 1.2, 0.65, 1),
+    height 0.5s cubic-bezier(0.45, 1.2, 0.65, 1),
+    visibility 0.3s;
 }
 
 .dropdown-popup.active {
@@ -211,10 +214,10 @@ body.nexion-no-scroll {
   border-bottom: 1px solid var(--bg-45);
 
   transform: translateY(14px);
-  
-  transition: 
-    opacity .4s ease, 
-    transform .5s cubic-bezier(.45, 1.35, .65, 1); 
+
+  transition:
+    opacity 0.4s ease,
+    transform 0.5s cubic-bezier(0.45, 1.35, 0.65, 1);
 }
 
 #popup-list.animate-in .popup-title {
@@ -241,10 +244,10 @@ body.nexion-no-scroll {
   cursor: pointer;
   opacity: 0;
   transform: translateY(14px);
-  
-  transition: 
-    opacity .4s ease, 
-    transform .5s cubic-bezier(.45, 1.35, .65, 1); 
+
+  transition:
+    opacity 0.4s ease,
+    transform 0.5s cubic-bezier(0.45, 1.35, 0.65, 1);
 }
 
 #popup-list.animate-in li {
@@ -299,7 +302,9 @@ body.nexion-no-scroll {
 .icon-navbar {
   opacity: 0;
   transform: translateX(2px);
-  transition: opacity 0.3s ease, transform 0.3s ease;
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
   fill: var(--white);
 }
 
@@ -421,36 +426,15 @@ body.nexion-no-scroll {
   width: 18px;
 }
 
-.padding-btn {
-  padding: 8px 20px;
-}
-
 /* ───────── Introduction Section ───────── */
-.title-introduction {
-  font-size: 72px;
-  font-weight: 600;
-  line-height: 65px;
-
-  margin-top: 70px;
-}
-
-.subtitle-introduction {
-  font-size: 62px;
-  font-weight: 500;
-  line-height: 60px;
-  color: var(--green);
-
-  margin-bottom: 30px;
-}
-
 .text-introduction {
   font-size: 18px;
-
   margin-bottom: 8px;
 }
 
-.margin-btn-introduction {
+.btn-start {
   margin-top: 30px;
+  padding: 10px 20px;
 }
 
 /* ───────── Introduction Section ───────── */
@@ -482,7 +466,7 @@ body.nexion-no-scroll {
 .marquee-content {
   display: flex;
   gap: 40px;
-  animation: slideLeft 45s linear infinite;
+  will-change: transform;
 }
 
 .marquee-content img {
@@ -491,42 +475,7 @@ body.nexion-no-scroll {
   object-fit: contain;
 }
 
-@keyframes slideLeft {
-  from {
-    transform: translateX(0);
-  }
-  to {
-    transform: translateX(-50%);
-  }
-}
-
-.text-person {
-  font-size: 14px;
-  color: var(--gray);
-}
-
 /* ───────── Features Section ───────── */
-.title-features {
-  font-size: 36px;
-  font-weight: 600;
-}
-
-.subtitle-features {
-  font-size: 36px;
-  font-weight: 500;
-  color: var(--gray);
-
-  margin-bottom: 30px;
-}
-
-.subcontainer-features {
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  width: 1166px;
-  height: auto;
-}
-
 .column-features {
   display: flex;
   flex-direction: column;
@@ -1168,20 +1117,6 @@ b {
 }
 
 /* ───────── Preview Section ───────── */
-
-.title-preview {
-  font-size: 36px;
-  font-weight: 600;
-}
-
-.subtitle-preview {
-  font-size: 36px;
-  font-weight: 500;
-  color: var(--gray);
-
-  margin-bottom: 30px;
-}
-
 .wrapper-radio {
   display: inline-flex;
   gap: 12px;
@@ -1246,14 +1181,6 @@ b {
   color: var(--gray);
 }
 
-.container-preview {
-  padding: 10px;
-  border: 1px solid var(--bg-55);
-  border-radius: 15px;
-  width: 1166px;
-  height: auto;
-}
-
 .container-preview svg {
   margin: 0 10px 4px 10px;
   fill: var(--bg-55);
@@ -1269,24 +1196,6 @@ b {
 }
 
 /* ───────── Community Section ───────── */
-.title-community {
-  font-size: 36px;
-  font-weight: 600;
-
-  margin-bottom: 20px;
-}
-
-.subtitle-community {
-  font-size: 16px;
-  color: var(--gray);
-
-  margin-bottom: 20px;
-}
-
-.margin-btn-community {
-  margin-bottom: 30px;
-}
-
 .community-wrapper {
   position: relative;
   width: 1166px;
@@ -1317,6 +1226,11 @@ b {
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.btn-discord {
+  margin-bottom: 30px;
+  padding: 10px 20px;
 }
 
 /* Js Style */
@@ -1460,6 +1374,7 @@ b {
 
 .subcontainer-menu span:hover {
   color: var(--green);
+  text-decoration: underline;
 }
 
 .wrapper-bottom {

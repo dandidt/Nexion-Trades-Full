@@ -386,20 +386,42 @@ function positionPopup() {
   popup.style.left = `${rect.right - popup.offsetWidth}px`;
 }
 
-profileBox.addEventListener("click", () => {
-  profileBox.classList.toggle("active");
+function openPopup() {
+  popup.style.display = "block";
+  profileBox.classList.add("active");
+  positionPopup();
 
-  if (popup.style.display === "block") {
-    popup.style.display = "none";
-    window.removeEventListener("scroll", positionPopup);
-    window.removeEventListener("resize", positionPopup);
-  } else {
-    popup.style.display = "block";
-    positionPopup();
-    window.addEventListener("scroll", positionPopup);
-    window.addEventListener("resize", positionPopup);
+  document.addEventListener("click", outsideClick);
+  window.addEventListener("scroll", onScroll, true);
+  window.addEventListener("resize", positionPopup);
+}
+
+function closePopup() {
+  popup.style.display = "none";
+  profileBox.classList.remove("active");
+
+  document.removeEventListener("click", outsideClick);
+  window.removeEventListener("scroll", onScroll, true);
+  window.removeEventListener("resize", positionPopup);
+}
+
+function outsideClick(e) {
+  if (!popup.contains(e.target) && !profileBox.contains(e.target)) {
+    closePopup();
   }
+}
+
+function onScroll(e) {
+  if (!popup.contains(e.target)) {
+    closePopup();
+  }
+}
+
+profileBox.addEventListener("click", (e) => {
+  e.stopPropagation();
+  popup.style.display === "block" ? closePopup() : openPopup();
 });
+
 
 // ───────── Introduction ───────── //
 async function checkAuthStatusAndRedirectLink() {
@@ -664,7 +686,7 @@ function drawChart() {
   }
 
   ctx.strokeStyle = "rgb(52, 211, 153)";
-  ctx.lineWidth = 3;
+  ctx.lineWidth = 2;
   ctx.lineJoin = "round";
   ctx.lineCap = "round";
   ctx.shadowColor = "rgba(52, 211, 153, 0.4)";
