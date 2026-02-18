@@ -3556,7 +3556,7 @@ function renderTextLayers() {
         { text: "Return", x: 1040, y: 455, font: "28px Poppins", color: "rgb(163, 163, 163)" },
         { text: TEXT_CONTENT_SHARE.return, x: 1465, y: 455, font: "600 34px Arial", align: "right", color: "#ffffff" },
         
-        { text: "To Win", x: 1040, y: 565, font: "700 30px Poppins", color: "#fff" },
+        { text: TEXT_CONTENT_SHARE.toWinLabel, x: 1040, y: 565, font: "700 30px Poppins", color: "#fff" },
         { text: TEXT_CONTENT_SHARE.toWin, x: 1040, y: 645, font: "600 60px Arial", align: "left", color: "#ffffff" },
     ];
 
@@ -3792,6 +3792,8 @@ async function updateDataShare() {
         return sum + Math.abs(pnl);
     }, 0);
 
+    const isProfit = totalPnL >= 0;
+
     TEXT_CONTENT_SHARE.tradeCount = totalTradeCount.toString();
     TEXT_CONTENT_SHARE.winrate = formatPercent(winratePercent).replace('+', '');
     TEXT_CONTENT_SHARE.avgRR = avgRR.toFixed(2);
@@ -3799,6 +3801,7 @@ async function updateDataShare() {
     
     TEXT_CONTENT_SHARE.volume = '$' + formatUSDShort(capitalImpactVolume);
     TEXT_CONTENT_SHARE.return = formatPercent(roiPercent);
+    TEXT_CONTENT_SHARE.toWinLabel = isProfit ? "To Win" : "To Lose";
     TEXT_CONTENT_SHARE.toWin =
     totalPnL < 0
         ? `-$${formatUSDShort(Math.abs(totalPnL))}`
