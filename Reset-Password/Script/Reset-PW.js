@@ -1,7 +1,3 @@
-const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
-const supabaseClient = supabase.createClient(supabaseUrl.trim(), supabaseKey.trim());
-
 const canvas = document.getElementById('dotCanvas');
 const ctx = canvas.getContext('2d');
 

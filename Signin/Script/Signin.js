@@ -1,7 +1,3 @@
-const supabaseUrl = 'https://olnjccddsquaspnacqyw.supabase.co';
-const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9sbmpjY2Rkc3F1YXNwbmFjcXl3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjI0NzM3MDUsImV4cCI6MjA3ODA0OTcwNX0.Am3MGb1a4yz15aACQMqBx4WB4btBIqTOoQvqUjSLfQA';
-const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
-
 const STORAGE_KEY = 'saved_accounts';
 
 const canvas = document.getElementById('dotCanvas');
@@ -134,6 +130,9 @@ async function saveAccountToLocalStorage() {
 document.getElementById('loginForm').addEventListener('submit', async function(e) {
     e.preventDefault();
 
+    localStorage.removeItem('dbspot');
+    localStorage.removeItem('dbperpetual');
+
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
 
@@ -182,9 +181,6 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
                 )}`;
 
                 localStorage.setItem('avatar', base64);
-
-                localStorage.removeItem('dbperpetual');
-                localStorage.removeItem('dbspot');
             } catch (imgErr) {
                 localStorage.removeItem('avatar');
             }

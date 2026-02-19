@@ -19,339 +19,6 @@ function unixToWIBDatetimeLocal(unixSeconds) {
     return `${y}-${m}-${d}T${h}:${min}`;
 }
 
-// ────── Navbar Popup Menu ────── //
-// ------ Popup Account Menu ------ //
-const profileBox = document.querySelector('#NavAccount');
-const popupAccount = document.querySelector('#popupAccount');
-
-if (profileBox && popupAccount) {
-    function positionPopup() {
-        const rect = profileBox.getBoundingClientRect();
-        popupAccount.style.top = `${rect.bottom + 6}px`;
-        popupAccount.style.left = `${rect.right - popupAccount.offsetWidth}px`;
-    }
-
-    profileBox.addEventListener('click', (e) => {
-        e.stopPropagation();
-        profileBox.classList.toggle('active');
-
-        if (popupAccount.style.display === 'block') {
-            popupAccount.style.display = 'none';
-            window.removeEventListener('scroll', positionPopup);
-            window.removeEventListener('resize', positionPopup);
-            forceCloseLogoutPopup();
-        } else {
-            popupAccount.style.display = 'block';
-            positionPopup();
-            window.addEventListener('scroll', positionPopup);
-            window.addEventListener('resize', positionPopup);
-        }
-    });
-
-    document.addEventListener('click', (e) => {
-        if (!popupAccount.contains(e.target) && e.target !== profileBox) {
-            popupAccount.style.display = 'none';
-            profileBox.classList.remove('active');
-            window.removeEventListener('scroll', positionPopup);
-            window.removeEventListener('resize', positionPopup);
-        }
-    });
-}
-
-// ------ Unified Logout Popup ------ //
-let activeLogoutPopup = {
-    anchor: null,
-    accountId: null,
-    isOpen: false
-};
-
-function showLogoutPopup(anchor, accountId = null) {
-    const popup = document.querySelector(".container-logout");
-    if (!popup) return;
-
-    if (activeLogoutPopup.isOpen) {
-        hideLogoutPopup();
-    }
-
-    activeLogoutPopup.anchor = anchor;
-    activeLogoutPopup.accountId = accountId;
-    activeLogoutPopup.isOpen = true;
-
-    const rect = anchor.getBoundingClientRect();
-
-    let top = rect.bottom;
-    let left = rect.left + 40;
-
-    const viewportWidth = window.innerWidth;
-    const viewportHeight = window.innerHeight;
-
-    const popupWidth = 200;
-    const popupHeight = 80;
-
-    if (left + popupWidth > viewportWidth) {
-        left = viewportWidth - popupWidth - 10;
-    }
-
-    if (top + popupHeight > viewportHeight) {
-        top = rect.top - popupHeight - 10;
-    }
-
-    if (top < 0) {
-        top = 10;
-    }
-
-    popup.style.top = `${top}px`;
-    popup.style.left = `${left}px`;
-    popup.style.display = "block";
-
-    setTimeout(() => {
-        document.addEventListener("click", handleLogoutPopupClick);
-    }, 10);
-}
-
-function handleLogoutPopupClick(e) {
-    const popup = document.querySelector(".container-logout");
-    const isClickInsidePopup = popup && popup.contains(e.target);
-    const isClickOnAnchor = e.target === activeLogoutPopup.anchor;
-
-    if (!isClickInsidePopup && !isClickOnAnchor) {
-        hideLogoutPopup();
-    }
-}
-
-function hideLogoutPopup() {
-    const popup = document.querySelector(".container-logout");
-    if (popup) {
-        popup.style.display = "none";
-    }
-
-    document.removeEventListener("click", handleLogoutPopupClick);
-    activeLogoutPopup = {
-        anchor: null,
-        accountId: null,
-        isOpen: false
-    };
-}
-
-function forceCloseLogoutPopup() {
-    hideLogoutPopup();
-}
-
-document.getElementById("logoutAccount")?.addEventListener("click", function (e) {
-    e.stopPropagation();
-    showLogoutPopup(this, null);
-});
-
-// ------ Account Icon ------ //
-function renderNavbarAvatar() {
-    const imgEl = document.getElementById("NavAccount");
-    if (!imgEl) return;
-
-    const avatar = localStorage.getItem("avatar");
-    if (avatar) {
-        imgEl.src = avatar;
-    }
-}
-
-// ------ Popup Account Switch ------ //
-document.addEventListener("DOMContentLoaded", () => {
-    renderNavbarAvatar();
-
-    const btnAccountManage = document.getElementById("accountManage");
-    const popupAccount = document.querySelector(".popup-account");
-    const popupOverlay = document.querySelector(".popup-overlay");
-    const closeAccountBtn = document.getElementById("closeAccount");
-
-    if (!btnAccountManage || !popupAccount) return;
-
-    btnAccountManage.addEventListener("click", (e) => {
-        e.stopPropagation();
-        closeAllPopups(); 
-        
-        if (popupOverlay) popupOverlay.classList.add("show");
-        document.body.classList.add("popup-open");
-        document.body.style.overflow = "hidden";
-        popupAccount.classList.add("show");
-    });
-
-    function handleClose() {
-        closeAllPopups(); 
-    }
-
-    if (closeAccountBtn) {
-        closeAccountBtn.addEventListener("click", (e) => {
-            e.stopPropagation();
-            handleClose();
-        });
-    }
-
-    if (popupOverlay) {
-        popupOverlay.addEventListener("click", (e) => {
-            handleClose();
-        });
-    }
-
-    document.addEventListener("keydown", (e) => {
-        if (e.key === "Escape" && popupAccount.classList.contains("show")) {
-            handleClose();
-        }
-    });
-});
-
-// ------ Render Account List ------ //
-async function renderAccountList() {
-    const wrapper = document.querySelector('.wrapper-account');
-    if (!wrapper) return;
-
-    const savedRaw = localStorage.getItem('saved_accounts');
-    const accounts = savedRaw ? JSON.parse(savedRaw) : [];
-
-    if (accounts.length === 0) {
-        wrapper.innerHTML = '<p class="no-accounts">No saved accounts.</p>';
-        return;
-    }
-
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const activeUserId = session?.user?.id;
-
-    let html = '';
-    accounts.forEach((acc, index) => {
-        const isActive = acc.user_id === activeUserId;
-        const avatarSrc = acc.avatar || '../Asset/User.png';
-        const email = acc.email;
-
-        html += `
-            <div class="column-account">
-                <div class="column-box-account">
-                    <img src="${avatarSrc}" onerror="this.src='Asset/Nexion.png'" />
-                    <div class="wrapper-active-account">
-                        <p class="usernmae-account">${email}</p>
-                        ${isActive ? '<p class="text-account-active">Active account</p>' : ''}
-                    </div>
-                </div>
-                <div class="column-box-account">
-                    ${isActive 
-                        ? '' 
-                        : `<button class="btn btn-switch" data-refresh="${acc.refresh_token}">Switch</button>`
-                    }
-                    <div class="btn btn-logout logout-account" data-id="${acc.user_id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 860" width="20px" fill="#e3e3e3">
-                            <path d="M263.79-408Q234-408 213-429.21t-21-51Q192-510 213.21-531t51-21Q294-552 315-530.79t21 51Q336-450 314.79-429t-51 21Zm216 0Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Zm216 0Q666-408 645-429.21t-21-51Q624-510 645.21-531t51-21Q726-552 747-530.79t21 51Q768-450 746.79-429t-51 21Z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            ${index < accounts.length - 1 ? '<div class="line-gap"></div>' : ''}
-        `;
-    });
-
-    wrapper.innerHTML = html;
-
-    document.querySelectorAll('.btn-switch').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const refreshToken = e.currentTarget.dataset.refresh;
-            switchToAccount(refreshToken);
-        });
-    });
-
-    document.querySelectorAll('.logout-account').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            const userId = e.currentTarget.dataset.id;
-            removeAccount(userId, e.currentTarget);
-        });
-    });
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (typeof supabaseClient !== 'undefined') {
-        renderAccountList();
-    }
-});
-
-// ------ Switch Akun ------ //
-async function switchToAccount(refreshToken) {
-    const savedRaw = localStorage.getItem('saved_accounts');
-    const savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];
-    const account = savedAccounts.find(acc => acc.refresh_token === refreshToken);
-
-    if (!account) {
-        alert('Account not found.');
-        return;
-    }
-
-    try {
-        localStorage.removeItem('avatar');
-        localStorage.removeItem('dbperpetual');
-        localStorage.removeItem('dbspot');
-
-        const { data, error } = await supabaseClient.auth.refreshSession({
-            refresh_token: refreshToken
-        });
-
-        if (error) throw error;
-        if (!data.session) throw new Error("No session returned after refresh!");
-
-        console.log("Switched to:", data.session.user.email);
-
-        if (account.avatar) {
-            localStorage.setItem('avatar', account.avatar);
-            console.log("Avatar new save LS");
-        } else {
-            localStorage.removeItem('avatar');
-        }
-
-        const isGithub = window.location.hostname.includes("github.io");
-        const target = isGithub ? "/Nexion-Trades-Full/Dashboard" : "/Dashboard";
-        window.location.href = target;
-
-    } catch (err) {
-        alert("Failed to switch account. Please log in again.");
-        const isGithub = window.location.hostname.includes("github.io");
-        const signinTarget = isGithub ? "/Nexion-Trades-Full/Signin" : "/Signin";
-        window.location.href = signinTarget;
-    }
-}
-
-// ------ Logout Akun ------ //
-function removeAccount(accountId, anchorBtn) {
-    showLogoutPopup(anchorBtn, accountId);
-}
-
-document.querySelector(".signout-btn-universal")?.addEventListener("click", async () => {
-    const savedRaw = localStorage.getItem('saved_accounts');
-    let savedAccounts = savedRaw ? JSON.parse(savedRaw) : [];
-
-    const { data: { session } } = await supabaseClient.auth.getSession();
-    const activeUserId = session?.user?.id;
-
-    const accountIdToLogout = activeLogoutPopup.accountId || activeUserId;
-    const isActiveAccount = activeUserId === accountIdToLogout;
-
-    savedAccounts = savedAccounts.filter(acc => acc.user_id !== accountIdToLogout);
-    localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
-
-    if (isActiveAccount) {
-        await supabaseClient.auth.signOut();
-        localStorage.removeItem('avatar');
-        localStorage.removeItem('dbperpetual');
-        localStorage.removeItem('dbspot');
-
-        const isGithub = window.location.hostname.includes("github.io");
-        const target = isGithub ? "/Nexion-Trades-Full" : "/";
-        window.location.href = target;
-    } else {
-        hideLogoutPopup();
-        renderAccountList(); 
-    }
-});
-
-// ------ Add Account ------ //
-document.querySelector('.btn-add-account')?.addEventListener('click', () => {
-    const isGithub = window.location.hostname.includes('github.io');
-    const loginPage = isGithub ? '/Nexion-Trades-Full/Signin' : '/Signin';
-    window.location.href = loginPage;
-});
-
 // ────── POPUP & DROPDOWN SETUP ────── //
 function closeAllPopups() {
     document.querySelector(".popup-perpetual-add")?.classList.remove("show");
@@ -2752,7 +2419,6 @@ function updateUI() {
     else ddBar.className = 'progress-fill-sop';
     
     const statusEntry = document.getElementById('statusEntry');
-    const statusTrading = document.getElementById('statusTrading');
     const statusWin = document.getElementById('statusWin');
     const statusLoss = document.getElementById('statusLoss');
     
@@ -2771,20 +2437,6 @@ function updateUI() {
         statusEntry.className = 'info-card active';
         statusEntry.querySelector('.info-value').textContent = 'ALLOWED';
         statusEntry.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M480.28-96Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Zm-.28-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-72q-100 0-170-70t-70-170q0-100 70-170t170-70q100 0 170 70t70 170q0 100-70 170t-170 70Zm0-72q70 0 119-49t49-119q0-70-49-119t-119-49q-70 0-119 49t-49 119q0 70 49 119t119 49Zm-.21-96Q450-408 429-429.21t-21-51Q408-510 429.21-531t51-21Q510-552 531-530.79t21 51Q552-450 530.79-429t-51 21Z"/></svg>';
-    }
-    
-    if (!canTrade) {
-        statusTrading.className = 'info-card danger';
-        statusTrading.querySelector('.info-value').textContent = 'STOPPED';
-        statusTrading.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M288-444h384v-72H288v72ZM480.28-96Q401-96 331-126t-122.5-82.5Q156-261 126-330.96t-30-149.5Q96-560 126-629.5q30-69.5 82.5-122T330.96-834q69.96-30 149.5-30t149.04 30q69.5 30 122 82.5T834-629.28q30 69.73 30 149Q864-401 834-331t-82.5 122.5Q699-156 629.28-126q-69.73 30-149 30Zm-.28-72q130 0 221-91t91-221q0-130-91-221t-221-91q-130 0-221 91t-91 221q0 130 91 221t221 91Zm0-312Z"/></svg>';
-    } else if (wins >= maxWin - 1 || losses >= maxLoss - 1 || entries >= maxEntry - 1) {
-        statusTrading.className = 'info-card warning';
-        statusTrading.querySelector('.info-value').textContent = 'CAUTION';
-        statusTrading.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M341-144 144-342v-277l197-197h278l197 197v278L618-144H341Zm32-179 107-106 107 106 50-50-106-107 106-107-50-50-107 106-107-106-50 50 106 107-106 107 50 50Zm-2 107h218l155-155v-218L588-744H371L216-589v218l155 155Zm109-264Z"/></svg>';
-    } else {
-        statusTrading.className = 'info-card active';
-        statusTrading.querySelector('.info-value').textContent = 'ACTIVE';
-        statusTrading.querySelector('.info-icon').innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" height="20px" viewBox="0 -960 960 960" width="20px" fill="#e3e3e3"><path d="M444-144v-80q-51-11-87.5-46T305-357l74-30q8 36 40.5 64.5T487-294q39 0 64-20t25-52q0-30-22.5-50T474-456q-78-28-114-61.5T324-604q0-50 32.5-86t87.5-47v-79h72v79q72 12 96.5 55t25.5 45l-70 29q-8-26-32-43t-53-17q-35 0-58 18t-23 44q0 26 25 44.5t93 41.5q70 23 102 60t32 94q0 57-37 96t-101 49v77h-72Z"/></svg>';
     }
     
     const winsLeft = maxWin - wins;
@@ -2810,7 +2462,49 @@ function updateUI() {
         statusLoss.className = 'info-card active';
         statusLoss.querySelector('.info-value').textContent = `${lossesLeft} LEFT`;
     }
+
+    function setRuleRowState(el, value, max, warningAt = max - 1) {
+        if (!el) return;
+
+        el.classList.remove("active", "warning", "danger");
+
+        if (value >= max) {
+            el.classList.add("danger");
+        } else if (value >= warningAt) {
+            el.classList.add("warning");
+        } else {
+            el.classList.add("active");
+        }
+    }
+
+    // setelah hitung data
+    setRuleRowState(
+        document.getElementById("ruleWin"),
+        wins,
+        maxWin
+    );
+
+    setRuleRowState(
+        document.getElementById("ruleLoss"),
+        losses,
+        maxLoss
+    );
+
+    setRuleRowState(
+        document.getElementById("ruleEntry"),
+        entries,
+        maxEntry
+    );
+
+    setRuleRowState(
+        document.getElementById("ruleDD"),
+        drawdown,
+        maxDD,
+        maxDD * 0.7
+    );
+
 }
+
 
 // ------ Popup Edit SOP ------ //
 document.addEventListener("DOMContentLoaded", () => {
@@ -3884,16 +3578,33 @@ function loadProfileImageShare() {
 
 async function copyImageShare() {
     try {
-        const blob = await new Promise(resolve => canvasShare.toBlob(resolve, 'image/png'));
-        await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
-    } catch (err) { console.error('Gagal copy image:', err); }
+        const blob = await new Promise(resolve =>
+            canvasShare.toBlob(resolve, 'image/png')
+        );
+
+        if (!blob) throw new Error("Canvas empty");
+
+        await navigator.clipboard.write([
+            new ClipboardItem({ 'image/png': blob })
+        ]);
+
+        showToast("Image Copied");
+    } catch (err) {
+        showToast("Error Copied");
+    }
 }
 
 function downloadImageShare() {
-    const link = document.createElement('a');
-    link.download = 'Nexion_Trade_Result.png';
-    link.href = canvasShare.toDataURL('image/png');
-    link.click();
+    try {
+        const link = document.createElement('a');
+        link.download = 'Nexion_Trade_Result.png';
+        link.href = canvasShare.toDataURL('image/png');
+        link.click();
+
+        showToast("Image Downloaded");
+    } catch (err) {
+        showToast("Error Download");
+    }
 }
 
 // ────── MONTHLY DETAIL POPUP TRIGGER ────── //
@@ -5014,16 +4725,43 @@ async function DeleteAllData() {
 }
 
 // ────── Toast ────── //
-function showToast(message) {
-    let toast = document.querySelector(".toast");
-    if (!toast) {
-        toast = document.createElement("div");
-        toast.classList.add("toast");
-        document.body.appendChild(toast);
-    }
+const MAX_TOAST = 3;
+let toastStack = [];
+
+function showToast(message, duration = 2000) {
+    const toast = document.createElement("div");
+    toast.className = "toast";
     toast.textContent = message;
-    toast.classList.add("show");
-    setTimeout(() => toast.classList.remove("show"), 2000);
+
+    document.body.appendChild(toast);
+
+    toastStack.unshift(toast);
+
+    if (toastStack.length > MAX_TOAST) {
+        const oldToast = toastStack.pop();
+        oldToast.remove();
+    }
+
+    updateToastPosition();
+
+    requestAnimationFrame(() => {
+        toast.classList.add("show");
+    });
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => {
+            toast.remove();
+            toastStack = toastStack.filter(t => t !== toast);
+            updateToastPosition();
+        }, 250);
+    }, duration);
+}
+
+function updateToastPosition() {
+    toastStack.forEach((toast, index) => {
+        toast.style.top = `${70 + index * 52}px`;
+    });
 }
 
 window.showToast = showToast;

@@ -3326,7 +3326,7 @@ circle.segment {
 .altert-text {
   font-size: 12px;
   font-weight: 600;
-  color: #bb0b0b;
+  color: var(--red);
 }
 
 .row-label {
@@ -4273,24 +4273,25 @@ input[type="number"]::placeholder {
 
 .toast {
   position: fixed;
-  top: 20px;
-  left: 50%;
-  transform: translate(-50%, -20px);
-  background: var(--bg-30);
-  border: 1px solid var(--bg-50);
+  top: 70px;
+  left: 90px;
+  transform: translate(-50%, -50px);
+  color: var(--green);
+  background: var(--bg-green);
+  border: 1px solid var(--green-border);
+  backdrop-filter: blur(20px);
   border-radius: 10px;
   padding: 12px 20px;
-  color: var(--white);
-  font-size: 14px;
-  opacity: 0;
+  font-size: var(--s14);
   transition: all 0.3s ease;
   pointer-events: none;
-  z-index: 1000;
+  opacity: 0;
+  z-index: 999;
   white-space: nowrap;
 }
 
 .toast.show {
-  opacity: 1;
+  opacity: 1; 
   transform: translate(-50%, 0);
 }
 
@@ -4372,11 +4373,11 @@ input[type="number"]::placeholder {
   border: 3px solid rgba(255, 255, 255, 0.1);
   border-top-color: var(--green);
   border-radius: 50%;
-  animation: spin 1s linear infinite;
+  animation: spinCanvas 1s linear infinite;
   margin-bottom: 20px;
 }
 
-@keyframes spin {
+@keyframes spinCanvas {
     to { transform: rotate(360deg); }
 }
 
@@ -4420,7 +4421,7 @@ input[type="number"]::placeholder {
   justify-content: center;
   align-items: center;
   gap: 8px;
-  height: 330px;
+  height: 270px;
   margin-top: 15px;
 }
 
@@ -4446,13 +4447,50 @@ input[type="number"]::placeholder {
   padding: 10px 15px;
   width: 100%;
   border: 1px solid var(--bg-55);
-  border-left: 2px solid var(--green);
+  border-left: 1px solid var(--green-border);
   transition: all 0.2 ease;
   cursor: pointer;
 }
 
 .rule-row:hover {
   filter: brightness(1.2);
+}
+
+.rule-row.active {
+  border-left: 1px solid var(--green-border);
+  background: linear-gradient(
+    90deg,
+    rgba(6, 68, 47, 0.15) 0%,
+    rgba(38, 38, 38, 1) 100%
+  );
+}
+
+.rule-row.warning {
+  border-left: 1px solid var(--yellow-border);
+  background: linear-gradient(
+    90deg,
+    rgba(204, 164, 34, 0.15) 0%,
+    rgba(38, 38, 38, 1) 100%
+  );
+}
+
+.rule-row.danger {
+  border-left: 1px solid var(--red-border);
+  background: linear-gradient(
+    90deg,
+    rgba(204, 34, 60, 0.15) 0%,
+    rgba(38, 38, 38, 1) 100%
+  );
+}
+
+.rule-row.warning .rule-value,
+.rule-row.warning .progress-count {
+  color: var(--yellow);
+}
+
+.rule-row.danger .rule-value,
+.rule-row.danger .progress-count {
+  color: var(--red);
 }
 
 .rule-info {
@@ -4511,24 +4549,24 @@ input[type="number"]::placeholder {
   transition: width 0.3s ease;
   background: linear-gradient(
     90deg,
-    rgb(10, 114, 79) 0%,
-    rgba(16, 185, 129, 1) 100%
+    rgb(47, 180, 131) 0%,
+    rgb(31, 230, 157) 70%
   );
 }
 
 .progress-fill-sop.warning {
   background: linear-gradient(
     90deg,
-    rgb(114, 90, 10) 0%,
-    rgb(185, 140, 16) 100%
+    rgb(204, 163, 41) 0%,
+    rgb(255, 222, 102) 70%
   );
 }
 
 .progress-fill-sop.danger {
   background: linear-gradient(
     90deg,
-    rgb(114, 10, 10) 0%,
-    rgb(185, 16, 16) 100%
+    rgb(216, 78, 98) 0%,
+    rgb(247, 66, 93) 70%
   );
 }
 
@@ -4540,11 +4578,10 @@ input[type="number"]::placeholder {
 }
 
 .info-card {
-  background: #334155;
   border-radius: 10px;
-  padding: 10px;
+  padding: 14px 10px;
   text-align: center;
-  border: 1px solid #475569;
+  border: 1px solid var(--gray);
 }
 
 .info-icon {
@@ -4563,46 +4600,45 @@ input[type="number"]::placeholder {
 .info-value {
   font-size: var(--s12);
   font-weight: var(--w6);
-  color: var(--green);
 }
 
 .info-card.active {
-  border-color: var(--green-dark);
+  border-color: var(--green-border);
   background: linear-gradient(
     155deg,
     rgba(20, 20, 20, 1) 0%,
-    rgba(16, 185, 129, 0.2) 100%
+    rgba(16, 185, 129, 0.1) 100%
   );
 }
 
 .info-card.active .info-value {
-  color: #6ee7b7;
+  color: var(--green);
 }
 
 .info-card.warning {
-  border-color: #c08b30;
+  border-color: var(--yellow-border);
   background: linear-gradient(
     155deg,
     rgba(20, 20, 20, 1) 0%,
-    rgba(204, 164, 34, 0.2) 100%
+    rgba(204, 164, 34, 0.1) 100%
   );
 }
 
 .info-card.warning .info-value {
-  color: #fbbf24;
+  color: var(--yellow);
 }
 
 .info-card.danger {
-  border-color: #c74747;
+  border-color: var(--red-border);
   background: linear-gradient(
     155deg,
     rgba(20, 20, 20, 1) 0%,
-    rgba(204, 34, 60, 0.2) 100%
+    rgba(204, 34, 60, 0.1) 100%
   );
 }
 
 .info-card.danger .info-value {
-  color: #fca5a5;
+  color: var(--red);
 }
 
 /* ────── Popup Logout ────── */
