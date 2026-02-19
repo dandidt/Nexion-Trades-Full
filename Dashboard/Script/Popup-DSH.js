@@ -166,7 +166,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     btnAccountManage.addEventListener("click", (e) => {
         e.stopPropagation();
-        CloseAllPopups(); 
+        closeAllPopups(); 
         
         if (popupOverlay) popupOverlay.classList.add("show");
         document.body.classList.add("popup-open");
@@ -175,7 +175,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     function handleClose() {
-        CloseAllPopups(); 
+        closeAllPopups(); 
     }
 
     if (closeAccountBtn) {
