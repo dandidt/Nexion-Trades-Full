@@ -1,4 +1,4 @@
-function CloseAllPopups() {
+function CloseAllPopupsGlobal() {
     document.querySelectorAll('[class*="popup-"].show').forEach(el => {
         if (el.classList.contains('popup-overlay')) return;
         el.classList.remove('show');
@@ -11,5 +11,5 @@ function CloseAllPopups() {
 }
 
 if (typeof window !== 'undefined') {
-    window.CloseAllPopups = CloseAllPopups;
+    window.CloseAllPopupsGlobal = CloseAllPopupsGlobal;
 }

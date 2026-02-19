@@ -353,15 +353,15 @@ document.querySelector('.btn-add-account')?.addEventListener('click', () => {
 });
 
 // ────── POPUP & DROPDOWN SETUP ────── //
-// function closeAllPopups() {
-//     document.querySelector(".popup-perpetual-add")?.classList.remove("show");
-//     document.querySelector(".popup-perpetual-edit")?.classList.remove("show");
-//     document.querySelector(".popup-spot-add")?.classList.remove("show");
-//     document.querySelector(".popup-spot-edit")?.classList.remove("show");
-//     document.querySelector(".popup-overlay")?.classList.remove("show");
-//     document.body.classList.remove("popup-open");
-//     document.body.style.overflow = "";
-// }
+function closeAllPopups() {
+    document.querySelector(".popup-perpetual-add")?.classList.remove("show");
+    document.querySelector(".popup-perpetual-edit")?.classList.remove("show");
+    document.querySelector(".popup-spot-add")?.classList.remove("show");
+    document.querySelector(".popup-spot-edit")?.classList.remove("show");
+    document.querySelector(".popup-overlay")?.classList.remove("show");
+    document.body.classList.remove("popup-open");
+    document.body.style.overflow = "";
+}
 
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
