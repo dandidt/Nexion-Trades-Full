@@ -91,6 +91,8 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   function openSection(name) {
+    CloseAllPopups();
+    
     hideAll();
     window.scrollTo({ top: 0 });
 

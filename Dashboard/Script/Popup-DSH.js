@@ -164,56 +164,36 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (!btnAccountManage || !popupAccount) return;
 
-    function isAnyOtherPopupOpen() {
-        const otherPopups = [
-            ".popup-perpetual-add",
-            ".popup-perpetual-edit",
-            ".popup-perpetual-transactions-edit",
-            ".popup-caculate"
-        ];
-        return otherPopups.some(selector => {
-            const el = document.querySelector(selector);
-            return el && el.classList.contains("show");
-        });
-    }
-
-    function closeAccountPopup() {
-        popupAccount.classList.remove("show");
-        forceCloseLogoutPopup();
-
-        if (!isAnyOtherPopupOpen()) {
-            if (popupOverlay) popupOverlay.classList.remove("show");
-            document.body.classList.remove("popup-open");
-            document.body.style.overflow = "";
-        }
-    }
-
     btnAccountManage.addEventListener("click", (e) => {
         e.stopPropagation();
+        CloseAllPopups(); 
+        
         if (popupOverlay) popupOverlay.classList.add("show");
         document.body.classList.add("popup-open");
         document.body.style.overflow = "hidden";
         popupAccount.classList.add("show");
     });
 
+    function handleClose() {
+        CloseAllPopups(); 
+    }
+
     if (closeAccountBtn) {
         closeAccountBtn.addEventListener("click", (e) => {
             e.stopPropagation();
-            closeAccountPopup();
+            handleClose();
         });
     }
 
     if (popupOverlay) {
         popupOverlay.addEventListener("click", (e) => {
-            if (popupAccount.classList.contains("show") && !popupAccount.contains(e.target)) {
-                closeAccountPopup();
-            }
+            handleClose();
         });
     }
 
     document.addEventListener("keydown", (e) => {
         if (e.key === "Escape" && popupAccount.classList.contains("show")) {
-            closeAccountPopup();
+            handleClose();
         }
     });
 });
@@ -373,15 +353,15 @@ document.querySelector('.btn-add-account')?.addEventListener('click', () => {
 });
 
 // ────── POPUP & DROPDOWN SETUP ────── //
-function closeAllPopups() {
-    document.querySelector(".popup-perpetual-add")?.classList.remove("show");
-    document.querySelector(".popup-perpetual-edit")?.classList.remove("show");
-    document.querySelector(".popup-spot-add")?.classList.remove("show");
-    document.querySelector(".popup-spot-edit")?.classList.remove("show");
-    document.querySelector(".popup-overlay")?.classList.remove("show");
-    document.body.classList.remove("popup-open");
-    document.body.style.overflow = "";
-}
+// function closeAllPopups() {
+//     document.querySelector(".popup-perpetual-add")?.classList.remove("show");
+//     document.querySelector(".popup-perpetual-edit")?.classList.remove("show");
+//     document.querySelector(".popup-spot-add")?.classList.remove("show");
+//     document.querySelector(".popup-spot-edit")?.classList.remove("show");
+//     document.querySelector(".popup-overlay")?.classList.remove("show");
+//     document.body.classList.remove("popup-open");
+//     document.body.style.overflow = "";
+// }
 
 document.addEventListener("DOMContentLoaded", () => {
     const popupOverlay = document.querySelector(".popup-overlay");
@@ -404,7 +384,6 @@ document.addEventListener("DOMContentLoaded", () => {
             popupEditSpotTransaction?.classList.contains("show")
         );
     }
-
 
     function closePopup(popup) {
         popup?.classList.remove("show");
@@ -430,7 +409,7 @@ document.addEventListener("DOMContentLoaded", () => {
         document.body.style.overflow = "";
     }
 
-    // ------ ADD BUTTON (DINAMIS BERDASARKAN TAB AKTIF) ------
+    // ------ ADD BUTTON ------
     document.getElementById("btnAdd")?.addEventListener("click", () => {
         closeAllPopups();
         document.body.classList.add("popup-open");
@@ -3702,19 +3681,30 @@ async function updatePairIcon(pairSymbol) {
 function getMostFrequentEdge(trades) {
     const counts = {};
     let maxCount = 0;
-    let topEdge = 'Scalping Reversal';
+    let topEdge = 'No Trade';
 
     trades.forEach(t => {
-        const method = t.Method || 'Scalping';
-        const behavior = t.Behavior || 'Reversal';
-        const key = `${method} ${behavior}`;
+        if (t.Method && String(t.Method).trim() !== '') {
+            const methodKey = String(t.Method).trim();
+            counts[methodKey] = (counts[methodKey] || 0) + 1;
+            
+            if (counts[methodKey] > maxCount) {
+                maxCount = counts[methodKey];
+                topEdge = methodKey;
+            }
+        }
         
-        counts[key] = (counts[key] || 0) + 1;
-        if (counts[key] > maxCount) {
-            maxCount = counts[key];
-            topEdge = key;
+        if (t.Behavior && String(t.Behavior).trim() !== '') {
+            const behaviorKey = String(t.Behavior).trim();
+            counts[behaviorKey] = (counts[behaviorKey] || 0) + 1;
+            
+            if (counts[behaviorKey] > maxCount) {
+                maxCount = counts[behaviorKey];
+                topEdge = behaviorKey;
+            }
         }
     });
+    
     return topEdge;
 }
 
@@ -3723,12 +3713,14 @@ const canvasLoading = document.getElementById('canvasLoading');
 function showLoading() {
     if (canvasLoading) {
         canvasLoading.classList.add('active');
+        canvasShareContainer.classList.add("loading");
     }
 }
 
 function hideLoading() {
     if (canvasLoading) {
         canvasLoading.classList.remove('active');
+        canvasShareContainer.classList.remove("loading");
     }
 }
 
