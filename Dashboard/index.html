@@ -718,45 +718,31 @@
                         <!-- SVG -->
                         <svg id="wrChartSVG" viewBox="0 0 200 200">
                             <defs>
-                                <linearGradient id="winGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#00fff2;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#4dd4ac;stop-opacity:1" />
+                                <linearGradient id="winGradient">
+                                    <stop offset="0%" style="stop-color:#00fff2"/>
+                                    <stop offset="100%" style="stop-color:#4dd4ac"/>
                                 </linearGradient>
                                 
-                                <linearGradient id="loseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#e22222;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#ff0000;stop-opacity:1" />
+                                <linearGradient id="loseGradient">
+                                    <stop offset="0%" style="stop-color:#e22222"/>
+                                    <stop offset="100%" style="stop-color:#ff0000;"/>
                                 </linearGradient>
                                 
-                                <linearGradient id="missedGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#cfcfcf;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#ffffff;stop-opacity:1" />
+                                <linearGradient id="missedGradient">
+                                    <stop offset="0%" style="stop-color:#cfcfcf;"/>
+                                    <stop offset="100%" style="stop-color:#ffffff;"/>
                                 </linearGradient>
                                 
-                                <linearGradient id="breakEvenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-                                    <stop offset="0%" style="stop-color:#ffd700;stop-opacity:1" />
-                                    <stop offset="100%" style="stop-color:#ffaa00;stop-opacity:1" />
+                                <linearGradient id="breakEvenGradient">
+                                    <stop offset="0%" style="stop-color:#ffd700;"/>
+                                    <stop offset="100%" style="stop-color:#ffaa00;"/>
                                 </linearGradient>
                             </defs>
                             
-                            <circle id="winSegment" cx="100" cy="100" r="82.5" 
-                                    fill="none" stroke="url(#winGradient)" stroke-width="35"
-                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
-                            </circle>
-                            
-                            <circle id="loseSegment" cx="100" cy="100" r="82.5" 
-                                    fill="none" stroke="url(#loseGradient)" stroke-width="35"
-                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
-                            </circle>
-                            
-                            <circle id="missedSegment" cx="100" cy="100" r="82.5" 
-                                    fill="none" stroke="url(#missedGradient)" stroke-width="35"
-                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
-                            </circle>
-                            <circle id="breakEvenSegment" cx="100" cy="100" r="82.5" 
-                                    fill="none" stroke="url(#breakEvenGradient)" stroke-width="35"
-                                    style="filter: drop-shadow(0px 4px 12px rgba(0, 0, 0, 0.15)); transition: stroke-dasharray 0.8s ease, stroke-dashoffset 0.8s ease;">
-                            </circle>
+                            <circle id="winSegment" cx="100" cy="100" r="82.5" fill="none" stroke-width="35"></circle>
+                            <circle id="loseSegment" cx="100" cy="100" r="82.5" fill="none" stroke-width="35"></circle>
+                            <circle id="missedSegment" cx="100" cy="100" r="82.5" fill="none" stroke-width="35"></circle>
+                            <circle id="breakEvenSegment" cx="100" cy="100" r="82.5" fill="none" stroke-width="35"></circle>
                         </svg>
                         
                         <!-- Canvas -->

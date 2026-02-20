@@ -1550,10 +1550,6 @@ let dataWrChart = [];
 let total = 0;
 let currentWrMode = "perpetual";
 
-function getBg35Color() {
-    return getComputedStyle(document.documentElement).getPropertyValue('--bg-35').trim() || '#333333';
-}
-
 function resizeWrChart() {
     const parent = canvasWrChart.parentElement;
     if (!parent) return { centerX: 0, centerY: 0 };
@@ -1679,7 +1675,7 @@ function drawCenterText() {
 }
 
 function renderWrChart() {
-    const bg35 = getBg35Color();
+    const bg35 = getComputedStyle(document.documentElement).getPropertyValue('--bg-35').trim() || '#333333';
     ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
 
     if (total === 0) {

@@ -4362,12 +4362,17 @@ function drawFeeChart() {
     ctxFee.clearRect(0, 0, canvasFee.width, canvasFee.height);
 
     if (feeFullData.length === 0) {
+        const circlefee = document.getElementById('circlefee');
+        if (circlefee) {
+            circlefee.style.display = 'none';
+        }
+
         ctxFee.save();
         ctxFee.font = '700 34px Sansation';
         ctxFee.fillStyle = 'rgba(255, 255, 255, 0.3)';
         ctxFee.textAlign = 'center';
         ctxFee.textBaseline = 'middle';
-        ctxFee.fillText('NEXION TRADE', canvasFee.width / 2, canvasFee.height / 2);
+        ctxFee.fillText('NEXION TRADE', canvasFee.width / 2, canvasFee.height / 2.1);
         ctxFee.restore();
         return;
     }
@@ -4421,13 +4426,6 @@ function drawFeeChart() {
               const ratio = i / (numLabels - 1);
               return new Date(axisStart.getTime() + totalDuration * ratio);
           });
-
-    ctxFee.font = '600 30px Sansation';
-    ctxFee.fillStyle = 'rgba(255, 255, 255, 0.3)';
-    ctxFee.textAlign = 'center';
-    ctxFee.textBaseline = 'middle';
-    ctxFee.fillText('NEXION TRADE', canvasFee.width / 2, canvasFee.height / 2.5);
-    ctxFee.restore();
 
     let lastFee = feeFullData[0]?.fee || 0;
     feePoints = fullDates.map(d => {
