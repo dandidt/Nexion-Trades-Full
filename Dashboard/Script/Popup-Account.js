@@ -269,6 +269,7 @@ async function switchToAccount(refreshToken) {
 
   if (!account) {
     showToast("Account not found");
+    renderAccountList();
     return;
   }
 

@@ -22,14 +22,19 @@ body.popup-open {
   overflow: hidden;
 }
 
+h1 {
+  font-size: var(--s22);
+  font-weight: var(--w6);
+}
+
 h2 {
   font-size: var(--s20);
   font-weight: var(--w6);
 }
 
 h3 {
-  font-size: var(--s20);
-  font-weight: var(--w7);
+  font-size: var(--s18);
+  font-weight: var(--w6);
 }
 
 a {
@@ -3316,6 +3321,12 @@ circle.segment {
   gap: 6px;
 }
 
+.wraper-btn-profile {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .row-main {
   display: flex;
   justify-content: space-between;
@@ -3489,14 +3500,19 @@ input[type="file"] {
 }
 
 .profile-name {
-  font-size: 22px;
-  font-weight: 600;
-  color: #fff;
+  font-size: var(--s22);
+  font-weight: var(--w6);
+  color: var(--white);
   margin-top: 10px;
+
+  max-width: 15ch; 
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .profile-placeholder {
-  color: #666;
+  color: var(--gray);
 }
 
 .user-id-container {
@@ -3507,21 +3523,21 @@ input[type="file"] {
 }
 
 .barcode {
-  height: 40px;
+  height: 25px;
   margin-bottom: 12px;
-  box-shadow: 0 0 8px rgba(5, 187, 102, 0.2);
+  box-shadow: 0 0 8px var(--bg-green);
   background: repeating-linear-gradient(
     90deg,
-    #0bbb80,
-    #0ec25f 2px,
+    var(--green),
+    var(--green-light) 2px,
     transparent 2px,
     transparent 4px,
-    #0bbb80 4px,
-    #0ec25f 6px,
+    var(--green) 4px,
+    var(--green-dark) 6px,
     transparent 6px,
     transparent 10px,
-    #0bbb95 10px,
-    #0ec25f 11px,
+    var(--green-dark) 10px,
+    var(--green-light) 11px,
     transparent 11px,
     transparent 13px
   );
@@ -3530,9 +3546,8 @@ input[type="file"] {
 
 .user-id {
   font-family: "Courier New", monospace;
-  font-size: 10px;
-  color: #666;
-  letter-spacing: 1px;
+  font-size: var(--s10);
+  color: var(--gray-dark);
 }
 
 /* Logout */
