@@ -481,6 +481,11 @@ input:-webkit-autofill {
   color: var(--gray);
 }
 
+.wrapper-support a:hover span {
+  color: var(--green);
+  text-decoration: underline;
+}
+
 .title-confirm {
   color: var(--green);
 }

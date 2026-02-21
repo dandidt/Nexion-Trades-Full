@@ -11,7 +11,7 @@
         <link rel="stylesheet" href="../Global/Global.style.css">
         <link rel="stylesheet" href="../Global/Font.style.css">
         <link rel="stylesheet" href="../Global/Button.style.css">
-        <link rel="stylesheet" href="Style/Style-DSH.css" />
+        <link rel="stylesheet" href="Style/Style.Main.css" />
         <link rel="preconnect" href="https://fonts.googleapis.com">
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
@@ -759,7 +759,7 @@
                     </div>
                     <div class="stats-row-progress">
                         <div class="progress-bar">
-                            <div class="progress-fill progress-green" id="progressLongShort"></div>
+                            <div class="progress-fill" style="width: var(--PLS);"></div>
                         </div>
                         <div class="stat-row">
                             <span class="stat-value" id="long">0</span>
@@ -772,7 +772,7 @@
                     </div>
                     <div class="stats-row-progress">
                         <div class="progress-bar">
-                            <div class="progress-fill progress-green" id="progressRevCon"></div>
+                            <div class="progress-fill" style="width: var(--PRC);"></div>
                         </div>
                         <div class="stat-row">
                             <span class="stat-value" id="reversal">0</span>
@@ -851,7 +851,7 @@
                                 </div>
                                 <div class="wrapper-progress-bheavior">
                                     <div class="progress-bheavior">
-                                        <div class="bar-progress" style="width: var(--PRev);"></div>
+                                        <div class="progress-fill" style="width: var(--PRev);"></div>
                                     </div>
                                 </div>
                             </div>
@@ -889,7 +889,7 @@
                                 </div>
                                 <div class="wrapper-progress-bheavior">
                                     <div class="progress-bheavior">
-                                        <div class="bar-progress" style="width: var(--PCon);"></div>
+                                        <div class="progress-fill" style="width: var(--PCon);"></div>
                                     </div>
                                 </div>
                             </div>
@@ -2834,12 +2834,12 @@
         </div>
         
         <!-- Script -->
-        <script src="Script/ScripDB-DSH.js"></script>
-        <script src="Script/Script-DSH.js"></script>
-        <script src="Script/Chart-DSH.js"></script>
-        <script src="Script/Popup-DSH.js"></script>
-        <script src="Script/Popup-Account.js"></script>
-        <script src="Script/Helper-Popup.js"></script>
+        <script src="Script/Server.Auth.js"></script>
+        <script src="Script/Script.Main.js"></script>
+        <script src="Script/Chart.Main.js"></script>
+        <script src="Script/Popup.Main.js"></script>
+        <script src="Script/Popup.Account.js"></script>
+        <script src="Script/Popup.Helper.js"></script>
         <script src="../Global/Global.script.js"></script>
     </body>
 </html>

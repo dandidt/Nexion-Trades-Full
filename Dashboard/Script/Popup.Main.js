@@ -621,7 +621,6 @@ document.addEventListener('DOMContentLoaded', () => {
 function getDropdownValue(dropdownName) {
     const dropdown = document.querySelector(`.custom-dropdown[data-dropdown="${dropdownName}"]`);
     if (!dropdown) {
-        console.warn(`[getDropdownValue] Dropdown dengan name "${dropdownName}" tidak ditemukan.`);
         return null;
     }
     const selectedOption = dropdown.querySelector('.dropdown-option.selected');
@@ -1207,9 +1206,8 @@ function CancelEditPerpetual() {
             });
         });
 
-        console.log("[UI] Edit popup closed & state reset");
-    } catch (err) {
-        console.error("CancelEditPerpetual error:", err);
+    } catch (error) {
+        console.error('Result:', error);
     }
 }
 
@@ -1262,8 +1260,8 @@ async function DeletePerpetual() {
         restartSOP();
         CancelEditPerpetual();
 
-    } catch (err) {
-        console.error("Error Remove:", err);
+    } catch (error) {
+        console.error('Result:', error);
     } finally {
         btn.classList.remove("loading");
     }
@@ -1318,8 +1316,8 @@ async function DeletePerpetualTransaction() {
         restartSOP();
         CancelEditPerpetual();
 
-    } catch (err) {
-        console.error("Error Delete:", err);
+    } catch (error) {
+        console.error('Result:', error);
     } finally {
         btn.classList.remove("loading");
     }
@@ -1839,8 +1837,8 @@ async function DeleteSpot() {
         restartSOP();
         CancelEditSpot();
 
-    } catch (err) {
-        console.error("Error Delete:", err);
+    } catch (error) {
+        console.error('Result:', error);
     } finally {
         btn.classList.remove("loading");
     }
@@ -1889,8 +1887,8 @@ async function DeleteSpotTransaction() {
         restartSOP();
         CancelEditSpot();
 
-    } catch (err) {
-        console.error("Error Delete:", err);
+    } catch (error) {
+        console.error('Result:', error);
     } finally {
         btn.classList.remove("loading");
     }
@@ -2019,8 +2017,8 @@ async function DeleteSelectedPerpetualTrades() {
     restartSOP();
     CancelEditPerpetual();
 
-  } catch (err) {
-    console.error("Mass Delete Perpetual Error:", err);
+  } catch (error) {
+    console.error('Result:', error);
   }
 }
 
@@ -2056,8 +2054,8 @@ async function DeleteSelectedSpotTrades() {
     if (typeof updateAllUI === "function") await updateAllUI();
     restartSOP();
 
-  } catch (err) {
-    console.error("Mass Delete Spot Error:", err);
+  } catch (error) {
+    console.error('Result:', error);
   }
 }
 
@@ -2100,7 +2098,7 @@ document.addEventListener("DOMContentLoaded", () => {
                         if (typeof window.showToast === "function") {
                             window.showToast(`Copied: ${text}`);
                         } else {
-                            console.log("Copied:", text);
+                            return
                         }
                     })
                     .catch(() => {
@@ -2164,7 +2162,9 @@ document.getElementById("PerpetualAutoPnL")?.addEventListener("click", () => {
         if (rrInput) rrInput.value = rrUsed.toFixed(2);
 
         showToast("Perpetual PnL Calculated!");
-    } catch (err) { console.error("Auto calc error:", err); }
+    } catch (error) { 
+        console.error('Result:', error); 
+    }
 });
 
 // ------ Automation PnL Spot ------ //
@@ -2218,7 +2218,9 @@ document.getElementById("SpotAutoPnL")?.addEventListener("click", () => {
         if (rrInput) rrInput.value = rrUsed.toFixed(2);
 
         showToast("Spot PnL Calculated!");
-    } catch (err) { console.error("Auto calc error:", err); }
+    } catch (error) {
+        console.error('Result:', error);
+    }
 });
 
 // ────── Popup SOP  ────── //
@@ -2589,8 +2591,6 @@ function restartSOP() {
     Object.assign(tradingDataSop, todaySop);
 
     updateUI();
-
-    console.log('SOP UI Restarted:', tradingDataSop);
 }
 
 // ────── Edit Profile ────── //
@@ -2809,7 +2809,7 @@ async function SaveEditProfile() {
                 await supabaseClient.storage
                     .from('avatars')
                     .remove([oldAvatar])
-                    .catch(err => console.warn("Gagal hapus avatar lama:", err));
+                    .catch(error => console.error('Result:', error));
             }
 
             const byteString = atob(currentPreviewSrc.split(',')[1]);
@@ -2870,8 +2870,8 @@ async function SaveEditProfile() {
         renderNavbarAvatar();
         renderAccountList();
 
-    } catch (err) {
-        console.error("Error:", err);
+    } catch (error) {
+        console.error('Result:', error);
         const alertEl = document.getElementById("usernameAltert");
         if (alertEl) {
             let message = "Failed to save: " + (err.message || "Unknown error");
@@ -2924,7 +2924,6 @@ function updateAvatarInSavedAccounts(user_id, newAvatarBase64) {
     if (accountIndex !== -1) {
         savedAccounts[accountIndex].avatar = newAvatarBase64;
         localStorage.setItem('saved_accounts', JSON.stringify(savedAccounts));
-        console.log('Avatar Update:', user_id);
     }
 }
 
@@ -2951,7 +2950,9 @@ document.addEventListener("DOMContentLoaded", () => {
                         TEXT_CONTENT_SHARE.username = profile?.username || 'User';
                     }
                 }
-            } catch (err) { console.error(err); }
+            } catch (error) { 
+                console.error('Result:', error);
+            }
 
             closeAllPopups();
             document.body.classList.add("popup-open");
@@ -3324,8 +3325,8 @@ async function loadSymbolJson() {
         const data = await response.json();
         symbolJsonData = data;
         return data;
-    } catch (e) {
-        console.error("Failed to load symbol JSON", e);
+    } catch (error) {
+        console.error('Result:', error);
         return [];
     }
 }
@@ -3518,14 +3519,14 @@ function getTemplateCache() {
     try {
         const cached = JSON.parse(localStorage.getItem("templateShareCache"));
         if (cached && cached.version === TEMPLATE_SHARE_VERSION) return cached.images;
-    } catch (e) { console.warn("Cache error", e); }
+    } catch (error) { console.error('Result:', error); }
     return null;
 }
 
 function setTemplateCache(imagesObj) {
     try {
         localStorage.setItem("templateShareCache", JSON.stringify({ version: TEMPLATE_SHARE_VERSION, images: imagesObj }));
-    } catch (e) { console.error("Save cache error", e); }
+    } catch (error) { console.error('Result:', error); }
 }
 
 async function loadAssets() {
@@ -3765,7 +3766,7 @@ async function calculateMonthlyStats(targetYear, targetMonth) {
         };
 
     } catch (error) {
-        console.error('Error calculating monthly stats:', error);
+        console.error('Result:', error);
         return null;
     }
 }
@@ -3881,7 +3882,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const monthIndex = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'].indexOf(monthStr);
         if (monthIndex === -1 || isNaN(year)) {
-            console.warn("Invalid month format:", monthNameText);
             return;
         }
 
@@ -3890,7 +3890,6 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (!matchedEntry) {
-            console.warn("No monthly data found for", monthStr, year);
             return;
         }
 
@@ -3942,7 +3941,6 @@ async function calculatePairStats(symbol) {
         }
 
         if (!Array.isArray(rawData)) {
-            console.warn("Raw data tidak valid untuk pair:", symbol);
             return null;
         }
 
@@ -3953,7 +3951,6 @@ async function calculatePairStats(symbol) {
         });
 
         if (pairTrades.length === 0) {
-            console.warn("Tidak ada trade ditemukan untuk pair:", symbol);
             return null;
         }
 
@@ -4014,7 +4011,7 @@ async function calculatePairStats(symbol) {
             reversal
         };
     } catch (error) {
-        console.error("Error menghitung statistik pair:", symbol, error);
+        console.error('Result:', error, symbol);
         return null;
     }
 }
@@ -4120,7 +4117,6 @@ document.addEventListener("DOMContentLoaded", () => {
         pairName = pairName.replace(/[^A-Z0-9]/g, '');
 
         if (!pairName) {
-            console.warn("Pair name tidak valid:", pairItem.textContent);
             return;
         }
 
@@ -4305,7 +4301,7 @@ async function loadFeeData(mode = 'perpetual') {
         drawFeeChart();
 
     } catch (error) {
-        console.error('Error loading fee data:', error);
+        console.error('Result:', error);
         feeFullData = [];
         drawFeeChart();
         updateFeeTotalDisplay(0);
@@ -4712,11 +4708,9 @@ async function DeleteAllData() {
     }
 
     location.reload()
-    
-    console.log("All data deleted successfully.");
 
-  } catch (err) {
-    console.error("Delete ALL Error:", err.message || err);
+  } catch (error) {
+    console.error('Result:', error);
   } finally {
     if (btn) btn.classList.remove("loading");
   }

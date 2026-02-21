@@ -1,10 +1,15 @@
 // ────── Format ────── //
 function formatUSD(value) {
-    if (value === 0) return "$0";
-    return `$${value.toLocaleString('en-US', {
+    if (value === 0) return "$0.00";
+
+    const isNegative = value < 0;
+    
+    const formattedValue = Math.abs(value).toLocaleString('en-US', {
         minimumFractionDigits: 2,
         maximumFractionDigits: 2
-    })}`;
+    });
+
+    return `${isNegative ? '-' : ''}$${formattedValue}`;
 }
 
 function formatUSDShort(value) {
@@ -290,7 +295,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       if (rawPerp) originalPerpetual = JSON.parse(rawPerp);
       if (!Array.isArray(originalPerpetual)) originalPerpetual = [];
     } catch (err) {
-      console.warn("Fail parse dbperpetual:", err);
       originalPerpetual = [];
     }
 
@@ -299,7 +303,6 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       if (rawSpot) originalSpot = JSON.parse(rawSpot);
       if (!Array.isArray(originalSpot)) originalSpot = [];
     } catch (err) {
-      console.warn("Fail parse dbspot:", err);
       originalSpot = [];
     }
 
@@ -308,7 +311,7 @@ function updateDashboardFromTrades(dataPerpetual = [], dataSpot = []) {
       const rawSaldo = localStorage.getItem("saldoAwal");
       saldoAwal = rawSaldo ? Number(rawSaldo) : 0;
     } catch (err) {
-      console.warn("Fail ambil saldoAwal:", err);
+      return
     }
 
     let totalDeposit = 0;
@@ -1362,7 +1365,7 @@ document.addEventListener('DOMContentLoaded', () => {
   try {
     window.tooltipManager = initTooltip();
   } catch (error) {
-    console.error('Failed to initialize tooltip manager:', error);
+    console.error('Result:', error);
   }
 });
 
@@ -1604,11 +1607,9 @@ async function updateEquityStats() {
     const dataSpot = await getDBSpot();
 
     if (!Array.isArray(dataPerpetual)) {
-      console.warn("Data perpetual tidak valid");
       return;
     }
     if (!Array.isArray(dataSpot)) {
-      console.warn("Data spot tidak valid");
       return;
     }
 
@@ -1619,16 +1620,6 @@ async function updateEquityStats() {
 
     let pnlPerp = 0, depositPerp = 0, withdrawPerp = 0;
     let pnlSpot = 0, depositSpot = 0, withdrawSpot = 0;
-
-    const formatCurrency = (n) => {
-      const v = Number(n) || 0;
-      const sign = v < 0 ? "-" : "";
-      const abs = Math.abs(v);
-      return sign + "$" + abs.toLocaleString("en-US", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2
-      });
-    };
 
     const processDataset = (dataset, isPerp = true) => {
       let localPnl = 0;
@@ -1710,17 +1701,17 @@ async function updateEquityStats() {
     const elValueFeePaid = document.getElementById("valueFeePaid");
     const elPersentaseFeePaid = document.getElementById("persentaseFeePaid");
 
-    if (elTotalEquity) elTotalEquity.textContent = formatCurrency(totalEquity);
-    if (elTotalPerp) elTotalPerp.textContent = formatCurrency(equityPerp);
-    if (elTotalSpot) elTotalSpot.textContent = formatCurrency(equitySpot);
+    if (elTotalEquity) elTotalEquity.textContent = formatUSD(totalEquity);
+    if (elTotalPerp) elTotalPerp.textContent = formatUSD(equityPerp);
+    if (elTotalSpot) elTotalSpot.textContent = formatUSD(equitySpot);
     if (elPersentaseWithdraw) elPersentaseWithdraw.textContent = `${persentaseWithdraw}%`;
-    if (elValueWithdraw) elValueWithdraw.textContent = formatCurrency(totalWithdraw);
-    if (elValueDeposit) elValueDeposit.textContent = formatCurrency(totalDeposit);
-    if (elValueFeePaid) elValueFeePaid.textContent = formatCurrency(-totalFeePaid);
+    if (elValueWithdraw) elValueWithdraw.textContent = formatUSD(totalWithdraw);
+    if (elValueDeposit) elValueDeposit.textContent = formatUSD(totalDeposit);
+    if (elValueFeePaid) elValueFeePaid.textContent = formatUSD(-totalFeePaid);
     if (elPersentaseFeePaid) elPersentaseFeePaid.textContent = `(${persentaseFee}%)`;
 
   } catch (error) {
-    console.error("Fail update equity stats:", error);
+    console.error('Result:', error);
   }
 }
 
@@ -1742,7 +1733,6 @@ async function updateStats(mode = "Perpetual") {
     }
 
     if (!Array.isArray(trades)) {
-      console.warn("Data trading tidak valid untuk mode:", mode);
       resetStatsUI();
       return;
     }
@@ -1907,7 +1897,7 @@ async function updateStats(mode = "Perpetual") {
     if (elPersentaseAthBalance) elPersentaseAthBalance.textContent = formatPercent(athPercent) + " ROE";
 
   } catch (error) {
-    console.error("Fail update stats untuk mode:", mode, error);
+    console.error('Result:', error, mode);
     resetStatsUI();
   }
 }
@@ -1933,7 +1923,6 @@ function resetStatsUI() {
   if (dropBox) dropBox.style.width = "35%";
 }
 
-// --- Event Listener untuk Tombol Switch ---
 document.querySelectorAll(".btn-radio.data-value").forEach(btn => {
     btn.addEventListener("click", function () {
         document.querySelectorAll(".btn-radio.data-value").forEach(b => b.classList.remove("active"));
@@ -1952,8 +1941,7 @@ document.querySelectorAll(".btn-radio.data-value").forEach(btn => {
 
 updateStats("Perpetual");
 
-// ────── Monthly Prtformance & Calender Trade ────── //
-// ------ Monthly Prtformance ------ //
+// ────── Monthly Prtformance ────── //
 
 let monthlyData = [];
 
@@ -2044,7 +2032,6 @@ async function loadMonthlyData() {
         renderBarChart();
 
     } catch (error) {
-        console.error('Error loading monthly data:', error);
         monthlyData = [];
         renderMonthsGrid();
         renderBarChart();
@@ -2142,7 +2129,7 @@ function renderBarChart() {
     });
 }
 
-// ------ Calendar Trade ------ //
+// ────── Calendar Trade ────── //
 let DataPnLDaily = {};
 
 function getDateKey(date) {
@@ -2202,7 +2189,6 @@ async function loadDailyPnLData() {
         renderCalendar();
 
     } catch (error) {
-        console.error('Error loading daily PnL:', error);
         DataPnLDaily = {};
         renderCalendar();
     }
@@ -2516,7 +2502,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     ]);
 });
 
-// ------ Swap menu Detailed Statistics ------ /
+// ────── Detailed Statistics ────── /
 const radios = document.querySelectorAll('input[name="toggle"]');
 const activeLine = document.getElementById('activeLine');
 const qualityContainer = document.querySelector('.container-quality');
@@ -2544,9 +2530,6 @@ radios.forEach(radio => {
   radio.addEventListener('change', updateLine);
 });
 
-updateLine();
-
-// ------ Detailed Statistics ------ //
 async function updateTradingStats() {
     try {
         const rawData = await getDBPerpetual();
@@ -2607,8 +2590,8 @@ async function updateTradingStats() {
         document.getElementById('averageProfiteStreak').textContent = '≈ ' + maxProfitStreak;
         document.getElementById('averageLossStreak').textContent = '≈ ' + maxLossStreak;
 
-    } catch (err) {
-        console.error('Fail memuat statistik trading:', err);
+    } catch (error) {
+        console.error('Result:', error);
         const ids = ['averageProfite', 'averageLoss', 'averageRR', 'averageProfiteStreak', 'averageLossStreak'];
         ids.forEach(id => {
             const el = document.getElementById(id);
@@ -2633,13 +2616,10 @@ function calculateResultStreak(trades, targetType) {
     return maxStreak;
 }
 
-updateTradingStats();
-
 async function updateTradeStats() {
   try {
     const data = await getDBPerpetual();
     if (!Array.isArray(data)) {
-      console.error('Data harus berupa array');
       return;
     }
 
@@ -2654,7 +2634,7 @@ async function updateTradeStats() {
         case 'Missed': missed++; break;
         case 'Break Even': breakEven++; break;
         default:
-          if (item.Result) console.warn('Nilai Result tidak dikenali:', item.Result);
+          if (item.Result);
       }
     });
 
@@ -2703,19 +2683,23 @@ async function updateTradeStats() {
     document.getElementById('bestDailtStreek').textContent = bestStreak;
 
   } catch (error) {
-    console.error('Fail load data:', error);
+    console.error('Result:', error);
   }
 }
 
-updateTradeStats();
-window.updateTradeStats = updateTradeStats;
+document.addEventListener("DOMContentLoaded", () => {
+  updateLine();
+  updateTradingStats();
+  updateTradeStats();
+});
 
 // ────── Global Sumary  & Single Bhhavior ────── //
 async function loadTradeStats() {
   try {
     const data = await getDBPerpetual();
+    const root = document.documentElement;
 
-    // Pos
+    // --- POS ---
     let countLong = 0, countShort = 0;
     data.forEach(item => {
       if (item.Pos === "Long") countLong++;
@@ -2724,13 +2708,14 @@ async function loadTradeStats() {
 
     const totalPos = countLong + countShort || 1;
     const longPct = ((countLong / totalPos) * 100).toFixed(2);
-    const shortPct = ((countShort / totalPos) * 100).toFixed(2);
-
+    
     document.getElementById("long").textContent = `${longPct}%`;
-    document.getElementById("short").textContent = `${shortPct}%`;
-    document.getElementById("progressLongShort").style.width = `${longPct}%`;
+    document.getElementById("short").textContent = `${((countShort / totalPos) * 100).toFixed(2)}%`;
+    
+    root.style.setProperty('--PLS', `${longPct}%`);
 
-    // Behavior
+
+    // --- BEHAVIOR ---
     let countRev = 0, countCon = 0;
     data.forEach(item => {
       if (item.Behavior === "Reversal") countRev++;
@@ -2739,13 +2724,14 @@ async function loadTradeStats() {
 
     const totalBeh = countRev + countCon || 1;
     const revPct = ((countRev / totalBeh) * 100).toFixed(2);
-    const conPct = ((countCon / totalBeh) * 100).toFixed(2);
 
     document.getElementById("reversal").textContent = `${revPct}%`;
-    document.getElementById("continuation").textContent = `${conPct}%`;
-    document.getElementById("progressRevCon").style.width = `${revPct}%`;
+    document.getElementById("continuation").textContent = `${((countCon / totalBeh) * 100).toFixed(2)}%`;
+    
+    root.style.setProperty('--PRC', `${revPct}%`);
 
-    // Method
+
+    // --- METHOD ---
     let countScalp = 0, countSwing = 0, countIntra = 0;
     data.forEach(item => {
       const method = item.Method;
@@ -2755,26 +2741,46 @@ async function loadTradeStats() {
     });
 
     const totalMethod = countScalp + countSwing + countIntra || 1;
-    const scalpPct = ((countScalp / totalMethod) * 100).toFixed(0);
-    const swingPct = ((countSwing / totalMethod) * 100).toFixed(0);
-    const intraPct = ((countIntra / totalMethod) * 100).toFixed(0);
+    
+    const elements = {
+      scalping: document.getElementById("scalping"),
+      swing: document.getElementById("swing"),
+      intraday: document.getElementById("intraday")
+    };
 
-    const scalpEl = document.getElementById("scalping");
-    const swingEl = document.getElementById("swing");
-    const intraEl = document.getElementById("intraday");
+    const counts = { Scalping: countScalp, Swing: countSwing, Intraday: countIntra };
 
-    scalpEl.textContent = `${scalpPct}%`;
-    swingEl.textContent = `${swingPct}%`;
-    intraEl.textContent = `${intraPct}%`;
-
-    [scalpEl, swingEl, intraEl].forEach(el => {
-      const val = parseFloat(el.textContent);
-      el.classList.remove("badge-green", "badge-gray");
-      el.classList.add(val > 0 ? "badge-green" : "badge-gray");
+    Object.keys(elements).forEach(key => {
+      const el = elements[key];
+      const pct = ((counts[key.charAt(0).toUpperCase() + key.slice(1)] / totalMethod) * 100).toFixed(0);
+      
+      el.textContent = `${pct}%`;
+      el.classList.remove("green", "gray");
+      el.classList.add(parseInt(pct) > 0 ? "green" : "gray");
     });
 
-  } catch (err) {
-    console.error("Fail Load Trading:", err);
+  } catch (error) {
+    console.error('Result:', error);
+  }
+}
+
+async function loadPsychologyStats() {
+  try {
+    const data = await getDBPerpetual();
+
+    let totalConf = 0, totalDoubt = 0, totalReck = 0;
+    data.forEach(item => {
+      const psy = item.Psychology;
+      if (psy === "Confident") totalConf++;
+      else if (psy === "Doubtful") totalDoubt++;
+      else if (psy === "Reckless") totalReck++;
+    });
+
+    document.getElementById("confid").textContent = totalConf;
+    document.getElementById("doubt").textContent = totalDoubt;
+    document.getElementById("reckl").textContent = totalReck;
+  } catch (error) {
+    console.error('Result:', error);
   }
 }
 
@@ -2782,7 +2788,6 @@ async function loadBehaviorStats() {
   try {
     const data = await getDBPerpetual();
 
-    // helper
     function calcBehavior(type, ids) {
       const trades = data.filter(t => t.Behavior === type);
 
@@ -2794,14 +2799,12 @@ async function loadBehaviorStats() {
       const validTrade = profit + loss;
       const wr = validTrade > 0 ? Math.round((profit / validTrade) * 100) : 0;
 
-      // text
       document.getElementById(ids.trade).textContent = `Trade: ${trades.length}`;
       document.getElementById(ids.profit).textContent = profit;
       document.getElementById(ids.loss).textContent   = loss;
       document.getElementById(ids.be).textContent     = be;
       document.getElementById(ids.missed).textContent = `Missed: ${missed}`;
 
-      // winrate
       const wrEl = document.getElementById(ids.wr);
       wrEl.textContent = `${wr}% WR`;
       wrEl.classList.remove("winrate-positive", "winrate-negative");
@@ -2832,13 +2835,14 @@ async function loadBehaviorStats() {
       barVar: "--PCon"
     });
 
-  } catch (err) {
-    console.error("Fail Load Trading:", err);
+  } catch (error) {
+    console.error('Result:', error);
   }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   loadTradeStats();
+  loadPsychologyStats();
   loadBehaviorStats();
 });
 
@@ -2852,8 +2856,8 @@ async function loadAssetDataIfNeeded() {
       const res = await fetch('Asset/Link-Symbol.json');
       if (!res.ok) throw new Error('File tidak ditemukan');
       window.assetData = await res.json();
-    } catch (err) {
-      console.error("Fail Load Icon:", err);
+    } catch (error) {
+      console.error('Result:', error);
       window.assetData = [];
     }
   }
@@ -2883,7 +2887,6 @@ async function updatePairsTable() {
   }
 
   if (!Array.isArray(rawData)) {
-    console.warn("Data trading tidak valid.");
     document.querySelector('.pairs-body').innerHTML = '<div class="no-data">Tidak ada data.</div>';
     return;
   }
@@ -2898,8 +2901,8 @@ async function updatePairsTable() {
   });
 
   const body = document.querySelector('.pairs-body');
+
   if (!body) {
-    console.error("Element .pairs-body tidak ditemukan!");
     return;
   }
 
@@ -3318,10 +3321,8 @@ async function updateAllUI() {
     await loadDailyPnLData();
 
     window.dispatchEvent(new Event('recalculateTrading'));
-
-    console.log("All UI Update.");
   } catch (error) {
-    console.error("Failed to update UI:", error);
+    console.error('Result:', error);
   }
 }
 

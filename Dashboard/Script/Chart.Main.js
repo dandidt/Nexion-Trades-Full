@@ -37,7 +37,7 @@ async function loadBalanceData(mode = 'Perpetual') {
             spotData = await getDBSpot();
         }
     } catch (error) {
-        console.error('Error loading balance data:', error);
+        console.error('Result:', error);
         balanceFullData = [];
         balanceCurrentData = [];
         resizeBalanceCanvas();
@@ -194,7 +194,7 @@ function updateFilterStats(range) {
     }
 
     const finalBalance = balanceFullData[balanceFullData.length - 1].balance;
-    valueEl.textContent = formatBalanceCurrency(finalBalance);
+    valueEl.textContent = formatUSD(finalBalance);
 
     let pnlInRange = 0;
 
@@ -236,10 +236,6 @@ function resizeBalanceCanvas() {
     canvasBalance.width = wrapper.clientWidth;
     canvasBalance.height = wrapper.clientHeight;
     drawBalanceChart();
-}
-
-function formatBalanceCurrency(value) {
-    return '$' + value.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 function formatBalanceDateShort(date) {
@@ -314,9 +310,9 @@ function drawBalanceChart(animProgress = 1) {
 
     ctxBalance.font = '12px Inter';
     const sampleTexts = [
-        formatBalanceCurrency(minBalance),
-        formatBalanceCurrency(maxBalance),
-        formatBalanceCurrency((minBalance + maxBalance) / 2)
+        formatUSD(minBalance),
+        formatUSD(maxBalance),
+        formatUSD((minBalance + maxBalance) / 2)
     ];
 
     const widestText = sampleTexts.reduce((a, b) =>
@@ -344,7 +340,7 @@ function drawBalanceChart(animProgress = 1) {
     for (let i = 0; i <= ySteps; i++) {
         const value = minBalance + (rangeBalance * (i / ySteps));
         const y = balanceChartArea.bottom - (balanceChartArea.height * i / ySteps);
-        ctxBalance.fillText(formatBalanceCurrency(value), balanceChartArea.left - 10, y + 4);
+        ctxBalance.fillText(formatUSD(value), balanceChartArea.left - 10, y + 4);
     }
 
     let fullDates = [];
@@ -712,7 +708,7 @@ canvasBalance.addEventListener('mousemove', (e) => {
     dateLabel.style.display = "block";
 
     if (!balanceLastPoint || balanceLastPoint !== closestPoint) {
-        document.getElementById('balanceTooltip').textContent = formatBalanceCurrency(closestPoint.balance);
+        document.getElementById('balanceTooltip').textContent = formatUSD(closestPoint.balance);
 
         const hoverDate = closestPoint.date;
 
@@ -750,7 +746,7 @@ canvasBalance.addEventListener('mousemove', (e) => {
         let isNegative = false;
 
         if (drawdownValue < 0) {
-            drawdownText = `-${formatBalanceCurrency(Math.abs(drawdownValue))} (${Math.abs(drawdownPercent).toFixed(2)}%)`;
+            drawdownText = `-${formatUSD(Math.abs(drawdownValue))} (${Math.abs(drawdownPercent).toFixed(2)}%)`;
             isNegative = true;
         } else {
             drawdownText = '$0';
@@ -892,8 +888,8 @@ async function loadData() {
             });
         }
         return data;
-    } catch (err) {
-        console.error('Error Data Pnl &  RR:', err);
+    } catch (error) {
+        console.error('Result:', error);
         return [];
     }
 }
@@ -1308,8 +1304,8 @@ async function loadAssetData() {
     try {
         const res = await fetch('Asset/Link-Symbol.json');
         assetData = await res.json();
-    } catch (err) {
-        console.error("Link-Symbol:", err);
+    } catch (error) {
+        console.error('Result:', error);
         assetData = [];
     }
 }
@@ -1507,8 +1503,8 @@ async function loadPairData() {
         chartData.sort((a, b) => b.percentage - a.percentage);
         renderChart(chartData);
 
-    } catch (err) {
-        console.error("Pairs Data Error:", err);
+    } catch (error) {
+        console.error('Result:', error);
     }
 }
 
@@ -1769,8 +1765,8 @@ async function loadWrChartData() {
         };
 
         attemptRender();
-    } catch (err) {
-        console.error("Gagal memuat data WR:", err);
+    } catch (error) {
+        console.error('Result:', error);
         ctxWrChart.clearRect(0, 0, canvasWrChart.width, canvasWrChart.height);
     }
 }
@@ -1836,7 +1832,6 @@ window.addEventListener('resize', () => {
 });
 
 window.addEventListener('tradeDataUpdated', async () => {
-    console.log('Render Chart Complite');
 
     await loadBalanceData(currentChartMode);
     
