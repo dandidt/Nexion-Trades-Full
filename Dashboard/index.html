@@ -823,24 +823,37 @@
                     <div class="subcontainer-reversal">
                         <div class="performance-header">
                             <span class="performance-title">Reversal</span>
-                            <span class="winrate-badge winrate-positive" id="wrReversal">0</span>
+                            <div class="wrapper-bheavior">
+                                <div class="circle-bheavior"></div>
+                                <span class="winrate-badge" id="WrRev">30% WR</span>
+                            </div>
                         </div>
-                        <div class="metrics-grid">
-                            <div class="metric-item">
-                                <span class="metric-label">Trade</span>
-                                <span class="metric-value" id="totalTradeReveral">0</span>
+                        <div class="wrapper-box-bheavior">
+                            <div class="column-bheavior">
+                                <div class="metric-item">
+                                    <span class="metric-label">Profit</span>
+                                    <span class="metric-value" id="PRev">0</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Loss</span>
+                                    <span class="metric-value" id="LRev">0</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Break Even</span>
+                                    <span class="metric-value" id="BERev">0</span>
+                                </div>
                             </div>
+
                             <div class="metric-item">
-                                <span class="metric-label">Profit</span>
-                                <span class="metric-value color-green" id="totalProfitReveral">0</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Loss</span>
-                                <span class="metric-value color-red" id="totalLossReveral">0</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Missed</span>
-                                <span class="metric-value color-yellow" id="totalMissedReveral">0</span>
+                                <div class="column-sub-bheavior">
+                                    <span id="TRev">Trade: 0</span>
+                                    <span id="MRev">Missed: 0</span>
+                                </div>
+                                <div class="wrapper-progress-bheavior">
+                                    <div class="progress-bheavior">
+                                        <div class="bar-progress" style="width: var(--PRev);"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -848,24 +861,37 @@
                     <div class="subcontainer-continuation">
                         <div class="performance-header">
                             <span class="performance-title">Continuation</span>
-                            <span class="winrate-badge winrate-negative" id="wrContinuation">0</span>
+                            <div class="wrapper-bheavior">
+                                <div class="circle-bheavior"></div>
+                                <span class="winrate-badge" id="WrCon">30% WR</span>
+                            </div>
                         </div>
-                        <div class="metrics-grid">
-                            <div class="metric-item">
-                                <span class="metric-label">Trade</span>
-                                <span class="metric-value" id="totalTradeContinuation">0</span>
+                        <div class="wrapper-box-bheavior">
+                            <div class="column-bheavior">
+                                <div class="metric-item">
+                                    <span class="metric-label">Profit</span>
+                                    <span class="metric-value" id="PCon">0</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Loss</span>
+                                    <span class="metric-value" id="LCon">0</span>
+                                </div>
+                                <div class="metric-item">
+                                    <span class="metric-label">Break Even</span>
+                                    <span class="metric-value" id="BECon">0</span>
+                                </div>
                             </div>
+
                             <div class="metric-item">
-                                <span class="metric-label">Profit</span>
-                                <span class="metric-value color-green" id="totalProfitContinuation">0</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Loss</span>
-                                <span class="metric-value color-red" id="totalLossContinuation">0</span>
-                            </div>
-                            <div class="metric-item">
-                                <span class="metric-label">Missed</span>
-                                <span class="metric-value color-yellow" id="totalMissedContinuation">0</span>
+                                <div class="column-sub-bheavior">
+                                    <span id="TCon">Trade: 0</span>
+                                    <span id="MCon">Missed: 0</span>
+                                </div>
+                                <div class="wrapper-progress-bheavior">
+                                    <div class="progress-bheavior">
+                                        <div class="bar-progress" style="width: var(--PCon);"></div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

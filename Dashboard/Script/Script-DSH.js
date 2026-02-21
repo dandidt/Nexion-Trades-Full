@@ -2778,82 +2778,69 @@ async function loadTradeStats() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", loadTradeStats);
-
 async function loadBehaviorStats() {
   try {
     const data = await getDBPerpetual();
 
+    // helper
+    function calcBehavior(type, ids) {
+      const trades = data.filter(t => t.Behavior === type);
+
+      const profit = trades.filter(t => t.Result === "Profit").length;
+      const loss   = trades.filter(t => t.Result === "Loss").length;
+      const be     = trades.filter(t => t.Result === "Break Even").length;
+      const missed = trades.filter(t => t.Result === "Missed").length;
+
+      const validTrade = profit + loss;
+      const wr = validTrade > 0 ? Math.round((profit / validTrade) * 100) : 0;
+
+      // text
+      document.getElementById(ids.trade).textContent = `Trade: ${trades.length}`;
+      document.getElementById(ids.profit).textContent = profit;
+      document.getElementById(ids.loss).textContent   = loss;
+      document.getElementById(ids.be).textContent     = be;
+      document.getElementById(ids.missed).textContent = `Missed: ${missed}`;
+
+      // winrate
+      const wrEl = document.getElementById(ids.wr);
+      wrEl.textContent = `${wr}% WR`;
+      wrEl.classList.remove("winrate-positive", "winrate-negative");
+      wrEl.classList.add(wr >= 50 ? "winrate-positive" : "winrate-negative");
+
+      document.documentElement.style.setProperty(ids.barVar, `${wr}%`);
+    }
+
     // Reversal
-    const reversalTrades = data.filter(t => t.Behavior === "Reversal");
-    const totalRev = reversalTrades.length;
-
-    const totalRevProfit = reversalTrades.filter(t => t.Result === "Profit").length;
-    const totalRevLoss   = reversalTrades.filter(t => t.Result === "Loss").length;
-    const totalRevMissed = reversalTrades.filter(t => t.Result === "Missed").length;
-
-    const wrReversal = totalRev > 0 
-        ? ((totalRevProfit / (totalRevProfit + totalRevLoss)) * 100).toFixed(0) 
-        : 0;
-
-    document.getElementById("totalTradeReveral").textContent = totalRev;
-    document.getElementById("totalProfitReveral").textContent = totalRevProfit;
-    document.getElementById("totalLossReveral").textContent = totalRevLoss;
-    document.getElementById("totalMissedReveral").textContent = totalRevMissed;
-
-    const wrRevEl = document.getElementById("wrReversal");
-    wrRevEl.textContent = `Winrate ${wrReversal}%`;
-    wrRevEl.classList.remove("winrate-positive", "winrate-negative");
-    wrRevEl.classList.add(wrReversal >= 50 ? "winrate-positive" : "winrate-negative");
+    calcBehavior("Reversal", {
+      trade: "TRev",
+      profit: "PRev",
+      loss: "LRev",
+      be: "BERev",
+      missed: "MRev",
+      wr: "WrRev",
+      barVar: "--PRev"
+    });
 
     // Continuation
-    const contTrades = data.filter(t => t.Behavior === "Continuation");
-    const totalCont = contTrades.length;
-
-    const totalContProfit = contTrades.filter(t => t.Result === "Profit").length;
-    const totalContLoss   = contTrades.filter(t => t.Result === "Loss").length;
-    const totalContMissed = contTrades.filter(t => t.Result === "Missed").length;
-
-    const wrContinuation = totalCont > 0 
-        ? ((totalContProfit / (totalContProfit + totalContLoss)) * 100).toFixed(0)
-        : 0;
-
-    document.getElementById("totalTradeContinuation").textContent = totalCont;
-    document.getElementById("totalProfitContinuation").textContent = totalContProfit;
-    document.getElementById("totalLossContinuation").textContent = totalContLoss;
-    document.getElementById("totalMissedContinuation").textContent = totalContMissed;
-
-    const wrContEl = document.getElementById("wrContinuation");
-    wrContEl.textContent = `Winrate ${wrContinuation}%`;
-    wrContEl.classList.remove("winrate-positive", "winrate-negative");
-    wrContEl.classList.add(wrContinuation >= 50 ? "winrate-positive" : "winrate-negative");
+    calcBehavior("Continuation", {
+      trade: "TCon",
+      profit: "PCon",
+      loss: "LCon",
+      be: "BECon",
+      missed: "MCon",
+      wr: "WrCon",
+      barVar: "--PCon"
+    });
 
   } catch (err) {
     console.error("Fail Load Trading:", err);
   }
 }
 
-async function loadPsychologyStats() {
-  try {
-    const data = await getDBPerpetual();
-
-    let totalConf = 0, totalDoubt = 0, totalReck = 0;
-    data.forEach(item => {
-      const psy = item.Psychology;
-      if (psy === "Confident") totalConf++;
-      else if (psy === "Doubtful") totalDoubt++;
-      else if (psy === "Reckless") totalReck++;
-    });
-
-    document.getElementById("confid").textContent = totalConf;
-    document.getElementById("doubt").textContent = totalDoubt;
-    document.getElementById("reckl").textContent = totalReck;
-  } catch (err) {
-    console.error("Fail Load Psychology:", err);
-  }
-}
-
-document.addEventListener("DOMContentLoaded", loadPsychologyStats);
+document.addEventListener("DOMContentLoaded", () => {
+  loadTradeStats();
+  loadBehaviorStats();
+});
 
 // ────── List Pairs ────── //
 window.assetData = window.assetData || [];
@@ -3332,7 +3319,7 @@ async function updateAllUI() {
 
     window.dispatchEvent(new Event('recalculateTrading'));
 
-    console.log("All UI updated successfully.");
+    console.log("All UI Update.");
   } catch (error) {
     console.error("Failed to update UI:", error);
   }
