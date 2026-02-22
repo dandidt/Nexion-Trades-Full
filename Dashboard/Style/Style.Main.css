@@ -648,7 +648,7 @@ th.sortable {
 
 .causes-disabled {
   opacity: 0.35;
-  pointer-events: none; 
+  pointer-events: none;
   fill: var(--gray-dark);
 }
 
@@ -820,12 +820,12 @@ th.sortable {
 .tooltip-title {
   font-weight: var(--w6);
   margin-bottom: 6px;
-  font-size: 14px;
+  font-size: var(--s14);
   opacity: 0.9;
 }
 
 .tooltip-text {
-  font-size: 13px;
+  font-size: var(--s14);
   opacity: 0.8;
 }
 
@@ -847,7 +847,7 @@ th.sortable {
 .tooltip-link {
   margin-top: 8px;
   display: inline-block;
-  font-size: 13px;
+  font-size: var(--s14);
   color: #66b3ff;
   text-decoration: none;
 }
@@ -866,7 +866,7 @@ th.sortable {
   align-items: center;
   justify-content: center;
   color: #666;
-  font-size: 12px;
+  font-size: var(--s12);
 }
 
 /* ────── Pagination ────── */
@@ -1376,7 +1376,7 @@ th.sortable {
   color: var(--white);
   padding: 10px 15px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--s14);
   pointer-events: none;
   display: none;
   z-index: 10;
@@ -1392,7 +1392,7 @@ th.sortable {
 }
 
 .tooltip-date-balance {
-  font-size: 12px;
+  font-size: var(--s12);
   color: var(--gray);
 }
 
@@ -1427,7 +1427,7 @@ th.sortable {
   backdrop-filter: blur(4px);
   padding: 5px 10px;
   border-radius: 4px;
-  font-size: 11px;
+  font-size: var(--s10);
   pointer-events: none;
   display: none;
   z-index: 10;
@@ -1694,7 +1694,7 @@ th.sortable {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 12px;
+  font-size: var(--s12);
 }
 
 .legend-item span {
@@ -1752,7 +1752,7 @@ canvas {
   backdrop-filter: blur(4px);
   border-radius: 6px;
   padding: 12px 16px;
-  font-size: 12px;
+  font-size: var(--s12);
   pointer-events: none;
   display: none;
   z-index: 10;
@@ -1949,14 +1949,14 @@ canvas {
 }
 
 .month-name {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--s12);
+  font-weight: var(--w6);
   color: var(--gray);
   margin-bottom: 6px;
 }
 
 .profit-loss {
-  font-size: 14px;
+  font-size: var(--s14);
   font-weight: bold;
   margin-bottom: 6px;
 }
@@ -1970,8 +1970,8 @@ canvas {
 }
 
 .return-rate {
-  font-size: 10px;
-  font-weight: 600;
+  font-size: var(--s10);
+  font-weight: var(--w6);
 }
 
 .return-rate.positive {
@@ -2006,7 +2006,7 @@ canvas {
 
 .chart-container-performance h3 {
   color: var(--white);
-  font-size: 12px;
+  font-size: var(--s12);
   text-align: center;
 
   margin-bottom: 10px;
@@ -2047,7 +2047,7 @@ canvas {
   bottom: -14px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 10px;
+  font-size: var(--s10);
   color: var(--gray-dark);
   white-space: nowrap;
 }
@@ -2057,7 +2057,7 @@ canvas {
   top: -20px;
   left: 50%;
   transform: translateX(-50%);
-  font-size: 9px;
+  font-size: var(--s10);
   font-weight: bold;
   color: var(--gray);
 }
@@ -2127,8 +2127,8 @@ canvas {
 }
 
 .current-month {
-  font-size: 14px;
-  font-weight: 700;
+  font-size: var(--s14);
+  font-weight: var(--w7);
   color: var(--white);
   cursor: pointer;
   padding: 8px 16px;
@@ -2156,8 +2156,8 @@ canvas {
   border-radius: 8px;
   background: var(--bg-35);
   cursor: pointer;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--s12);
+  font-weight: var(--w6);
   color: var(--white);
   transition: all 0.2s;
   min-height: 38px;
@@ -2203,7 +2203,7 @@ canvas {
 
 .select-option {
   padding: 10px 15px;
-  font-size: 12px;
+  font-size: var(--s12);
   color: var(--white);
   cursor: pointer;
   transition: background 0.2s;
@@ -2267,8 +2267,8 @@ canvas {
   padding: 10px 15px;
   border: 1px solid var(--bg-45);
   border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--s12);
+  font-weight: var(--w6);
   cursor: pointer;
   background: var(--bg-35);
 }
@@ -2297,8 +2297,8 @@ canvas {
 
 .day-name {
   text-align: center;
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--s12);
+  font-weight: var(--w7);
   color: var(--gray);
   padding: 8px;
 }
@@ -2364,14 +2364,14 @@ canvas {
 }
 
 .day-number {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--s12);
+  font-weight: var(--w7);
   color: var(--white);
 }
 
 .pnl-value {
-  font-size: 12px;
-  font-weight: 500;
+  font-size: var(--s12);
+  font-weight: var(--w5);
   margin-top: 3px;
   text-align: center;
   white-space: nowrap;
@@ -2408,8 +2408,8 @@ canvas {
   color: var(--gray);
   padding: 8px 12px;
   border-radius: 8px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--s12);
+  font-weight: var(--w6);
   white-space: nowrap;
   z-index: 10;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.6);
@@ -2589,7 +2589,9 @@ canvas {
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, -50%) scale(0.85);
-  transition: opacity .4s ease, transform .4s ease;
+  transition:
+    opacity 0.4s ease,
+    transform 0.4s ease;
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4);
   z-index: 1;
 }
@@ -2606,7 +2608,7 @@ canvas {
 }
 
 .tooltip-value-pairs {
-  font-size: 11px;
+  font-size: var(--s10);
   color: var(--white);
   font-weight: var(--w6);
 }
@@ -2620,7 +2622,9 @@ circle.segment {
 }
 
 @keyframes fillChart {
-  from { stroke-dashoffset: 628; }
+  from {
+    stroke-dashoffset: 628;
+  }
 }
 
 .wrapper-paris-identifier {
@@ -2640,7 +2644,7 @@ circle.segment {
   height: 100%;
   overflow-y: auto;
 
-  justify-content: center; 
+  justify-content: center;
   align-items: start;
 }
 
@@ -2715,7 +2719,7 @@ circle.segment {
 }
 
 .stat-label {
-  font-size: 0.75em;
+  font-size: var(--s12);
   color: var(--gray);
 }
 
@@ -2882,7 +2886,7 @@ circle.segment {
   height: 100%;
   background: rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-    border: 1px solid var(--bg-30);
+  border: 1px solid var(--bg-30);
 }
 
 .wrapper-progress-bheavior {
@@ -3217,11 +3221,11 @@ circle.segment {
 }
 
 .username {
-  font-size: 18px;
+  font-size: var(--s18);
 }
 
 .email {
-  font-size: 14px;
+  font-size: var(--s14);
   color: var(--gray);
 }
 
@@ -3346,8 +3350,8 @@ circle.segment {
 }
 
 .altert-text {
-  font-size: 12px;
-  font-weight: 600;
+  font-size: var(--s12);
+  font-weight: var(--w6);
   color: var(--red);
 }
 
@@ -3385,7 +3389,7 @@ circle.segment {
   text-align: left;
   border-radius: 6px;
   padding: 10px 12px;
-  font-size: 12px;
+  font-size: var(--s12);
   line-height: 1.4;
   position: absolute;
   z-index: 10;
@@ -3420,7 +3424,7 @@ input[type="text"] {
   border: 1px solid var(--bg-45);
   border-radius: 8px;
   padding: 10px 18px;
-  font-size: 15px;
+  font-size: var(--s14);
   color: var(--white);
   outline: none;
   transition: all 0.3s ease;
@@ -3441,7 +3445,7 @@ input[type="file"] {
 
 .input-error {
   border-color: var(--red) !important;
-  transition: border-color .2s;
+  transition: border-color 0.2s;
 }
 
 .file-upload-area {
@@ -3473,7 +3477,7 @@ input[type="file"] {
 
 .upload-text {
   color: #b8b8b8;
-  font-size: 14px;
+  font-size: var(--s14);
 }
 
 .upload-icon {
@@ -3483,7 +3487,7 @@ input[type="file"] {
 
 .file-name {
   color: var(--red);
-  font-size: 13px;
+  font-size: var(--s14);
 }
 
 .btn-delete-foto {
@@ -3516,7 +3520,7 @@ input[type="file"] {
   color: var(--white);
   margin-top: 10px;
 
-  max-width: 15ch; 
+  max-width: 15ch;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3580,7 +3584,7 @@ input[type="file"] {
 }
 
 .title-menu {
-  font-size: 12px;
+  font-size: var(--s12);
   color: var(--gray);
 }
 
@@ -4179,7 +4183,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .risk-label {
-  font-size: 12px;
+  font-size: var(--s12);
   color: var(--gray);
   text-transform: uppercase;
   letter-spacing: 1px;
@@ -4187,7 +4191,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .risk-value {
-  font-size: 22px;
+  font-size: var(--s22);
   font-weight: var(--w7);
   color: var(--green);
 }
@@ -4223,13 +4227,13 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .row-if label {
-  font-size: 12px;
+  font-size: var(--s12);
   font-weight: var(--w6);
   color: var(--gray);
 }
 
 .value-caculate {
-  font-size: 12px;
+  font-size: var(--s12);
   font-weight: var(--w6);
   color: var(--green);
 }
@@ -4249,7 +4253,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 }
 
 .label-input-cc {
-  font-size: 12px;
+  font-size: var(--s12);
   font-weight: var(--w5);
   color: var(--gray);
   text-transform: uppercase;
@@ -4282,7 +4286,7 @@ input[type="number"] {
   border: 1px solid var(--bg-45);
   border-radius: 8px;
   padding: 10px 18px;
-  font-size: 15px;
+  font-size: var(--s14);
   color: var(--white);
   outline: none;
   transition: all 0.3s ease;
@@ -4317,7 +4321,7 @@ input[type="number"]::placeholder {
 }
 
 .toast.show {
-  opacity: 1; 
+  opacity: 1;
   transform: translate(-50%, 0);
 }
 
@@ -4404,7 +4408,9 @@ input[type="number"]::placeholder {
 }
 
 @keyframes spinCanvas {
-    to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .loading-text {
@@ -4421,20 +4427,36 @@ input[type="number"]::placeholder {
 }
 
 @keyframes dotsAnim {
-  0%, 20% { content: '.'; }
-  40% { content: '..'; }
-  60%, 100% { content: '...'; }
+  0%,
+  20% {
+    content: ".";
+  }
+  40% {
+    content: "..";
+  }
+  60%,
+  100% {
+    content: "...";
+  }
 }
 
 .dots::after {
-  content: '.';
+  content: ".";
   animation: dotsContent 1.5s infinite;
 }
 
 @keyframes dotsContent {
-  0%, 20% { opacity: 0; }
-  40% { opacity: 1; }
-  60%, 100% { opacity: 1; }
+  0%,
+  20% {
+    opacity: 0;
+  }
+  40% {
+    opacity: 1;
+  }
+  60%,
+  100% {
+    opacity: 1;
+  }
 }
 
 /* ────── Popup Sop ────── */
@@ -4524,7 +4546,7 @@ input[type="number"]::placeholder {
 }
 
 .rule-label {
-  font-size: 12px;
+  font-size: var(--s12);
   color: var(--gray);
   font-weight: var(--w5);
   margin-bottom: 3px;
@@ -4550,13 +4572,13 @@ input[type="number"]::placeholder {
 }
 
 .progress-label {
-  font-size: 11px;
+  font-size: var(--s10);
   color: var(--white);
   font-weight: var(--w5);
 }
 
 .progress-count {
-  font-size: 11px;
+  font-size: var(--s10);
   font-weight: var(--w6);
   color: var(--green);
 }
@@ -4589,11 +4611,7 @@ input[type="number"]::placeholder {
 }
 
 .progress-fill-sop.danger {
-  background: linear-gradient(
-    90deg,
-    rgb(216, 78, 98) 0%,
-    rgb(247, 66, 93) 70%
-  );
+  background: linear-gradient(90deg, rgb(216, 78, 98) 0%, rgb(247, 66, 93) 70%);
 }
 
 .info-grid {
@@ -4618,7 +4636,7 @@ input[type="number"]::placeholder {
 }
 
 .info-label {
-  font-size: 10px;
+  font-size: var(--s10);
   color: var(--gray);
   margin-bottom: 2px;
 }
@@ -4676,11 +4694,11 @@ input[type="number"]::placeholder {
 
 .popup-edit-sop .popup-title {
   margin: 0 0 12px;
-  font-size: 18px;
+  font-size: var(--s18);
 }
 
 .popup-edit-sop .edit-rule-label {
-  font-size: 14px;
+  font-size: var(--s14);
   color: var(--text-secondary, #888);
   margin-bottom: 16px;
 }
@@ -5179,7 +5197,7 @@ input[type="number"]::placeholder {
   color: var(--white);
   padding: 10px 15px;
   border-radius: 8px;
-  font-size: 13px;
+  font-size: var(--s14);
   pointer-events: none;
   display: none;
   z-index: 10;
@@ -5195,7 +5213,7 @@ input[type="number"]::placeholder {
 }
 
 .tooltip-date-fee {
-  font-size: 12px;
+  font-size: var(--s12);
   color: var(--gray);
 }
 

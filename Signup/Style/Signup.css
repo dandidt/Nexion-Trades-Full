@@ -6,7 +6,7 @@
 
 body {
   font-family: "Inter", sans-serif;
-  background: #000;
+  background: var(--bg-15);
   color: var(--white);
   height: 100vh;
   display: flex;
@@ -29,8 +29,8 @@ body {
   justify-content: center;
   width: 50%;
   height: 100%;
-  background: #171717;
-  border-right: 1px solid #494949;
+  background: var(--bg-20);
+  border-right: 1px solid var(--bg-50);
   position: relative;
 }
 
@@ -40,19 +40,8 @@ body {
   top: 20px;
 }
 
-.back-arrow {
-  background: #242424;
+.btn-back {
   padding: 8px;
-  border: 1px solid #404040;
-  border-radius: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.back-arrow:hover {
-  background: #3a3a3a;
-  border-color: #555555;
 }
 
 #signupForm {
@@ -98,7 +87,7 @@ h1 {
 .altert-text {
   font-size: 12px;
   font-weight: 600;
-  color: #bb0b0b;
+  color: var(--red-light);
 }
 
 .row-label {
@@ -136,8 +125,8 @@ label {
 .tooltip-content {
   visibility: hidden;
   width: 220px;
-  background-color: #333;
-  color: #eee;
+  background: var(--bg-30);
+  color: var(--gray-light);
   text-align: left;
   border-radius: 6px;
   padding: 10px 12px;
@@ -168,7 +157,7 @@ label {
   margin-top: -6px;
   border-width: 6px;
   border-style: solid;
-  border-color: #333 transparent transparent transparent;
+  border-color: var(--bg-30) transparent transparent transparent;
 }
 
 .password-wrapper {
@@ -181,7 +170,7 @@ label {
 }
 
 .password-wrapper svg {
-  fill: #999;
+  fill: var(--gray-light);
 }
 
 .toggle-repeat-password,
@@ -231,11 +220,11 @@ input::placeholder {
 }
 
 input:hover {
-  border-color: #0bbb95;
+  border-color: var(--green);
 }
 
 input:focus {
-  border-color: #0eddb0;
+  border-color: var(--green);
 }
 
 input:-webkit-autofill {
@@ -345,7 +334,6 @@ input:-webkit-autofill {
   width: 50px;
   height: 10px;
   border-radius: 10px;
-  background: #000;
 }
 
 .avatar-upload {
@@ -381,13 +369,13 @@ input:-webkit-autofill {
 }
 
 .avatar-text {
-  font-size: 11px;
+  font-size: 10px;
   color: var(--gray);
 }
 
 .avatar-size {
   font-size: 10px;
-  color: #555;
+  color: var(--gray)
 }
 
 .user-name {
@@ -398,7 +386,7 @@ input:-webkit-autofill {
 }
 
 .user-dots {
-  color: #333;
+  color: var(--bg-30);
   font-size: 20px;
   letter-spacing: 4px;
   line-height: 20px;
@@ -413,7 +401,7 @@ input:-webkit-autofill {
 }
 
 .barcode {
-  height: 40px;
+  height: 30px;
   margin-bottom: 12px;
   box-shadow: 0 0 8px rgba(5, 187, 102, 0.2);
   background: repeating-linear-gradient(

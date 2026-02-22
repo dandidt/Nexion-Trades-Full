@@ -2805,12 +2805,14 @@ async function loadBehaviorStats() {
       document.getElementById(ids.be).textContent     = be;
       document.getElementById(ids.missed).textContent = `Missed: ${missed}`;
 
-      const wrEl = document.getElementById(ids.wr);
-      wrEl.textContent = `${wr}% WR`;
-      wrEl.classList.remove("winrate-positive", "winrate-negative");
-      wrEl.classList.add(wr >= 50 ? "winrate-positive" : "winrate-negative");
+      const total = trades.length;
+      const done  = total - missed;
 
-      document.documentElement.style.setProperty(ids.barVar, `${wr}%`);
+      const progress = total > 0
+        ? Math.round((done / total) * 100)
+        : 0;
+
+      document.documentElement.style.setProperty(ids.barVar, `${progress}%`);
     }
 
     // Reversal
