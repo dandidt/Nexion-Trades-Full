@@ -2796,26 +2796,27 @@ async function loadBehaviorStats() {
       const be     = trades.filter(t => t.Result === "Break Even").length;
       const missed = trades.filter(t => t.Result === "Missed").length;
 
-      const validTrade = profit + loss;
-      const wr = validTrade > 0 ? Math.round((profit / validTrade) * 100) : 0;
+      const doneTrade = profit + loss + be;
 
-      document.getElementById(ids.trade).textContent = `Trade: ${trades.length}`;
+      const wr = doneTrade > 0
+        ? Math.round((profit / doneTrade) * 100)
+        : 0;
+
+      document.getElementById(ids.trade).textContent  = `Trade: ${doneTrade}`;
       document.getElementById(ids.profit).textContent = profit;
       document.getElementById(ids.loss).textContent   = loss;
       document.getElementById(ids.be).textContent     = be;
       document.getElementById(ids.missed).textContent = `Missed: ${missed}`;
+      document.getElementById(ids.wr).textContent     = `${wr}% Winrate`;
 
-      const total = trades.length;
-      const done  = total - missed;
-
+      const total = doneTrade + missed;
       const progress = total > 0
-        ? Math.round((done / total) * 100)
+        ? Math.round((doneTrade / total) * 100)
         : 0;
 
       document.documentElement.style.setProperty(ids.barVar, `${progress}%`);
     }
 
-    // Reversal
     calcBehavior("Reversal", {
       trade: "TRev",
       profit: "PRev",
@@ -2826,7 +2827,6 @@ async function loadBehaviorStats() {
       barVar: "--PRev"
     });
 
-    // Continuation
     calcBehavior("Continuation", {
       trade: "TCon",
       profit: "PCon",
@@ -2838,7 +2838,7 @@ async function loadBehaviorStats() {
     });
 
   } catch (error) {
-    console.error('Result:', error);
+    console.error(error);
   }
 }
 
