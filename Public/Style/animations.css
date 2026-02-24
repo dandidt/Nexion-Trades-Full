@@ -18,6 +18,7 @@
   margin: 0 auto;
 }
 
+.title-introduction,
 .subtitle-introduction {
   visibility: hidden;
 }
@@ -60,9 +61,7 @@
 }
 
 @keyframes blink {
-  50% {
-    opacity: 0;
-  }
+  50% { opacity: 0; }
 }
 
 .title-introduction {

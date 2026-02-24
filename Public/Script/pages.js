@@ -314,6 +314,7 @@ buttons.forEach((btn) => {
     }
 
     if (!type || !content[type]) {
+      hidePopup();
       return;
     }
 
