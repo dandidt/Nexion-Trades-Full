@@ -758,8 +758,10 @@
                         <span class="stat-label">Long & Short</span>
                     </div>
                     <div class="stats-row-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: var(--PLS);"></div>
+                        <div class="wrap-progress" style="--op: var(--PLS-Opacity);">
+                            <div class="fill-left" style="right: var(--PLS-Left);"></div>
+                            <div class="space-mid" style="left: var(--PLS-Mid);"></div>
+                            <div class="fill-right" style="left: var(--PLS-Right);"></div>
                         </div>
                         <div class="stat-row">
                             <span class="stat-value" id="long">0</span>
@@ -771,8 +773,10 @@
                         <span class="stat-label">Reversal & Continuation</span>
                     </div>
                     <div class="stats-row-progress">
-                        <div class="progress-bar">
-                            <div class="progress-fill" style="width: var(--PRC);"></div>
+                        <div class="wrap-progress" style="--op: var(--PRC-Opacity);">
+                            <div class="fill-left" style="right: var(--PRC-Left);"></div>
+                            <div class="space-mid" style="left: var(--PRC-Mid);"></div>
+                            <div class="fill-right" style="left: var(--PRC-Right);"></div>
                         </div>
                         <div class="stat-row">
                             <span class="stat-value" id="reversal">0</span>
@@ -844,14 +848,16 @@
                                 </div>
                             </div>
 
-                            <div class="metric-item">
+                            <div class="metric-item padding-metric-item">
                                 <div class="column-sub-bheavior">
                                     <span id="TRev">Trade: 0</span>
                                     <span id="MRev">Missed: 0</span>
                                 </div>
                                 <div class="wrapper-progress-bheavior">
-                                    <div class="progress-bheavior">
-                                        <div class="progress-fill" style="width: var(--PRev);"></div>
+                                    <div class="wrap-progress" style="--op: var(--PBH-Rev-Opacity);">
+                                        <div class="fill-left" style="right: var(--PBH-Rev-Left);"></div>
+                                        <div class="space-mid" style="left: var(--PBH-Rev-Mid);"></div>
+                                        <div class="fill-right" style="left: var(--PBH-Rev-Right);"></div>
                                     </div>
                                 </div>
                             </div>
@@ -882,14 +888,16 @@
                                 </div>
                             </div>
 
-                            <div class="metric-item">
+                            <div class="metric-item padding-metric-item">
                                 <div class="column-sub-bheavior">
                                     <span id="TCon">Trade: 0</span>
                                     <span id="MCon">Missed: 0</span>
                                 </div>
                                 <div class="wrapper-progress-bheavior">
-                                    <div class="progress-bheavior">
-                                        <div class="progress-fill" style="width: var(--PCon);"></div>
+                                    <div class="wrap-progress" style="--op: var(--PBH-Con-Opacity);">
+                                        <div class="fill-left" style="right: var(--PBH-Con-Left);"></div>
+                                        <div class="space-mid" style="left: var(--PBH-Con-Mid);"></div>
+                                        <div class="fill-right" style="left: var(--PBH-Con-Right);"></div>
                                     </div>
                                 </div>
                             </div>
@@ -2691,36 +2699,52 @@
                             <span class="text-title">Swing</span>
                             <span class="value-stats gray-secondary" id="swingPairs">0</span>
                         </div>
+                        <div class="subcolumn-stats" data-mode="spot" style="display: none;">
+                            <span class="text-title">Investment</span>
+                            <span class="value-stats gray-secondary" id="investmentPairs">0</span>
+                        </div>
 
-                        <div class="line-horizontal-performance-pairs"></div>
-
-                        <div class="subtitle-performance">Buy & Sell Breakdown</div>
-                        <div class="subcolumn-stats">
-                            <div class="column-pairs-popup">
-                                <div class="bs-progress"><div class="bs-fill"></div></div>
-                                <div class="row-pairs-popup">
-                                    <div class="row-bs">
-                                        <div class="bx-bs-buy"></div>
-                                        <span class="value-stats-bs gray-secondary" id="buyPairs">0</span>
+                        <div class="breakdown-wrapper" data-mode="perpetual">
+                            <div class="line-horizontal-performance-pairs"></div>
+    
+                            <div class="subtitle-performance">Buy & Sell Breakdown</div>
+                            <div class="subcolumn-stats">
+                                <div class="column-pairs-popup">
+    
+                                    <div class="wrap-progress" style="--op: var(--BS-Opacity);">
+                                        <div class="fill-left" style="right: var(--BS-Left);"></div>
+                                        <div class="space-mid" style="left: var(--BS-Mid);"></div>
+                                        <div class="fill-right" style="left: var(--BS-Right);"></div>
                                     </div>
-                                    <div class="row-bs">
-                                        <div class="bx-bs-sell"></div>
-                                        <span class="value-stats-bs gray-secondary" id="sellPairs">0</span>
+                                    
+                                    <div class="row-pairs-popup">
+                                        <div class="row-bs">
+                                            <div class="bx-bs-buy"></div>
+                                            <span class="value-stats-bs gray-secondary" id="buyPairs">0</span>
+                                        </div>
+                                        <div class="row-bs">
+                                            <div class="bx-bs-sell"></div>
+                                            <span class="value-stats-bs gray-secondary" id="sellPairs">0</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="subcolumn-stats">
-                            <div class="column-pairs-popup">
-                                <div class="bs-progress"><div class="bs-fill"></div></div>
-                                <div class="row-pairs-popup">
-                                    <div class="row-bs">
-                                        <div class="bx-bs-buy"></div>
-                                        <span class="value-stats-bs gray-secondary" id="continuationPairs">0</span>
+                            <div class="subcolumn-stats">
+                                <div class="column-pairs-popup">
+                                    <div class="wrap-progress" style="--op: var(--BH-Opacity);">
+                                        <div class="fill-left" style="right: var(--BH-Left);"></div>
+                                        <div class="space-mid" style="left: var(--BH-Mid);"></div>
+                                        <div class="fill-right" style="left: var(--BH-Right);"></div>
                                     </div>
-                                    <div class="row-bs">
-                                        <div class="bx-bs-sell"></div>
-                                        <span class="value-stats-bs gray-secondary" id="reversalPairs">0</span>
+                                    <div class="row-pairs-popup">
+                                        <div class="row-bs">
+                                            <div class="bx-bs-buy"></div>
+                                            <span class="value-stats-bs gray-secondary" id="continuationPairs">0</span>
+                                        </div>
+                                        <div class="row-bs">
+                                            <div class="bx-bs-sell"></div>
+                                            <span class="value-stats-bs gray-secondary" id="reversalPairs">0</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

@@ -3264,13 +3264,13 @@ function getCurrentTimestamp() {
 }
 
 function cleanPairName(pair) {
-    if (!pair) return 'BTC';
+    if (!pair) return 'Nexion';
     const upperPair = String(pair).toUpperCase();
     const usdIndex = upperPair.indexOf('USD');
     if (usdIndex !== -1) {
-    return upperPair.substring(0, usdIndex);
+        return upperPair.substring(0, usdIndex);
     }
-    return upperPair || 'BTC';
+    return upperPair || 'Nexion';
 }
 
 function getPerformanceTitle(range) {
@@ -3334,7 +3334,7 @@ async function loadSymbolJson() {
 function getMostFrequentPair(trades) {
     const counts = {};
     let maxCount = 0;
-    let topPair = 'BTC';
+    let topPair = 'Nexion';
 
     trades.forEach(t => {
         if (!t.Pairs) return;
@@ -3368,8 +3368,15 @@ async function updatePairIcon(pairSymbol) {
     } else {
         const img = new Image();
         img.crossOrigin = "anonymous";
-        img.onload = () => { pairIconImage = img; renderImage(); };
-        img.src = 'Asset/btc.png';
+        img.onload = () => { 
+            pairIconImage = img; 
+            renderImage(); 
+        };
+        img.onerror = () => {
+            pairIconImage = null;
+            renderImage();
+        };
+        img.src = '../Asset/User.png';
     }
 }
 
@@ -3983,6 +3990,7 @@ async function calculatePairStats(symbol) {
         const scalping = pairTrades.filter(t => t.Method === "Scalping").length;
         const intraday = pairTrades.filter(t => t.Method === "Intraday").length;
         const swing = pairTrades.filter(t => t.Method === "Swing").length;
+        const investment = pairTrades.filter(t => t.Method === "Investment").length;
 
         // Hitung berdasarkan Position
         const buy = pairTrades.filter(t => t.Pos === "Long").length;
@@ -4005,6 +4013,7 @@ async function calculatePairStats(symbol) {
             scalping,
             intraday,
             swing,
+            investment,
             buy,
             sell,
             continuation,
@@ -4026,21 +4035,31 @@ function setStatValue(id, value) {
 
 async function updatePairsPopupData(symbol) {
     const stats = await calculatePairStats(symbol);
+    const isSpot = currentPairsMode === "spot";
+
+    document.querySelectorAll('[data-mode="spot"]').forEach(el => {
+        el.style.display = isSpot ? 'flex' : 'none';
+    });
+    
+    document.querySelectorAll('[data-mode="perpetual"]').forEach(el => {
+        el.style.display = !isSpot ? 'block' : 'none';
+    });
     
     if (!stats) {
-        document.getElementById("pnlPairsAll").textContent = "$0.00";
-        document.getElementById("averageProfitPairs").textContent = "$0.00";
-        document.getElementById("averageLossPairs").textContent = "$0.00";
-        document.getElementById("averageRRPairs").textContent = "0.00";
-        document.getElementById("alltradePairs").textContent = "0";
-        document.getElementById("tradeprofitPairs").textContent = "0";
-        document.getElementById("tradelossPairs").textContent = "0";
-        document.getElementById("trademissedPairs").textContent = "0";
-        document.getElementById("tradebreakevenPairs").textContent = "0";
+        const defaults = {
+            "pnlPairsAll": "$0.00", "averageProfitPairs": "$0.00", 
+            "averageLossPairs": "$0.00", "averageRRPairs": "0.00",
+            "alltradePairs": "0", "tradeprofitPairs": "0", 
+            "tradelossPairs": "0", "trademissedPairs": "0", 
+            "tradebreakevenPairs": "0"
+        };
+        for (const [id, val] of Object.entries(defaults)) {
+            const el = document.getElementById(id);
+            if (el) el.textContent = val;
+        }
         return;
     }
 
-    // Format & isi PnL
     const pnlEl = document.getElementById("pnlPairsAll");
     if (stats.totalPnL >= 0) {
         pnlEl.textContent = `+${formatUSD(stats.totalPnL)}`;
@@ -4049,14 +4068,11 @@ async function updatePairsPopupData(symbol) {
         pnlEl.textContent = `-${formatUSD(Math.abs(stats.totalPnL))}`;
         pnlEl.style.color = 'var(--red)';
     }
-    pnlEl.style.color = stats.totalPnL >= 0 ? 'var(--green)' : 'var(--red)';
 
-    // Average
     document.getElementById("averageProfitPairs").textContent = formatUSD(stats.avgProfit);
     document.getElementById("averageLossPairs").textContent = formatUSD(stats.avgLoss);
     document.getElementById("averageRRPairs").textContent = stats.avgRR.toFixed(2);
 
-    // Statistik
     setStatValue("alltradePairs", stats.allTrade);
     setStatValue("tradeprofitPairs", stats.profit);
     setStatValue("tradelossPairs", stats.loss);
@@ -4065,31 +4081,35 @@ async function updatePairsPopupData(symbol) {
     setStatValue("scalpingPairs", stats.scalping);
     setStatValue("intradayPairs", stats.intraday);
     setStatValue("swingPairs", stats.swing);
+    setStatValue("investmentPairs", stats.investment);
 
+    if (!isSpot) {
+        const root = document.documentElement;
 
-    // Buy/Sell Progress
-    const buySellTotal = stats.buy + stats.sell;
-    const buyPercent = buySellTotal > 0 ? (stats.buy / buySellTotal) * 100 : 0;
-    const bsFill1 = document.querySelectorAll(".subcolumn-stats .bs-fill")[0];
-    if (bsFill1) {
-        bsFill1.style.width = `${buyPercent}%`;
+        const buySellTotal = stats.buy + stats.sell;
+        const hasBSData = buySellTotal > 0;
+        const buyPercent = hasBSData ? (stats.buy / buySellTotal) * 100 : 50;
+        
+        root.style.setProperty('--BS-Opacity', hasBSData ? 1 : 0);
+        root.style.setProperty('--BS-Left', `${100 - buyPercent}%`);
+        root.style.setProperty('--BS-Mid', `${buyPercent}%`);
+        root.style.setProperty('--BS-Right', `${buyPercent}%`);
+        
+        document.getElementById("buyPairs").textContent = `Buy ${stats.buy}`;
+        document.getElementById("sellPairs").textContent = `Sell ${stats.sell}`;
+
+        const contRevTotal = stats.continuation + stats.reversal;
+        const hasBHData = contRevTotal > 0;
+        const contPercent = hasBHData ? (stats.continuation / contRevTotal) * 100 : 50;
+
+        root.style.setProperty('--BH-Opacity', hasBHData ? 1 : 0);
+        root.style.setProperty('--BH-Left', `${100 - contPercent}%`);
+        root.style.setProperty('--BH-Mid', `${contPercent}%`);
+        root.style.setProperty('--BH-Right', `${contPercent}%`);
+        
+        document.getElementById("continuationPairs").textContent = `Continuation ${stats.continuation}`;
+        document.getElementById("reversalPairs").textContent = `Reversal ${stats.reversal}`;
     }
-
-    // Continuation/Reversal Progress
-    const contRevTotal = stats.continuation + stats.reversal;
-    const contPercent = contRevTotal > 0 ? (stats.continuation / contRevTotal) * 100 : 0;
-    const bsFill2 = document.querySelectorAll(".subcolumn-stats .bs-fill")[1];
-    if (bsFill2) {
-        bsFill2.style.width = `${contPercent}%`;
-    }
-
-    // Position
-    document.getElementById("buyPairs").textContent = `Buy ${stats.buy}`;
-    document.getElementById("sellPairs").textContent = `Sell ${stats.sell}`;
-
-    // Behavior
-    document.getElementById("continuationPairs").textContent = `Continuasion ${stats.continuation}`;
-    document.getElementById("reversalPairs").textContent = `Reversal ${stats.reversal}`;
 }
 
 document.addEventListener("DOMContentLoaded", () => {

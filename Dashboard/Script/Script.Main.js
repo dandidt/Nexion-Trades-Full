@@ -2698,7 +2698,6 @@ async function loadTradeStats() {
   try {
     const data = await getDBPerpetual();
     const root = document.documentElement;
-
     // --- POS ---
     let countLong = 0, countShort = 0;
     data.forEach(item => {
@@ -2706,14 +2705,19 @@ async function loadTradeStats() {
       else if (item.Pos === "Short") countShort++;
     });
 
-    const totalPos = countLong + countShort || 1;
-    const longPct = ((countLong / totalPos) * 100).toFixed(2);
+    const totalPos = countLong + countShort; 
+    const hasPosData = totalPos > 0;
     
-    document.getElementById("long").textContent = `${longPct}%`;
-    document.getElementById("short").textContent = `${((countShort / totalPos) * 100).toFixed(2)}%`;
-    
-    root.style.setProperty('--PLS', `${longPct}%`);
+    const longPct = hasPosData ? (countLong / totalPos) * 100 : 50;
+    const shortPct = hasPosData ? (countShort / totalPos) * 100 : 50;
 
+    document.getElementById("long").textContent = `${hasPosData ? longPct.toFixed(2) : "0.00"}%`;
+    document.getElementById("short").textContent = `${hasPosData ? shortPct.toFixed(2) : "0.00"}%`;
+
+    root.style.setProperty('--PLS-Left', `${100 - longPct}%`);
+    root.style.setProperty('--PLS-Mid', `${longPct}%`);
+    root.style.setProperty('--PLS-Right', `${longPct}%`);
+    root.style.setProperty('--PLS-Opacity', hasPosData ? 1 : 0);
 
     // --- BEHAVIOR ---
     let countRev = 0, countCon = 0;
@@ -2722,14 +2726,19 @@ async function loadTradeStats() {
       else if (item.Behavior === "Continuation") countCon++;
     });
 
-    const totalBeh = countRev + countCon || 1;
-    const revPct = ((countRev / totalBeh) * 100).toFixed(2);
+    const totalBeh = countRev + countCon;
+    const hasBehData = totalBeh > 0;
 
-    document.getElementById("reversal").textContent = `${revPct}%`;
-    document.getElementById("continuation").textContent = `${((countCon / totalBeh) * 100).toFixed(2)}%`;
-    
-    root.style.setProperty('--PRC', `${revPct}%`);
+    const revPct = hasBehData ? (countRev / totalBeh) * 100 : 50;
+    const conPct = hasBehData ? (countCon / totalBeh) * 100 : 50;
 
+    document.getElementById("reversal").textContent = `${hasBehData ? revPct.toFixed(2) : "0.00"}%`;
+    document.getElementById("continuation").textContent = `${hasBehData ? conPct.toFixed(2) : "0.00"}%`;
+
+    root.style.setProperty('--PRC-Left', `${100 - revPct}%`);
+    root.style.setProperty('--PRC-Mid', `${revPct}%`);
+    root.style.setProperty('--PRC-Right', `${revPct}%`);
+    root.style.setProperty('--PRC-Opacity', hasBehData ? 1 : 0);
 
     // --- METHOD ---
     let countScalp = 0, countSwing = 0, countIntra = 0;
@@ -2787,34 +2796,42 @@ async function loadPsychologyStats() {
 async function loadBehaviorStats() {
   try {
     const data = await getDBPerpetual();
+    const root = document.documentElement;
 
-    function calcBehavior(type, ids) {
+    function calcBehavior(type, ids, cssPrefix) {
+      // --- Filter Data ---
       const trades = data.filter(t => t.Behavior === type);
-
       const profit = trades.filter(t => t.Result === "Profit").length;
       const loss   = trades.filter(t => t.Result === "Loss").length;
       const be     = trades.filter(t => t.Result === "Break Even").length;
       const missed = trades.filter(t => t.Result === "Missed").length;
 
+      // --- Hitung Stats ---
       const doneTrade = profit + loss + be;
-
-      const wr = doneTrade > 0
-        ? Math.round((profit / doneTrade) * 100)
-        : 0;
-
-      document.getElementById(ids.trade).textContent  = `Trade: ${doneTrade}`;
-      document.getElementById(ids.profit).textContent = profit;
-      document.getElementById(ids.loss).textContent   = loss;
-      document.getElementById(ids.be).textContent     = be;
-      document.getElementById(ids.missed).textContent = `Missed: ${missed}`;
-      document.getElementById(ids.wr).textContent     = `${wr}% Winrate`;
-
       const total = doneTrade + missed;
-      const progress = total > 0
-        ? Math.round((doneTrade / total) * 100)
-        : 0;
+      const hasData = total > 0;
+      
+      const wr = doneTrade > 0 ? Math.round((profit / doneTrade) * 100) : 0;
+      const progress = hasData ? Math.round((doneTrade / total) * 100) : 0;
 
-      document.documentElement.style.setProperty(ids.barVar, `${progress}%`);
+      const elTrade  = document.getElementById(ids.trade);
+      const elProfit = document.getElementById(ids.profit);
+      const elLoss   = document.getElementById(ids.loss);
+      const elBe     = document.getElementById(ids.be);
+      const elMissed = document.getElementById(ids.missed);
+      const elWr     = document.getElementById(ids.wr);
+
+      if (elTrade)  elTrade.textContent  = `Trade: ${doneTrade}`;
+      if (elProfit) elProfit.textContent = profit;
+      if (elLoss)   elLoss.textContent   = loss;
+      if (elBe)     elBe.textContent     = be;
+      if (elMissed) elMissed.textContent = `Missed: ${missed}`;
+      if (elWr)     elWr.textContent     = `${wr}% Winrate`;
+
+      root.style.setProperty(`--PBH-${cssPrefix}-Left`, `${100 - progress}%`);
+      root.style.setProperty(`--PBH-${cssPrefix}-Mid`, `${progress}%`);
+      root.style.setProperty(`--PBH-${cssPrefix}-Right`, `${progress}%`);
+      root.style.setProperty(`--PBH-${cssPrefix}-Opacity`, hasData ? 1 : 0);
     }
 
     calcBehavior("Reversal", {
@@ -2823,9 +2840,8 @@ async function loadBehaviorStats() {
       loss: "LRev",
       be: "BERev",
       missed: "MRev",
-      wr: "WrRev",
-      barVar: "--PRev"
-    });
+      wr: "WrRev"
+    }, "Rev");
 
     calcBehavior("Continuation", {
       trade: "TCon",
@@ -2833,12 +2849,11 @@ async function loadBehaviorStats() {
       loss: "LCon",
       be: "BECon",
       missed: "MCon",
-      wr: "WrCon",
-      barVar: "--PCon"
-    });
+      wr: "WrCon"
+    }, "Con");
 
   } catch (error) {
-    console.error(error);
+    console.error('Behavior Stats Error:', error);
   }
 }
 
@@ -2920,11 +2935,15 @@ async function updatePairsTable() {
     const loss = trades.filter(t => t.Result === "Loss").length;
     const totalExecuted = profit + loss;
 
-    const winRate = totalExecuted > 0 ? (profit / totalExecuted) * 100 : 0;
+    const hasExecutedData = totalExecuted > 0; 
+
+    const winRate = hasExecutedData ? (profit / totalExecuted) * 100 : 0;
     const winRateRounded = winRate.toFixed(2);
 
     let winRateColor;
-    if (winRate >= 75) {
+    if (winRate === 0) {
+      winRateColor = 'var(--gray)';
+    } else if (winRate >= 75) {
       winRateColor = 'var(--green)';
     } else if (winRate >= 50) {
       winRateColor = 'var(--yellow)';
@@ -2938,7 +2957,12 @@ async function updatePairsTable() {
       ? `+${formatUSD(totalPnL)}` 
       : `-${formatUSD(Math.abs(totalPnL))}`;
       
-    const pnlColor = totalPnL >= 0 ? 'var(--green)' : 'var(--red)';
+    const pnlColor =
+    totalPnL === 0
+      ? 'var(--gray)'
+      : totalPnL > 0
+      ? 'var(--green)'
+      : 'var(--red)';
 
     const row = document.createElement('div');
     row.className = 'pairs-row';
@@ -2954,7 +2978,13 @@ async function updatePairsTable() {
         <div class="column-win-loss">
           <!-- Progress bar container -->
           <div class="win-loss-progress">
-            <div class="win-loss-fill" style="width: ${winRate}%;"></div>
+            <div 
+              class="win-loss-fill"
+              style="
+                width: ${!hasExecutedData ? 100 : winRate}%;
+                ${!hasExecutedData ? `background: var(--bg-40);` : ``}
+              "
+            ></div>
           </div>
           <div class="row-win-loss">
             <div class="row-wl">
