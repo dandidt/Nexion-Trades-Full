@@ -2268,49 +2268,34 @@ function createDayCell(date) {
 
     const dayNumber = document.createElement('div');
     dayNumber.className = 'day-number';
-    dayNumber.textContent = String(dayNum).padStart(2,'0');
+    dayNumber.textContent = String(dayNum).padStart(2, '0');
     dayCell.appendChild(dayNumber);
 
-    const tradeCountEl = document.createElement('div');
-    tradeCountEl.className = 'trade-count';
+    const data = DataPnLDaily[dateKey];
 
-    const pnlValue = document.createElement('div');
-    pnlValue.className = 'pnl-value';
-
-    if (cellDate > today) {
-        tradeCountEl.textContent = '';
-        pnlValue.textContent = '';
-    } else {
-        const data = DataPnLDaily[dateKey];
+    if (cellDate <= today) {
         if (data) {
+            const tradeCountEl = document.createElement('div');
+            tradeCountEl.className = 'trade-count';
             tradeCountEl.textContent = `${data.tradeCount} Trades`;
+            dayCell.appendChild(tradeCountEl);
+
+            const pnlValue = document.createElement('div');
+            pnlValue.className = 'pnl-value';
             pnlValue.textContent = `PnL: ${data.display}`;
             dayCell.classList.add(data.raw.startsWith('+') ? 'positive' : 'negative');
-        } else {
-            tradeCountEl.textContent = '';
-            pnlValue.textContent = '';
-            dayCell.classList.add('empty');
-        }
-    }
-
-    dayCell.appendChild(tradeCountEl);
-    dayCell.appendChild(pnlValue);
-
-    if (cellDate > today) {
-        pnlValue.textContent = '';
-    } else {
-        const data = DataPnLDaily[dateKey];
-        if (data) {
-            pnlValue.textContent = `PnL: ${data.display}`;
-            dayCell.classList.add(data.raw.startsWith('+') ? 'positive' : 'negative');
+            dayCell.appendChild(pnlValue);
         } else {
             dayCell.classList.add('empty');
+            
+            const pnlValue = document.createElement('div');
+            pnlValue.className = 'pnl-value';
             pnlValue.textContent = 'No Trades';
+            dayCell.appendChild(pnlValue);
         }
-    }
-    dayCell.appendChild(pnlValue);
+    } 
 
-    if (cellDate <= today && DataPnLDaily[dateKey] !== undefined) {
+    if (cellDate <= today && data !== undefined) {
         const tooltip = document.createElement('div');
         tooltip.className = 'tooltip-calender';
 
@@ -2326,7 +2311,7 @@ function createDayCell(date) {
         labelEl.textContent = 'PnL:';
 
         const valueEl = document.createElement('p');
-        const rawValue = DataPnLDaily[dateKey].raw;
+        const rawValue = data.raw;
 
         const isPositive = rawValue >= 0;
         const formattedNumber = new Intl.NumberFormat('en-US', {
