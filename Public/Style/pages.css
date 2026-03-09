@@ -42,7 +42,7 @@ body.nexion-no-scroll {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 12px 100px;
+  padding: 12px 90px;
 
   transition:
     transform 1.5s cubic-bezier(0.16, 1, 0.3, 1),
@@ -78,7 +78,7 @@ body.nexion-no-scroll {
 
 .box-logo {
   display: flex;
-  gap: 6px;
+  gap: 10px;
 }
 
 .box-no-loggin,

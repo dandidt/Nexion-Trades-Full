@@ -713,6 +713,8 @@ document.querySelectorAll('.btn-swap-perpetual').forEach((btn, index) => {
         document.querySelectorAll('.btn-swap-perpetual').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
+        const popup = document.querySelector('.popup-perpetual-add');
+
         const formTrade = document.getElementById('addDataPerpetual');
         const formDW = document.getElementById('addDataPerpetualTransactions');
         const btnTrade = document.getElementById('AddPerpetual');
@@ -723,11 +725,15 @@ document.querySelectorAll('.btn-swap-perpetual').forEach((btn, index) => {
             formDW.style.display = 'none';
             btnTrade.classList.add('active');
             btnDW.classList.remove('active');
+
+            popup.style.width = "60%";
         } else {
             formTrade.style.display = 'none';
             formDW.style.display = 'block';
             btnTrade.classList.remove('active');
             btnDW.classList.add('active');
+
+            popup.style.width = "50%";
         }
     });
 });
@@ -1327,9 +1333,13 @@ async function DeletePerpetualTransaction() {
 //  Swap Trades = Transaction  //
 document.querySelectorAll('.btn-swap-spot').forEach((btn, index) => {
     btn.addEventListener('click', () => {
+
         document.querySelectorAll('.btn-swap-spot')
             .forEach(b => b.classList.remove('active'));
+
         btn.classList.add('active');
+
+        const popup = document.querySelector('.popup-spot-add');
 
         const formTrade = document.getElementById('addDataSpot');
         const formDW = document.getElementById('addDataSpotTransactions');
@@ -1339,13 +1349,19 @@ document.querySelectorAll('.btn-swap-spot').forEach((btn, index) => {
         if (index === 0) {
             formTrade.style.display = 'block';
             formDW.style.display = 'none';
+
             btnTrade.classList.add('active');
             btnDW.classList.remove('active');
+
+            popup.style.width = "60%";
         } else {
             formTrade.style.display = 'none';
             formDW.style.display = 'block';
+
             btnTrade.classList.remove('active');
             btnDW.classList.add('active');
+
+            popup.style.width = "50%"; 
         }
     });
 });
@@ -4777,3 +4793,53 @@ function updateToastPosition() {
 }
 
 window.showToast = showToast;
+
+// ────── Tooltips Information ────── //
+const tooltipInformation = document.createElement("div");
+tooltipInformation.className = "tooltip-informasion";
+document.body.appendChild(tooltipInformation);
+
+const tooltips = {
+  btnCaculate: "Calculate Tools",
+  btnAdd: "Add Data",
+  btnEdit: "Edit Data",
+  BtnSop: "Sop Trading Rules",
+  BtnFee: "Fee Analyst",
+  BtnShare: "Share Performance Cards",
+  SpotAutoPnL: "Calculate Margin & PnL Automatically",
+  PerpetualAutoPnL: "Calculate Margin & PnL Automatically",
+  btnEditProfile: "Edit Profiles",
+  DwnDataCSV: "Download Format Csv",
+  DwnDataJSON: "Download Format Json",
+
+  leftFrist: "Left Frist",
+  rightLast: "Right Last",
+  leftOne: "Left 1",
+  rightOne: "Right 1"
+};
+
+Object.keys(tooltips).forEach(id => {
+  const el = document.getElementById(id);
+  if (!el) return;
+
+  el.addEventListener("mouseenter", () => {
+    tooltipInformation.textContent = tooltips[id];
+
+    const rect = el.getBoundingClientRect();
+    
+    const centerX = rect.left + (rect.width / 2);
+    
+    const topY = rect.top - 32;
+
+    tooltipInformation.style.left = `${centerX}px`;
+    tooltipInformation.style.top = `${topY}px`;
+    
+    tooltipInformation.style.transformOrigin = "bottom center";
+
+    tooltipInformation.classList.add("show");
+  });
+
+  el.addEventListener("mouseleave", () => {
+    tooltipInformation.classList.remove("show");
+  });
+});

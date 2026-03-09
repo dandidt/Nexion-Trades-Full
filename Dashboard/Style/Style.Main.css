@@ -3764,6 +3764,7 @@ input[type="file"] {
 .popup-perpetual-add {
   padding: 20px;
   width: 60%;
+  transition: width 0.3s ease;
 }
 
 .wrapper-add {
@@ -3942,6 +3943,7 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
 .popup-spot-transactions-edit {
   padding: 20px;
   width: 60%;
+  transition: width 0.3s ease;
 }
 
 /* Custom Dropdown */
@@ -5306,4 +5308,52 @@ input[type="number"]::placeholder {
     transform: translate(-50%, -50%) scale(3.5);
     opacity: 0;
   }
+}
+
+/* ────── Tooltips Information ────── */
+.tooltip-informasion {
+  position: fixed;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-35);
+  color: var(--gray-light);
+  font-size: var(--s12);
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--bg-40);
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, -5px);
+  transition: opacity .15s ease, transform .15s ease;
+  z-index: 9999;
+  filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.tooltip-informasion::before {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 7px;
+  border-style: solid;
+  border-color: var(--bg-40) transparent transparent transparent;
+}
+
+.tooltip-informasion::after {
+  content: "";
+  position: absolute;
+  top: calc(100% - 1px);
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 6px;
+  border-style: solid;
+  border-color: var(--bg-35) transparent transparent transparent;
+}
+
+.tooltip-informasion.show {
+  opacity: 1;
+  transform: translate(-50%, -10px);
 }
