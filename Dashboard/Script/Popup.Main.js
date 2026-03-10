@@ -2134,7 +2134,7 @@ document.getElementById("PerpetualAutoPnL")?.addEventListener("click", () => {
         const resultValue = window.dropdownData["PerpetualEditResult"];
 
         if (!resultValue || !["Profit", "Loss"].includes(resultValue)) {
-            showToast("Select Result Profit/Loss!");
+            showToast("Select Result PnL!");
             return;
         }
 
@@ -2190,7 +2190,7 @@ document.getElementById("SpotAutoPnL")?.addEventListener("click", () => {
         const resultValue = window.dropdownData["SpotEditResult"];
 
         if (!resultValue || !["Profit", "Loss"].includes(resultValue)) {
-            showToast("Select Result Profit/Loss!");
+            showToast("Select Result PnL!");
             return;
         }
 

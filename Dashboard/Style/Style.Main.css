@@ -4346,7 +4346,7 @@ input[type="number"]::placeholder {
 .toast {
   position: fixed;
   top: 70px;
-  left: 90px;
+  left: 140px;
   transform: translate(-50%, -50px);
   color: var(--green);
   background: var(--bg-green);
